@@ -1,0 +1,9 @@
+from distutils.core import setup, Extension
+
+pyrol = Extension('pyrol',sources=['${CMAKE_SOURCE_DIR}/src/PyROL.cpp'])
+
+setup(name='pyrol',
+      version='${PACKAGE_VERSION}',
+      description='Python interface to the Rapid Optimization Library',
+      ext_modules=[pyrol]
+     )
