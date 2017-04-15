@@ -43,9 +43,7 @@ make install
 
 If you want to specify a particular Python installation to use, 
 make the above cmake call while specifying PYTHON\_LIBRARY and PYTHON\_INCLUDE\_DIR.
-You can also specify where PyROL should be installed by setting a path PYROL\_INSTALL.
-The default location is a subdirectory \bin from the main directory.
-
+The script do-configure-pyrol.sh provides an example of how to do this.
 
 
 
