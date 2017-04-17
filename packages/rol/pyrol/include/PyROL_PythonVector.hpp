@@ -47,8 +47,6 @@
 
 #include "PyROL.hpp"
 
-#include <ostream>
-
 /** \class PyROL::PythonVector
  *  \brief Provides a ROL interface to generic vectors defined in Python 
  *         which satisfy the interface requirements
@@ -70,30 +68,18 @@ private:
 
   PyObject* pyVector_;
 
-  bool has_owenership;
+  bool has_ownership_;
 
 public:
 
-  PythonVector( PyObject* pyVector, bool has_ownership=false ) : AttributeManager( pyVector, 
+  PythonVector( PyObject* pyVector, bool has_ownership=false ) : 
+    AttributeManager( pyVector, attrList_, std::string("PythonVector")),
     pyVector_(pyVector), has_ownership_(false) {
-
-    // Loop over attributes - determine which are implemented
-    for( auto a : attribute_ ) {
-
-      Name        name = std::get<NAME>(a);
-      Required    req  = std::get<IS_REQUIRED>(a);
-      Implemented impl = PyObject_HasAttr( pyVector_, Name );
-
-      TEUCHOS_TEST_FOR_EXCEPTION( req & !impl, std::logic_error, 
-        "Error: The Python vector class must implement a method " << name );
-
-      method_[name] = std::make_tuple( PyString_FromString(name), req, impl );
-    }
   }
 
   virtual ~PythonVector() {
     for( auto &m : method_ ) {
-      Py_DECREF( pyMethod(m) );
+      Py_DECREF( m.second.name );
     }
     if( has_ownership_ ) {
       Py_DECREF( pyVector_ );
@@ -101,10 +87,9 @@ public:
   }
 
   int dimension( ) const { 
-    Method dim = getMethod("dimension");
 
-    if( is_implemented(dim) ) {
-      PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,pyMethod(dim),NULL);   
+    if( method_["dimension"].impl ) {
+      PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);   
       return static_cast<int>(PyLong_AsLong(pyDimension)); 
     } 
     else {
@@ -113,22 +98,25 @@ public:
   }  
 
   Teuchos::RCP<Vector> clone() const {
-    Method create = getMethod("clone");
-    PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,pyMethod(create),NULL);
-    return Teuchos::rcp( new PythonVector( PyObject, true ) );
+    PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
+    return Teuchos::rcp( new PythonVector( pyClone, true ) );
   }
 
   Teuchos::RCP<Vector> basis( const int i ) const {
-    Teuchos::RCP<PythonVector> b = clone();
+    PyObject* pyBasis = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
+    Teuchos::RCP<Vector> b = Teuchos::rcp( new PythonVector( pyBasis, true ) );
     b->zero();
-    b->setValue(i,1.0);
+    PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
+    PyObject* pyOne = PyFloat_FromDouble(1.0);
+    PyObject_CallMethodObjArgs(pyVector_,method_["__setitem__"].name,pyIndex,pyOne,NULL);
+    Py_DECREF(pyIndex);
+    Py_DECREF(pyOne);
     return b;
   }
 
   virtual const Vector & dual() const {
-    Method dualVector = getMethod("dual");
-    if( is_implemented(dualVector) ) {
-      PyObject *pyDual = PyObject_CallMethodObjArgs(pyVector_,pyMethod(dualVector),NULL);
+    if( method_["dual"].impl ) {
+      PyObject *pyDual = PyObject_CallMethodObjArgs(pyVector_,method_["dual"].name,NULL);
       Teuchos::RCP<Vector> d = Teuchos::rcp( new PythonVector(pyDual,true) );
       return *d;
     }
@@ -137,46 +125,42 @@ public:
     }
   }
   
-  void applyUnary( const UnaryFunction<Real> &f ) {
+  void applyUnary( const UnaryFunction &f ) {
     int dim = dimension();
-      for(int i=0; i<dim; ++i) {
-        setValue( i, f.apply( getValue(i) ) );
-      }
+    for(int i=0; i<dim; ++i) {
+      setValue( i, f.apply( getValue(i) ) );
     }
   }
 
-  void applyBinary( const BinaryFunction<Real> &f, const Vector &x ) {
+  void applyBinary( const BinaryFunction &f, const Vector &x ) {
     const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
 
     int dim = dimension();
       for(int i=0; i<dim; ++i) {
         setValue( i, f.apply( getValue(i), ex.getValue(i)) );
       }
-    }
   }
 
   double reduce( const ReductionOp &r ) const {
     double result = r.initialValue();
     int dim = dimension();
-    for(int i=0; i<dimension; ++i) {
-      result = r.reduce(getValue(i),result); 
+    for(int i=0; i<dim; ++i) {
+      r.reduce(getValue(i),result); 
     }
     return result;
   }  
 
   void setValue (int i, double value) {
-    Method setItem = getMethod("__setitem__");
-    PyObject* pyIndex = PyLong_AsLong(static_cast<long>(i));
+    PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
     PyObject* pyValue = PyFloat_FromDouble(value);
-    PyObject_CallMethodObjArgs(pyVector_,pyMethod(setItem),pyIndex,pyValue,NULL);
+    PyObject_CallMethodObjArgs(pyVector_,method_["__setitem__"].name,pyIndex,pyValue,NULL);
     Py_DECREF(pyValue);
     Py_DECREF(pyIndex);
   }
 
   double getValue(int i) const {
-    Method getItem = getMethod("__getitem__");
-    PyObject* pyIndex = PyLong_AsLong(static_cast<long>(i));
-    PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,pyMethod(setItem),pyIndex,NULL);
+    PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
+    PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name,pyIndex,NULL);
     double value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyValue);
     Py_DECREF(pyIndex);

@@ -41,57 +41,41 @@
 // ************************************************************************
 // @HEADER
 
+#include <Python.h>
 
-#include "PyROL.hpp"
-#include <iostream>
+#include "PyROL_TestVector.hpp"
 
-// Basic placeholder code to verify that CMake and Python are 
-// playing nice 
 extern "C" {
 
-static PyObject * 
-display( PyObject *self, PyObject *args ) {
-  char *myString;
-   if( !PyArg_ParseTuple(args,"s",&myString) )
-     return NULL;
-   std::cout << myString << std::endl;
-   Py_INCREF(Py_None);
-   return Py_None;
-}
-
-static char display_doc[] = 
-  "display( ): Output supplied string to console.\n";
-
-static PyMethodDef pyrol_methods[] = {
-  {"display", (PyCFunction)display,METH_VARARGS,display_doc},
+static PyMethodDef test_methods[] = {
   {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
-  {NULL, NULL, 0, NULL}
-};
+  {NULL,NULL,0,NULL}
+}; // testMethods
 
-static char pyrol_doc[] = 
-  "PyROL: the Python interface to the Rapid Optimization Library";
+static char test_doc[] = 
+  "Module for testing PyROL components";
+
 
 #if PY_MAJOR_VERSION >= 3
-static struct PyModuleDef pyrol_module = {
+static struct PyModuleDef test_module = {
   PyModuleDef_HEAD_INIT,
-  "pyrol",
-  pyrol_doc,
+  "test",
+  test_doc,
   -1,
-  pyrol_methods
-};
-#endif 
-
-
+  test_methods
+}
+#endif
 PyMODINIT_FUNC 
 #if PY_MAJOR_VERSION >= 3
-PyInit_pyrol(void) {
-  return PyModule_Create(&pyrol_module);
+PyInit_test(void) {
+  return PyModule_Create(&test_module);
 }
 #else
 initpyrol(void) {
-  Py_InitModule3("pyrol",pyrol_methods,pyrol_doc);
+  Py_InitModule3("test",test_methods,test_doc);
 }
 #endif
 
 
 } // extern "C"
+

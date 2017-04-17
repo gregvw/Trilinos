@@ -1,9 +1,7 @@
 #ifndef PYROL_ATTRIBUTEMANAGER_HPP
 #define PYROL_ATTRIBUTEMANAGER_HPP
 
-#include<string>
-#include<tuple>
-#include<vector>
+#include "PyROL.hpp"
 
 namespace PyROL {
 
@@ -18,27 +16,21 @@ protected:
   using Required      = bool;
   using Implemented   = bool;
   using Name          = std::string;
-  using Attribute     = std::tuple<Name,Required>;
-  using Method        = std::tuple<PyObject*,Required,Implemented>;
+ 
+  struct Attribute {
+    Name        name;
+    Required    req;
+  };
+
+  struct Method {
+    PyObject*   name;
+    Required    req;
+    Implemented impl;
+  };
+
   using AttributeList = std::vector<Attribute>;
 
-  static const int NAME           = 0;
-  static const int IS_REQUIRED    = 1;
-  static const int IS_IMPLEMENTED = 2;
-
-  std::map<Name,Method> method_;
-
-  PyObject* pyMethod( const Method &m ) const {
-    return std::get<NAME>(m);
-  } 
-
-  bool is_implemented( const Method &m ) const {
-    return std::get<IS_IMPLEMENTED>(m);
-  }
-
-  Method getMethod( const Name &name ) const {
-    return method_[name];
-  }
+  mutable std::map<Name,Method> method_;
 
 public: 
 
@@ -46,20 +38,22 @@ public:
     const Name &className ) {
 
     for( auto a : attrList ) {
-      Name        name = std::get<NAME>(a);
-      Required    req  = std::get<IS_REQUIRED>(a);
+      PyObject*   name = PyString_FromString(C_TEXT(a.name));
+      Required    req  = a.req;
       Implemented impl = PyObject_HasAttr( pyObj, name ); 
 
       TEUCHOS_TEST_FOR_EXCEPTION( req & !impl, std::logic_error,
         "Error: The class " << className << " must implement the method " << name ); 
 
-      method_[name] = std::make_tuple( PyString_FromSring(name), req, impl );
+      method_[a.name].name = name;
+      method_[a.name].req  = req;
+      method_[a.name].impl = impl;
     }
   }
   
   virtual ~AttributeManager() {
     for( auto &m : method_ ) {
-      Py_DECREF( pyMethod(m) );
+      Py_DECREF( m.second.name );
     }
   }
 
