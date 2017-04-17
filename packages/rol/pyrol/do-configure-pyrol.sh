@@ -5,8 +5,16 @@
 VERSION="3.3"
 PYMALLOC_BUILD=true   
 
-OPT_PYTHON="/opt/local/Library/Frameworks/Python.framework/Versions/${VERSION}"
+PYTHON_BASE_PATH="/opt/local/Library/Frameworks/Python.framework/Versions/${VERSION}"
 
+# This should work for Linux and Mac
+USER_HOME=`eval echo "~$USER"`
+
+TRILINOS_HOME=$1 
+
+TRILINOS_INSTALL="${USER_HOME}/Projects/PyROL/trilinos_install"
+
+CXXFLAGS="-std=c++11 -fPIC"
 
 OS=`uname`
 
@@ -25,11 +33,24 @@ else
   PYTHON_NAME="python${VERSION}"
 fi
 
-PYTHON_INCLUDE_DIR="${OPT_PYTHON}/include/${PYTHON_NAME}"
-PYTHON_LIBRARY="${OPT_PYTHON}/lib/lib${PYTHON_NAME}${EXT}"
+PYTHON_INCLUDE_DIR="${PYTHON_BASE_PATH}/include/${PYTHON_NAME}"
+PYTHON_LIBRARY="${PYTHON_BASE_PATH}/lib/lib${PYTHON_NAME}${EXT}"
+PYTHON_INTERPRETER="${PYTHON_BASE_PATH}/bin/${PYTHON_NAME}"
+ 
+if [ -f CMakeCache.txt ]; then
+  rm CMakeCache.txt
+fi
+if [ -d CMakeFiles ]; then
+  rm -rf CMakeFile
+fi
 
-cmake .. \
+#  -D PYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE_DIR} \
+#  -D PYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY} \
+#  -D PYTHON_INTERPRETER:FILEPATH=${PYTHON_INTERPRETER} \
+
+cmake . \
   -D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-  -D PYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE_DIR} \
-  -D PYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY} \
+  -D CMAKE_CXX_FLAGS:STRING=${CXXFLAGS} \
+  -D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+  -D Trilinos_PREFIX:PATH=${TRILINOS_INSTALL} \
 ${PYROL_HOME}
