@@ -3,49 +3,39 @@ cmake_minimum_required(VERSION 3.1)
 project(PYROL)
 message("Configuring PyROL")
 
-set(USER_SPECIFIED_PYTHON (PYTHON_LIBRARY AND PYTHON_INCLUDE_DIR) )
+set(CMAKE_PREFIX_PATH ${Trilinos_PREFIX} ${CMAKE_PREFIX_PATH})
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-if(USER_SPECIFIED_PYTHON)
-  message("Using specified Python")
-
-  message("PYTHON_INCLUDE_DIR = ${PYTHON_INCLUDE_DIR}")
-  message("PYTHON_LIBRARY = ${PYTHON_LIBRARY}")
-  
-  include_directories(${PYTHON_INCLUDE_DIR})
-  get_filename_component(PYTHON_LIBRARY_DIR ${PYTHON_LIBRARY} DIRECTORY)
-  link_directories(${PYTHON_LIBRARY_DIR})
-
-else()
-
-  message("Searching for Python...")
-  message("If you want to specify the installation of Python to use, set the cache variables:")
-  message("PYTHON_LIBRARY      - path to the python library")
-  message("PYTHON_INCLUDE_DIR  - path to Python.h")
-
-  find_package(PythonInterp 2.7 REQUIRED)
-  find_package(PythonLibs 2.7 REQUIRED)
-
-  if( NOT PythonInterp_FOUND ) 
-    message(FATAL_ERROR "Could not find Python!")
-  else()
-    message("Found Python interpreter: ${PYTHON_EXECUTABLE}")
-  endif()
-
-  if( NOT PythonLibs_FOUND )
-    message(FATAL_ERROR "Could not find Python library!")
-  else()
-    message("Found Python library: ${PYTHON_LIBRARIES}")
-  endif()
-
- if( NOT (PYTHON_VERSION_STRING STREQUAL PYTHONLIBS_VERSION_STRING) )
-   message(FATAL_ERROR "The Python interpreter and libraries have incompatible!")
-  endif()
-
- include_directories( ${PYTHON_INCLUDE_DIRS} )
- link_directories( ${PYTHON_LIBRARIES} )
+set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
 
 
-endif(USER_SPECIFIED_PYTHON)
+
+set(Trilinos_DIR ${Trilinos_INSTALL})
+set(Trilinos_SRC_DIR ${Trilinos_SRC_DIR})
+
+set( Trilinos_TPL_INCLUDE_DIRS ${Trilinos_TPL_INCLUDE_DIRS} )
+set( Trilinos_TPL_LIBRARY_DIRS ${Trilinos_TPL_LIBRARY_DIRS} )
+
+find_package(Trilinos REQUIRED)
+
+if(NOT Trilinos_FOUND) 
+  message(FATAL_ERROR "Could not find Trilinos!")
+endif()
+
+message("\nFound Trilinos! Here are details: ")
+message("   Trilinos_VERSION = ${Trilinos_VERSION}")
+message("   Trilinos_PACKAGE_LIST = ${Trilinos_PACKAGE_LIST}")
+message("   Trilinos_LIBRARIES  = ${Trilinos_LIBRARIES}")
+message("   Trilinos_INCLUDE_DIRS = ${Trilinos_INCLUDE_DIRS}")
+message("   Trilinos_LIBRARY_DIRS = ${Trilinos_LIBRARY_DIRS}")
+message("   Trilinos_TPL_LIST = ${Trilinos_TPL_LIST}")
+message("   Trilinos_TPL_INCLUDE_DIRS = ${Trilinos_TPL_INCLUDE_DIRS}")
+message("   Trilinos_TPL_LIBRARIES = ${Trilinos_TPL_LIBRARIES}")
+message("   Trilinos_TPL_LIBRARY_DIRS = ${Trilinos_TPL_LIBRARY_DIRS}")
+message("   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}")
+
+find_package(Python)
+
 
 if(NOT PYROL_INSTALL)
   set(PYROL_INSTALL "${CMAKE_SOURCE_DIR}/bin")
@@ -58,6 +48,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-lpython,-undefined,dynamic_lookup")
 endif()
+
+include_directories( "${PYROL_SOURCE_DIR}/include" )
+include_directories( "${PYROL_SOURCE_DIR}/include/test" )
+include_directories( ${Trilinos_INCLUDE_DIRS} )
+
+link_directories( ${Trilinos_LIBRARY_DIRS} )
+
+
+message("PYTHON = ${PYTHON_EXECUTABLE}")
 
 add_subdirectory(src)
 add_subdirectory(python)
