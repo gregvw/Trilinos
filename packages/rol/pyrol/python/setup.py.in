@@ -1,30 +1,33 @@
 from distutils.core import setup, Extension
 import os
 
+os.environ["CC"]  = '${CMAKE_C_COMPILER}'
+os.environ["CXX"] = '${CMAKE_CXX_COMPILER}'
 
 pyrol_include_path        = '${CMAKE_SOURCE_DIR}/include'
 trilinos_include_path     = '${Trilinos_INCLUDE_DIRS}'
 trilinos_library_path     = '${Trilinos_LIBRARY_DIRS}'
-
-
 
 header_paths = [pyrol_include_path,
                 os.path.join(pyrol_include_path,'test'),
                 trilinos_include_path]
 
 trilinos_libraries = [os.path.join(trilinos_library_path,f) for f in os.listdir(trilinos_library_path) if f.endswith('.a')]
-trilinos_tpl_libraries = '${Trilinos_TPL_LIBRARIES}'.split(';')
+trilinos_tpl_libraries = list('${Trilinos_TPL_LIBRARIES}'.split(';'))
 
+link_libraries = trilinos_libraries + trilinos_tpl_libraries
 
 pyrol_src = '${CMAKE_SOURCE_DIR}/src/'
 
 
+pyrol_source_files = [os.path.join(pyrol_src,f) for f in os.listdir(pyrol_src) if f.endswith('.cpp')]
 
-pyrol = Extension('pyrol',sources=[pyrol_src+'PyROL.cpp'],
+
+pyrol = Extension('pyrol',sources=pyrol_source_files,
                   include_dirs=header_paths,
                   extra_compile_args=['${CMAKE_CXX_FLAGS}'],
                   extra_link_args=["${CMAKE_SHARED_LINKER_FLAGS}"],
-                  extra_objects=trilinos_libraries+trilinos_tpl_libraries
+                  extra_objects=link_libraries
 )
 
 
@@ -37,7 +40,6 @@ pyrol = Extension('pyrol',sources=[pyrol_src+'PyROL.cpp'],
 #)
 
 
-print(header_paths)
 
 setup(name='pyrol',
       version='${PACKAGE_VERSION}',

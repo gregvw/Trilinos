@@ -3,12 +3,15 @@ cmake_minimum_required(VERSION 3.1)
 project(PYROL)
 message("Configuring PyROL")
 
+message("CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
+message("CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
+
+
 set(CMAKE_PREFIX_PATH ${Trilinos_PREFIX} ${CMAKE_PREFIX_PATH})
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
-
-
 
 set(Trilinos_DIR ${Trilinos_INSTALL})
 set(Trilinos_SRC_DIR ${Trilinos_SRC_DIR})
@@ -41,8 +44,6 @@ if(NOT PYROL_INSTALL)
   set(PYROL_INSTALL "${CMAKE_SOURCE_DIR}/bin")
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # These flags where needed to build on OSX. 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -55,8 +56,6 @@ include_directories( ${Trilinos_INCLUDE_DIRS} )
 
 link_directories( ${Trilinos_LIBRARY_DIRS} )
 
-
-message("PYTHON = ${PYTHON_EXECUTABLE}")
 
 add_subdirectory(src)
 add_subdirectory(python)

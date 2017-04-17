@@ -31,11 +31,4 @@
 #include "ROL_RandomVector.hpp"
 #include "ROL_StdVector.hpp"
 
-
-// PyROL Includes 
-#include "PyROL_AttributeManager.hpp"
-#include "PyROL_PythonVector.hpp"
-
-#include "PyROL_TestVector.hpp"
-
 #endif // PYROL_HPP

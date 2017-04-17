@@ -44,19 +44,16 @@
 #ifndef PYROL_TESTVECTOR_HPP
 #define PYROL_TESTVECTOR_HPP
 
-#include "PyROL.hpp"
-
+#include "PyROL_PythonVector.hpp"
 
 // TODO: This needs to be generalized for alterative concrete vector types
 static PyObject* testVector( PyObject* self, PyObject *pyArgs ) {
-
-  using namespace PyROL;
 
   PyObject* pyVector;
 
   if( !PyArg_ParseTuple(pyArgs,"O",&pyVector) ) return NULL;
 
-  PythonVector x(pyVector);
+  PyROL::PythonVector x(pyVector);
 
   Teuchos::RCP<ROL::Vector<double>> y = x.clone();
   Teuchos::RCP<ROL::Vector<double>> z = x.clone();

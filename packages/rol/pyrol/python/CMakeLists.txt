@@ -4,13 +4,13 @@ set(DEPS        "${CMAKE_CURRENT_SOURCE_DIR}/pyrol/__init__.py")
 set(DEPS        "${CMAKE_CURRENT_SOURCE_DIR}/pyrol/test/__init__.py")
 set(OUTPUT      "${CMAKE_CURRENT_BINARY_DIR}/build/timestamp")
 
-message("Running setup.py with Python interpreter: ${PYTHON}")
+message("Running setup.py with Python interpreter: ${PYTHON_EXECUTABLE}")
 
 configure_file(${SETUP_PY_IN} ${SETUP_PY})
 add_custom_command(OUTPUT ${OUTPUT}
-                   COMMAND ${PYTHON} ${SETUP_PY} build
+                   COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} build
                    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
                    DEPENDS ${DEPS})
 
-install(CODE "execute_process(COMMAND ${PYTHON} ${SETUP_PY} install --prefix=${PYROL_INSTALL})")
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install --prefix=${PYROL_INSTALL})")
 

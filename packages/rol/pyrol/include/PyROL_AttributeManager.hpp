@@ -20,6 +20,8 @@ protected:
   struct Attribute {
     Name        name;
     Required    req;
+
+    Attribute( const char* n, Required r ) : name(n), req(r) {}
   };
 
   struct Method {

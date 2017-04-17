@@ -42,12 +42,13 @@
 // @HEADER
 
 
-#include "PyROL.hpp"
+#include "PyROL_TestVector.hpp"
+
 #include <iostream>
 
 // Basic placeholder code to verify that CMake and Python are 
 // playing nice 
-extern "C" {
+//extern "C" {
 
 static PyObject * 
 display( PyObject *self, PyObject *args ) {
@@ -94,4 +95,4 @@ initpyrol(void) {
 #endif
 
 
-} // extern "C"
+//} // extern "C"

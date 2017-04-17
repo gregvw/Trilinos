@@ -45,7 +45,7 @@
 #ifndef PYROL_PYTHONVECTOR_HPP
 #define PYROL_PYTHONVECTOR_HPP
 
-#include "PyROL.hpp"
+#include "PyROL_AttributeManager.hpp"
 
 /** \class PyROL::PythonVector
  *  \brief Provides a ROL interface to generic vectors defined in Python 
