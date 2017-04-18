@@ -3,9 +3,14 @@ cmake_minimum_required(VERSION 3.1)
 project(PYROL)
 message("Configuring PyROL")
 
-message("CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
-message("CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC -Wall")
 
+if(CMAKE_VERBOSE_COMPILE) 
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -v")
+endif()
+
+#message("CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
+#message("CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
 
 set(CMAKE_PREFIX_PATH ${Trilinos_PREFIX} ${CMAKE_PREFIX_PATH})
 
@@ -39,7 +44,6 @@ message("   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}")
 
 find_package(Python)
 
-
 if(NOT PYROL_INSTALL)
   set(PYROL_INSTALL "${CMAKE_SOURCE_DIR}/bin")
 endif()
@@ -59,7 +63,6 @@ link_directories( ${Trilinos_LIBRARY_DIRS} )
 
 add_subdirectory(src)
 add_subdirectory(python)
-
 
 
 

@@ -11,8 +11,8 @@ USER_HOME=`eval echo "~$USER"`
 TRILINOS_HOME=$1 
 
 # Modify these paths to point to where you want to 
-TRILINOS_BUILD="${USER_HOME}/Projects/PyROL/trilinos_build"
-TRILINOS_INSTALL="${USER_HOME}/Projects/PyROL/trilinos_install"
+TRILINOS_BUILD="${USER_HOME}/projects/PyROL/trilinos_build"
+TRILINOS_INSTALL="${USER_HOME}/projects/PyROL/trilinos_install"
 
 echo "Trilinos build directory: ${TRILINOS_BUILD}"
 echo "Trilinos install directory ${TRILINOS_INSTALL}"
@@ -35,6 +35,7 @@ fi
 cmake ..\
  -D CMAKE_INSTALL_PREFIX:PATH=${TRILINOS_INSTALL} \
  -D CMAKE_BUILD_TYPE:STRING=DEBUG \
+ -D BUILD_SHARED_LIBS:BOOL=ON \
 \
  -D TPL_ENABLE_MPI:BOOL=OFF \
 \

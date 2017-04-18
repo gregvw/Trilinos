@@ -75,7 +75,6 @@ else()
  endif()
  
  include_directories( ${PYTHON_INCLUDE_DIRS} )
-
  link_directories( ${PYTHON_LIBRARIES} )
 
 endif(USER_SPECIFIED_PYTHON)
