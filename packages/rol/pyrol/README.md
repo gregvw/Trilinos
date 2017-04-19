@@ -34,16 +34,19 @@ Trilinos Build Instructions
 PyROL Build Instructions
 ------------------------
 
-- In the PYROL\_HOME directory:
+Make a subdirectory of the PyROL root directory called /build. Copy
+do-configure-pyrol.sh to /build and modify it to point to your
+Trilinos installation. You can also specify the Python interpreter,
+library, and include path.
 
-mkdir build
-cmake ..
-make -jN
-make install
+PyROL Installation
+------------------
 
-If you want to specify a particular Python installation to use, 
-make the above cmake call while specifying PYTHON\_LIBRARY and PYTHON\_INCLUDE\_DIR.
-The script do-configure-pyrol.sh provides an example of how to do this.
+The PyROL module will install by default in a subdirectory of the root
+directory called /bin. You can set an alternate install directory by 
+setting the flag PYROL\_INSTALL in do-configure-pyrol.sh. Alternatively,
+you can let distutils build the module directly in the build directory
+by setting the flag PYROL\_BUILD\_INPLACE:BOOL=ON 
 
 
 

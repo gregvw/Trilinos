@@ -12,5 +12,8 @@ add_custom_command(OUTPUT ${OUTPUT}
                    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
                    DEPENDS ${DEPS})
 
-install(CODE "execute_process(COMMAND  ${PYTHON_EXECUTABLE} ${SETUP_PY} install --prefix=${PYROL_INSTALL})")
-
+if(PYROL_BUILD_INPLACE)
+  install(CODE "execute_process(COMMAND  ${PYTHON_EXECUTABLE} ${SETUP_PY} build_ext --inplace)")
+else()
+  install(CODE "execute_process(COMMAND  ${PYTHON_EXECUTABLE} ${SETUP_PY} install --prefix=${PYROL_INSTALL})")
+endif()

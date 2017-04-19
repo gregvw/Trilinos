@@ -63,15 +63,16 @@ static struct PyModuleDef test_module = {
   test_doc,
   -1,
   test_methods
-}
+};
 #endif
+
 PyMODINIT_FUNC 
 #if PY_MAJOR_VERSION >= 3
 PyInit_test(void) {
   return PyModule_Create(&test_module);
 }
 #else
-initpyrol(void) {
+inittest(void) {
   Py_InitModule3("test",test_methods,test_doc);
 }
 #endif

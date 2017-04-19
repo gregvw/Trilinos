@@ -49,9 +49,9 @@ if(NOT PYROL_INSTALL)
 endif()
 
 
-# These flags where needed to build on OSX. 
+# These flags are needed to build on OSX. 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-lpython,-undefined,dynamic_lookup")
+  set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-lpython,-undefined,dynamic_lookup,-rpath ${Trilinos_LIBRARY_DIRS}")
 endif()
 
 include_directories( "${PYROL_SOURCE_DIR}/include" )

@@ -1,5 +1,6 @@
 from distutils.core import setup, Extension
 from distutils import sysconfig
+import sys
 import os
 
 if __name__ == '__main__':
@@ -12,6 +13,7 @@ if __name__ == '__main__':
     print('CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}')
     print('CMAKE_SHARED_LINKER_FLAGS = ${CMAKE_SHARED_LINKER_FLAGS}')
     print('PYTHON_LIBRARY = ${PYTHON_LIBRARY}')
+    print('PYROL_INSTALL = ${PYROL_INSTALL}')
 
     os.environ["CFLAGS"] = "${CMAKE_CXX_FLAGS}"
  
@@ -23,12 +25,23 @@ if __name__ == '__main__':
                 os.path.join(pyrol_include_path,'test'),
                 trilinos_include_path]
 
-    trilinos_libraries = [os.path.join(trilinos_library_path,f) for f in os.listdir(trilinos_library_path) if f.endswith('.a')]
+    def is_shared(lib):
+      return ( lib.split('.')[-1] in ['so', 'dylib'] )
+
+    trilinos_libraries = [os.path.join(trilinos_library_path,f) for f in os.listdir(trilinos_library_path) if is_shared(f) ]
     trilinos_tpl_libraries = list(set('${Trilinos_TPL_LIBRARIES}'.split(';')))
     python_library = ['${PYTHON_LIBRARY}']
 
+    
+    
 
-    link_libraries = trilinos_libraries +  trilinos_tpl_libraries + python_library
+    print('-'*120)
+    print('Linking PyROL with the following Trilinos libraries:')
+    for lib in trilinos_libraries:
+      print(os.path.split(lib)[1])
+    print('-'*120)
+
+    link_libraries = trilinos_libraries +  trilinos_tpl_libraries
 # +
  #                    python_library
 
@@ -38,10 +51,10 @@ if __name__ == '__main__':
 
     pyrol_source_files = [os.path.join(pyrol_src,f) for f in os.listdir(pyrol_src) if f.endswith('.cpp')]
 
-
+    os.environ["LDFLAGS"]="${CMAKE_SHARED_LINKER_FLAGS}"
     pyrol = Extension('pyrol',sources=pyrol_source_files,
                   include_dirs=header_paths,
-                  extra_link_args=["${CMAKE_SHARED_LINKER_FLAGS}"],
+    #              extra_link_args=["${CMAKE_SHARED_LINKER_FLAGS}"],
                   extra_objects=link_libraries
     )
 
@@ -55,9 +68,12 @@ if __name__ == '__main__':
 #)
 
 
-
     setup(name='pyrol',
          version='${PACKAGE_VERSION}',
           description='Python interface to the Rapid Optimization Library',
           ext_modules=[pyrol]
     )
+
+    # set of shared libraries 
+#    if sys.platform == 'darwin':
+ 
