@@ -1,8 +1,8 @@
 # Script for cleaning out the build directory
 
-cwd=`basename $PWD`
-echo $cwd
-if [ cwd == "build" ]; then 
+cwd=`pwd`
+cwd=`basename $cwd`
+if [ $cwd == "build" ]; then 
   mkdir temp
   mv "do-configure-pyrol.sh" temp
   mv "clean.sh" temp
