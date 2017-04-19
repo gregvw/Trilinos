@@ -72,18 +72,25 @@ private:
 
 public:
 
-  PythonVector( PyObject* pyVector, bool has_ownership=false ) : 
-    AttributeManager( pyVector, attrList_, "User-implemented Python vector class"),
-    pyVector_(pyVector), has_ownership_(false) {
+  PythonVector( PyObject* pyVector, bool has_ownership=false ) :  
+   AttributeManager( pyVector, attrList_, "User-implemented Python vector class"),
+    pyVector_(pyVector), has_ownership_(has_ownership) {
+      Py_INCREF(pyVector_);
   }
 
+
+
   virtual ~PythonVector() {
+/*
     for( auto &m : method_ ) {
-      Py_XDECREF( m.second.name );
+      Py_DECREF( m.second.name );
     }
     if( has_ownership_ ) {
-      Py_XDECREF( pyVector_ );
-    }
+      Py_DECREF( pyVector_ );
+    } 
+
+    Py_DECREF(pyVector_);
+*/
   }
 
   int dimension( ) const { 
@@ -102,7 +109,12 @@ public:
     std::cout << "PythonVector::clone()" << std::endl;
 #endif
     PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
-    return Teuchos::rcp( new PythonVector( pyClone, true ) );
+    
+    TEUCHOS_TEST_FOR_EXCEPTION( pyClone == NULL, std::logic_error, "Attempted to clone vector, " 
+      "but PyObject_CallMethodObjArgs returned NULL");
+    Teuchos::RCP<Vector> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
+ //   Py_DECREF(pyClone);
+    return vclone;
   }
 
   Teuchos::RCP<Vector> basis( const int i ) const {
@@ -112,8 +124,8 @@ public:
     PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
     PyObject* pyOne = PyFloat_FromDouble(1.0);
     PyObject_CallMethodObjArgs(pyVector_,method_["__setitem__"].name,pyIndex,pyOne,NULL);
-    Py_XDECREF(pyIndex);
-    Py_XDECREF(pyOne);
+    Py_DECREF(pyIndex);
+    Py_DECREF(pyOne);
     return b;
   }
 
@@ -165,11 +177,20 @@ public:
     PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
     PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name,pyIndex,NULL);
     double value = PyFloat_AsDouble(pyValue);
-    Py_DECREF(pyValue);
     Py_DECREF(pyIndex);
     return value; 
   }
 
+  void print( std::ostream &os ) const {
+#ifdef PYROL_DEBUG_MODE
+    std::cout << "PythonVector::print()" << std::endl;
+#endif 
+ 
+    for( int i=0; i<dimension(); ++ i ) {
+      os << getValue(i) << "  ";
+    }
+    os << std::endl;
+  }
 
 }; // class PythonVector
 

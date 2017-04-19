@@ -39,6 +39,9 @@ public:
   AttributeManager( PyObject* pyObj, const AttributeList &attrList, 
     const Name &className ) {
 
+    TEUCHOS_TEST_FOR_EXCEPTION( pyObj == NULL, std::logic_error, "AttributeManager constructor was given a "
+      "null pointer");
+/*
 #ifdef PYROL_DEBUG_MODE
 
   if( pyObj == NULL ) {
@@ -63,10 +66,8 @@ public:
     Implemented impl = PyObject_HasAttrString( pyObj, a.name ); 
     std::cout << std::setw(14) << a.name << std::setw(5) << a.req << std::setw(5) << impl << std::endl;
   }
-
-
 #endif // PYROL_DEBUG_MODE     
-
+*/
     for( auto a : attrList ) {
       Implemented impl = 0;
       try{
@@ -86,7 +87,7 @@ public:
   
   virtual ~AttributeManager() {
     for( auto &m : method_ ) {
-      Py_XDECREF( m.second.name );
+      Py_DECREF( m.second.name );
     }
   }
 

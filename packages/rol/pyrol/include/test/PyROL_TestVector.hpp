@@ -56,11 +56,29 @@ static PyObject* testVector( PyObject* self, PyObject *pyArgs ) {
   PyROL::PythonVector x(pyVector);
 
   Teuchos::RCP<ROL::Vector<double>> y = x.clone();
-  Teuchos::RCP<ROL::Vector<double>> z = x.clone();
-
+  Teuchos::RCP<ROL::Vector<double>> z = y->clone();
+  Teuchos::RCP<ROL::Vector<double>> s = z->clone();
+  
   ROL::RandomizeVector(*y);
   ROL::RandomizeVector(*z);
+/*
+  std::cout << "y = ";
+  y->print(std::cout);
+  std::cout << "z = ";
+  z->print(std::cout);
 
+  x.set(*y); 
+  x.plus(*z);
+  std::cout << "y+z = ";
+  x.print(std::cout);
+
+  std::cout << "y.scale(2.0)" << std::endl;
+  y->scale(2.0);
+
+  std::cout << "w = y.clone()" << std::endl;
+  Teuchos::RCP<ROL::Vector<double>> w = s->clone(); 
+  std::cout << "Success!" << std::endl; 
+*/  
   std::stringstream ss;
 
   std::vector<double> vcheck;
@@ -84,7 +102,6 @@ static PyObject* testVector( PyObject* self, PyObject *pyArgs ) {
   
   PyTuple_SetItem(pyReturn,(Py_ssize_t)(0),pyList);
   PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyOutput);
-  
   return pyReturn;
 }
 
