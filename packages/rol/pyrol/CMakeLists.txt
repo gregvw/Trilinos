@@ -3,6 +3,14 @@ cmake_minimum_required(VERSION 3.1)
 project(PYROL)
 message("Configuring PyROL")
 
+set(PYROL_HOME ${CMAKE_SOURCE_DIR})
+set(PYROL_TEST "${PYROL_HOME}/test")
+
+message("PYROL_HOME = ${PYROL_HOME}")
+message("PYROL_TEST = ${PYROL_TEST}")
+
+
+
 set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC -Wall")
 
 if(CMAKE_VERBOSE_COMPILE) 
@@ -45,13 +53,13 @@ message("   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}")
 find_package(Python)
 
 if(NOT PYROL_INSTALL)
-  set(PYROL_INSTALL "${CMAKE_SOURCE_DIR}/bin")
+  set(PYROL_INSTALL "${PYROL_HOME}/bin")
 endif()
 
 
 # These flags are needed to build on OSX. 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-lpython,-undefined,dynamic_lookup,-rpath ${Trilinos_LIBRARY_DIRS}")
+  set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-lpython,-undefined,dynamic_lookup")
 endif()
 
 include_directories( "${PYROL_SOURCE_DIR}/include" )
@@ -60,9 +68,14 @@ include_directories( ${Trilinos_INCLUDE_DIRS} )
 
 link_directories( ${Trilinos_LIBRARY_DIRS} )
 
-
 add_subdirectory(src)
 add_subdirectory(python)
+
+if(PYROL_DEBUG_MODE)
+  message("Setting environmental variable PYROL_DEBUG_MODE=1")
+  add_definitions(-DPYROL_DEBUG_MODE=1)
+endif()
+
 
 
 

@@ -73,16 +73,16 @@ private:
 public:
 
   PythonVector( PyObject* pyVector, bool has_ownership=false ) : 
-    AttributeManager( pyVector, attrList_, std::string("PythonVector")),
+    AttributeManager( pyVector, attrList_, "User-implemented Python vector class"),
     pyVector_(pyVector), has_ownership_(false) {
   }
 
   virtual ~PythonVector() {
     for( auto &m : method_ ) {
-      Py_DECREF( m.second.name );
+      Py_XDECREF( m.second.name );
     }
     if( has_ownership_ ) {
-      Py_DECREF( pyVector_ );
+      Py_XDECREF( pyVector_ );
     }
   }
 
@@ -98,6 +98,9 @@ public:
   }  
 
   Teuchos::RCP<Vector> clone() const {
+#ifdef PYROL_DEBUG_MODE
+    std::cout << "PythonVector::clone()" << std::endl;
+#endif
     PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
     return Teuchos::rcp( new PythonVector( pyClone, true ) );
   }
@@ -109,8 +112,8 @@ public:
     PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
     PyObject* pyOne = PyFloat_FromDouble(1.0);
     PyObject_CallMethodObjArgs(pyVector_,method_["__setitem__"].name,pyIndex,pyOne,NULL);
-    Py_DECREF(pyIndex);
-    Py_DECREF(pyOne);
+    Py_XDECREF(pyIndex);
+    Py_XDECREF(pyOne);
     return b;
   }
 

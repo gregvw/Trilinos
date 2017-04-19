@@ -12,9 +12,22 @@ class vector(object):
     def dimension(self):
         return self.n
     def clone(self):
-        return array('d',[0]*self.n)
+        return self.__class__(self.n)
     def __str__(self):
         return str(self.data)
 
 
+if __name__ == '__main__':
 
+    v = vector(10)
+    print("type(v) = {0}".format(type(v)))
+
+    attributes = dir(v)
+
+    print("vector implemented methods:")
+    print("dimension   - {0}".format("dimension"   in attributes))
+    print("clone       - {0}".format("clone"       in attributes))
+    print("__setitem__ - {0}".format("__setitem__" in attributes))
+    print("__getitem__ - {0}".format("__getitem__" in attributes))
+
+    

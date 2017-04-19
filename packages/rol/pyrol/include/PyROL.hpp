@@ -16,10 +16,16 @@
 
 #define  C_TEXT(text) ((char*)std::string(text).c_str())
 
+#ifndef PYROL_DEBUG_MODE
+#define PYROL_DEBUG_MODE 1
+#endif
+
+
 // C++ Includes
 #include <algorithm>
 #include <ostream>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <tuple>

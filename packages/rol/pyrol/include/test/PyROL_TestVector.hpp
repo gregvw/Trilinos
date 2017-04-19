@@ -86,7 +86,6 @@ static PyObject* testVector( PyObject* self, PyObject *pyArgs ) {
   PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyOutput);
   
   return pyReturn;
-
 }
 
 static char testVector_doc[] = 

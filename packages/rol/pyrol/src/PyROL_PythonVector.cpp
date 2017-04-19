@@ -47,23 +47,23 @@ namespace PyROL {
 
 const AttributeManager::AttributeList PythonVector::attrList_ = {
      //               method name, required
-     AttributeManager::Attribute( "plus",        false ),
-     AttributeManager::Attribute( "scale",       false ), 
-     AttributeManager::Attribute( "dot",         false ), 
-     AttributeManager::Attribute( "norm",        false ),
-     AttributeManager::Attribute( "clone",       true  ),
-     AttributeManager::Attribute( "axpy",        false ),
-     AttributeManager::Attribute( "zero",        false ),
-     AttributeManager::Attribute( "basis",       false ),
-     AttributeManager::Attribute( "dimension",   false ), 
-     AttributeManager::Attribute( "set",         false ),
-     AttributeManager::Attribute( "dual",        false ),
-     AttributeManager::Attribute( "applyUnary",  false ),
-     AttributeManager::Attribute( "applyBinary", false ),
-     AttributeManager::Attribute( "reduce",      false ),
-     AttributeManager::Attribute( "print",       false ), 
-     AttributeManager::Attribute( "__getitem__", true  ),  // Overload the [] operator for NumPy-like access
-     AttributeManager::Attribute( "__setitem__", true  ),  // Overload the [] operator for NumPy-like access
+     AttributeManager::Attribute( "plus",        0 ),
+     AttributeManager::Attribute( "scale",       0 ), 
+     AttributeManager::Attribute( "dot",         0 ), 
+     AttributeManager::Attribute( "norm",        0 ),
+     AttributeManager::Attribute( "clone",       1  ),
+     AttributeManager::Attribute( "axpy",        0 ),
+     AttributeManager::Attribute( "zero",        0 ),
+     AttributeManager::Attribute( "basis",       0 ),
+     AttributeManager::Attribute( "dimension",   0 ), 
+     AttributeManager::Attribute( "set",         0 ),
+     AttributeManager::Attribute( "dual",        0 ),
+     AttributeManager::Attribute( "applyUnary",  0 ),
+     AttributeManager::Attribute( "applyBinary", 0 ),
+     AttributeManager::Attribute( "reduce",      0 ),
+     AttributeManager::Attribute( "print",       0 ), 
+     AttributeManager::Attribute( "__getitem__", 1 ),  // Overload the [] operator for NumPy-like access
+     AttributeManager::Attribute( "__setitem__", 1 ),  // Overload the [] operator for NumPy-like access
 }; 
 
 } // namespace PyROL

@@ -1,5 +1,7 @@
 from distutils.core import setup, Extension
 from distutils import sysconfig
+from distutils.command.build_ext import build_ext
+
 import sys
 import os
 
@@ -13,10 +15,17 @@ if __name__ == '__main__':
     print('CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}')
     print('CMAKE_SHARED_LINKER_FLAGS = ${CMAKE_SHARED_LINKER_FLAGS}')
     print('PYTHON_LIBRARY = ${PYTHON_LIBRARY}')
-    print('PYROL_INSTALL = ${PYROL_INSTALL}')
 
-    os.environ["CFLAGS"] = "${CMAKE_CXX_FLAGS}"
- 
+    print('Setup will place the module pyrol.so in the directory ${PYROL_TEST}')
+
+    # If pyrol.so already exists in target location, delete it before rebuilding
+    pyrol_output=os.path.join('${PYROL_TEST}','pyrol.so')
+    if os.path.isfile(pyrol_output):
+        os.remove(pyrol_output)    
+
+
+    os.environ["CFLAGS"] = "${CMAKE_CXX_FLAGS}" 
+
     pyrol_include_path        = '${CMAKE_SOURCE_DIR}/include'
     trilinos_include_path     = '${Trilinos_INCLUDE_DIRS}'
     trilinos_library_path     = '${Trilinos_LIBRARY_DIRS}'
@@ -33,8 +42,6 @@ if __name__ == '__main__':
     python_library = ['${PYTHON_LIBRARY}']
 
     
-    
-
     print('-'*120)
     print('Linking PyROL with the following Trilinos libraries:')
     for lib in trilinos_libraries:
