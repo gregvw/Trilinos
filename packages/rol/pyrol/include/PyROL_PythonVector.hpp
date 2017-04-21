@@ -54,7 +54,7 @@
 
 namespace PyROL {
 
-class PythonVector : public ROL::ElementwiseVector<double>, public AttributeManager {
+class PythonVector : public ROL::Vector<double>, public AttributeManager {
 
   using Vector          = ROL::Vector<double>;
 
@@ -62,8 +62,10 @@ class PythonVector : public ROL::ElementwiseVector<double>, public AttributeMana
   using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;  
   using ReductionOp     = ROL::Elementwise::ReductionOp<double>;  
 
+public:  
+  const static AttributeManager::Name className_; 
+
 private: 
-  
   const static AttributeManager::AttributeList attrList_;
 
   PyObject* pyVector_;
@@ -73,24 +75,32 @@ private:
 public:
 
   PythonVector( PyObject* pyVector, bool has_ownership=false ) :  
-   AttributeManager( pyVector, attrList_, "User-implemented Python vector class"),
+   AttributeManager( pyVector, attrList_, className_ ),
     pyVector_(pyVector), has_ownership_(has_ownership) {
-      Py_INCREF(pyVector_);
+
+    if(!has_ownership_) {
+      Py_DECREF(pyVector_);
+    }
+
+#ifdef PYROL_DEBUG_MODE
+   std::cout << "PythonVector()," 
+             << " PyObject address = " << pyVector_
+             << " has_ownership = " << has_ownership_  
+             << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
+  
+#endif
   }
 
-
-
   virtual ~PythonVector() {
-/*
-    for( auto &m : method_ ) {
-      Py_DECREF( m.second.name );
-    }
-    if( has_ownership_ ) {
-      Py_DECREF( pyVector_ );
-    } 
 
-    Py_DECREF(pyVector_);
-*/
+    TEUCHOS_TEST_FOR_EXCEPTION( !(pyVector_->ob_refcnt), std::logic_error,
+      "PythonVector() was called but pyVector already has zero references");    
+#ifdef PYROL_DEBUG_MODE
+   std::cout << "~PythonVector()," 
+              << " PyObject address = " << pyVector_ 
+              << " has_ownership = " << has_ownership_  
+              << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
+#endif
   }
 
   int dimension( ) const { 
@@ -105,21 +115,18 @@ public:
   }  
 
   Teuchos::RCP<Vector> clone() const {
-#ifdef PYROL_DEBUG_MODE
-    std::cout << "PythonVector::clone()" << std::endl;
-#endif
     PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
-    
-    TEUCHOS_TEST_FOR_EXCEPTION( pyClone == NULL, std::logic_error, "Attempted to clone vector, " 
-      "but PyObject_CallMethodObjArgs returned NULL");
     Teuchos::RCP<Vector> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
- //   Py_DECREF(pyClone);
+//    Py_DECREF(pyClone);
     return vclone;
   }
 
   Teuchos::RCP<Vector> basis( const int i ) const {
+    
+
     PyObject* pyBasis = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
     Teuchos::RCP<Vector> b = Teuchos::rcp( new PythonVector( pyBasis, true ) );
+//    Py_DECREF(pyBasis);
     b->zero();
     PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
     PyObject* pyOne = PyFloat_FromDouble(1.0);
@@ -139,7 +146,53 @@ public:
       return *this;
     }
   }
-  
+
+  void plus( const Vector & x ) {
+    this->applyBinary(ROL::Elementwise::Plus<double>(),x); 
+  }
+
+  void scale( const double alpha ) {
+    this->applyUnary(ROL::Elementwise::Scale<double>(alpha));
+  }
+
+  double dot( const Vector &x ) const {
+    double value=0;
+    const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
+    int dim = dimension();
+    for( int i=0; i<dim; ++i ) {
+      value += getValue(i)*ex.getValue(i);
+    }
+    return value;
+  }
+
+  double norm( ) const {
+    return std::sqrt(this->dot(*this)); 
+  }
+
+  void axpy( const double alpha, const Vector &x ) {
+    const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
+    int dim = dimension();
+    for( int i=0; i<dim; ++i ) {
+      setValue(i, getValue(i) + alpha*ex.getValue(i));
+    }    
+  }
+
+  void zero( ) {
+    int dim = dimension();
+    for( int i=0; i<dim; ++i ) {
+      setValue(i, 0.0);
+    }    
+  }
+
+  void set( const Vector &x ) {
+    const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
+    int dim = dimension();
+    for( int i=0; i<dim; ++i ) {
+      setValue(i, ex.getValue(i));
+    }    
+  }
+
+
   void applyUnary( const UnaryFunction &f ) {
     int dim = dimension();
     for(int i=0; i<dim; ++i) {

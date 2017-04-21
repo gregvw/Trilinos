@@ -2,6 +2,9 @@ from array import array
 
 class vector(object):
 
+    """Simple vector class implemented in Python to be encapsulated
+       by a ROL::Vector"""
+
     def __init__(self,n):
         self.n=n
         self.data = array('d',[0]*self.n)

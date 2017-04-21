@@ -1,6 +1,10 @@
-from distutils.core import setup, Extension
-from distutils import sysconfig
-from distutils.command.build_ext import build_ext
+if '${CMAKE_ENABLE_NUMPY}' in ['ON','TRUE',1]:
+  from numpy.distutils.core import setup, Extension
+  from numpy.distutils.command.build_ext import build_ext
+else:
+  from distutils.core import setup, Extension
+  from distutils.command.build_ext import build_ext
+
 
 import sys
 import os
@@ -24,7 +28,14 @@ if __name__ == '__main__':
         os.remove(pyrol_output)    
 
 
-    os.environ["CFLAGS"] = "${CMAKE_CXX_FLAGS}" 
+    os.environ["CFLAGS"]   = "${CMAKE_CXX_FLAGS}" 
+    os.environ["CXXFLAGS"] = "${CMAKE_CXX_FLAGS}" 
+
+    # This doesn't seem to make it through from CMake directly
+    if '${CMAKE_ENABLE_NUMPY}' in ['ON','TRUE',1]:
+        os.environ["CFLAGS"]   += " -DENABLE_NUMPY=1" 
+        os.environ["CXXFLAGS"] += " -DENABLE_NUMPY=1" 
+        
 
     pyrol_include_path        = '${CMAKE_SOURCE_DIR}/include'
     trilinos_include_path     = '${Trilinos_INCLUDE_DIRS}'
@@ -49,12 +60,8 @@ if __name__ == '__main__':
     print('-'*120)
 
     link_libraries = trilinos_libraries +  trilinos_tpl_libraries
-# +
- #                    python_library
-
 
     pyrol_src = '${CMAKE_SOURCE_DIR}/src/'
-
 
     pyrol_source_files = [os.path.join(pyrol_src,f) for f in os.listdir(pyrol_src) if f.endswith('.cpp')]
 

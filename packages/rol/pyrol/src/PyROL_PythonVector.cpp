@@ -43,7 +43,10 @@
 
 #include "PyROL_PythonVector.hpp"
 
+
 namespace PyROL {
+
+const AttributeManager::Name PythonVector::className_ = "PythonVector";
 
 const AttributeManager::AttributeList PythonVector::attrList_ = {
      //               method name, required
@@ -67,6 +70,5 @@ const AttributeManager::AttributeList PythonVector::attrList_ = {
 }; 
 
 } // namespace PyROL
-
 
 

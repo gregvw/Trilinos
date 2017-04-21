@@ -1,8 +1,16 @@
 #ifndef PYROL_HPP
 #define PYROL_HPP
 
+#ifdef ENABLE_NUMPY
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#endif
+
 // Python Includes
 #include "Python.h"
+#ifdef ENABLE_NUMPY 
+#include "numpy/arrayobject.h"
+#endif 
+
 
 #if PY_MAJOR_VERSION >= 3
 #define PyInt_FromLong PyLong_FromLong
@@ -16,16 +24,18 @@
 
 #define  C_TEXT(text) ((char*)std::string(text).c_str())
 
-#ifndef PYROL_DEBUG_MODE
-#define PYROL_DEBUG_MODE 1
-#endif
+// Apparently this is not getting set from CMake, but ENABLE_NUMPY does 
+//#ifndef PYROL_DEBUG_MODE
+//#define PYROL_DEBUG_MODE 1
+//#endif
 
 
 // C++ Includes
 #include <algorithm>
-#include <ostream>
+#include <cstdlib>
 #include <iostream>
 #include <iomanip>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <tuple>
