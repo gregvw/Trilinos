@@ -48,7 +48,7 @@
 #include "PyROL_AttributeManager.hpp"
 
 /** \class PyROL::PythonVector
- *  \brief Provides a ROL interface to generic vectors defined in Python 
+ *  \brief Provides a ROL interface to generic vectors defined in Python
  *         which satisfy the interface requirements
  */
 
@@ -58,12 +58,12 @@ class PythonVector : public ROL::ElementwiseVector<double>, public AttributeMana
 
   using Vector          = ROL::Vector<double>;
 
-  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;  
-  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;  
-  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;  
+  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;
+  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;
+  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;
 
-private: 
-  
+private:
+
   const static AttributeManager::AttributeList attrList_;
 
   PyObject* pyVector_;
@@ -72,45 +72,59 @@ private:
 
 public:
 
-  PythonVector( PyObject* pyVector, bool has_ownership=false ) :  
+  PythonVector( PyObject* pyVector, bool has_ownership=false ) :
    AttributeManager( pyVector, attrList_, "User-implemented Python vector class"),
     pyVector_(pyVector), has_ownership_(has_ownership) {
       Py_INCREF(pyVector_);
   }
 
-
+  PythonVector(const PythonVector& p) :
+    AttributeManager( p.pyVector_, attrList_, "User-implemented Python vector class"),
+    pyVector_(p.pyVector_), has_ownership_(0)
+  {
+    // Make a copy, but don't take ownership.
+    std::cout << "Copy constructor of " << p.pyVector_ << "\n";
+  }
 
   virtual ~PythonVector() {
-/*
+    std::cout << "destroy PythonVector @ " << pyVector_ ;
+    std::cout << " (ref count = " << Py_REFCNT(pyVector_) <<") ";
+    std::cout << " (ownership = " << has_ownership_ << ") ";
+    int n = has_ownership_ ? 0 : 1;
+    while(Py_REFCNT(pyVector_) > n)
+      Py_DECREF(pyVector_);
+    std::cout << " finally = " << Py_REFCNT(pyVector_) <<" \n";
+
+    /*
     for( auto &m : method_ ) {
       Py_DECREF( m.second.name );
     }
     if( has_ownership_ ) {
       Py_DECREF( pyVector_ );
-    } 
+    }
 
     Py_DECREF(pyVector_);
 */
   }
 
-  int dimension( ) const { 
+  int dimension( ) const {
 
     if( method_["dimension"].impl ) {
-      PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);   
-      return static_cast<int>(PyLong_AsLong(pyDimension)); 
-    } 
+      PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);
+      return static_cast<int>(PyLong_AsLong(pyDimension));
+    }
     else {
       return 0;
     }
-  }  
+  }
 
   Teuchos::RCP<Vector> clone() const {
 #ifdef PYROL_DEBUG_MODE
     std::cout << "PythonVector::clone()" << std::endl;
 #endif
     PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
-    
-    TEUCHOS_TEST_FOR_EXCEPTION( pyClone == NULL, std::logic_error, "Attempted to clone vector, " 
+
+    TEUCHOS_TEST_FOR_EXCEPTION( pyClone == NULL, std::logic_error, "Attempted to clone vector, "
       "but PyObject_CallMethodObjArgs returned NULL");
     Teuchos::RCP<Vector> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
  //   Py_DECREF(pyClone);
@@ -139,7 +153,7 @@ public:
       return *this;
     }
   }
-  
+
   void applyUnary( const UnaryFunction &f ) {
     int dim = dimension();
     for(int i=0; i<dim; ++i) {
@@ -160,10 +174,10 @@ public:
     double result = r.initialValue();
     int dim = dimension();
     for(int i=0; i<dim; ++i) {
-      r.reduce(getValue(i),result); 
+      r.reduce(getValue(i),result);
     }
     return result;
-  }  
+  }
 
   void setValue (int i, double value) {
     PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
@@ -178,14 +192,14 @@ public:
     PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name,pyIndex,NULL);
     double value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyIndex);
-    return value; 
+    return value;
   }
 
   void print( std::ostream &os ) const {
 #ifdef PYROL_DEBUG_MODE
     std::cout << "PythonVector::print()" << std::endl;
-#endif 
- 
+#endif
+
     for( int i=0; i<dimension(); ++ i ) {
       os << getValue(i) << "  ";
     }
