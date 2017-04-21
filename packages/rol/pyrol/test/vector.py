@@ -1,4 +1,6 @@
 from array import array
+import numpy
+import dolfin
 
 class vector(object):
 
@@ -7,13 +9,14 @@ class vector(object):
 
     def __init__(self,n):
         self.n=n
-        self.data = array('d',[0]*self.n)
+        # self.data = array('d',[0]*self.n)
+        self.data = dolfin.Vector(dolfin.mpi_comm_world(), self.n)
     def __setitem__(self,i,value):
         self.data[i] = value
     def __getitem__(self,i):
         return self.data[i]
     def dimension(self):
-        return self.n
+        return self.data.local_size()
     def clone(self):
         x = vector(self.n)
         return x
@@ -23,7 +26,7 @@ class vector(object):
 
 if __name__ == '__main__':
 
-    v = vector(10)
+    v = vector(1000)
     print("type(v) = {0}".format(type(v)))
 
     v[0]=1.0
@@ -40,5 +43,3 @@ if __name__ == '__main__':
 
     print(v)
     print(u)
-
-    

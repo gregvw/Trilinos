@@ -6,9 +6,9 @@ if __name__ == '__main__':
 
     """Check basic linear algebra of vector class implemented in Python"""
 
-    n = 10
+    n = 1000
     x = vector(n)
-    for i in range(n):
+    for i in range(x.dimension()):
       x[i] = rand()
 
     vcheck,output = pyrol.testVector(x)

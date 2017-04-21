@@ -48,7 +48,7 @@
 #include "PyROL_AttributeManager.hpp"
 
 /** \class PyROL::PythonVector
- *  \brief Provides a ROL interface to generic vectors defined in Python 
+ *  \brief Provides a ROL interface to generic vectors defined in Python
  *         which satisfy the interface requirements
  */
 
@@ -58,14 +58,14 @@ class PythonVector : public ROL::Vector<double>, public AttributeManager {
 
   using Vector          = ROL::Vector<double>;
 
-  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;  
-  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;  
-  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;  
+  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;
+  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;
+  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;
 
-public:  
-  const static AttributeManager::Name className_; 
+public:
+  const static AttributeManager::Name className_;
 
-private: 
+private:
   const static AttributeManager::AttributeList attrList_;
 
   PyObject* pyVector_;
@@ -74,7 +74,7 @@ private:
 
 public:
 
-  PythonVector( PyObject* pyVector, bool has_ownership=false ) :  
+  PythonVector( PyObject* pyVector, bool has_ownership=false ) :
    AttributeManager( pyVector, attrList_, className_ ),
     pyVector_(pyVector), has_ownership_(has_ownership) {
 
@@ -83,36 +83,50 @@ public:
     }
 
 #ifdef PYROL_DEBUG_MODE
-   std::cout << "PythonVector()," 
+   std::cout << "PythonVector(),"
              << " PyObject address = " << pyVector_
-             << " has_ownership = " << has_ownership_  
+             << " has_ownership = " << has_ownership_
              << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
-  
+
 #endif
   }
+
+  PythonVector(const PythonVector& p) : AttributeManager( p.pyVector_, attrList_, className_ ),
+                                        pyVector_(p.pyVector_), has_ownership_(0)
+  {
+#ifdef PYROL_DEBUG_MODE
+   std::cout << "Copy constructor: ";
+   std::cout << "PythonVector(),"
+             << " PyObject address = " << pyVector_
+             << " has_ownership = " << has_ownership_
+             << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
+#endif
+    Py_INCREF(pyVector_);
+  }
+
 
   virtual ~PythonVector() {
 
     TEUCHOS_TEST_FOR_EXCEPTION( !(pyVector_->ob_refcnt), std::logic_error,
-      "PythonVector() was called but pyVector already has zero references");    
+      "PythonVector() was called but pyVector already has zero references");
 #ifdef PYROL_DEBUG_MODE
-   std::cout << "~PythonVector()," 
-              << " PyObject address = " << pyVector_ 
-              << " has_ownership = " << has_ownership_  
+   std::cout << "~PythonVector(),"
+              << " PyObject address = " << pyVector_
+              << " has_ownership = " << has_ownership_
               << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
 #endif
   }
 
-  int dimension( ) const { 
+  int dimension( ) const {
 
     if( method_["dimension"].impl ) {
-      PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);   
-      return static_cast<int>(PyLong_AsLong(pyDimension)); 
-    } 
+      PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);
+      return static_cast<int>(PyLong_AsLong(pyDimension));
+    }
     else {
       return 0;
     }
-  }  
+  }
 
   Teuchos::RCP<Vector> clone() const {
     PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
@@ -122,7 +136,7 @@ public:
   }
 
   Teuchos::RCP<Vector> basis( const int i ) const {
-    
+
 
     PyObject* pyBasis = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
     Teuchos::RCP<Vector> b = Teuchos::rcp( new PythonVector( pyBasis, true ) );
@@ -148,7 +162,7 @@ public:
   }
 
   void plus( const Vector & x ) {
-    this->applyBinary(ROL::Elementwise::Plus<double>(),x); 
+    this->applyBinary(ROL::Elementwise::Plus<double>(),x);
   }
 
   void scale( const double alpha ) {
@@ -166,7 +180,7 @@ public:
   }
 
   double norm( ) const {
-    return std::sqrt(this->dot(*this)); 
+    return std::sqrt(this->dot(*this));
   }
 
   void axpy( const double alpha, const Vector &x ) {
@@ -174,14 +188,14 @@ public:
     int dim = dimension();
     for( int i=0; i<dim; ++i ) {
       setValue(i, getValue(i) + alpha*ex.getValue(i));
-    }    
+    }
   }
 
   void zero( ) {
     int dim = dimension();
     for( int i=0; i<dim; ++i ) {
       setValue(i, 0.0);
-    }    
+    }
   }
 
   void set( const Vector &x ) {
@@ -189,7 +203,7 @@ public:
     int dim = dimension();
     for( int i=0; i<dim; ++i ) {
       setValue(i, ex.getValue(i));
-    }    
+    }
   }
 
 
@@ -213,10 +227,10 @@ public:
     double result = r.initialValue();
     int dim = dimension();
     for(int i=0; i<dim; ++i) {
-      r.reduce(getValue(i),result); 
+      r.reduce(getValue(i),result);
     }
     return result;
-  }  
+  }
 
   void setValue (int i, double value) {
     PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
@@ -231,14 +245,14 @@ public:
     PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name,pyIndex,NULL);
     double value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyIndex);
-    return value; 
+    return value;
   }
 
   void print( std::ostream &os ) const {
 #ifdef PYROL_DEBUG_MODE
     std::cout << "PythonVector::print()" << std::endl;
-#endif 
- 
+#endif
+
     for( int i=0; i<dimension(); ++ i ) {
       os << getValue(i) << "  ";
     }
