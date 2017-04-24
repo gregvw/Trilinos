@@ -24,11 +24,6 @@
 
 #define  C_TEXT(text) ((char*)std::string(text).c_str())
 
-// Apparently this is not getting set from CMake, but ENABLE_NUMPY does 
-//#ifndef PYROL_DEBUG_MODE
-//#define PYROL_DEBUG_MODE 1
-//#endif
-
 
 // C++ Includes
 #include <algorithm>
@@ -46,5 +41,6 @@
 #include "ROL_ElementwiseVector.hpp"
 #include "ROL_RandomVector.hpp"
 #include "ROL_StdVector.hpp"
+#include "ROL_Objective.hpp"
 
 #endif // PYROL_HPP

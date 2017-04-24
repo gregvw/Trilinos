@@ -41,37 +41,22 @@
 // ************************************************************************
 // @HEADER
 
-#ifdef ENABLE_NUMPY
-
-#include "PyROL_NumPyVector.hpp"
+#include "PyROL_Objective.hpp"
 
 namespace PyROL {
 
-const AttributeManager::Name NumPyVector::className_ = "NumPyVector";
+const AttributeManager::Name Objective::className_ = "Objective";
 
-const AttributeManager::AttributeList NumPyVector::attrList_ = {
-     //               method name, required
-     AttributeManager::Attribute( "plus",        0 ),
-     AttributeManager::Attribute( "scale",       0 ), 
-     AttributeManager::Attribute( "dot",         0 ), 
-     AttributeManager::Attribute( "norm",        0 ),
-     AttributeManager::Attribute( "clone",       1 ),
-     AttributeManager::Attribute( "axpy",        0 ),
-     AttributeManager::Attribute( "zero",        0 ),
-     AttributeManager::Attribute( "basis",       0 ),
-     AttributeManager::Attribute( "dimension",   0 ), 
-     AttributeManager::Attribute( "set",         0 ),
-     AttributeManager::Attribute( "dual",        0 ),
-     AttributeManager::Attribute( "applyUnary",  0 ),
-     AttributeManager::Attribute( "applyBinary", 0 ),
-     AttributeManager::Attribute( "reduce",      0 ),
-     AttributeManager::Attribute( "print",       0 ), 
-     AttributeManager::Attribute( "__getitem__", 1 ),  // Overload the [] operator for NumPy-like access
-     AttributeManager::Attribute( "__setitem__", 1 ),  // Overload the [] operator for NumPy-like access
+
+const AttributeManager::AttributeList Objective::attrList_ = {
+  AttributeManager::Attribute( "value",      1 ),
+  AttributeManager::Attribute( "update",     0 ),
+  AttributeManager::Attribute( "gradient",   0 ),
+  AttributeManager::Attribute( "dirDeriv",   0 ),
+  AttributeManager::Attribute( "hessVec",    0 ),
+  AttributeManager::Attribute( "invHessVec", 0 ),
+  AttributeManager::Attribute( "precond",    0 )
 }; 
 
 } // namespace PyROL
-
-
-#endif // ENABLE_NUMPY
 

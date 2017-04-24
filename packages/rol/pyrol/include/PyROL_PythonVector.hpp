@@ -46,6 +46,7 @@
 #define PYROL_PYTHONVECTOR_HPP
 
 #include "PyROL_AttributeManager.hpp"
+#include "PyROL_BaseVector.hpp"
 
 /** \class PyROL::PythonVector
  *  \brief Provides a ROL interface to generic vectors defined in Python 
@@ -54,7 +55,7 @@
 
 namespace PyROL {
 
-class PythonVector : public ROL::Vector<double>, public AttributeManager {
+class PythonVector : public BaseVector, public AttributeManager {
 
   using Vector          = ROL::Vector<double>;
 
@@ -78,30 +79,49 @@ public:
    AttributeManager( pyVector, attrList_, className_ ),
     pyVector_(pyVector), has_ownership_(has_ownership) {
 
-    if(!has_ownership_) {
-      Py_DECREF(pyVector_);
+    if(has_ownership_) {
+      Py_INCREF(pyVector_);
     }
-
+/*
 #ifdef PYROL_DEBUG_MODE
-   std::cout << "PythonVector()," 
+   std::cout << "PythonVector CONSTRUCTOR," 
              << " PyObject address = " << pyVector_
              << " has_ownership = " << has_ownership_  
              << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
   
 #endif
+*/
   }
+ 
+  PythonVector( const PythonVector & v ):
+    AttributeManager( v.pyVector_, attrList_, className_ ),
+    pyVector_( v.pyVector_ ), has_ownership_(false) {
+    Py_INCREF(pyVector_);
+/*
+#ifdef PYROL_DEBUG_MODE
+    std::cout << "PythonVector COPY CONSTRUCTOR," 
+              << " PyObject address = " << pyVector_
+              << " has_ownership = " << has_ownership_  
+              << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
+#endif
+*/       
+  }
+
 
   virtual ~PythonVector() {
 
     TEUCHOS_TEST_FOR_EXCEPTION( !(pyVector_->ob_refcnt), std::logic_error,
       "PythonVector() was called but pyVector already has zero references");    
+    Py_DECREF(pyVector_);
+/*
 #ifdef PYROL_DEBUG_MODE
-   std::cout << "~PythonVector()," 
-              << " PyObject address = " << pyVector_ 
-              << " has_ownership = " << has_ownership_  
-              << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
+      std::cout << "PythonVector DESTRUCTOR" 
+                << " PyObject address = " << pyVector_ 
+                << " has_ownership = " << has_ownership_  
+                << ", pyVector.ob_refcnt = " << pyVector_->ob_refcnt << std::endl;
 #endif
-  }
+*/
+   }
 
   int dimension( ) const { 
 
@@ -117,16 +137,15 @@ public:
   Teuchos::RCP<Vector> clone() const {
     PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
     Teuchos::RCP<Vector> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
-//    Py_DECREF(pyClone);
+    Py_DECREF(pyClone);
     return vclone;
   }
 
   Teuchos::RCP<Vector> basis( const int i ) const {
     
-
     PyObject* pyBasis = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
     Teuchos::RCP<Vector> b = Teuchos::rcp( new PythonVector( pyBasis, true ) );
-//    Py_DECREF(pyBasis);
+    Py_DECREF(pyBasis);
     b->zero();
     PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
     PyObject* pyOne = PyFloat_FromDouble(1.0);
@@ -232,6 +251,14 @@ public:
     double value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyIndex);
     return value; 
+  }
+
+  PyObject* getPyVector(void) {
+    return pyVector_;
+  }
+
+  const PyObject* getPyVector(void) const {
+    return pyVector_;
   }
 
   void print( std::ostream &os ) const {

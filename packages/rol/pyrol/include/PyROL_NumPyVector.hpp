@@ -47,14 +47,14 @@
 #define PYROL_NUMPYVECTOR_HPP
 
 #include "PyROL.hpp"
-#include "PyROL_AttributeManager.hpp"
+#include "PyROL_BaseVector.hpp"
 
 namespace PyROL {
 
 /** \class PyROL::NumPyVector
     \brief Provides a ROL interface for 1-dimensional NumPy arrays of double type   
 */
-class NumPyVector : public ROL::ElementwiseVector<double>, public AttributeManager {
+class NumPyVector : public BaseVector {
 
   template <typename T> using RCP = Teuchos::RCP<T>;
 
@@ -64,14 +64,11 @@ class NumPyVector : public ROL::ElementwiseVector<double>, public AttributeManag
   using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;  
   using ReductionOp     = ROL::Elementwise::ReductionOp<double>;  
 
-public:  
-  const static AttributeManager::Name className_; 
 
 private:
 
-  const static AttributeManager::AttributeList attrList_;
-
-  PyArrayObject *array_;   // Pointer to NumPy array object 
+  PyObject*      pyVector_;
+  PyArrayObject* pyArray_;  // Pointer to NumPy array object 
 
   bool    hasOwnership_;   // Vector is responsible for deallocating memory of any 
                            // NumPy array which is created at the C API level 
@@ -84,44 +81,37 @@ private:
 
 public:
 
-  NumPyVector( PyObject* array, bool hasOwnership=false ) : 
-    AttributeManager( array, attrList_, className_ ), array_((PyArrayObject*)array), hasOwnership_(hasOwnership) {
+  NumPyVector( PyObject* pyVector, bool hasOwnership=false ) : 
+    pyVector_(pyVector), pyArray_((PyArrayObject*)pyVector),
+    hasOwnership_(hasOwnership) {
 
-     // Get number of dimensions of array and throw excpetion if not 1
-     int ndim = PyArray_NDIM(array_);
+    Py_Initialize();
+    import_array();
 
-     TEUCHOS_TEST_FOR_EXCEPTION( ndim != 1, std::logic_error,
-                                 "Error: PyROL only supports 1-d NumPy arrays." );
+    // Get number of dimensions of array and throw excpetion if not 1
+    int ndim = PyArray_NDIM(pyArray_);
+    TEUCHOS_TEST_FOR_EXCEPTION( ndim != 1, std::logic_error,
+                                "Error: PyROL only supports 1-d NumPy arrays." );
 
-     // Get number of elements in array
-     size_ = PyArray_SIZE(array_);
+    // Get number of elements in array
+    npy_intp* shape = PyArray_SHAPE(pyArray_);
 
-     data_ = static_cast<double*>(PyArray_DATA(array_));
-
+    size_ = shape[0];
+    data_ = static_cast<double*>(PyArray_DATA(pyArray_));
   }
-/*
-  // Create a new vector of a given size
-  NumPyVector( npy_intp size ) : size_(size) {
-    int nd = 1;
-    npy_intp dims[] = {size};
 
-    // Create new array
-    PyObject* array = PyArray_SimpleNew(nd, dims, NPY_DOUBLE);
-    NumPyVector(array,true);
-  }
-*/
   virtual ~NumPyVector( ) {
     if(hasOwnership_) {
-      Py_XDECREF(array_);
+      Py_XDECREF(pyArray_);
     }
   }
 
-  PyObject* getVector( ) {
-    return (PyObject*)array_;
+  PyObject* getPyVector( ) {
+    return pyVector_;
   }  
 
-  const PyObject* getVector( ) const {
-    return (PyObject*)array_; 
+  const PyObject* getPyVector( ) const {
+    return pyVector_; 
   }
 
   int dimension( ) const {
@@ -131,24 +121,19 @@ public:
   RCP<Vector> clone() const {
     int nd = 1;
     npy_intp dims[] = {size_};
-    PyObject* array = PyArray_SimpleNew(nd,dims,NPY_DOUBLE);
-    return Teuchos::rcp( new NumPyVector( array, true ) );
+    PyObject* pyVector = PyArray_SimpleNew(nd,dims,NPY_DOUBLE);
+    return Teuchos::rcp( new NumPyVector( pyVector, true ) );
   }
 
   RCP<Vector> basis( int i ) const {
     int nd = 1;
     npy_intp dims[] = {size_};
-    PyObject* array = PyArray_SimpleNew(nd,dims,NPY_DOUBLE);
-    double* data = static_cast<double*>(PyArray_DATA((PyArrayObject*)array));
+    PyObject* pyVector = PyArray_SimpleNew(nd,dims,NPY_DOUBLE);
+    double* data = static_cast<double*>(PyArray_DATA((PyArrayObject*)pyVector));
     for( npy_intp j=0; j<size_; ++j ) {
-      if( j==i ) {
-        data[j] = 1.0;
-      }
-      else {
-        data[j] = 0.0;
-      }
+        data[j] = 1.0*(i==j);
     }
-    return Teuchos::rcp( new NumPyVector( array, true ) );
+    return Teuchos::rcp( new NumPyVector( pyVector, true ) );
   }
 
   void applyUnary( const UnaryFunction &f ) {

@@ -36,6 +36,9 @@ if __name__ == '__main__':
         os.environ["CFLAGS"]   += " -DENABLE_NUMPY=1" 
         os.environ["CXXFLAGS"] += " -DENABLE_NUMPY=1" 
         
+    if '${PYROL_DEBUG_MODE}' in ['ON','TRUE',1]:
+        os.environ["CFLAGS"]   += " -DPYROL_DEBUG_MODE=1"
+        os.environ["CXXFLAGS"] += " -DPYROL_DEBUG_MODE=1"
 
     pyrol_include_path        = '${CMAKE_SOURCE_DIR}/include'
     trilinos_include_path     = '${Trilinos_INCLUDE_DIRS}'
