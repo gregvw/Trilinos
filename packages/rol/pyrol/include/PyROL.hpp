@@ -42,5 +42,6 @@
 #include "ROL_RandomVector.hpp"
 #include "ROL_StdVector.hpp"
 #include "ROL_Objective.hpp"
+#include "ROL_EqualityConstraint.hpp"
 
 #endif // PYROL_HPP

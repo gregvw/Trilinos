@@ -52,8 +52,6 @@ namespace PyROL {
 
 /** \class PyROL::Objective
     \brief Provides a ROL interface for objective classes implemented in Python
-           Note that the Python-implemented objective has to be able to specify
-           its concrete vector type
 */
 
 class Objective : public ROL::Objective<double>, public AttributeManager {
