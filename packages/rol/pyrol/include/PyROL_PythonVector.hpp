@@ -187,16 +187,35 @@ public:
 
   double dot( const Vector &x ) const {
     double value=0;
-    const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
-    int dim = dimension();
-    for( int i=0; i<dim; ++i ) {
-      value += getValue(i)*ex.getValue(i);
+    if( method_["dot"].impl ) {
+      const PyObject* pyX = Teuchos::dyn_cast<const PythonVector>(x).getPyVector();
+      PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_, method_["dot"].name, pyX, NULL);
+      value = PyFloat_AsDouble(pyValue);
+      Py_DECREF(pyValue);
+    }
+    else {
+      const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
+      int dim = dimension();
+      for( int i=0; i<dim; ++i ) {
+        value += getValue(i)*ex.getValue(i);
+      }
     }
     return value;
   }
 
   double norm( ) const {
-    return std::sqrt(this->dot(*this));
+    double value;
+    if( method_["norm"].impl ) {
+      PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_, method_["norm"].name, NULL);
+      value = PyFloat_AsDouble(pyValue);
+      Py_DECREF(pyValue);
+      return value;
+    }
+    else {
+      value = std::sqrt(this->dot(*this));
+    }
+
+    return value;
   }
 
   void axpy( const double alpha, const Vector &x ) {
