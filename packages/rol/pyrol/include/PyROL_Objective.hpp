@@ -85,9 +85,9 @@ public:
      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
      PyObject* pyFlag = flag ? Py_True : Py_False;
      PyObject* pyIter = PyLong_FromLong(static_cast<long>(iter));
-     
+
      PyObject_CallMethodObjArgs(pyObjective_,method_["update"].name,pyX,pyFlag,pyIter,NULL);
-     
+
      Py_DECREF(pyFlag);
      Py_DECREF(pyIter);
    }
@@ -112,7 +112,7 @@ public:
    }
    else {
      ROL::Objective<double>::gradient(g,x,tol);
-   } 
+   }
  }
 
  virtual double dirDeriv( const Vector &x, const Vector &d, double &tol ) {
@@ -130,11 +130,11 @@ public:
      return ROL::Objective<double>::dirDeriv(x,d,tol);
    }
  }
-  
+
  virtual void hessVec( Vector &hv, const Vector &v, const Vector &x, double &tol ) {
    if( method_["hessVec"].impl ) {
      PyObject* pyHv = Teuchos::dyn_cast<BaseVector>(hv).getPyVector();
-     const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();     
+     const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();
      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
      PyObject* pyTol = PyFloat_FromDouble(tol);
      PyObject_CallMethodObjArgs(pyObjective_,method_["hessVec"].name,pyHv,pyV,pyX,pyTol,NULL);
@@ -148,7 +148,7 @@ public:
  virtual void invHessVec( Vector &hv, const Vector &v, const Vector &x, double &tol ) {
    if( method_["invHessVec"].impl ) {
      PyObject* pyHv = Teuchos::dyn_cast<BaseVector>(hv).getPyVector();
-     const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();     
+     const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();
      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
      PyObject* pyTol = PyFloat_FromDouble(tol);
      PyObject_CallMethodObjArgs(pyObjective_,method_["invHessVec"].name,pyHv,pyV,pyX,pyTol,NULL);
@@ -162,7 +162,7 @@ public:
  virtual void precond( Vector &Pv, const Vector &v, const Vector &x, double &tol ) {
    if( method_["precond"].impl ) {
      PyObject* pyPv = Teuchos::dyn_cast<BaseVector>(Pv).getPyVector();
-     const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();     
+     const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();
      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
      PyObject* pyTol = PyFloat_FromDouble(tol);
      PyObject_CallMethodObjArgs(pyObjective_,method_["precond"].name,pyPv,pyV,pyX,pyTol,NULL);

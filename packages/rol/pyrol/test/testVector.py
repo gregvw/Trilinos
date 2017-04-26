@@ -17,6 +17,8 @@ if __name__ == '__main__':
     print("\nTest ROL::Vector linear algebra interface for a vector implemented in Python")
     print(output)
 
+    quit()
+
     print('-'*100)
     xnp = np.random.randn(n)
     vcheck,output = pyrol.testVector(xnp)

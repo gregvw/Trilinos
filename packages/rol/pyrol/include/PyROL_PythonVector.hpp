@@ -165,11 +165,24 @@ public:
   }
 
   void plus( const Vector & x ) {
-    this->applyBinary(ROL::Elementwise::Plus<double>(),x);
+    if( method_["plus"].impl ) {
+      const PyObject* pyX = Teuchos::dyn_cast<const PythonVector>(x).getPyVector();
+      PyObject_CallMethodObjArgs(pyVector_, method_["plus"].name, pyX, NULL);
+    }
+    else {
+      this->applyBinary(ROL::Elementwise::Plus<double>(),x);
+    }
   }
 
   void scale( const double alpha ) {
-    this->applyUnary(ROL::Elementwise::Scale<double>(alpha));
+    if( method_["scale"].impl ) {
+      PyObject* pyAlpha = PyFloat_FromDouble(alpha);
+      PyObject_CallMethodObjArgs(pyVector_, method_["scale"].name, pyAlpha, NULL);
+      Py_DECREF(pyAlpha);
+    }
+    else {
+      this->applyUnary(ROL::Elementwise::Scale<double>(alpha));
+    }
   }
 
   double dot( const Vector &x ) const {
