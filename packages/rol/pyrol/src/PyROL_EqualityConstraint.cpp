@@ -41,37 +41,19 @@
 // ************************************************************************
 // @HEADER
 
-#ifdef ENABLE_NUMPY
-
-#include "PyROL_NumPyVector.hpp"
+#include "PyROL_EqualityConstraint.hpp"
 
 namespace PyROL {
 
-const AttributeManager::Name NumPyVector::className_ = "NumPyVector";
-
-const AttributeManager::AttributeList NumPyVector::attrList_ = {
-     //               method name, required
-     AttributeManager::Attribute( "plus",        0 ),
-     AttributeManager::Attribute( "scale",       0 ), 
-     AttributeManager::Attribute( "dot",         0 ), 
-     AttributeManager::Attribute( "norm",        0 ),
-     AttributeManager::Attribute( "clone",       1 ),
-     AttributeManager::Attribute( "axpy",        0 ),
-     AttributeManager::Attribute( "zero",        0 ),
-     AttributeManager::Attribute( "basis",       0 ),
-     AttributeManager::Attribute( "dimension",   0 ), 
-     AttributeManager::Attribute( "set",         0 ),
-     AttributeManager::Attribute( "dual",        0 ),
-     AttributeManager::Attribute( "applyUnary",  0 ),
-     AttributeManager::Attribute( "applyBinary", 0 ),
-     AttributeManager::Attribute( "reduce",      0 ),
-     AttributeManager::Attribute( "print",       0 ), 
-     AttributeManager::Attribute( "__getitem__", 1 ),  // Overload the [] operator for NumPy-like access
-     AttributeManager::Attribute( "__setitem__", 1 ),  // Overload the [] operator for NumPy-like access
-}; 
+const AttributeManager::AttributeList EqualityConstraint::attrList_ = {
+  AttributeManager::Attribute( "value",                 1 ),
+  AttributeManager::Attribute( "applyJacobian",         0 ),
+  AttributeManager::Attribute( "applyAdjointJacobian",  0 ),
+  AttributeManager::Attribute( "applyAdjointHessian",   0 ),
+  AttributeManager::Attribute( "solveAugmentedSystem",  0 ),
+  AttributeManager::Attribute( "applyPreconditioner",   0 ),
+  AttributeManager::Attribute( "update",                0 ),
+  AttributeManager::Attribute( "isFeasible",            0 )
+ };
 
 } // namespace PyROL
-
-
-#endif // ENABLE_NUMPY
-

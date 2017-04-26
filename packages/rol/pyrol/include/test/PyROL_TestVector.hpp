@@ -44,18 +44,19 @@
 #ifndef PYROL_TESTVECTOR_HPP
 #define PYROL_TESTVECTOR_HPP
 
-#include "PyROL_PythonVector.hpp"
+#include "PyROL_TypeConverters.hpp"
 
-// TODO: This needs to be generalized for alterative concrete vector types
 static PyObject* testVector( PyObject* self, PyObject *pyArgs ) {
 
   PyObject* pyVector;
 
-  if( !PyArg_ParseTuple(pyArgs,"O",&pyVector) ) return NULL;
+  if( !PyArg_ParseTuple(pyArgs,"O",&pyVector) ) {
+    return NULL;
+  }
 
-  PyROL::PythonVector x(pyVector);
-
-  Teuchos::RCP<ROL::Vector<double>> y = x.clone();
+  Teuchos::RCP<ROL::Vector<double>> x = PyROL::PyObject_AsVector(pyVector);
+  
+  Teuchos::RCP<ROL::Vector<double>> y = x->clone();
   Teuchos::RCP<ROL::Vector<double>> z = y->clone();
   
   ROL::RandomizeVector(*y);
@@ -65,7 +66,7 @@ static PyObject* testVector( PyObject* self, PyObject *pyArgs ) {
 
   std::vector<double> vcheck;
 
-  vcheck = x.checkVector(*y,*z,true,ss);  
+  vcheck = x->checkVector(*y,*z,true,ss);  
 
   PyObject *pyList = PyList_New(vcheck.size());  
 
