@@ -52,7 +52,7 @@
 namespace PyROL {
 
 /** \class PyROL::NumPyVector
-    \brief Provides a ROL interface for 1-dimensional NumPy arrays of double type   
+    \brief Provides a ROL interface for 1-dimensional NumPy arrays of double type
 */
 class NumPyVector : public BaseVector {
 
@@ -60,33 +60,33 @@ class NumPyVector : public BaseVector {
 
   using Vector          = ROL::Vector<double>;
 
-  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;  
-  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;  
-  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;  
+  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;
+  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;
+  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;
 
 
 private:
 
   PyObject*      pyVector_;
-  PyArrayObject* pyArray_;  // Pointer to NumPy array object 
+  PyArrayObject* pyArray_;  // Pointer to NumPy array object
 
-  bool    hasOwnership_;   // Vector is responsible for deallocating memory of any 
-                           // NumPy array which is created at the C API level 
+  bool    hasOwnership_;   // Vector is responsible for deallocating memory of any
+                           // NumPy array which is created at the C API level
                            // Python is will deallocate arrays it creates
 
   double*  data_;          // Pointer to the C-Array data encapsulated by the NumPy array
-  
+
   npy_intp size_;          // Number of elements in the array
 
 
 public:
 
-  NumPyVector( PyObject* pyVector, bool hasOwnership=false ) : 
+  NumPyVector( PyObject* pyVector, bool hasOwnership=false ) :
     pyVector_(pyVector), pyArray_((PyArrayObject*)pyVector),
     hasOwnership_(hasOwnership) {
 
     Py_Initialize();
-    import_array();
+    //    import_array();
 
     // Get number of dimensions of array and throw excpetion if not 1
     int ndim = PyArray_NDIM(pyArray_);
@@ -108,10 +108,10 @@ public:
 
   PyObject* getPyVector( ) {
     return pyVector_;
-  }  
+  }
 
   const PyObject* getPyVector( ) const {
-    return pyVector_; 
+    return pyVector_;
   }
 
   int dimension( ) const {
@@ -139,7 +139,7 @@ public:
   void applyUnary( const UnaryFunction &f ) {
     for( npy_intp i=0; i<size_; ++i ) {
       data_[i] = f.apply(data_[i]);
-    }  
+    }
   }
 
   void applyBinary( const BinaryFunction &f, const Vector &x ) {
@@ -155,13 +155,13 @@ public:
       r.reduce(data_[i],result);
     }
     return result;
-  }  
+  }
 
-  // Element access methods 
+  // Element access methods
   const double& operator[] ( npy_intp i ) const {
     return data_[i];
   }
-  
+
   double& operator[] ( npy_intp i ) {
     return data_[i];
   }
