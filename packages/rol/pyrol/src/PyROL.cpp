@@ -50,9 +50,9 @@
 extern "C" {
 #endif
 
-// Basic placeholder code to verify that CMake and Python are 
-// playing nice 
-static PyObject * 
+// Basic placeholder code to verify that CMake and Python are
+// playing nice
+static PyObject *
 display( PyObject *self, PyObject *args ) {
   char *myString;
    if( !PyArg_ParseTuple(args,"s",&myString) )
@@ -62,7 +62,7 @@ display( PyObject *self, PyObject *args ) {
    return Py_None;
 }
 
-static char display_doc[] = 
+static char display_doc[] =
   "display( ): Output supplied string to console.\n";
 
 static PyMethodDef pyrol_methods[] = {
@@ -71,7 +71,7 @@ static PyMethodDef pyrol_methods[] = {
   {NULL, NULL, 0, NULL}
 };
 
-static char pyrol_doc[] = 
+static char pyrol_doc[] =
   "PyROL: the Python interface to the Rapid Optimization Library";
 
 #if PY_MAJOR_VERSION >= 3
@@ -82,18 +82,18 @@ static struct PyModuleDef pyrol_module = {
   -1,
   pyrol_methods
 };
-#endif 
+#endif
 
 
 
 #if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC 
+PyMODINIT_FUNC
 PyInit_pyrol(void) {
 #ifdef ENABLE_NUMPY
   import_array();
 #endif
   PyObject* mod = PyModule_Create(&pyrol_module);
-  return mod
+  return mod;
 }
 
 #else
