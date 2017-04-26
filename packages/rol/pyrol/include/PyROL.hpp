@@ -7,16 +7,16 @@
 
 // Python Includes
 #include "Python.h"
-#ifdef ENABLE_NUMPY 
+#ifdef ENABLE_NUMPY
 #include "numpy/arrayobject.h"
-#endif 
+#endif
 
 
 #if PY_MAJOR_VERSION >= 3
 #define PyInt_FromLong PyLong_FromLong
 #define PyString_FromString PyUnicode_FromString
-#define PyString_AsString PyUnicode_AsString
-#else 
+#define PyString_AsString PyBytes_AS_STRING
+#else
 #ifndef PyMODINIT_FUNC
 #define PyMODINIT_FUNC void
 #endif
@@ -24,7 +24,7 @@
 
 #define  C_TEXT(text) ((char*)std::string(text).c_str())
 
-// Apparently this is not getting set from CMake, but ENABLE_NUMPY does 
+// Apparently this is not getting set from CMake, but ENABLE_NUMPY does
 //#ifndef PYROL_DEBUG_MODE
 //#define PYROL_DEBUG_MODE 1
 //#endif
