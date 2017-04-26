@@ -1,17 +1,17 @@
 # Example script of configuring PyROL with user choice of Python Version
 # This script should be executed in a subdirectory, e.g. /build, of the
 # PyROL source directory
-
 # This should work for Linux and Mac
 USER_HOME=`eval echo "~$USER"`
 
 VERSION="2.7"
-PYTHON_BASE_PATH="/usr"
+PYTHON_BASE_PATH="/usr/local/"
 PYMALLOC_BUILD=false
-TRILINOS_INSTALL="${USER_HOME}/Projects/PyROL/trilinos_install"
+TRILINOS_INSTALL="${USER_HOME}/projects/PyROL/trilinos_install"
 C_COMPILER=`which gcc`
 CXX_COMPILER=`which g++`
 CXXFLAGS="-std=c++11 -fPIC -g"
+
 
 OS=`uname`
 
@@ -33,6 +33,7 @@ fi
 PYTHON_INCLUDE_DIR="${PYTHON_BASE_PATH}/include/${PYTHON_NAME}"
 PYTHON_LIBRARY="${PYTHON_BASE_PATH}/lib/lib${PYTHON_NAME}${EXT}"
 PYTHON_INTERPRETER="${PYTHON_BASE_PATH}/bin/${PYTHON_NAME}"
+ 
 
 cmake . \
   -D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
@@ -43,4 +44,6 @@ cmake . \
   -D PYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE_DIR} \
   -D PYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY} \
   -D PYTHON_INTERPRETER:FILEPATH=${PYTHON_INTERPRETER} \
+  -D PYROL_DEBUG_MODE:BOOL=ON \
+  -D CMAKE_ENABLE_NUMPY:BOOL=ON \
 ${PYROL_HOME}

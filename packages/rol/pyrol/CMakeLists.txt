@@ -52,9 +52,18 @@ message("   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}")
 
 find_package(Python)
 
-if(NOT PYROL_INSTALL)
-  set(PYROL_INSTALL "${PYROL_HOME}/bin")
+if(CMAKE_ENABLE_NUMPY) 
+  find_package(NumPy)
 endif()
+
+
+if(PYROL_DEBUG_MODE) 
+  add_definitions(-DPYROL_DEBUG_MODE=${PYROL_DEBUG_MODE})
+endif()
+
+#if(NOT PYROL_INSTALL)
+#  set(PYROL_INSTALL "${PYROL_HOME}/bin")
+#endif()
 
 
 # These flags are needed to build on OSX. 
@@ -71,10 +80,6 @@ link_directories( ${Trilinos_LIBRARY_DIRS} )
 add_subdirectory(src)
 add_subdirectory(python)
 
-if(PYROL_DEBUG_MODE)
-  message("Setting environmental variable PYROL_DEBUG_MODE=1")
-  add_definitions(-DPYROL_DEBUG_MODE=1)
-endif()
 
 
 

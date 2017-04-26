@@ -16,7 +16,7 @@ protected:
   using Required      = int;
   using Implemented   = int;
   using Name          = const char*;
- 
+
   struct Attribute {
     Name        name;
     Required    req;
@@ -39,36 +39,11 @@ public:
   AttributeManager( PyObject* pyObj, const AttributeList &attrList, 
     const Name &className ) {
 
-    TEUCHOS_TEST_FOR_EXCEPTION( pyObj == NULL, std::logic_error, "AttributeManager constructor was given a "
-      "null pointer");
-/*
-#ifdef PYROL_DEBUG_MODE
+    TEUCHOS_TEST_FOR_EXCEPTION( pyObj == NULL, std::logic_error, 
+      "Error: attempted to create " << className << " object "
+      "from a NULL PyObject* " );
 
-  if( pyObj == NULL ) {
-     std::cout << "pyObj is NULL!" << std::endl;
-  }
- 
-  PyObject* pyDir = PyObject_Dir(pyObj);
-
-  Py_ssize_t size = PyList_Size(pyDir);
-  
-  for( Py_ssize_t i=0; i<size; ++i ) {
-    PyObject* pyItem = PyList_GetItem(pyDir,i);
-    std::string item = PyString_AsString(pyItem);
-    std::cout << item << ", ";
-  }
-  std::cout << std::endl;
-  Py_DECREF(pyDir);
-
-  std::cout << "Checking attributes for " << className << std::endl;
-  std::cout << std::setw(14) << "NAME" << std::setw(5) << "REQ" << std::setw(5) << "IMP" << std::endl;
-  for( auto a : attrList ) {
-    Implemented impl = PyObject_HasAttrString( pyObj, a.name ); 
-    std::cout << std::setw(14) << a.name << std::setw(5) << a.req << std::setw(5) << impl << std::endl;
-  }
-#endif // PYROL_DEBUG_MODE     
-*/
-    for( auto a : attrList ) {
+   for( auto a : attrList ) {
       Implemented impl = 0;
       try{
         impl = PyObject_HasAttrString( pyObj, a.name ); 
@@ -87,9 +62,27 @@ public:
   
   virtual ~AttributeManager() {
     for( auto &m : method_ ) {
-      Py_DECREF( m.second.name );
+      Py_XDECREF( m.second.name );
     }
   }
+
+#ifdef PYROL_DEBUG_MODE 
+
+  void dir(PyObject* pyObj, std::ostream &os) const {
+    PyObject* pyDir = PyObject_Dir(pyObj);
+
+    Py_ssize_t size = PyList_Size(pyDir);
+  
+    for( Py_ssize_t i=0; i<size; ++i ) {
+      PyObject* pyItem = PyList_GetItem(pyDir,i);
+      std::string item = PyString_AsString(pyItem);
+      os << item << ", ";
+    }
+    os << std::endl;
+    Py_DECREF(pyDir);
+  }
+
+#endif
 
 }; // class AttributeManager
 

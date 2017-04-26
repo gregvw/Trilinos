@@ -44,46 +44,29 @@
 #ifndef PYROL_TESTVECTOR_HPP
 #define PYROL_TESTVECTOR_HPP
 
-#include "PyROL_PythonVector.hpp"
+#include "PyROL_TypeConverters.hpp"
 
-// TODO: This needs to be generalized for alterative concrete vector types
 static PyObject* testVector( PyObject* self, PyObject *pyArgs ) {
 
   PyObject* pyVector;
 
-  if( !PyArg_ParseTuple(pyArgs,"O",&pyVector) ) return NULL;
+  if( !PyArg_ParseTuple(pyArgs,"O",&pyVector) ) {
+    return NULL;
+  }
 
-  PyROL::PythonVector x(pyVector);
-
-  Teuchos::RCP<ROL::Vector<double>> y = x.clone();
+  Teuchos::RCP<ROL::Vector<double>> x = PyROL::PyObject_AsVector(pyVector);
+  
+  Teuchos::RCP<ROL::Vector<double>> y = x->clone();
   Teuchos::RCP<ROL::Vector<double>> z = y->clone();
-  Teuchos::RCP<ROL::Vector<double>> s = z->clone();
   
   ROL::RandomizeVector(*y);
   ROL::RandomizeVector(*z);
-/*
-  std::cout << "y = ";
-  y->print(std::cout);
-  std::cout << "z = ";
-  z->print(std::cout);
-
-  x.set(*y); 
-  x.plus(*z);
-  std::cout << "y+z = ";
-  x.print(std::cout);
-
-  std::cout << "y.scale(2.0)" << std::endl;
-  y->scale(2.0);
-
-  std::cout << "w = y.clone()" << std::endl;
-  Teuchos::RCP<ROL::Vector<double>> w = s->clone(); 
-  std::cout << "Success!" << std::endl; 
-*/  
+ 
   std::stringstream ss;
 
   std::vector<double> vcheck;
 
-  vcheck = x.checkVector(*y,*z,true,ss);  
+  vcheck = x->checkVector(*y,*z,true,ss);  
 
   PyObject *pyList = PyList_New(vcheck.size());  
 
@@ -99,7 +82,6 @@ static PyObject* testVector( PyObject* self, PyObject *pyArgs ) {
     PyList_SetItem(pyList,index,PyFloat_FromDouble(element));
     index++;
   }
-  
   PyTuple_SetItem(pyReturn,(Py_ssize_t)(0),pyList);
   PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyOutput);
   return pyReturn;

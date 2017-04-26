@@ -41,71 +41,22 @@
 // ************************************************************************
 // @HEADER
 
+#include "PyROL_Objective.hpp"
 
-#include "PyROL_TestVector.hpp"
+namespace PyROL {
 
-#include <iostream>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// Basic placeholder code to verify that CMake and Python are 
-// playing nice 
-static PyObject * 
-display( PyObject *self, PyObject *args ) {
-  char *myString;
-   if( !PyArg_ParseTuple(args,"s",&myString) )
-     return NULL;
-   std::cout << myString << std::endl;
-   Py_INCREF(Py_None);
-   return Py_None;
-}
-
-static char display_doc[] = 
-  "display( ): Output supplied string to console.\n";
-
-static PyMethodDef pyrol_methods[] = {
-  {"display", (PyCFunction)display,METH_VARARGS,display_doc},
-  {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
-  {NULL, NULL, 0, NULL}
-};
-
-static char pyrol_doc[] = 
-  "PyROL: the Python interface to the Rapid Optimization Library";
-
-#if PY_MAJOR_VERSION >= 3
-static struct PyModuleDef pyrol_module = {
-  PyModuleDef_HEAD_INIT,
-  "pyrol",
-  pyrol_doc,
-  -1,
-  pyrol_methods
-};
-#endif 
+const AttributeManager::Name Objective::className_ = "Objective";
 
 
+const AttributeManager::AttributeList Objective::attrList_ = {
+  AttributeManager::Attribute( "value",      1 ),
+  AttributeManager::Attribute( "update",     0 ),
+  AttributeManager::Attribute( "gradient",   0 ),
+  AttributeManager::Attribute( "dirDeriv",   0 ),
+  AttributeManager::Attribute( "hessVec",    0 ),
+  AttributeManager::Attribute( "invHessVec", 0 ),
+  AttributeManager::Attribute( "precond",    0 )
+}; 
 
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC 
-PyInit_pyrol(void) {
-#ifdef ENABLE_NUMPY
-  import_array();
-#endif
-  PyObject* mod = PyModule_Create(&pyrol_module);
-  return mod
-}
+} // namespace PyROL
 
-#else
-void initpyrol(void) {
-#ifdef ENABLE_NUMPY
-  import_array();
-#endif
-  Py_InitModule3("pyrol",pyrol_methods,pyrol_doc);
-}
-#endif
-
-
-#ifdef __cplusplus
-} // extern "C"
-#endif

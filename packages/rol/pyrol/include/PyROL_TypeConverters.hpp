@@ -41,71 +41,40 @@
 // ************************************************************************
 // @HEADER
 
+#ifndef PYROL_TYPECONVERTERS_HPP
+#define PYROL_TYPECONVERTERS_HPP
 
-#include "PyROL_TestVector.hpp"
-
-#include <iostream>
+#include "PyROL_PythonVector.hpp"
+#include "PyROL_NumPyVector.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Basic placeholder code to verify that CMake and Python are 
-// playing nice 
-static PyObject * 
-display( PyObject *self, PyObject *args ) {
-  char *myString;
-   if( !PyArg_ParseTuple(args,"s",&myString) )
-     return NULL;
-   std::cout << myString << std::endl;
-   Py_INCREF(Py_None);
-   return Py_None;
+namespace PyROL {
+
+inline Teuchos::RCP<ROL::Vector<double>> 
+PyObject_AsVector( PyObject *pyObj ) {
+
+  Teuchos::RCP<ROL::Vector<double>> vec;
+
+  // Check to see if this is a NumPy array
+  if( PyObject_HasAttrString(pyObj,"__array_interface__") ) {
+   
+    vec = Teuchos::rcp( new NumPyVector(pyObj) );
+  }
+  else {
+    vec = Teuchos::rcp( new PythonVector(pyObj) ) ;
+  }
+  
+  return vec;
 }
 
-static char display_doc[] = 
-  "display( ): Output supplied string to console.\n";
+} // namespace PyROL
 
-static PyMethodDef pyrol_methods[] = {
-  {"display", (PyCFunction)display,METH_VARARGS,display_doc},
-  {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
-  {NULL, NULL, 0, NULL}
-};
-
-static char pyrol_doc[] = 
-  "PyROL: the Python interface to the Rapid Optimization Library";
-
-#if PY_MAJOR_VERSION >= 3
-static struct PyModuleDef pyrol_module = {
-  PyModuleDef_HEAD_INIT,
-  "pyrol",
-  pyrol_doc,
-  -1,
-  pyrol_methods
-};
-#endif 
-
-
-
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC 
-PyInit_pyrol(void) {
-#ifdef ENABLE_NUMPY
-  import_array();
-#endif
-  PyObject* mod = PyModule_Create(&pyrol_module);
-  return mod
-}
-
-#else
-void initpyrol(void) {
-#ifdef ENABLE_NUMPY
-  import_array();
-#endif
-  Py_InitModule3("pyrol",pyrol_methods,pyrol_doc);
-}
-#endif
+#endif // PYROL_TYPE_CONVERTERS_HPP
 
 
 #ifdef __cplusplus
-} // extern "C"
+} // extern "C" 
 #endif

@@ -42,70 +42,65 @@
 // @HEADER
 
 
-#include "PyROL_TestVector.hpp"
+#ifndef PYROL_BASEVECTOR_HPP
+#define PYROL_BASEVECTOR_HPP
 
-#include <iostream>
+#include "PyROL.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace PyROL {
 
-// Basic placeholder code to verify that CMake and Python are 
-// playing nice 
-static PyObject * 
-display( PyObject *self, PyObject *args ) {
-  char *myString;
-   if( !PyArg_ParseTuple(args,"s",&myString) )
-     return NULL;
-   std::cout << myString << std::endl;
-   Py_INCREF(Py_None);
-   return Py_None;
-}
+/** \class BaseVector provides an abstract interface like ROL::Vector, but with
+           the ability to return the member PyObject* vector. This enables
+           Objectives, Constraints, etc to be vector type agnostic */
 
-static char display_doc[] = 
-  "display( ): Output supplied string to console.\n";
+class BaseVector : public virtual ROL::ElementwiseVector<double> {
 
-static PyMethodDef pyrol_methods[] = {
-  {"display", (PyCFunction)display,METH_VARARGS,display_doc},
-  {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
-  {NULL, NULL, 0, NULL}
-};
+  using Vector = ROL::Vector<double>;
 
-static char pyrol_doc[] = 
-  "PyROL: the Python interface to the Rapid Optimization Library";
+  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;  
+  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;  
+  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;  
 
-#if PY_MAJOR_VERSION >= 3
-static struct PyModuleDef pyrol_module = {
-  PyModuleDef_HEAD_INIT,
-  "pyrol",
-  pyrol_doc,
-  -1,
-  pyrol_methods
-};
-#endif 
+public:
+
+  virtual ~BaseVector() {}
+
+  // All PyROL vectors must implement these two methods since
+  // every derived class contains a PyObject*  
+  virtual PyObject* getPyVector() = 0;
+  virtual const PyObject* getPyVector() const = 0;
 
 
+  virtual Teuchos::RCP<Vector> clone() const = 0;
 
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC 
-PyInit_pyrol(void) {
-#ifdef ENABLE_NUMPY
-  import_array();
-#endif
-  PyObject* mod = PyModule_Create(&pyrol_module);
-  return mod
-}
+  virtual Teuchos::RCP<Vector> basis( const int i ) const {return Teuchos::null;}
 
-#else
-void initpyrol(void) {
-#ifdef ENABLE_NUMPY
-  import_array();
-#endif
-  Py_InitModule3("pyrol",pyrol_methods,pyrol_doc);
-}
-#endif
+  virtual int dimension() const {return 0;}
+
+  virtual void applyUnary( const UnaryFunction &f ) {
+    TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
+      "The method applyUnary wass called, but not implemented" << std::endl); 
+  }
+
+  virtual void applyBinary( const BinaryFunction &f, const Vector &x ) {
+    TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
+      "The method applyBinary wass called, but not implemented" << std::endl); 
+  }
+
+  virtual double reduce( const ReductionOp &r ) const {
+    TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
+      "The method reduce was called, but not implemented" << std::endl); 
+  }
+
+  virtual void print( std::ostream &outStream ) const {
+    outStream << "The method print was called, but not implemented" << std::endl;
+  }    
+
+}; // class BaseVector
+
+} // namespace PyROL
 
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+
+#endif // PYROL_BASEVECTOR_HPP
+
