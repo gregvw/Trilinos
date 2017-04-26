@@ -219,28 +219,47 @@ public:
   }
 
   void axpy( const double alpha, const Vector &x ) {
-    const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
-    int dim = dimension();
-    for( int i=0; i<dim; ++i ) {
-      setValue(i, getValue(i) + alpha*ex.getValue(i));
+    if( method_["axpy"].impl ) {
+      const PyObject* pyX = Teuchos::dyn_cast<const PythonVector>(x).getPyVector();
+      PyObject* pyAlpha = PyFloat_FromDouble(alpha);
+      PyObject_CallMethodObjArgs(pyVector_, method_["axpy"].name, pyAlpha, pyX, NULL);
+      Py_DECREF(pyAlpha);
+    }
+    else {
+      const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
+      int dim = dimension();
+      for( int i=0; i<dim; ++i ) {
+        setValue(i, getValue(i) + alpha*ex.getValue(i));
+      }
     }
   }
 
   void zero( ) {
-    int dim = dimension();
-    for( int i=0; i<dim; ++i ) {
-      setValue(i, 0.0);
+    if( method_["zero"].impl ) {
+      PyObject_CallMethodObjArgs(pyVector_, method_["zero"].name, NULL);
+    }
+    else {
+      int dim = dimension();
+      for( int i=0; i<dim; ++i ) {
+        setValue(i, 0.0);
+      }
     }
   }
 
   void set( const Vector &x ) {
-    const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
-    int dim = dimension();
-    for( int i=0; i<dim; ++i ) {
-      setValue(i, ex.getValue(i));
+    if( method_["set"].impl ) {
+      const PyObject* pyX = Teuchos::dyn_cast<const PythonVector>(x).getPyVector();
+      PyObject_CallMethodObjArgs(pyVector_, method_["set"].name, pyX, NULL);
     }
-  }
+    else {
+      const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
+      int dim = dimension();
+      for( int i=0; i<dim; ++i ) {
+        setValue(i, ex.getValue(i));
+      }
+    }
 
+  }
 
   void applyUnary( const UnaryFunction &f ) {
     int dim = dimension();

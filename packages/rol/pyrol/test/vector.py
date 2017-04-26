@@ -30,6 +30,12 @@ class vector(object):
     def dot(self, vec):
         return self.data.inner(vec.data)
 
+    def axpy(self, a, x):
+        self.data.axpy(a, x.data)
+
+    def set(self, x):
+        self.data = x.data.copy()
+
     def dimension(self):
         return self.data.local_size()
 
