@@ -49,13 +49,14 @@
 extern "C" {
 #endif
 
+
 static PyMethodDef pyrol_methods[] = {
   {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
   {"solveUnconstrained",(PyCFunction)solveUnconstrained,METH_VARARGS,solveUnconstrained_doc},
   {NULL, NULL, 0, NULL}
 };
 
-static char pyrol_doc[] = 
+static char pyrol_doc[] =
   "PyROL: the Python interface to the Rapid Optimization Library";
 
 #if PY_MAJOR_VERSION >= 3
@@ -66,18 +67,18 @@ static struct PyModuleDef pyrol_module = {
   -1,
   pyrol_methods
 };
-#endif 
+#endif
 
 
 
 #if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC 
+PyMODINIT_FUNC
 PyInit_pyrol(void) {
 #ifdef ENABLE_NUMPY
   import_array();
 #endif
   PyObject* mod = PyModule_Create(&pyrol_module);
-  return mod
+  return mod;
 }
 
 #else

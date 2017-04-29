@@ -49,7 +49,7 @@
 #include "PyROL_BaseVector.hpp"
 
 /** \class PyROL::PythonVector
- *  \brief Provides a ROL interface to generic vectors defined in Python 
+ *  \brief Provides a ROL interface to generic vectors defined in Python
  *         which satisfy the interface requirements
  */
 
@@ -59,14 +59,14 @@ class PythonVector : public BaseVector, public AttributeManager {
 
   using Vector          = ROL::Vector<double>;
 
-  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;  
-  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;  
-  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;  
+  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;
+  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;
+  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;
 
-public:  
-  const static AttributeManager::Name className_; 
+public:
+  const static AttributeManager::Name className_;
 
-private: 
+private:
   const static AttributeManager::AttributeList attrList_;
 
   PyObject* pyVector_;
