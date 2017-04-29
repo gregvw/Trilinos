@@ -5,9 +5,10 @@ from vector import vector
 if __name__ == '__main__':
 
     """Check basic linear algebra of vector class implemented in Python"""
-
+  
     n = 10
-    x = vector(n)
+    data = [0]*n
+    x = vector(data)
     for i in range(n):
       x[i] = random.random()
 

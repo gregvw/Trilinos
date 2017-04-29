@@ -1,12 +1,7 @@
-from array import array
+# from array import array
 from math import sqrt
 import sys
-
-showcalls = True
-#showcalls = False 
-#if len(sys.argv)>1 :
-#    if sys.argv[1] == "show calls":
-#        showcalls = True
+import copy
 
 class vector(object):
 
@@ -14,11 +9,9 @@ class vector(object):
        by a ROL::Vector"""
 
 
-    def __init__(self,n):
-        if showcalls:
-            print("__init__")  
-        self.n=n
-        self.data = array('d',[0]*self.n)
+    def __init__(self,data):
+        self.n=len(data)
+        self.data = copy.deepcopy(data)
 
     def __setitem__(self,i,value):
         self.data[i] = value
@@ -27,64 +20,48 @@ class vector(object):
         return self.data[i]
 
     def dot(self,x):
-        if showcalls:
-            print("dot")  
         result = 0;
         for i in range(self.n):
             result += self.data[i]*x[i]
         return result
-
-#    def norm(self):
-#        if showcalls:
-#            print("norm")  
-#        result = 0;
-#        for i in range(self.n):
-#            result += self.data[i]*self.data[i]
-#        return sqrt(result)
+ 
+    def norm(self):
+        result = 0;
+        for d in self.data:
+            result += d**2
+        return sqrt(result)
 
     def plus(self,x):
-        if showcalls:
-            print("plus")  
         for i in range(self.n):
             self.data[i] = self.data[i] + x[i]
 
     def scale(self,alpha):
-        if showcalls:
-            print("plus")  
         for i in range(self.n):
             self.data[i] = alpha*self.data[i];
 
     def set(self,x):
-        if showcalls:
-            print("set")  
         for i in range(self.n):
             self.data[i] = x[i]
 
     def zero(self):
-        if showcalls:
-            print("zero")  
         for i in range(self.n):
             self.data[i] = 0.0; 
   
     def axpy(self,alpha,x): 
-        if showcalls:
-            print("axpy")  
         for i in range(self.n):
             self.data[i] = self.data[i] + alpha*x[i];
 
     def dimension(self):
-        if showcalls:
-            print("dimension")  
         return self.n
 
     def clone(self):
-        if showcalls:
-            print("clone")  
-        x = vector(self.n)
-        return x
+        return vector([0.0]*self.n)
 
     def __str__(self):
         return str(self.data)
+
+
+
 
 
 if __name__ == '__main__':

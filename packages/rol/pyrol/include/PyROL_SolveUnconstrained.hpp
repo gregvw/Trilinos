@@ -68,8 +68,6 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
   Teuchos::ParameterList parlist;
   PyROL::dictToParameterList(pyOptions,parlist);
 
-  std::cout << parlist << std::endl;
-
   std::string algoKey("Algorithm");
   PyObject *pyAlgoKey = PyString_FromString(C_TEXT(algoKey));
 
@@ -86,7 +84,7 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
   // Build and run the algorithm
   ROL::Algorithm<double> algo(algoValue,parlist,false);
   algo.run(*xp,obj,true,ss);
-
+ 
   PyObject* pyOutput = PyString_FromString(C_TEXT(ss.str()));
 
   return pyOutput;
