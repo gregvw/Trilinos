@@ -14,8 +14,9 @@
 
 #if PY_MAJOR_VERSION >= 3
 #define PyInt_FromLong PyLong_FromLong
-#define PyString_FromString PyUnicode_FromString
-#define PyString_AsString PyUnicode_AsString
+#define PyString_FromString PyBytes_FromString
+#define PyString_AsString PyBytes_AsString
+#define PyString_Check PyBytes_Check
 #else 
 #ifndef PyMODINIT_FUNC
 #define PyMODINIT_FUNC void
@@ -36,12 +37,13 @@
 #include <tuple>
 #include <vector>
 
-
 // ROL Includes
+#include "ROL_Algorithm.hpp"
 #include "ROL_ElementwiseVector.hpp"
+#include "ROL_EqualityConstraint.hpp"
+#include "ROL_Objective.hpp"
 #include "ROL_RandomVector.hpp"
 #include "ROL_StdVector.hpp"
-#include "ROL_Objective.hpp"
-#include "ROL_EqualityConstraint.hpp"
+
 
 #endif // PYROL_HPP

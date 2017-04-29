@@ -43,31 +43,15 @@
 
 
 #include "PyROL_TestVector.hpp"
-
-#include <iostream>
+#include "PyROL_SolveUnconstrained.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Basic placeholder code to verify that CMake and Python are 
-// playing nice 
-static PyObject * 
-display( PyObject *self, PyObject *args ) {
-  char *myString;
-   if( !PyArg_ParseTuple(args,"s",&myString) )
-     return NULL;
-   std::cout << myString << std::endl;
-   Py_INCREF(Py_None);
-   return Py_None;
-}
-
-static char display_doc[] = 
-  "display( ): Output supplied string to console.\n";
-
 static PyMethodDef pyrol_methods[] = {
-  {"display", (PyCFunction)display,METH_VARARGS,display_doc},
   {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
+  {"solveUnconstrained",(PyCFunction)solveUnconstrained,METH_VARARGS,solveUnconstrained_doc},
   {NULL, NULL, 0, NULL}
 };
 

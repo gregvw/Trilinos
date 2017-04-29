@@ -41,67 +41,65 @@
 // ************************************************************************
 // @HEADER
 
+#ifndef PYROL_SOLVE_UNCONSTRAINED_HPP
+#define PYROL_SOLVE_UNCONSTRAINED_HPP
 
-#ifndef PYROL_PYTHONVECTOR_HPP
-#define PYROL_PYTHONVECTOR_HPP
+#include "PyROL.hpp"
+#include "PyROL_Objective.hpp"
 
-#include "PyROL_AttributeManager.hpp"
-#include "PyROL_BaseVector.hpp"
+/* Solve an unconstrained problem, given an objective, initial guess, and
+ * options */
 
-/** \class PyROL::PythonVector
- *  \brief Provides a ROL interface to generic vectors defined in Python 
- *         which satisfy the interface requirements
- */
+static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
 
-namespace PyROL {
+  PyObject* pyObjective;
+  PyObject* pyX;
+  PyObject* pyOptions;
 
-class PythonVector : public BaseVector, public AttributeManager {
+  if( !PyArg_ParseTuple(pyArgs,"OOO",&pyObjective,&pyX,&pyOptions) ) return NULL;
 
-  using Vector          = ROL::Vector<double>;
+  // Make a PyROL::Objective from the supplied Python objective
+  PyROL::Objective obj(pyObjective);
 
-  using UnaryFunction   = ROL::Elementwise::UnaryFunction<double>;  
-  using BinaryFunction  = ROL::Elementwise::BinaryFunction<double>;  
-  using ReductionOp     = ROL::Elementwise::ReductionOp<double>;  
+  // Get optimization vector
+  Teuchos::RCP<ROL::Vector<double> > xp = PyROL::PyObject_AsVector(pyX) ;  
 
-public:  
-  const static AttributeManager::Name className_; 
+  // Get parameters
+  Teuchos::ParameterList parlist;
+  PyROL::dictToParameterList(pyOptions,parlist);
 
-private: 
-  const static AttributeManager::AttributeList attrList_;
+  std::cout << parlist << std::endl;
 
-  PyObject* pyVector_;
+  std::string algoKey("Algorithm");
+  PyObject *pyAlgoKey = PyString_FromString(C_TEXT(algoKey));
 
-  bool has_ownership_;
+  // Borrowed reference
+  PyObject *pyAlgoValue = PyDict_GetItem(pyOptions,pyAlgoKey);
+  PyObject *pyTemp = PyString_AsEncodedString(pyAlgoValue,"ASCII","strict");
+  Py_DECREF(pyAlgoKey); 
 
-public:
+  std::string algoValue = PyString_AsString(pyTemp);
+ 
+  // Capture stream from Algorithm::run in string
+  std::stringstream ss;
 
-  PythonVector( PyObject* pyVector, bool has_ownership=false );
-  PythonVector( const PythonVector & v );
-  virtual ~PythonVector();
-  int dimension() const;
-  Teuchos::RCP<Vector> clone() const;
-  Teuchos::RCP<Vector> basis( const int i ) const;
-  virtual const Vector & dual() const;
-  void plus( const Vector & x );
-  void scale( const double alpha );
-  double dot( const Vector &x ) const;
-  double norm() const;
-  void axpy( const double alpha, const Vector &x );
-  void zero();
-  void set( const Vector &x );
-  void applyUnary( const UnaryFunction &f );
-  void applyBinary( const BinaryFunction &f, const Vector &x );
-  double reduce( const ReductionOp &r ) const;
-  void setValue (int i, double value);
-  double getValue(int i) const;
-  PyObject* getPyVector(void);
-  const PyObject* getPyVector(void) const;
-  void print( std::ostream &os ) const;
+  // Build and run the algorithm
+  ROL::Algorithm<double> algo(algoValue,parlist,false);
+  algo.run(*xp,obj,true,ss);
 
-}; // class PythonVector
+  PyObject* pyOutput = PyString_FromString(C_TEXT(ss.str()));
 
-} // namespace PyROL
+  return pyOutput;
 
-// #include "PyROL_PythonVector_Impl.hpp"
+} // solveUnconstrained
 
-#endif // PYROL_PYTHONVECTOR_HPP
+static char solveUnconstrained_doc[] = 
+  "solveUnconstrained(obj,x,options) : Solve an unconstrained optimization "
+  "problem using PyROL, where obj is an Objective function class, x is the "
+  "initial guess, and options is a dictionary of options for configuring "
+  "ROL's minimization algorithm.";
+
+
+
+#endif // PYROL_SOLVE_UNCONSTRAINED_HPP
+
