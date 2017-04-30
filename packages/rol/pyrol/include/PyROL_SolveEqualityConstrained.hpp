@@ -41,71 +41,84 @@
 // ************************************************************************
 // @HEADER
 
-#ifndef PYROL_SOLVE_UNCONSTRAINED_HPP
-#define PYROL_SOLVE_UNCONSTRAINED_HPP
+#ifndef PYROL_SOLVE_EQUALITYCONSTRAINED_HPP
+#define PYROL_SOLVE_EQUALITYCONSTRAINED_HPP
 
 #include "PyROL.hpp"
 #include "PyROL_Objective.hpp"
+#include "PyROL_EqualityConstraint.hpp"
 
-/* Solve an unconstrained problem, given an objective, initial guess, and
- * options */
-
-static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
+/* Solve an equality-constrained optimization problem, given an objective, 
+   equality constraint, initial guess, and options
+ */
+static PyObject* solveEqualityConstrained( PyObject* self, PyObject* pyArgs ) {
+  
+  using namespace PyROL;
 
   PyObject* pyObjective;
+  PyObject* pyEqualityConstraint;
   PyObject* pyX;
+  PyObject* pyL;
   PyObject* pyOptions;
+  PyObject* pyReturn;
+  pyReturn = PyTuple_New(2);
 
-  int parseCheck = PyArg_ParseTuple(pyArgs,"OOO",&pyObjective,&pyX,&pyOptions);
+  int parseCheck = PyArg_ParseTuple(pyArgs,"OOOOO",&pyObjective,&pyEqualityConstraint,
+                   &pyX,&pyL,&pyOptions);
   TEUCHOS_TEST_FOR_EXCEPTION(!parseCheck,std::logic_error,"Failed to parse input tuple."
-    << " Expected solveUnconstrained(obj,x,opt)");
+    << " Expected solveEqualityConstrained(obj,con,x,l,opt)");
 
-  // Make a PyROL::Objective from the supplied Python objective
+  // Make a PyROL::Objective from the supplied Python object
   PyROL::Objective obj(pyObjective);
-
+  
+  // Make a PyROL::EqualityConstraint from the supplied Python object
+  PyROL::EqualityConstraint con(pyEqualityConstraint); 
+  
   // Get optimization vector
-  Teuchos::RCP<ROL::Vector<double> > xp = PyROL::PyObject_AsVector(pyX) ;  
+  Teuchos::RCP<ROL::Vector<double> > xp = PyObject_AsVector(pyX) ;  
+
+  // Get multiplier vector
+  Teuchos::RCP<ROL::Vector<double> > lp = PyObject_AsVector(pyL) ;  
 
   // Get parameters
   Teuchos::ParameterList parlist;
   PyROL::dictToParameterList(pyOptions,parlist);
 
   std::string algoKey("Algorithm");
-  PyObject *pyAlgoKey = PyString_FromString(C_TEXT(algoKey));
+  PyObject *pyAlgoKey = PyUnicode_FromString((char*)algoKey.c_str());
 
   // Borrowed reference
   PyObject *pyAlgoValue = PyDict_GetItem(pyOptions,pyAlgoKey);
   Py_DECREF(pyAlgoKey);
-  PyObject *pyTemp = PyString_AsEncodedString(pyAlgoValue,"ASCII","strict");
-
+  PyObject* pyTemp = PyString_AsEncodedString(pyAlgoValue,"ASCII","strict");
+   
   std::string algoValue = PyString_AsString(pyTemp);
- 
+
   // Capture streams from Algorithm::run in strings
   std::stringstream outputStream;
   std::stringstream vectorStream;
 
-  // Build and run the algorithm
   ROL::Algorithm<double> algo(algoValue,parlist,false);
-  algo.run(*xp,obj,true,outputStream,true,vectorStream);
- 
+  
+  algo.run(*xp,*lp,obj,con,true); 
+
   PyObject* pyOutput  = PyString_FromString(C_TEXT(outputStream.str()));
   PyObject* pyVectors = PyString_FromString(C_TEXT(vectorStream.str()));
 
-  PyObject* pyReturn = PyTuple_New(2);
   PyTuple_SetItem(pyReturn,(Py_ssize_t)(0),pyOutput);
-  PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);
-
+  PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);   
+  
   return pyReturn;
+}
 
-} // solveUnconstrained
 
-static char solveUnconstrained_doc[] = 
-  "solveUnconstrained(obj,x,options) : Solve an unconstrained optimization "
-  "problem using PyROL, where obj is an Objective function class, x is the "
-  "initial guess, and options is a dictionary of options for configuring "
+static char solveEqualityConstrained_doc[] = 
+  "solveE(obj,con,x,l,options) : Solve an  equality constrained "
+  "optimization problem using PyROL, where obj is an Objective "
+  "function class, con is an EqualityConststraint class, x is the "
+  "initial guess of the optimization vector, l vector of Lagrange " 
+  "multipliers and options is a dictionary of options for configuring "
   "ROL's minimization algorithm.";
 
 
-
-#endif // PYROL_SOLVE_UNCONSTRAINED_HPP
-
+#endif // PYROL_SOLVE_EQUALITYCONSTRAINED_HPP

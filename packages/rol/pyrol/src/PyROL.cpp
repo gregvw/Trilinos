@@ -44,6 +44,7 @@
 
 #include "PyROL_TestVector.hpp"
 #include "PyROL_SolveUnconstrained.hpp"
+#include "PyROL_SolveEqualityConstrained.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +53,10 @@ extern "C" {
 
 static PyMethodDef pyrol_methods[] = {
   {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
-  {"solveUnconstrained",(PyCFunction)solveUnconstrained,METH_VARARGS,solveUnconstrained_doc},
+  {"solveUnconstrained",(PyCFunction)solveUnconstrained,METH_VARARGS,
+    solveUnconstrained_doc},
+  {"solveEqualityConstrained",(PyCFunction)solveEqualityConstrained,
+    METH_VARARGS,solveEqualityConstrained_doc},
   {NULL, NULL, 0, NULL}
 };
 
@@ -76,6 +80,9 @@ PyMODINIT_FUNC
 PyInit_pyrol(void) {
 #ifdef ENABLE_NUMPY
   import_array();
+  if (PyErr_Occurred())
+    Py_FatalError("can't initialize module pyrol (failed to import numpy)");
+
 #endif
   PyObject* mod = PyModule_Create(&pyrol_module);
   return mod;
@@ -85,6 +92,9 @@ PyInit_pyrol(void) {
 void initpyrol(void) {
 #ifdef ENABLE_NUMPY
   import_array();
+  if (PyErr_Occurred())
+    Py_FatalError("can't initialize module pyrol (failed to import numpy)");
+
 #endif
   Py_InitModule3("pyrol",pyrol_methods,pyrol_doc);
 }

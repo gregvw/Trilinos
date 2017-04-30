@@ -53,10 +53,7 @@ namespace PyROL {
 NumPyVector::NumPyVector( PyObject* pyVector, bool hasOwnership ) : 
   pyVector_(pyVector), pyArray_((PyArrayObject*)pyVector),
   hasOwnership_(hasOwnership) {
-
-  Py_Initialize();
   import_array();
-
   // Get number of dimensions of array and throw excpetion if not 1
   int ndim = PyArray_NDIM(pyArray_);
   TEUCHOS_TEST_FOR_EXCEPTION( ndim != 1, std::logic_error,

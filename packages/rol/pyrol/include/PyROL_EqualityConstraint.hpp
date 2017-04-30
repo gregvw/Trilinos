@@ -44,9 +44,7 @@
 #ifndef PYROL_EQUALITYCONSTRAINT_HPP
 #define PYROL_EQUALITYCONSTRAINT_HPP
 
-#include "PyROL.hpp"
 #include "PyROL_AttributeManager.hpp"
-#include "PyROL_BaseVector.hpp"
 
 namespace PyROL {
 
@@ -71,130 +69,17 @@ private:
 
 public:
 
-  EqualityConstraint( PyObject* pyEqCon ) : 
-    ROL::EqualityConstraint<double>(),
-    AttributeManager( pyEqCon, attrList_, className_ ),
-    pyEqCon_(pyEqCon) {
-    Py_INCREF(pyEqCon_);
-  }    
-
-  virtual ~EqualityConstraint() {
-    Py_DECREF(pyEqCon_);
-  }
-    
-  virtual void value(Vector &c, const Vector &x, double &tol) {
-    PyObject* pyC = Teuchos::dyn_cast<BaseVector>(c).getPyVector();
-    const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
-    PyObject* pyTol = PyFloat_FromDouble(tol);
-    PyObject_CallMethodObjArgs(pyEqCon_,method_["value"].name,pyC,pyX,pyTol,NULL);
-  }
-
-  virtual void applyJacobian(Vector &jv, const Vector &v, const Vector &x, double &tol) {
-    if( method_["applyJacobian"].impl ) {
-      PyObject* pyJv = Teuchos::dyn_cast<BaseVector>(jv).getPyVector();
-      const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();
-      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
-      PyObject* pyTol = PyFloat_FromDouble(tol);
-      PyObject_CallMethodObjArgs(pyEqCon_,method_["applyJacobian"].name,pyJv,pyV,pyX,pyTol,NULL);
-      Py_DECREF(pyTol);
-    }
-    else {
-      ROL::EqualityConstraint<double>::applyJacobian(jv, v, x, tol); 
-    }
-  }
-
-  virtual void applyAdjointJacobian(Vector &ajv, const Vector &v, const Vector &x, double &tol) {
-    if( method_["applyAdjointJacobian"].impl ) {
-      PyObject* pyAjv = Teuchos::dyn_cast<BaseVector>(ajv).getPyVector();
-      const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();
-      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
-      PyObject* pyTol = PyFloat_FromDouble(tol);
-      PyObject_CallMethodObjArgs(pyEqCon_,method_["applyAdjointJacobian"].name,pyAjv,pyV,pyX,pyTol,NULL);
-      Py_DECREF(pyTol);
-    }
-    else {
-      ROL::EqualityConstraint<double>::applyAdjointJacobian(ajv, v, x, tol); 
-    }
-
-  }
-
-  // TODO: Add dual versions
-  
-  virtual void applyAdjointHessian(Vector &ahuv, const Vector &u, const Vector &v, const Vector &x, double &tol) {
-    if( method_["applyAdjointHessian"].impl ) {
-      PyObject* pyAhuv = Teuchos::dyn_cast<BaseVector>(ahuv).getPyVector();
-      const PyObject* pyU = Teuchos::dyn_cast<const BaseVector>(u).getPyVector();
-      const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();
-      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
-      PyObject* pyTol = PyFloat_FromDouble(tol);
-      PyObject_CallMethodObjArgs(pyEqCon_,method_["applyAdjointHessian"].name,pyAhuv,pyU,pyV,pyX,pyTol,NULL);
-      Py_DECREF(pyTol);
-    }
-    else {
-      ROL::EqualityConstraint<double>::applyAdjointHessian(ahuv, u, v, x, tol); 
-    }
-  }
-
+  EqualityConstraint( PyObject* pyEqCon );
+  virtual ~EqualityConstraint();
+  virtual void value(Vector &c, const Vector &x, double &tol);
+  virtual void applyJacobian(Vector &jv, const Vector &v, const Vector &x, double &tol);
+  virtual void applyAdjointJacobian(Vector &ajv, const Vector &v, const Vector &x, double &tol);
+  virtual void applyAdjointHessian(Vector &ahuv, const Vector &u, const Vector &v, const Vector &x, double &tol);
   virtual std::vector<double> solveAugmentedSystem(Vector &v1,  Vector &v2, const Vector &b1,
-                                                   const Vector &b2, const Vector &x, double &tol) {
-    if( method_["solveAugmentedSystem"].impl ) {
-      PyObject* pyV1 = Teuchos::dyn_cast<BaseVector>(v1).getPyVector();
-      PyObject* pyV2 = Teuchos::dyn_cast<BaseVector>(v2).getPyVector();
-      const PyObject* pyB1 = Teuchos::dyn_cast<const BaseVector>(b1).getPyVector();
-      const PyObject* pyB2 = Teuchos::dyn_cast<const BaseVector>(b2).getPyVector();
-      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
-      PyObject* pyTol = PyFloat_FromDouble(tol);
-      PyObject_CallMethodObjArgs(pyEqCon_,method_["solveAugmentedSystem"].name,pyV1,pyV2,pyB1,pyB2,pyX,pyTol,NULL);
-      Py_DECREF(pyTol);
-      // TODO
-      return std::vector<double>();
-    }
-    else {
-      return ROL::EqualityConstraint<double>::solveAugmentedSystem(v1, v2, b1, b2, x, tol); 
-    }
-  }
-
-
-  virtual void applyPreconditioner(Vector &pv, const Vector &v, const Vector &x, const Vector &g, double &tol) {
-    if( method_["applyPreconditioner"].impl ) {
-      PyObject* pyPv = Teuchos::dyn_cast<BaseVector>(pv).getPyVector();
-      const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();
-      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
-      const PyObject* pyG = Teuchos::dyn_cast<const BaseVector>(g).getPyVector();
-      PyObject* pyTol = PyFloat_FromDouble(tol);
-      PyObject_CallMethodObjArgs(pyEqCon_,method_["applyPreconditioner"].name,pyPv,pyV,pyX,pyG,pyTol,NULL);
-      Py_DECREF(pyTol);
-    }
-    else {
-      ROL::EqualityConstraint<double>::applyPreconditioner(pv, v, x, g, tol); 
-    }
-  }
-
-  virtual void update( const Vector &x, bool flag = true, int iter = -1 ) {
-    if( method_["update"].impl ) {
-      const PyObject* pyX = Teuchos::dyn_cast<const BaseVector>(x).getPyVector();
-      PyObject* pyFlag = flag ? Py_True : Py_False;
-      PyObject* pyIter = PyLong_FromLong(static_cast<long>(iter));
-      PyObject_CallMethodObjArgs(pyEqCon_,method_["update"].name,pyX,pyFlag,pyIter,NULL);
-      Py_DECREF(pyFlag);
-      Py_DECREF(pyIter);
-    }
-  }
-
-  virtual bool isFeasible( const Vector &v ) { 
-    if( method_["isFeasible"].impl ) {
-      const PyObject* pyV = Teuchos::dyn_cast<const BaseVector>(v).getPyVector();
-      PyObject* pyFeasible = PyObject_CallMethodObjArgs(pyEqCon_,method_["isFeasible"].name,pyV,NULL);
-      bool feasible = static_cast<bool>(PyLong_AsLong(pyFeasible));
-      Py_DECREF(pyFeasible);
-      return feasible;
-    }
-    else {
-      return true; 
-    }
-  }
-
-
+                                                   const Vector &b2, const Vector &x, double &tol);
+  virtual void applyPreconditioner(Vector &pv, const Vector &v, const Vector &x, const Vector &g, double &tol);
+  virtual void update( const Vector &x, bool flag = true, int iter = -1 );
+  virtual bool isFeasible( const Vector &v );
 
 }; // class EqualityConstraint
 

@@ -80,7 +80,7 @@ const PyObject* PyObject_FromVector( const ROL::Vector<double> &vec ) {
 }
 
 enum PyOBJECT_TYPE : short {
-  PyDICT, PyLIST, PySTRING, PyLONG, PyFLOAT, PyDOUBLE, PyBOOL, PyUNDEFINED
+  PyDICT, PyLIST, PySTRING, PyINT, PyLONG, PyFLOAT, PyBOOL, PyUNDEFINED
 };
 
 
@@ -88,13 +88,14 @@ inline PyOBJECT_TYPE getPyObjectType( PyObject *pyObj ) {
 
   PyOBJECT_TYPE type;
 
-  if( PyDict_Check(pyObj) )            { type = PyDICT;      }
-  else if ( PyString_Check(pyObj) )    { type = PySTRING;    }
-  else if( PyBool_Check(pyObj) )       { type = PyBOOL;      }
-  else if( PyList_Check(pyObj) )       { type = PyLIST;      }
-  else if( PyLong_Check(pyObj) )       { type = PyLONG;      }
-  else if( PyFloat_Check(pyObj) )      { type = PyFLOAT;     }
-  else                                 { type = PyUNDEFINED; }
+  if( PyDict_Check(pyObj) )         { type = PyDICT;      }
+  else if( PyString_Check(pyObj) )  { type = PySTRING;    }
+  else if( PyBool_Check(pyObj)   )  { type = PyBOOL;      }
+  else if( PyList_Check(pyObj)   )  { type = PyLIST;      }
+  else if( PyInt_Check(pyObj)    )  { type = PyINT;       }
+  else if( PyLong_Check(pyObj)   )  { type = PyLONG;      }
+  else if( PyFloat_Check(pyObj)  )  { type = PyFLOAT;     }
+  else                              { type = PyUNDEFINED; }
   return type;
 }
 
@@ -104,10 +105,12 @@ inline std::string pyObjectTypeAsString( PyOBJECT_TYPE type ) {
       return "dict";
     case PyLIST:
       return "list";
-    case PySTRING:
-      return "string";
     case PyLONG:
       return "long";
+    case PySTRING:
+      return "string";
+    case PyINT:
+      return "int";
     case PyFLOAT:
       return "float";
     case PyBOOL:
@@ -152,8 +155,8 @@ inline void dictToParameterList( PyObject* pyDict,
     // Determine value type and write the key:value pair to the ParameterList
     switch( valueType ) {
       case PySTRING: {
-//        PyObject* pyValueString = PyUnicode_AsEncodedString(pyValue,"ASCII","strict");
-        char* valueString = PyBytes_AsString(pyValue);
+///        PyObject* pyValueString = PyUnicode_AsEncodedString(pyValue,"ASCII","strict");
+        char* valueString = PyString_AsString(pyValue);
         parlist.set(keyString,valueString);
 //        Py_XDECREF(pyValueString); 
       }     
@@ -168,9 +171,10 @@ inline void dictToParameterList( PyObject* pyDict,
       }
       break;
 
+      case PyINT: 
       case PyLONG: {
-        long valueLong = PyLong_AsLong(pyValue);
-        parlist.set(keyString,valueLong);
+        int valueInt = static_cast<int>(PyInt_AsLong(pyValue));
+        parlist.set(keyString,valueInt);
       }
       break;
 
@@ -186,26 +190,19 @@ inline void dictToParameterList( PyObject* pyDict,
       }
       break;
 
-      case PyLIST:
-      case PyDOUBLE:
+      case PyLIST: // TODO implement conversion of lists
       case PyUNDEFINED: {
         TEUCHOS_TEST_FOR_EXCEPTION(true, std::invalid_argument,
           ">>> ERROR in addPairToParameterList(). "
-          "Encountered value of unsupported type: " << pyObjectTypeAsString(valueType) 
-          << std::endl);
+          "Encountered key \"" << keyString << "\" with value of unsupported type: " 
+          << pyObjectTypeAsString(valueType) << std::endl);
       }  
       break;
     } // switch( valueType )
     Py_XDECREF(pyValue);
   } // for(i...)
-
-  
   Py_XDECREF(pyKeyList);
-
 }
-
-
-
 
         
 } // namespace PyROL
