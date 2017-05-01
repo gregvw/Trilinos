@@ -88,6 +88,7 @@ public:
   void applyUnary( const UnaryFunction &f );
   void applyBinary( const BinaryFunction &f, const Vector &x );
   double reduce( const ReductionOp &r ) const;
+  void print( std::ostream &os ) const;
   const double& operator[] ( npy_intp i ) const;
   double& operator[] ( npy_intp i );
 

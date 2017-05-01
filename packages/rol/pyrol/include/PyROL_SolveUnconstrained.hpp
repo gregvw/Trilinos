@@ -71,7 +71,16 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
   PyROL::dictToParameterList(pyOptions,parlist);
 
   std::string algoKey("Algorithm");
-  PyObject *pyAlgoKey = PyString_FromString(C_TEXT(algoKey));
+  PyObject* pyAlgoKey = PyString_FromString(C_TEXT(algoKey));
+
+  std::string getIteratesKey("Return Iterates");
+  PyObject* pyGetIteratesKey = PyString_FromString(C_TEXT(getIteratesKey));
+  PyObject* pyGetIteratesValue = PyDict_GetItem(pyOptions, pyGetIteratesKey);
+  bool getIteratesValue = false;
+  if( pyGetIteratesValue != NULL && PyObject_IsTrue(pyGetIteratesValue) ) {
+    getIteratesValue = true;
+  }
+  Py_DECREF(pyGetIteratesKey);
 
   // Borrowed reference
   PyObject *pyAlgoValue = PyDict_GetItem(pyOptions,pyAlgoKey);
@@ -91,9 +100,16 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
   PyObject* pyOutput  = PyString_FromString(C_TEXT(outputStream.str()));
   PyObject* pyVectors = PyString_FromString(C_TEXT(vectorStream.str()));
 
-  PyObject* pyReturn = PyTuple_New(2);
-  PyTuple_SetItem(pyReturn,(Py_ssize_t)(0),pyOutput);
-  PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);
+  PyObject* pyReturn;
+
+  if( getIteratesValue ) {
+    pyReturn = PyTuple_New(2);
+    PyTuple_SetItem(pyReturn,(Py_ssize_t)(0),pyOutput);
+    PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);
+  }
+  else {
+    pyReturn = pyOutput; 
+  }
 
   return pyReturn;
 
@@ -103,7 +119,11 @@ static char solveUnconstrained_doc[] =
   "solveUnconstrained(obj,x,options) : Solve an unconstrained optimization "
   "problem using PyROL, where obj is an Objective function class, x is the "
   "initial guess, and options is a dictionary of options for configuring "
-  "ROL's minimization algorithm.";
+  "ROL's minimization algorithm. Returns the results of ROL::Algorithm::run "
+  "in the form of a string. If options contains the top level pair "
+  "\"Return Iterates\" : \"true\", the method returns a two-element tuple "
+  "where the second element is a string containing the optimation vectors "
+  "for each iterate ";
 
 
 

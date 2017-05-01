@@ -152,7 +152,7 @@ void EqualityConstraint::applyPreconditioner(ROL::Vector<double> &pv, const ROL:
                                              const ROL::Vector<double> &x, const ROL::Vector<double> &g, 
                                              double &tol) {
   if( method_["applyPreconditioner"].impl ) {
-    PyObject* pyPv = Teuchos::dyn_cast<BaseVector>(pv).getPyVector();
+    PyObject* pyPv = PyObject_FromVector(pv);
     const PyObject* pyV = PyObject_FromVector(v);
     const PyObject* pyX = PyObject_FromVector(x);
     const PyObject* pyG = PyObject_FromVector(g);

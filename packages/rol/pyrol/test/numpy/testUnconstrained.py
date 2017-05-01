@@ -15,6 +15,7 @@ if __name__ == '__main__':
     obj = zakharov.Objective(dim) 
     
     solve_opt = { "Algorithm" : "Line Search",
+                  "Return Iterates" : "true", 
                   "Step" : {
                     "Line Search" : {
                        "Descent Method" : {
@@ -28,8 +29,13 @@ if __name__ == '__main__':
     x = np.ones(dim) 
 
     # Solve the optimization problem with the given options
-    output,iterates = pyrol.solveUnconstrained(obj,x,solve_opt)
-    print(output)
-     
+    output =  pyrol.solveUnconstrained(obj,x,solve_opt)
 
+    if len(output)>1:
+        print(output[0])
+        print("Optimization vectors")
+        print(output[1])
+    else:
+        print(output)
+      
 

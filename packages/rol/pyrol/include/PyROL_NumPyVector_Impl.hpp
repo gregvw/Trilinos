@@ -123,6 +123,13 @@ double NumPyVector::reduce( const ReductionOp &r ) const {
   return result;
 }  
 
+void NumPyVector::print( std::ostream &os ) const {
+  for( npy_intp i=0; i<size_; ++i ) {
+    os << data_[i] << " ";
+  }  
+  os << std::endl;
+}
+
 // Element access methods 
 const double& NumPyVector::operator[] ( npy_intp i ) const {
   return data_[i];
