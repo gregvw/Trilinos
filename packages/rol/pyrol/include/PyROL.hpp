@@ -7,19 +7,28 @@
 
 // Python Includes
 #include "Python.h"
-#ifdef ENABLE_NUMPY
+#ifdef ENABLE_NUMPY 
 #include "numpy/arrayobject.h"
-#endif
+#endif 
 
 
 #if PY_MAJOR_VERSION >= 3
+
 #define PyInt_FromLong PyLong_FromLong
-#define PyString_FromString PyUnicode_FromString
-#define PyString_AsString PyBytes_AS_STRING
-#else
+#define PyInt_AsLong   PyLong_AsLong
+#define PyInt_Check    PyLong_Check
+
+#define PyString_FromString        PyBytes_FromString
+#define PyString_AsString          PyBytes_AsString
+#define PyString_AsEncodedString   PyUnicode_AsEncodedString
+#define PyString_Check             PyBytes_Check
+
+#else // Python 2.7
+
 #ifndef PyMODINIT_FUNC
 #define PyMODINIT_FUNC void
 #endif
+
 #endif
 
 #define  C_TEXT(text) ((char*)std::string(text).c_str())
@@ -36,12 +45,13 @@
 #include <tuple>
 #include <vector>
 
-
 // ROL Includes
+#include "ROL_Algorithm.hpp"
 #include "ROL_ElementwiseVector.hpp"
+#include "ROL_EqualityConstraint.hpp"
+#include "ROL_Objective.hpp"
 #include "ROL_RandomVector.hpp"
 #include "ROL_StdVector.hpp"
-#include "ROL_Objective.hpp"
-#include "ROL_EqualityConstraint.hpp"
+
 
 #endif // PYROL_HPP

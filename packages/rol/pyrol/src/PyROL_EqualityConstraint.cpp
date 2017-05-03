@@ -41,19 +41,24 @@
 // ************************************************************************
 // @HEADER
 
-#include "PyROL_EqualityConstraint.hpp"
+#include "PyROL_EqualityConstraint_Impl.hpp"
 
 namespace PyROL {
 
+const AttributeManager::Name 
+EqualityConstraint::className_ = "EqualityConstraint";
+
+
 const AttributeManager::AttributeList EqualityConstraint::attrList_ = {
-  AttributeManager::Attribute( "value",                 1 ),
-  AttributeManager::Attribute( "applyJacobian",         0 ),
-  AttributeManager::Attribute( "applyAdjointJacobian",  0 ),
-  AttributeManager::Attribute( "applyAdjointHessian",   0 ),
-  AttributeManager::Attribute( "solveAugmentedSystem",  0 ),
-  AttributeManager::Attribute( "applyPreconditioner",   0 ),
-  AttributeManager::Attribute( "update",                0 ),
-  AttributeManager::Attribute( "isFeasible",            0 )
- };
+  AttributeManager::Attribute( "value",                1 ),
+  AttributeManager::Attribute( "update",               0 ),
+  AttributeManager::Attribute( "applyJacobian",        0 ),
+  AttributeManager::Attribute( "applyAdjointJacobian", 0 ),
+  AttributeManager::Attribute( "applyAdjointHessian",  0 ),
+  AttributeManager::Attribute( "solveAugmentedSystem", 0 ),
+  AttributeManager::Attribute( "applyPreconditioner",  0 ),
+  AttributeManager::Attribute( "isFeasible",           0 )
+}; 
 
 } // namespace PyROL
+

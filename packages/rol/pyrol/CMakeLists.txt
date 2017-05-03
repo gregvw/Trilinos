@@ -54,6 +54,7 @@ find_package(Python)
 
 if(CMAKE_ENABLE_NUMPY) 
   find_package(NumPy)
+  
 endif()
 
 

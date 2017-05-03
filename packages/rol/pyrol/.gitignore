@@ -6,3 +6,4 @@ commit.txt
 *.so
 *.a
 *.dylib
+*.pyc

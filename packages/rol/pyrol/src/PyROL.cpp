@@ -43,31 +43,20 @@
 
 
 #include "PyROL_TestVector.hpp"
-
-#include <iostream>
+#include "PyROL_SolveUnconstrained.hpp"
+#include "PyROL_SolveEqualityConstrained.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Basic placeholder code to verify that CMake and Python are
-// playing nice
-static PyObject *
-display( PyObject *self, PyObject *args ) {
-  char *myString;
-   if( !PyArg_ParseTuple(args,"s",&myString) )
-     return NULL;
-   std::cout << myString << std::endl;
-   Py_INCREF(Py_None);
-   return Py_None;
-}
-
-static char display_doc[] =
-  "display( ): Output supplied string to console.\n";
 
 static PyMethodDef pyrol_methods[] = {
-  {"display", (PyCFunction)display,METH_VARARGS,display_doc},
   {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
+  {"solveUnconstrained",(PyCFunction)solveUnconstrained,METH_VARARGS,
+    solveUnconstrained_doc},
+  {"solveEqualityConstrained",(PyCFunction)solveEqualityConstrained,
+    METH_VARARGS,solveEqualityConstrained_doc},
   {NULL, NULL, 0, NULL}
 };
 
@@ -91,6 +80,9 @@ PyMODINIT_FUNC
 PyInit_pyrol(void) {
 #ifdef ENABLE_NUMPY
   import_array();
+  if (PyErr_Occurred())
+    Py_FatalError("can't initialize module pyrol (failed to import numpy)");
+
 #endif
   PyObject* mod = PyModule_Create(&pyrol_module);
   return mod;
@@ -100,6 +92,9 @@ PyInit_pyrol(void) {
 void initpyrol(void) {
 #ifdef ENABLE_NUMPY
   import_array();
+  if (PyErr_Occurred())
+    Py_FatalError("can't initialize module pyrol (failed to import numpy)");
+
 #endif
   Py_InitModule3("pyrol",pyrol_methods,pyrol_doc);
 }

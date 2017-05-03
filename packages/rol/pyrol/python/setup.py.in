@@ -8,6 +8,7 @@ else:
 
 import sys
 import os
+import platform
 
 if __name__ == '__main__':
 
@@ -31,14 +32,15 @@ if __name__ == '__main__':
     os.environ["CFLAGS"]   = "${CMAKE_CXX_FLAGS}" 
     os.environ["CXXFLAGS"] = "${CMAKE_CXX_FLAGS}" 
 
+ 
     # This doesn't seem to make it through from CMake directly
     if '${CMAKE_ENABLE_NUMPY}' in ['ON','TRUE',1]:
-        os.environ["CFLAGS"]   += " -DENABLE_NUMPY=1" 
-        os.environ["CXXFLAGS"] += " -DENABLE_NUMPY=1" 
+        os.environ["CFLAGS"]   += " -DENABLE_NUMPY=${CMAKE_ENABLE_NUMPY}" 
+        os.environ["CXXFLAGS"] += " -DENABLE_NUMPY=${CMAKE_ENABLE_NUMPY}" 
         
     if '${PYROL_DEBUG_MODE}' in ['ON','TRUE',1]:
-        os.environ["CFLAGS"]   += " -DPYROL_DEBUG_MODE=1"
-        os.environ["CXXFLAGS"] += " -DPYROL_DEBUG_MODE=1"
+        os.environ["CFLAGS"]   += " -DPYROL_DEBUG_MODE=${PYROL_DEBUG_MODE}"
+        os.environ["CXXFLAGS"] += " -DPYROL_DEBUG_MODE=${PYROL_DEBUG_MODE}"
 
     pyrol_include_path        = '${CMAKE_SOURCE_DIR}/include'
     trilinos_include_path     = '${Trilinos_INCLUDE_DIRS}'
@@ -69,6 +71,9 @@ if __name__ == '__main__':
     pyrol_source_files = [os.path.join(pyrol_src,f) for f in os.listdir(pyrol_src) if f.endswith('.cpp')]
 
     os.environ["LDFLAGS"]="${CMAKE_SHARED_LINKER_FLAGS}"
+    if platform.system() == 'Darwin':
+        os.environ["LDFLAGS"] = " -rpath ${Trilinos_LIBRARY_DIRS}"
+ 
     pyrol = Extension('pyrol',sources=pyrol_source_files,
                   include_dirs=header_paths,
     #              extra_link_args=["${CMAKE_SHARED_LINKER_FLAGS}"],

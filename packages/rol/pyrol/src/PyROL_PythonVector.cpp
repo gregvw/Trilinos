@@ -41,7 +41,7 @@
 // ************************************************************************
 // @HEADER
 
-#include "PyROL_PythonVector.hpp"
+#include "PyROL_PythonVector_Impl.hpp"
 
 
 namespace PyROL {
@@ -58,7 +58,7 @@ const AttributeManager::AttributeList PythonVector::attrList_ = {
      AttributeManager::Attribute( "axpy",        0 ),
      AttributeManager::Attribute( "zero",        0 ),
      AttributeManager::Attribute( "basis",       0 ),
-     AttributeManager::Attribute( "dimension",   0 ), 
+     AttributeManager::Attribute( "dimension",   1 ), 
      AttributeManager::Attribute( "set",         0 ),
      AttributeManager::Attribute( "dual",        0 ),
      AttributeManager::Attribute( "applyUnary",  0 ),

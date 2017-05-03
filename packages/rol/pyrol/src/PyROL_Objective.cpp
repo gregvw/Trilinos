@@ -41,7 +41,7 @@
 // ************************************************************************
 // @HEADER
 
-#include "PyROL_Objective.hpp"
+#include "PyROL_Objective_Impl.hpp"
 
 namespace PyROL {
 
