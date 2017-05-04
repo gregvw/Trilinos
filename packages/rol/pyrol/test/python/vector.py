@@ -24,7 +24,7 @@ class vector(object):
         for i in range(self.n):
             result += self.data[i]*x[i]
         return result
- 
+
     def norm(self):
         result = 0;
         for d in self.data:
@@ -45,9 +45,9 @@ class vector(object):
 
     def zero(self):
         for i in range(self.n):
-            self.data[i] = 0.0; 
-  
-    def axpy(self,alpha,x): 
+            self.data[i] = 0.0;
+
+    def axpy(self,alpha,x):
         for i in range(self.n):
             self.data[i] = self.data[i] + alpha*x[i];
 
@@ -55,6 +55,7 @@ class vector(object):
         return self.n
 
     def clone(self):
+        print("hello")
         return vector([0.0]*self.n)
 
     def __str__(self):
@@ -66,7 +67,7 @@ class vector(object):
 
 if __name__ == '__main__':
 
-    v = vector(10)
+    v = vector([0.0]*10)
     print("type(v) = {0}".format(type(v)))
 
     v[0]=1.0
@@ -83,5 +84,3 @@ if __name__ == '__main__':
 
     print(v)
     print(u)
-
-    

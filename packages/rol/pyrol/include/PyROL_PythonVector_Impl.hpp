@@ -50,15 +50,17 @@
 
 namespace PyROL {
 
-PythonVector::PythonVector( PyObject* pyVector, bool has_ownership ) :  
+PythonVector::PythonVector( PyObject* pyVector, bool has_ownership ) :
   AttributeManager( pyVector, attrList_, className_ ),
   pyVector_(pyVector), has_ownership_(has_ownership) {
+
+  std::cout << "constructor\n";
 
   if(has_ownership_) {
     Py_INCREF(pyVector_);
   }
 }
- 
+
 PythonVector::PythonVector( const PythonVector & v ):
   AttributeManager( v.pyVector_, attrList_, className_ ),
   pyVector_( v.pyVector_ ), has_ownership_(false) {
@@ -69,31 +71,36 @@ PythonVector::PythonVector( const PythonVector & v ):
 
 PythonVector::~PythonVector() {
   TEUCHOS_TEST_FOR_EXCEPTION( !(pyVector_->ob_refcnt), std::logic_error,
-    "PythonVector() was called but pyVector already has zero references");    
+    "PythonVector() was called but pyVector already has zero references");
   int n = has_ownership_ ? 0 : 1;
   while(Py_REFCNT(pyVector_) > n)
     Py_DECREF(pyVector_);
  }
 
-int PythonVector::dimension() const { 
+int PythonVector::dimension() const {
   if( method_["dimension"].impl ) {
-    PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);   
-    return static_cast<int>(PyLong_AsLong(pyDimension)); 
-  } 
+    PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);
+    return static_cast<int>(PyLong_AsLong(pyDimension));
+  }
   else {
     return 0;
   }
-}  
+}
 
-Teuchos::RCP<ROL::Vector<double>> 
+Teuchos::RCP<ROL::Vector<double>>
 PythonVector::clone() const {
-  PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
+  //  PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
+  auto p = PyObject_GetAttrString(pyVector_, "clone");
+  std::cout << "Got method clone at: " << p << "\n";
+  auto pyClone = PyObject_CallFunction(p, NULL);
+  std::cout << "Got clone result at: " << pyClone << "\n";
+
   Teuchos::RCP<ROL::Vector<double>> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
   Py_INCREF(pyClone);
   return vclone;
 }
 
-Teuchos::RCP<ROL::Vector<double>> 
+Teuchos::RCP<ROL::Vector<double>>
 PythonVector::basis( const int i ) const {
   PyObject* pyBasis = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
   Teuchos::RCP<ROL::Vector<double>> b = Teuchos::rcp( new PythonVector( pyBasis, true ) );
@@ -125,7 +132,7 @@ void PythonVector::plus( const ROL::Vector<double> & x ) {
     PyObject_CallMethodObjArgs(pyVector_,method_["plus"].name,pyX,NULL);
   }
   else {
-    this->applyBinary(ROL::Elementwise::Plus<double>(),x); 
+    this->applyBinary(ROL::Elementwise::Plus<double>(),x);
   }
 }
 
@@ -133,7 +140,7 @@ void PythonVector::scale( const double alpha ) {
   if( method_["scale"].impl ) {
     PyObject* pyAlpha = PyFloat_FromDouble(alpha);
     PyObject_CallMethodObjArgs(pyVector_,method_["scale"].name,pyAlpha,NULL);
-    Py_DECREF(pyAlpha); 
+    Py_DECREF(pyAlpha);
   }
   else {
     this->applyUnary(ROL::Elementwise::Scale<double>(alpha));
@@ -149,7 +156,7 @@ double PythonVector::dot( const ROL::Vector<double> &x ) const {
     pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["dot"].name,pyX,NULL);
     value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyValue);// causes seg fault
-    // Py_XDECREF(pyValue); 
+    // Py_XDECREF(pyValue);
   }
   else {
     const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
@@ -191,7 +198,7 @@ void PythonVector::axpy( const double alpha, const ROL::Vector<double> &x ) {
     int dim = dimension();
     for( int i=0; i<dim; ++i ) {
       setValue(i, getValue(i) + alpha*ex.getValue(i));
-    }    
+    }
   }
 }
 
@@ -203,7 +210,7 @@ void PythonVector::zero( ) {
     int dim = dimension();
     for( int i=0; i<dim; ++i ) {
       setValue(i, 0.0);
-    }    
+    }
   }
 }
 
@@ -217,7 +224,7 @@ void PythonVector::set( const ROL::Vector<double> &x ) {
     int dim = dimension();
     for( int i=0; i<dim; ++i ) {
       setValue(i, ex.getValue(i));
-    }     
+    }
   }
 }
 
@@ -242,10 +249,10 @@ double PythonVector::reduce( const ReductionOp &r ) const {
   double result = r.initialValue();
   int dim = dimension();
   for(int i=0; i<dim; ++i) {
-    r.reduce(getValue(i),result); 
+    r.reduce(getValue(i),result);
   }
   return result;
-}  
+}
 
 void PythonVector::setValue (int i, double value) {
   PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
@@ -260,7 +267,7 @@ double PythonVector::getValue(int i) const {
   PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name,pyIndex,NULL);
   double value = PyFloat_AsDouble(pyValue);
   Py_DECREF(pyIndex);
-  return value; 
+  return value;
 }
 
 PyObject* PythonVector::getPyVector(void) {

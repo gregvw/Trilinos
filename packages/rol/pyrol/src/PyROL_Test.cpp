@@ -43,7 +43,7 @@
 
 #include <Python.h>
 
-#include "PyROL_TestVector.hpp"
+#include "test/PyROL_TestVector.hpp"
 
 extern "C" {
 
@@ -52,7 +52,7 @@ static PyMethodDef test_methods[] = {
   {NULL,NULL,0,NULL}
 }; // testMethods
 
-static char test_doc[] = 
+static char test_doc[] =
   "Module for testing PyROL components";
 
 
@@ -66,7 +66,7 @@ static struct PyModuleDef test_module = {
 };
 #endif
 
-PyMODINIT_FUNC 
+PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
 PyInit_test(void) {
   return PyModule_Create(&test_module);
@@ -79,4 +79,3 @@ inittest(void) {
 
 
 } // extern "C"
-
