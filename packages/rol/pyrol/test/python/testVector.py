@@ -12,7 +12,7 @@ if __name__ == '__main__':
     """Check basic linear algebra of vector class implemented in Python"""
 
     n = 10
-#    data = [0]*n
+
     x = vector(n)
     for i in range(n):
       x[i] = random.random()

@@ -42,7 +42,7 @@
 // @HEADER
 
 
-#include "PyROL_TestVector.hpp"
+#include "test/PyROL_TestVector.hpp"
 #include "PyROL_SolveUnconstrained.hpp"
 #include "PyROL_SolveEqualityConstrained.hpp"
 

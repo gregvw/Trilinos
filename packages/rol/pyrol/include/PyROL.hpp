@@ -7,9 +7,9 @@
 
 // Python Includes
 #include "Python.h"
-#ifdef ENABLE_NUMPY 
+#ifdef ENABLE_NUMPY
 #include "numpy/arrayobject.h"
-#endif 
+#endif
 
 
 #if PY_MAJOR_VERSION >= 3
@@ -18,10 +18,20 @@
 #define PyInt_AsLong   PyLong_AsLong
 #define PyInt_Check    PyLong_Check
 
-#define PyString_FromString        PyBytes_FromString
-#define PyString_AsString          PyBytes_AsString
+#define PyString_FromString        PyUnicode_FromString
+// #define PyString_AsString          PyBytes_AsString
 #define PyString_AsEncodedString   PyUnicode_AsEncodedString
-#define PyString_Check             PyBytes_Check
+#define PyString_Check             PyUnicode_Check
+
+#include<string>
+inline std::string PyString_AsString(PyObject* p)
+{
+  PyObject* pyString = PyUnicode_AsEncodedString(p,"ASCII","strict");
+  std::string s = PyBytes_AsString(pyString);
+  Py_XDECREF(pyString);
+  return s;
+}
+
 
 #else // Python 2.7
 

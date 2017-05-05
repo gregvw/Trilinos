@@ -64,7 +64,7 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
   PyROL::Objective obj(pyObjective);
 
   // Get optimization vector
-  Teuchos::RCP<ROL::Vector<double> > xp = PyROL::PyObject_AsVector(pyX) ;  
+  Teuchos::RCP<ROL::Vector<double> > xp = PyROL::PyObject_AsVector(pyX);
 
   // Get parameters
   Teuchos::ParameterList parlist;
@@ -85,10 +85,8 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
   // Borrowed reference
   PyObject *pyAlgoValue = PyDict_GetItem(pyOptions,pyAlgoKey);
   Py_DECREF(pyAlgoKey);
-  PyObject *pyTemp = PyString_AsEncodedString(pyAlgoValue,"ASCII","strict");
+  std::string algoValue = PyString_AsString(pyAlgoValue);
 
-  std::string algoValue = PyString_AsString(pyTemp);
- 
   // Capture streams from Algorithm::run in strings
   std::stringstream outputStream;
   std::stringstream vectorStream;
@@ -96,7 +94,7 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
   // Build and run the algorithm
   ROL::Algorithm<double> algo(algoValue,parlist,false);
   algo.run(*xp,obj,true,outputStream,true,vectorStream);
- 
+
   PyObject* pyOutput  = PyString_FromString(C_TEXT(outputStream.str()));
   PyObject* pyVectors = PyString_FromString(C_TEXT(vectorStream.str()));
 
@@ -108,14 +106,14 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
     PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);
   }
   else {
-    pyReturn = pyOutput; 
+    pyReturn = pyOutput;
   }
 
   return pyReturn;
 
 } // solveUnconstrained
 
-static char solveUnconstrained_doc[] = 
+static char solveUnconstrained_doc[] =
   "solveUnconstrained(obj,x,options) : Solve an unconstrained optimization "
   "problem using PyROL, where obj is an Objective function class, x is the "
   "initial guess, and options is a dictionary of options for configuring "
@@ -128,4 +126,3 @@ static char solveUnconstrained_doc[] =
 
 
 #endif // PYROL_SOLVE_UNCONSTRAINED_HPP
-

@@ -49,7 +49,7 @@
 #include "PyROL_NumPyVector.hpp"
 
 namespace PyROL {
-inline Teuchos::RCP<ROL::Vector<double>> 
+inline Teuchos::RCP<ROL::Vector<double>>
 PyObject_AsVector( PyObject *pyObj ) {
 
   Teuchos::RCP<ROL::Vector<double>> vec;
@@ -61,22 +61,22 @@ PyObject_AsVector( PyObject *pyObj ) {
   else {
     vec = Teuchos::rcp( new PythonVector(pyObj) ) ;
   }
-#else 
+#else
     vec = Teuchos::rcp( new PythonVector(pyObj) ) ;
-#endif 
+#endif
   return vec;
 }
 
 // Returns borrowed reference. TODO type deduction
 template<class V=BaseVector>
 PyObject* PyObject_FromVector( ROL::Vector<double> &vec ) {
-  return Teuchos::dyn_cast<V>(vec).getPyVector();  
+  return Teuchos::dyn_cast<V>(vec).getPyVector();
 }
 
 // Returns borrowed reference. TODO type deduction
 template<class V=BaseVector>
 const PyObject* PyObject_FromVector( const ROL::Vector<double> &vec ) {
-  return Teuchos::dyn_cast<const V>(vec).getPyVector();  
+  return Teuchos::dyn_cast<const V>(vec).getPyVector();
 }
 
 enum PyOBJECT_TYPE : short {
@@ -116,17 +116,18 @@ inline std::string pyObjectTypeAsString( PyOBJECT_TYPE type ) {
     case PyBOOL:
       return "bool";
     default:
-      return "undefined"; 
+      return "undefined";
   }
 }
 
+#include<cstdio>
 
-inline void dictToParameterList( PyObject* pyDict, 
+inline void dictToParameterList( PyObject* pyDict,
                           Teuchos::ParameterList &parlist ) {
 
   // Get list of dictionary keys
   PyObject* pyKeyList = PyDict_Keys(pyDict);
- 
+
   // Get number of dictionary keys
   Py_ssize_t len = PyList_Size(pyKeyList);
 
@@ -135,31 +136,26 @@ inline void dictToParameterList( PyObject* pyDict,
 
     // Get current key
     PyObject *pyKey = PyList_GetItem(pyKeyList,i);
-    
+
     // Determine
     PyOBJECT_TYPE keyType = getPyObjectType(pyKey);
-   
-    TEUCHOS_TEST_FOR_EXCEPTION(keyType!=PySTRING, std::invalid_argument,
-      ">>> ERROR in addPairToParameterList(). "
-      "Encountered key of unsupported type: " << pyObjectTypeAsString(keyType) 
-      << std::endl);
 
-    // FIXME Python 3 compatibility
-//    PyObject* pyKeyString = PyUnicode_AsEncodedString(pyKey,"ASCII","strict");
-    char* keyString = PyBytes_AsString(pyKey);
-//    Py_XDECREF(pyKeyString);  
- 
+    TEUCHOS_TEST_FOR_EXCEPTION(keyType!=PySTRING, std::invalid_argument,
+       ">>> ERROR in addPairToParameterList(). "
+       "Encountered key of unsupported type: " << pyObjectTypeAsString(keyType)
+        << std::endl);
+
+    std::string keyString = PyString_AsString(pyKey);
+
     PyObject* pyValue = PyDict_GetItem(pyDict,pyKey);
     PyOBJECT_TYPE valueType = getPyObjectType(pyValue);
-  
+
     // Determine value type and write the key:value pair to the ParameterList
     switch( valueType ) {
       case PySTRING: {
-///        PyObject* pyValueString = PyUnicode_AsEncodedString(pyValue,"ASCII","strict");
-        char* valueString = PyString_AsString(pyValue);
+        std::string valueString = PyString_AsString(pyValue);
         parlist.set(keyString,valueString);
-//        Py_XDECREF(pyValueString); 
-      }     
+      }
       break;
 
       case PyBOOL: {
@@ -171,7 +167,7 @@ inline void dictToParameterList( PyObject* pyDict,
       }
       break;
 
-      case PyINT: 
+      case PyINT:
       case PyLONG: {
         int valueInt = static_cast<int>(PyInt_AsLong(pyValue));
         parlist.set(keyString,valueInt);
@@ -183,7 +179,7 @@ inline void dictToParameterList( PyObject* pyDict,
         parlist.set(keyString,valueDouble);
       }
       break;
-	
+
       case PyDICT: { // Recursively call this function
         Teuchos::ParameterList &sublist = parlist.sublist(keyString);
         dictToParameterList(pyValue,sublist);
@@ -194,9 +190,9 @@ inline void dictToParameterList( PyObject* pyDict,
       case PyUNDEFINED: {
         TEUCHOS_TEST_FOR_EXCEPTION(true, std::invalid_argument,
           ">>> ERROR in addPairToParameterList(). "
-          "Encountered key \"" << keyString << "\" with value of unsupported type: " 
+          "Encountered key \"" << keyString << "\" with value of unsupported type: "
           << pyObjectTypeAsString(valueType) << std::endl);
-      }  
+      }
       break;
     } // switch( valueType )
     Py_XDECREF(pyValue);
@@ -204,9 +200,8 @@ inline void dictToParameterList( PyObject* pyDict,
   Py_XDECREF(pyKeyList);
 }
 
-        
+
 } // namespace PyROL
 
 
 #endif // PYROL_TYPECONVERTERS_HPP
-

@@ -50,10 +50,10 @@
 
 namespace PyROL {
 
-NumPyVector::NumPyVector( PyObject* pyVector, bool hasOwnership ) :
+NumPyVector::NumPyVector( PyObject* pyVector, bool hasOwnership ) : 
   pyVector_(pyVector), pyArray_((PyArrayObject*)pyVector),
   hasOwnership_(hasOwnership) {
-  //  import_array();
+  import_array();
   // Get number of dimensions of array and throw excpetion if not 1
   int ndim = PyArray_NDIM(pyArray_);
   TEUCHOS_TEST_FOR_EXCEPTION( ndim != 1, std::logic_error,
@@ -74,10 +74,10 @@ NumPyVector::~NumPyVector( ) {
 
 PyObject* NumPyVector::getPyVector( ) {
   return pyVector_;
-}
+}  
 
 const PyObject* NumPyVector::getPyVector( ) const {
-  return pyVector_;
+  return pyVector_; 
 }
 
 int NumPyVector::dimension() const {
@@ -105,7 +105,7 @@ Teuchos::RCP<ROL::Vector<double>> NumPyVector::basis( int i ) const {
 void NumPyVector::applyUnary( const UnaryFunction &f ) {
   for( npy_intp i=0; i<size_; ++i ) {
     data_[i] = f.apply(data_[i]);
-  }
+  }  
 }
 
 void NumPyVector::applyBinary( const BinaryFunction &f, const ROL::Vector<double> &x ) {
@@ -121,16 +121,16 @@ double NumPyVector::reduce( const ReductionOp &r ) const {
     r.reduce(data_[i],result);
   }
   return result;
-}
+}  
 
 void NumPyVector::print( std::ostream &os ) const {
   for( npy_intp i=0; i<size_; ++i ) {
     os << data_[i] << " ";
-  }
+  }  
   os << std::endl;
 }
 
-// Element access methods
+// Element access methods 
 const double& NumPyVector::operator[] ( npy_intp i ) const {
   return data_[i];
 }

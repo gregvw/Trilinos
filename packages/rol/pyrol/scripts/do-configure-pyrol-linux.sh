@@ -4,7 +4,7 @@
 # This should work for Linux and Mac
 USER_HOME=`eval echo "~$USER"`
 
-VERSION="3.5"
+VERSION="2.7"
 PYTHON_BASE_PATH="/usr/local/"
 PYMALLOC_BUILD=false
 TRILINOS_INSTALL="${USER_HOME}/projects/PyROL/trilinos_install"
@@ -33,7 +33,7 @@ fi
 PYTHON_INCLUDE_DIR="${PYTHON_BASE_PATH}/include/${PYTHON_NAME}"
 PYTHON_LIBRARY="${PYTHON_BASE_PATH}/lib/lib${PYTHON_NAME}${EXT}"
 PYTHON_INTERPRETER="${PYTHON_BASE_PATH}/bin/${PYTHON_NAME}"
-
+ 
 
 cmake . \
   -D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
