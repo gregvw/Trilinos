@@ -54,8 +54,6 @@ PythonVector::PythonVector( PyObject* pyVector, bool has_ownership ) :
   AttributeManager( pyVector, attrList_, className_ ),
   pyVector_(pyVector), has_ownership_(has_ownership) {
 
-  std::cout << "constructor\n";
-
   if(has_ownership_) {
     Py_INCREF(pyVector_);
   }
@@ -89,12 +87,7 @@ int PythonVector::dimension() const {
 
 Teuchos::RCP<ROL::Vector<double>>
 PythonVector::clone() const {
-  //  PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
-  auto p = PyObject_GetAttrString(pyVector_, "clone");
-  std::cout << "Got method clone at: " << p << "\n";
-  auto pyClone = PyObject_CallFunction(p, NULL);
-  std::cout << "Got clone result at: " << pyClone << "\n";
-
+  PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
   Teuchos::RCP<ROL::Vector<double>> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
   Py_INCREF(pyClone);
   return vclone;

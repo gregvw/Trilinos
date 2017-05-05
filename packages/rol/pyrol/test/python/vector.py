@@ -55,7 +55,6 @@ class vector(object):
         return self.n
 
     def clone(self):
-        print("hello")
         return vector([0.0]*self.n)
 
     def __str__(self):
