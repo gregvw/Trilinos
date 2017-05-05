@@ -145,10 +145,7 @@ inline void dictToParameterList( PyObject* pyDict,
        "Encountered key of unsupported type: " << pyObjectTypeAsString(keyType)
         << std::endl);
 
-    // FIXME Python 3 compatibility
-    //    PyObject* pyKeyString = PyUnicode_AsEncodedString(pyKey,"ASCII","strict");
     std::string keyString = PyString_AsString(pyKey);
-    // Py_XDECREF(pyKeyString);
 
     PyObject* pyValue = PyDict_GetItem(pyDict,pyKey);
     PyOBJECT_TYPE valueType = getPyObjectType(pyValue);
@@ -156,10 +153,8 @@ inline void dictToParameterList( PyObject* pyDict,
     // Determine value type and write the key:value pair to the ParameterList
     switch( valueType ) {
       case PySTRING: {
-        //        PyObject* pyValueString = PyUnicode_AsEncodedString(pyValue,"ASCII","strict");
         std::string valueString = PyString_AsString(pyValue);
         parlist.set(keyString,valueString);
-        //        Py_XDECREF(pyValueString);
       }
       break;
 

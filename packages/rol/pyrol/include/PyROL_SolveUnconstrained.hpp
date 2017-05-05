@@ -85,8 +85,6 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
   // Borrowed reference
   PyObject *pyAlgoValue = PyDict_GetItem(pyOptions,pyAlgoKey);
   Py_DECREF(pyAlgoKey);
-  //  PyObject *pyTemp = PyString_AsEncodedString(pyAlgoValue,"ASCII","strict");
-
   std::string algoValue = PyString_AsString(pyAlgoValue);
 
   // Capture streams from Algorithm::run in strings
