@@ -24,8 +24,8 @@ ex_libs = ["teuchoscore", "teuchosnumerics", "teuchosparameterlist", "teuchoscom
 
 setup(name="PyROL",
       version="0.1.1",
-      author="Greg von Winckel, Chris Richardson and Florian Wechsung",
-      author_email="pyrol-dev@googlemail.com",
+      author="Greg von Winckel",
+      author_email="gvonwin@sandia.gov",
       license="LGPLv3",
 #      packages=['pyrol'],
       ext_modules=[

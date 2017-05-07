@@ -120,8 +120,6 @@ inline std::string pyObjectTypeAsString( PyOBJECT_TYPE type ) {
   }
 }
 
-#include<cstdio>
-
 inline void dictToParameterList( PyObject* pyDict,
                           Teuchos::ParameterList &parlist ) {
 
