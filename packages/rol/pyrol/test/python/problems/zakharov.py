@@ -3,7 +3,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 grandparentdir =  os.path.dirname(parentdir)
 
-sys.path.insert(0,grandparentdir)
+sys.path.insert(0,grandparentdir) 
 from vector import vector
 
 class Objective(object):
@@ -11,7 +11,7 @@ class Objective(object):
     def __init__(self,n):
 #        print("zakharov::__init__")
         self.n = n
-        self.k = vector(n)
+        self.k = vector([0.0]*n)
         for i in range(n):
             self.k[i] = i+1.0
 
@@ -43,7 +43,7 @@ class Objective(object):
         kdotx = self.k.dot(x)
         kdotv = self.k.dot(v)
         coeff = 0.25*(2.0+3.0*kdotx**2)*kdotv
-        for i in range(self.n):
+        for i in range(self.n):   
             hv[i] = 2.0*v[i]+coeff*self.k[i]
 
     def invHessVec(self,ihv,v,x,tol):
@@ -54,3 +54,9 @@ class Objective(object):
         coeff  = -kdotv/(2.0*kdotk+16.0/(2.0+3.0*kdotx**3))
         for i in range(self.n):
             ihv[i] = 0.5*v[i]+coeff*self.k[i]
+        
+        
+
+
+
+

@@ -7,19 +7,20 @@ class vector(object):
     """Simple vector class implemented in Python to be encapsulated
        by a ROL::Vector"""
 
-    def __init__(self,n):
-        self.n=n
-        # self.data = array('d',[0]*self.n)
-        self.data = dolfin.Vector(dolfin.mpi_comm_world(), self.n)
+    def __init__(self, data):
+        n = len(data)
+        self.data = dolfin.Vector(dolfin.mpi_comm_world(), n)
+        for (i,val) in enumerate(data):
+            self.data[i] = val
 
     def __setitem__(self,i,value):
         self.data[i] = value
 
     def __getitem__(self,i):
-        return self.data[i]
+        return self.data[i][0]
 
-    def plus(self, vec):
-        self.data += vec.data
+    def plus(self, x):
+        self.data += x.data
 
     def scale(self, a):
         self.data *= a
@@ -27,11 +28,14 @@ class vector(object):
     def norm(self):
         return self.data.norm("l2")
 
-    def dot(self, vec):
-        return self.data.inner(vec.data)
+    def dot(self, x):
+        return self.data.inner(x.data)
 
     def axpy(self, a, x):
         self.data.axpy(a, x.data)
+
+    def zero(self):
+        self.data.zero()
 
     def set(self, x):
         self.data = x.data.copy()
@@ -40,7 +44,7 @@ class vector(object):
         return self.data.local_size()
 
     def clone(self):
-        x = vector(self.n)
+        x = vector(self.data)
         return x
 
     def __str__(self):
