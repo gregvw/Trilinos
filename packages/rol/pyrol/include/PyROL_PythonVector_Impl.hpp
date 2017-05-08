@@ -78,6 +78,8 @@ PythonVector::~PythonVector() {
 int PythonVector::dimension() const {
   if( method_["dimension"].impl ) {
     PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);
+    TEUCHOS_TEST_FOR_EXCEPTION(!PyLong_Check(pyDimension), std::logic_error,
+                               "dimension() returned incorrect type");
     return static_cast<int>(PyLong_AsLong(pyDimension));
   }
   else {
@@ -147,6 +149,8 @@ double PythonVector::dot( const ROL::Vector<double> &x ) const {
     PyObject* pyValue;
     // This is supposed to return a new reference
     pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["dot"].name,pyX,NULL);
+    TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
+                               "dot() returned incorrect type");
     value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyValue);// causes seg fault
     // Py_XDECREF(pyValue);
@@ -166,6 +170,8 @@ double PythonVector::norm( ) const {
   if( method_["norm"].impl ) {
     PyObject* pyValue;
     pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["norm"].name,NULL);
+    TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
+                               "norm() returned incorrect type");
     value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyValue);
   }
@@ -258,6 +264,8 @@ void PythonVector::setValue (int i, double value) {
 double PythonVector::getValue(int i) const {
   PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
   PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name,pyIndex,NULL);
+  TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
+                             "__getitem__ returned incorrect type");
   double value = PyFloat_AsDouble(pyValue);
   Py_DECREF(pyIndex);
   return value;
