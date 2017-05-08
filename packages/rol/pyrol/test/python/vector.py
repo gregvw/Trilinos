@@ -18,7 +18,8 @@ class vector(object):
 
     def __getitem__(self,i):
         if isinstance(i, slice):
-            return 0.0 # self.data.array()
+            print("slice")
+            return self.data.array()
         else:
             return self.data[i][0]
 
@@ -31,8 +32,8 @@ class vector(object):
     def norm(self):
         return self.data.norm("l2")
 
-#    def dot(self, x):
-#        return self.data.inner(x.data)
+    def dot(self, x):
+        return self.data.inner(x.data)
 
     def axpy(self, a, x):
         self.data.axpy(a, x.data)

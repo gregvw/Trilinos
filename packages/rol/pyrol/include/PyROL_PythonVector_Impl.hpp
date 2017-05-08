@@ -143,8 +143,6 @@ void PythonVector::scale( const double alpha ) {
 }
 
 double PythonVector::dot( const ROL::Vector<double> &x ) const {
-  std::cerr << "dot\n";
-
   double value = 0;
   if( method_["dot"].impl ) {
     const PyObject* pyX = PyObject_FromVector(x);
@@ -158,16 +156,11 @@ double PythonVector::dot( const ROL::Vector<double> &x ) const {
     // Py_XDECREF(pyValue);
   }
   else {
-
     const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
     int dim = dimension();
-    std::cout << "dim = " << dim << "\n";
-
     for( int i=0; i<dim; ++i ) {
-      std::cout << "i=" << i << "\n";
       value += getValue(i)*ex.getValue(i);
     }
-    std::cout << "value = " << value <<" \n";
   }
   return value;
 }
@@ -235,14 +228,13 @@ void PythonVector::set( const ROL::Vector<double> &x ) {
   }
 }
 
-#include<cstdio>
-
 void PythonVector::applyUnary( const UnaryFunction &f ) {
 
   // Try to get all entries at once from buffer protocol object (e.g. numpy array)
+
   PyObject* pySlice = PySlice_New(NULL, NULL, NULL);
   PyObject* pyArray = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name, pySlice, NULL);
-
+  // If __getitem__ returns a Py_buffer protocol object when given a PySlice, then go ahead
   if (PyObject_CheckBuffer(pyArray)) {
     Py_buffer view;
     PyObject_GetBuffer(pyArray, &view, 0);
@@ -267,40 +259,59 @@ void PythonVector::applyBinary( const BinaryFunction &f, const ROL::Vector<doubl
 
   int dim = dimension();
 
-  // // Try to get all entries at once from buffer protocol object (e.g. numpy array)
-  // PyObject* pySlice = PySlice_New(NULL, NULL, NULL);
-  // PyObject* pyArraySelf = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name, pySlice, NULL);
-  // PyObject* pyArrayX = PyObject_CallMethodObjArgs(ex.pyVector_,method_["__getitem__"].name, pySlice, NULL);
+  // Try to get all entries at once from buffer protocol object (e.g. numpy array)
+  PyObject* pySlice = PySlice_New(NULL, NULL, NULL);
+  PyObject* pyArraySelf = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name, pySlice, NULL);
+  PyObject* pyArrayX = PyObject_CallMethodObjArgs(ex.pyVector_,method_["__getitem__"].name, pySlice, NULL);
 
-  // if (PyObject_CheckBuffer(pyArraySelf)) {
-  //   Py_buffer self_view;
-  //   PyObject_GetBuffer(pyArraySelf, &self_view, 0);
-  //   const double *self_data = static_cast<double*>(self_view.buf);
-  //   Py_buffer x_view;
-  //   PyObject_GetBuffer(pyArrayX, &x_view, 0);
-  //   const double *x_data = static_cast<double*>(x_view.buf);
+  if (PyObject_CheckBuffer(pyArraySelf) and PyObject_CheckBuffer(pyArrayX)) {
 
-  //   for(int i = 0; i < dim; ++i) {
-  //     std::cout << i << "\n";
-  //     setValue( i, f.apply( self_data[i], x_data[i]) );
-  //   }
-  //   PyBuffer_Release(&self_view);
-  //   PyBuffer_Release(&x_view);
-  // }
-  // else {
-  for(int i=0; i<dim; ++i) {
-    setValue( i, f.apply( getValue(i), ex.getValue(i)) );
+    Py_buffer self_view;
+    PyObject_GetBuffer(pyArraySelf, &self_view, 0);
+    const double *self_data = static_cast<double*>(self_view.buf);
+
+    Py_buffer x_view;
+    PyObject_GetBuffer(pyArrayX, &x_view, 0);
+    const double *x_data = static_cast<double*>(x_view.buf);
+
+    for(int i = 0; i < dim; ++i) {
+      setValue( i, f.apply( self_data[i], x_data[i]) );
+    }
+
+    PyBuffer_Release(&self_view);
+    PyBuffer_Release(&x_view);
   }
-    //  }
+  else {
+    for(int i=0; i<dim; ++i) {
+      setValue( i, f.apply( getValue(i), ex.getValue(i)) );
+    }
+  }
 
 }
 
 double PythonVector::reduce( const ReductionOp &r ) const {
   double result = r.initialValue();
-  int dim = dimension();
-  for(int i=0; i<dim; ++i) {
-    r.reduce(getValue(i),result);
+
+  PyObject* pySlice = PySlice_New(NULL, NULL, NULL);
+  PyObject* pyArray = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name, pySlice, NULL);
+  // If __getitem__ returns a Py_buffer protocol object when given a PySlice, then go ahead
+  if (PyObject_CheckBuffer(pyArray)) {
+    Py_buffer view;
+    PyObject_GetBuffer(pyArray, &view, 0);
+    const double *data = static_cast<double*>(view.buf);
+    int dim = dimension();
+    for(int i = 0; i < dim; ++i) {
+      r.reduce(data[i],result);
+    }
+    PyBuffer_Release(&view);
   }
+  else {
+    int dim = dimension();
+    for(int i=0; i<dim; ++i) {
+      r.reduce(getValue(i),result);
+    }
+  }
+
   return result;
 }
 

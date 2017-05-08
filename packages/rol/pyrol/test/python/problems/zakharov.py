@@ -16,13 +16,10 @@ class Objective(object):
             self.k[i] = i+1.0
 
     def value(self,x,tol):
-        print("zakharov::value")
+#        print("zacharov::value")
         xdotx = x.dot(x)
-        print(xdotx)
         kdotx = self.k.dot(x)
-        print(kdotx)
         val = xdotx + (kdotx**2)/4.0 + (kdotx**4)/16.0
-        print(val)
         return val
 
     def gradient(self,g,x,tol):
