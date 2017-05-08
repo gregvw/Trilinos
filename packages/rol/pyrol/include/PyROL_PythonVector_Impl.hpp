@@ -78,6 +78,8 @@ PythonVector::~PythonVector() {
 int PythonVector::dimension() const {
   if( method_["dimension"].impl ) {
     PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);
+    TEUCHOS_TEST_FOR_EXCEPTION(!PyLong_Check(pyDimension), std::logic_error,
+                               "dimension() returned incorrect type");
     return static_cast<int>(PyLong_AsLong(pyDimension));
   }
   else {
@@ -141,22 +143,31 @@ void PythonVector::scale( const double alpha ) {
 }
 
 double PythonVector::dot( const ROL::Vector<double> &x ) const {
+  std::cerr << "dot\n";
+
   double value = 0;
   if( method_["dot"].impl ) {
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject* pyValue;
     // This is supposed to return a new reference
     pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["dot"].name,pyX,NULL);
+    TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
+                               "dot() returned incorrect type");
     value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyValue);// causes seg fault
     // Py_XDECREF(pyValue);
   }
   else {
+
     const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
     int dim = dimension();
+    std::cout << "dim = " << dim << "\n";
+
     for( int i=0; i<dim; ++i ) {
+      std::cout << "i=" << i << "\n";
       value += getValue(i)*ex.getValue(i);
     }
+    std::cout << "value = " << value <<" \n";
   }
   return value;
 }
@@ -166,6 +177,9 @@ double PythonVector::norm( ) const {
   if( method_["norm"].impl ) {
     PyObject* pyValue;
     pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["norm"].name,NULL);
+
+    TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
+                               "norm() returned incorrect type");
     value = PyFloat_AsDouble(pyValue);
     Py_DECREF(pyValue);
   }
@@ -221,21 +235,64 @@ void PythonVector::set( const ROL::Vector<double> &x ) {
   }
 }
 
+#include<cstdio>
 
 void PythonVector::applyUnary( const UnaryFunction &f ) {
-  int dim = dimension();
-  for(int i=0; i<dim; ++i) {
-    setValue( i, f.apply( getValue(i) ) );
+
+  // Try to get all entries at once from buffer protocol object (e.g. numpy array)
+  PyObject* pySlice = PySlice_New(NULL, NULL, NULL);
+  PyObject* pyArray = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name, pySlice, NULL);
+
+  if (PyObject_CheckBuffer(pyArray)) {
+    Py_buffer view;
+    PyObject_GetBuffer(pyArray, &view, 0);
+    const double *data = static_cast<double*>(view.buf);
+    int dim = dimension();
+    for(int i = 0; i < dim; ++i) {
+      setValue(i, f.apply(data[i]));
+    }
+    PyBuffer_Release(&view);
   }
+  else {
+    int dim = dimension();
+    for(int i=0; i<dim; ++i) {
+      setValue( i, f.apply( getValue(i) ) );
+    }
+  }
+
 }
 
 void PythonVector::applyBinary( const BinaryFunction &f, const ROL::Vector<double> &x ) {
   const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
 
   int dim = dimension();
-    for(int i=0; i<dim; ++i) {
-      setValue( i, f.apply( getValue(i), ex.getValue(i)) );
-    }
+
+  // // Try to get all entries at once from buffer protocol object (e.g. numpy array)
+  // PyObject* pySlice = PySlice_New(NULL, NULL, NULL);
+  // PyObject* pyArraySelf = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name, pySlice, NULL);
+  // PyObject* pyArrayX = PyObject_CallMethodObjArgs(ex.pyVector_,method_["__getitem__"].name, pySlice, NULL);
+
+  // if (PyObject_CheckBuffer(pyArraySelf)) {
+  //   Py_buffer self_view;
+  //   PyObject_GetBuffer(pyArraySelf, &self_view, 0);
+  //   const double *self_data = static_cast<double*>(self_view.buf);
+  //   Py_buffer x_view;
+  //   PyObject_GetBuffer(pyArrayX, &x_view, 0);
+  //   const double *x_data = static_cast<double*>(x_view.buf);
+
+  //   for(int i = 0; i < dim; ++i) {
+  //     std::cout << i << "\n";
+  //     setValue( i, f.apply( self_data[i], x_data[i]) );
+  //   }
+  //   PyBuffer_Release(&self_view);
+  //   PyBuffer_Release(&x_view);
+  // }
+  // else {
+  for(int i=0; i<dim; ++i) {
+    setValue( i, f.apply( getValue(i), ex.getValue(i)) );
+  }
+    //  }
+
 }
 
 double PythonVector::reduce( const ReductionOp &r ) const {
@@ -258,6 +315,10 @@ void PythonVector::setValue (int i, double value) {
 double PythonVector::getValue(int i) const {
   PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
   PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name,pyIndex,NULL);
+
+  TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
+    "__getitem__ returned incorrect type");
+
   double value = PyFloat_AsDouble(pyValue);
   Py_DECREF(pyIndex);
   return value;

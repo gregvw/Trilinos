@@ -17,7 +17,10 @@ class vector(object):
         self.data[i] = value
 
     def __getitem__(self,i):
-        return self.data[i][0]
+        if isinstance(i, slice):
+            return 0.0 # self.data.array()
+        else:
+            return self.data[i][0]
 
     def plus(self, x):
         self.data += x.data
@@ -28,8 +31,8 @@ class vector(object):
     def norm(self):
         return self.data.norm("l2")
 
-    def dot(self, x):
-        return self.data.inner(x.data)
+#    def dot(self, x):
+#        return self.data.inner(x.data)
 
     def axpy(self, a, x):
         self.data.axpy(a, x.data)
@@ -53,7 +56,7 @@ class vector(object):
 
 if __name__ == '__main__':
 
-    v = vector(1000)
+    v = vector([0]*10)
     print("type(v) = {0}".format(type(v)))
 
     v[0]=1.0
@@ -71,6 +74,8 @@ if __name__ == '__main__':
     print("__setitem__ - {0}".format("__setitem__" in attributes))
     print("__getitem__ - {0}".format("__getitem__" in attributes))
 
+    print(u[:])
+    print(u[1])
 
     print(v)
     print(u)

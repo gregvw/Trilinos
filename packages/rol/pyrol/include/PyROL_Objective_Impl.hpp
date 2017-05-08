@@ -68,9 +68,9 @@ void Objective::update( const ROL::Vector<double> &x, bool flag, int iter ) {
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject* pyFlag = flag ? Py_True : Py_False;
     PyObject* pyIter = PyLong_FromLong(static_cast<long>(iter));
-    
+
     PyObject_CallMethodObjArgs(pyObjective_,method_["update"].name,pyX,pyFlag,pyIter,NULL);
-    
+
     Py_DECREF(pyFlag);
     Py_DECREF(pyIter);
   }
@@ -80,6 +80,9 @@ double Objective::value( const ROL::Vector<double> &x, double &tol ) {
   const PyObject* pyX = PyObject_FromVector(x);
   PyObject* pyTol = PyFloat_FromDouble(tol);
   PyObject* pyValue = PyObject_CallMethodObjArgs(pyObjective_,method_["value"].name,pyX,pyTol,NULL);
+  TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
+                               "value() returned incorrect type");
+
   double val = PyFloat_AsDouble(pyValue);
   Py_DECREF(pyTol);
   Py_DECREF(pyValue);
@@ -95,7 +98,7 @@ void Objective::gradient( ROL::Vector<double> &g, const ROL::Vector<double> &x, 
   }
   else {
     ROL::Objective<double>::gradient(g,x,tol);
-  } 
+  }
 }
 
 double Objective::dirDeriv( const ROL::Vector<double> &x, const ROL::Vector<double> &d, double &tol ) {
@@ -113,7 +116,7 @@ double Objective::dirDeriv( const ROL::Vector<double> &x, const ROL::Vector<doub
     return ROL::Objective<double>::dirDeriv(x,d,tol);
   }
 }
- 
+
 void Objective::hessVec( ROL::Vector<double> &hv, const ROL::Vector<double> &v, const ROL::Vector<double> &x, double &tol ) {
   if( method_["hessVec"].impl ) {
     PyObject* pyHv = Teuchos::dyn_cast<BaseVector>(hv).getPyVector();
