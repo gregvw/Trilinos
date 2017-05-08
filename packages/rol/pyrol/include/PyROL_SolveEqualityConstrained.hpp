@@ -48,11 +48,11 @@
 #include "PyROL_Objective.hpp"
 #include "PyROL_EqualityConstraint.hpp"
 
-/* Solve an equality-constrained optimization problem, given an objective, 
+/* Solve an equality-constrained optimization problem, given an objective,
    equality constraint, initial guess, and options
  */
 static PyObject* solveEqualityConstrained( PyObject* self, PyObject* pyArgs ) {
-  
+
   using namespace PyROL;
 
   PyObject* pyObjective;
@@ -70,15 +70,15 @@ static PyObject* solveEqualityConstrained( PyObject* self, PyObject* pyArgs ) {
 
   // Make a PyROL::Objective from the supplied Python object
   PyROL::Objective obj(pyObjective);
-  
+
   // Make a PyROL::EqualityConstraint from the supplied Python object
-  PyROL::EqualityConstraint con(pyEqualityConstraint); 
-  
+  PyROL::EqualityConstraint con(pyEqualityConstraint);
+
   // Get optimization vector
-  Teuchos::RCP<ROL::Vector<double> > xp = PyObject_AsVector(pyX) ;  
+  Teuchos::RCP<ROL::Vector<double> > xp = PyObject_AsVector(pyX) ;
 
   // Get multiplier vector
-  Teuchos::RCP<ROL::Vector<double> > lp = PyObject_AsVector(pyL) ;  
+  Teuchos::RCP<ROL::Vector<double> > lp = PyObject_AsVector(pyL) ;
 
   // Get parameters
   Teuchos::ParameterList parlist;
@@ -90,33 +90,33 @@ static PyObject* solveEqualityConstrained( PyObject* self, PyObject* pyArgs ) {
   // Borrowed reference
   PyObject *pyAlgoValue = PyDict_GetItem(pyOptions,pyAlgoKey);
   Py_DECREF(pyAlgoKey);
-  PyObject* pyTemp = PyString_AsEncodedString(pyAlgoValue,"ASCII","strict");
-   
-  std::string algoValue = PyString_AsString(pyTemp);
+  //  PyObject* pyTemp = PyString_AsEncodedString(pyAlgoValue,"ASCII","strict");
+
+  std::string algoValue = PyString_AsString(pyAlgoValue);
 
   // Capture streams from Algorithm::run in strings
   std::stringstream outputStream;
   std::stringstream vectorStream;
 
   ROL::Algorithm<double> algo(algoValue,parlist,false);
-  
-  algo.run(*xp,*lp,obj,con,true); 
+
+  algo.run(*xp,*lp,obj,con,true);
 
   PyObject* pyOutput  = PyString_FromString(C_TEXT(outputStream.str()));
   PyObject* pyVectors = PyString_FromString(C_TEXT(vectorStream.str()));
 
   PyTuple_SetItem(pyReturn,(Py_ssize_t)(0),pyOutput);
-  PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);   
-  
+  PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);
+
   return pyReturn;
 }
 
 
-static char solveEqualityConstrained_doc[] = 
+static char solveEqualityConstrained_doc[] =
   "solveE(obj,con,x,l,options) : Solve an  equality constrained "
   "optimization problem using PyROL, where obj is an Objective "
   "function class, con is an EqualityConststraint class, x is the "
-  "initial guess of the optimization vector, l vector of Lagrange " 
+  "initial guess of the optimization vector, l vector of Lagrange "
   "multipliers and options is a dictionary of options for configuring "
   "ROL's minimization algorithm.";
 

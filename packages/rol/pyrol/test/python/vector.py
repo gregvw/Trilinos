@@ -2,6 +2,8 @@ from array import array
 import numpy
 import dolfin
 
+dolfin.parameters['linear_algebra_backend'] = 'Eigen'
+
 class vector(object):
 
     """Simple vector class implemented in Python to be encapsulated
@@ -10,15 +12,17 @@ class vector(object):
     def __init__(self, data):
         n = len(data)
         self.data = dolfin.Vector(dolfin.mpi_comm_world(), n)
-        for (i,val) in enumerate(data):
+        for (i, val) in enumerate(data):
             self.data[i] = val
 
     def __setitem__(self,i,value):
-        self.data[i] = value
+        if isinstance(i, slice):
+            self.data[:] = value
+        else:
+            self.data[i] = value
 
     def __getitem__(self,i):
         if isinstance(i, slice):
-            print("slice")
             return self.data.array()
         else:
             return self.data[i][0]
