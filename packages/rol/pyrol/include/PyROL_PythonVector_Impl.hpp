@@ -78,6 +78,7 @@ PythonVector::~PythonVector() {
 int PythonVector::dimension() const {
   if( method_["dimension"].impl ) {
     PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     TEUCHOS_TEST_FOR_EXCEPTION(!PyLong_Check(pyDimension), std::logic_error,
                                "dimension() returned incorrect type");
     return static_cast<int>(PyLong_AsLong(pyDimension));
@@ -90,6 +91,7 @@ int PythonVector::dimension() const {
 Teuchos::RCP<ROL::Vector<double>>
 PythonVector::clone() const {
   PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
+  if (PyErr_Occurred() != NULL) PyErr_Print();
   Teuchos::RCP<ROL::Vector<double>> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
   Py_INCREF(pyClone);
   return vclone;
@@ -98,12 +100,14 @@ PythonVector::clone() const {
 Teuchos::RCP<ROL::Vector<double>>
 PythonVector::basis( const int i ) const {
   PyObject* pyBasis = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
+  if (PyErr_Occurred() != NULL) PyErr_Print();
   Teuchos::RCP<ROL::Vector<double>> b = Teuchos::rcp( new PythonVector( pyBasis, true ) );
   Py_DECREF(pyBasis);
   b->zero();
   PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
   PyObject* pyOne = PyFloat_FromDouble(1.0);
   PyObject_CallMethodObjArgs(pyVector_,method_["__setitem__"].name,pyIndex,pyOne,NULL);
+  if (PyErr_Occurred() != NULL) PyErr_Print();
   Py_DECREF(pyIndex);
   Py_DECREF(pyOne);
   return b;
@@ -112,6 +116,7 @@ PythonVector::basis( const int i ) const {
 const ROL::Vector<double> & PythonVector::dual() const {
   if( method_["dual"].impl ) {
     PyObject *pyDual = PyObject_CallMethodObjArgs(pyVector_,method_["dual"].name,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     Teuchos::RCP<Vector> d = Teuchos::rcp( new PythonVector(pyDual,true) );
     return *d;
   }
@@ -125,6 +130,7 @@ void PythonVector::plus( const ROL::Vector<double> & x ) {
     // Borrowed reference
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject_CallMethodObjArgs(pyVector_,method_["plus"].name,pyX,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
   }
   else {
     this->applyBinary(ROL::Elementwise::Plus<double>(),x);
@@ -135,6 +141,7 @@ void PythonVector::scale( const double alpha ) {
   if( method_["scale"].impl ) {
     PyObject* pyAlpha = PyFloat_FromDouble(alpha);
     PyObject_CallMethodObjArgs(pyVector_,method_["scale"].name,pyAlpha,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     Py_DECREF(pyAlpha);
   }
   else {
@@ -149,6 +156,7 @@ double PythonVector::dot( const ROL::Vector<double> &x ) const {
     PyObject* pyValue;
     // This is supposed to return a new reference
     pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["dot"].name,pyX,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
                                "dot() returned incorrect type");
     value = PyFloat_AsDouble(pyValue);
@@ -170,6 +178,7 @@ double PythonVector::norm( ) const {
   if( method_["norm"].impl ) {
     PyObject* pyValue;
     pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["norm"].name,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
                                "norm() returned incorrect type");
     value = PyFloat_AsDouble(pyValue);
@@ -190,6 +199,7 @@ void PythonVector::axpy( const double alpha, const ROL::Vector<double> &x ) {
     PyObject* pyAlpha = PyFloat_FromDouble(alpha);
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject_CallMethodObjArgs(pyVector_,method_["axpy"].name,pyAlpha,pyX,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     Py_DECREF(pyAlpha);
   }
   else {
@@ -204,6 +214,7 @@ void PythonVector::axpy( const double alpha, const ROL::Vector<double> &x ) {
 void PythonVector::zero( ) {
   if( method_["zero"].impl ) {
      PyObject_CallMethodObjArgs(pyVector_,method_["zero"].name,NULL);
+     if (PyErr_Occurred() != NULL) PyErr_Print();
   }
   else {
     int dim = dimension();
@@ -217,6 +228,7 @@ void PythonVector::set( const ROL::Vector<double> &x ) {
   if( method_["set"].impl ) {
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject_CallMethodObjArgs(pyVector_,method_["set"].name,pyX,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
   }
   else {
     const PythonVector ex = Teuchos::dyn_cast<const PythonVector>(x);
@@ -257,6 +269,7 @@ void PythonVector::setValue (int i, double value) {
   PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
   PyObject* pyValue = PyFloat_FromDouble(value);
   PyObject_CallMethodObjArgs(pyVector_,method_["__setitem__"].name,pyIndex,pyValue,NULL);
+  if (PyErr_Occurred() != NULL) PyErr_Print();
   Py_DECREF(pyValue);
   Py_DECREF(pyIndex);
 }
@@ -264,6 +277,7 @@ void PythonVector::setValue (int i, double value) {
 double PythonVector::getValue(int i) const {
   PyObject* pyIndex = PyLong_FromLong(static_cast<long>(i));
   PyObject* pyValue = PyObject_CallMethodObjArgs(pyVector_,method_["__getitem__"].name,pyIndex,NULL);
+  if (PyErr_Occurred() != NULL) PyErr_Print();
   TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
                              "__getitem__ returned incorrect type");
   double value = PyFloat_AsDouble(pyValue);

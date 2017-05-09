@@ -70,7 +70,7 @@ void Objective::update( const ROL::Vector<double> &x, bool flag, int iter ) {
     PyObject* pyIter = PyLong_FromLong(static_cast<long>(iter));
 
     PyObject_CallMethodObjArgs(pyObjective_,method_["update"].name,pyX,pyFlag,pyIter,NULL);
-
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     Py_DECREF(pyFlag);
     Py_DECREF(pyIter);
   }
@@ -80,6 +80,7 @@ double Objective::value( const ROL::Vector<double> &x, double &tol ) {
   const PyObject* pyX = PyObject_FromVector(x);
   PyObject* pyTol = PyFloat_FromDouble(tol);
   PyObject* pyValue = PyObject_CallMethodObjArgs(pyObjective_,method_["value"].name,pyX,pyTol,NULL);
+  if (PyErr_Occurred() != NULL) PyErr_Print();
   TEUCHOS_TEST_FOR_EXCEPTION(!PyFloat_Check(pyValue), std::logic_error,
                              "value() returned incorrect type");
   double val = PyFloat_AsDouble(pyValue);
@@ -94,6 +95,7 @@ void Objective::gradient( ROL::Vector<double> &g, const ROL::Vector<double> &x, 
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject* pyTol = PyFloat_FromDouble(tol);
     PyObject_CallMethodObjArgs(pyObjective_,method_["gradient"].name,pyG,pyX,pyTol,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
   }
   else {
     ROL::Objective<double>::gradient(g,x,tol);
@@ -106,6 +108,7 @@ double Objective::dirDeriv( const ROL::Vector<double> &x, const ROL::Vector<doub
     const PyObject* pyD = PyObject_FromVector(d);
     PyObject* pyTol = PyFloat_FromDouble(tol);
     PyObject* pyResult = PyObject_CallMethodObjArgs(pyObjective_,method_["dirDeriv"].name,pyX,pyD,pyTol,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     double result = PyFloat_AsDouble(pyResult);
     Py_DECREF(pyTol);
     Py_DECREF(pyResult);
@@ -123,6 +126,7 @@ void Objective::hessVec( ROL::Vector<double> &hv, const ROL::Vector<double> &v, 
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject* pyTol = PyFloat_FromDouble(tol);
     PyObject_CallMethodObjArgs(pyObjective_,method_["hessVec"].name,pyHv,pyV,pyX,pyTol,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     Py_DECREF(pyTol);
   }
   else {
@@ -137,6 +141,7 @@ void Objective::invHessVec( ROL::Vector<double> &hv, const ROL::Vector<double> &
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject* pyTol = PyFloat_FromDouble(tol);
     PyObject_CallMethodObjArgs(pyObjective_,method_["invHessVec"].name,pyHv,pyV,pyX,pyTol,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     Py_DECREF(pyTol);
   }
   else {
@@ -151,6 +156,7 @@ void Objective::precond( ROL::Vector<double> &Pv, const ROL::Vector<double> &v, 
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject* pyTol = PyFloat_FromDouble(tol);
     PyObject_CallMethodObjArgs(pyObjective_,method_["precond"].name,pyPv,pyV,pyX,pyTol,NULL);
+    if (PyErr_Occurred() != NULL) PyErr_Print();
     Py_DECREF(pyTol);
   }
   else {
