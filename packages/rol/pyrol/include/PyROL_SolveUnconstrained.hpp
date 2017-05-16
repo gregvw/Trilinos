@@ -84,6 +84,10 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
 
   // Borrowed reference
   PyObject *pyAlgoValue = PyDict_GetItem(pyOptions,pyAlgoKey);
+  if (pyAlgoValue == NULL)  {
+    PyErr_SetString(PyExc_KeyError, algoKey.c_str());
+    PyErr_Print();
+  }
   Py_DECREF(pyAlgoKey);
   std::string algoValue = PyString_AsString(pyAlgoValue);
 
