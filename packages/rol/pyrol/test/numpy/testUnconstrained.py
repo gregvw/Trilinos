@@ -13,7 +13,15 @@ if __name__ == '__main__':
 
     dim = 10
     obj = zakharov.Objective(dim) 
-    
+ 
+    test_opt = { "Check Gradient"   : True,
+                 "Check HessVec"    : True,
+                 "Check HessSym"    : True,
+                 "Check InvHessVec" : True,
+                 "Order"            : 2,
+                 "Steps"            : [0.1**i for i in range(7)]
+               }
+       
     solve_opt = { "Algorithm" : "Line Search",
                   "Return Iterates" : "true", 
                   "Step" : {
@@ -28,14 +36,33 @@ if __name__ == '__main__':
     # Initial guess of solution
     x = np.ones(dim) 
 
-    # Solve the optimization problem with the given options
-    output =  pyrol.solveUnconstrained(obj,x,solve_opt)
+#    x = np.random.randn(dim)
+    v = np.random.randn(dim)
+    hv = np.zeros(dim)
+    ihhv = np.zeros(dim)
 
-    if len(output)>1:
-        print(output[0])
+    obj.hessVec(hv,v,x)
+    obj.invHessVec(ihhv,hv,x)
+   
+#    print(v)
+#    print(hv)
+
+    
+
+    # Perform checks on gradient, Hessian, etc
+    test_output = pyrol.testObjective(obj,x,test_opt)
+    print(test_output)
+
+    print("Inverse Hessian error when checking in Python " + str(np.linalg.norm(ihhv-v)))
+
+    # Solve the optimization problem with the given options
+    solve_output = pyrol.solveUnconstrained(obj,x,solve_opt)
+
+    if len(solve_output)>1:
+        print(solve_output[0])
         print("Optimization vectors")
-        print(output[1])
+        print(solve_output[1])
     else:
-        print(output)
+        print(solve_output)
       
 

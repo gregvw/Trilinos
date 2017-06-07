@@ -8,9 +8,8 @@ class vector(object):
     """Simple vector class implemented in Python to be encapsulated
        by a ROL::Vector"""
 
-
     def __init__(self,data):
-        self.n=len(data)
+        self.n = len(data)
         self.data = copy.deepcopy(data)
 
     def __setitem__(self,i,value):

@@ -50,7 +50,7 @@ class Objective(object):
 #        print("zakharov::invHessVec")
         kdotv  = self.k.dot(v)
         kdotx  = self.k.dot(x)
-        kdotk  = self.k.dot(k)
+        kdotk  = self.k.dot(self.k)
         coeff  = -kdotv/(2.0*kdotk+16.0/(2.0+3.0*kdotx**3))
         for i in range(self.n):
             ihv[i] = 0.5*v[i]+coeff*self.k[i]

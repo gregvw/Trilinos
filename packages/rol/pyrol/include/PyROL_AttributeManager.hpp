@@ -66,6 +66,10 @@ public:
     }
   }
 
+  bool hasImplementation( Name name ) {
+    return method_[name].impl;
+  }
+
 #ifdef PYROL_DEBUG_MODE
 
   void dir(PyObject* pyObj, std::ostream &os) const {

@@ -62,14 +62,14 @@ PythonVector::PythonVector( PyObject* pyVector, bool has_ownership ) :
 PythonVector::PythonVector( const PythonVector & v ):
   AttributeManager( v.pyVector_, attrList_, className_ ),
   pyVector_( v.pyVector_ ), has_ownership_(false) {
-  std::cout << "PythonVector Copy Constructor" << std::endl;
+//  std::cout << "PythonVector Copy Constructor" << std::endl;
 //  Py_INCREF(pyVector_);
 }
 
 
 PythonVector::~PythonVector() {
   TEUCHOS_TEST_FOR_EXCEPTION( !(pyVector_->ob_refcnt), std::logic_error,
-    "PythonVector() was called but pyVector already has zero references");
+    "~PythonVector() was called but pyVector already has zero references");
   int n = has_ownership_ ? 0 : 1;
   while(Py_REFCNT(pyVector_) > n)
     Py_DECREF(pyVector_);
@@ -79,7 +79,7 @@ int PythonVector::dimension() const {
   if( method_["dimension"].impl ) {
     PyObject* pyDimension = PyObject_CallMethodObjArgs(pyVector_,method_["dimension"].name,NULL);
     if (PyErr_Occurred() != NULL) PyErr_Print();
-    TEUCHOS_TEST_FOR_EXCEPTION(!PyLong_Check(pyDimension), std::logic_error,
+    TEUCHOS_TEST_FOR_EXCEPTION(!PyLong_Check(pyDimension) && !PyInt_Check(pyDimension), std::logic_error,
                                "dimension() returned incorrect type");
     return static_cast<int>(PyLong_AsLong(pyDimension));
   }
