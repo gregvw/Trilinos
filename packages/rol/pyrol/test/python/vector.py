@@ -61,7 +61,8 @@ class vector(object):
 
 if __name__ == '__main__':
 
-    v = vector([0]*10)
+    v = vector([0.0]*10)
+
     print("type(v) = {0}".format(type(v)))
 
     v[0]=1.0

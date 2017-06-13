@@ -12,20 +12,20 @@ class Objective(object):
         self.n = n
         self.k = np.array([1.0+i for i in range(self.n)])
 
-    def value(self,x,tol):
+    def value(self,x,tol=0):
 #        print("zakharov::value")
         xdotx = x.dot(x);
         kdotx = self.k.dot(x)
         val = xdotx + (kdotx**2)/4.0 + (kdotx**4)/16.0
         return val
 
-    def gradient(self,g,x,tol):
+    def gradient(self,g,x,tol=0):
 #        print("zakharov::gradient")
         kdotx = self.k.dot(x)
         coeff = 0.25*(2.0*kdotx+kdotx**3)
         g[:] = 2.0*x[:]+coeff*self.k[:]
 
-    def dirDeriv(self,x,d,tol):
+    def dirDeriv(self,x,d,tol=0):
 #        print("zakharov::derDeriv")
         kdotd = self.k.dot(d)
         kdotx = self.k.dot(x)
@@ -34,19 +34,19 @@ class Objective(object):
         deriv = 2*xdotd + coeff*kdotd
         return deriv
 
-    def hessVec(self,hv,v,x,tol):
+    def hessVec(self,hv,v,x,tol=0):
 #        print("zakharov::hessVec")
         kdotx = self.k.dot(x)
         kdotv = self.k.dot(v)
         coeff = 0.25*(2.0+3.0*kdotx**2)*kdotv
         hv[:] = 2.0*v[:]+coeff*self.k[:]
 
-    def invHessVec(self,ihv,v,x,tol):
+    def invHessVec(self,ihv,v,x,tol=0):
 #        print("zakharov::invHessVec")
         kdotv  = self.k.dot(v)
         kdotx  = self.k.dot(x)
-        kdotk  = self.k.dot(k)
-        coeff  = -kdotv/(2.0*kdotk+16.0/(2.0+3.0*kdotx**3))
+        kdotk  = self.k.dot(self.k)
+        coeff  = -kdotv/(2.0*kdotk+16.0/(2.0+3.0*kdotx**2))
         ihv[:] = 0.5*v[:]+coeff*self.k[:]
         
         
