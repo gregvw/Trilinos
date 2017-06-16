@@ -121,7 +121,7 @@ double Objective::dirDeriv( const ROL::Vector<double> &x, const ROL::Vector<doub
 
 void Objective::hessVec( ROL::Vector<double> &hv, const ROL::Vector<double> &v, const ROL::Vector<double> &x, double &tol ) {
   if( method_["hessVec"].impl ) {
-    PyObject* pyHv = Teuchos::dyn_cast<BaseVector>(hv).getPyVector();
+    PyObject* pyHv = PyObject_FromVector(hv);
     const PyObject* pyV = PyObject_FromVector(v);
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject* pyTol = PyFloat_FromDouble(tol);
@@ -136,8 +136,8 @@ void Objective::hessVec( ROL::Vector<double> &hv, const ROL::Vector<double> &v, 
 
 void Objective::invHessVec( ROL::Vector<double> &hv, const ROL::Vector<double> &v, const ROL::Vector<double> &x, double &tol ) {
   if( method_["invHessVec"].impl ) {
-    PyObject* pyHv = Teuchos::dyn_cast<BaseVector>(hv).getPyVector();
-    const PyObject* pyV = PyObject_FromVector(hv);
+    PyObject* pyHv = PyObject_FromVector(hv);
+    const PyObject* pyV = PyObject_FromVector(v);
     const PyObject* pyX = PyObject_FromVector(x);
     PyObject* pyTol = PyFloat_FromDouble(tol);
     PyObject_CallMethodObjArgs(pyObjective_,method_["invHessVec"].name,pyHv,pyV,pyX,pyTol,NULL);
@@ -145,6 +145,7 @@ void Objective::invHessVec( ROL::Vector<double> &hv, const ROL::Vector<double> &
     Py_DECREF(pyTol);
   }
   else {
+    std::cout << "invHessVec called but not implemented!" << std::endl;
     return ROL::Objective<double>::invHessVec(hv,v,x,tol);
   }
 }

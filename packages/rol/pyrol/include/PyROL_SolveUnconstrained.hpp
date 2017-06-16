@@ -68,7 +68,7 @@ static PyObject* solveUnconstrained( PyObject* self, PyObject* pyArgs ) {
 
   // Get parameters
   Teuchos::ParameterList parlist;
-  PyROL::dictToParameterList(pyOptions,parlist);
+  PyROL::dictToParameterList(pyOptions,parlist,true);
 
   std::string algoKey("Algorithm");
   PyObject* pyAlgoKey = PyString_FromString(C_TEXT(algoKey));

@@ -37,8 +37,8 @@ if __name__ == '__main__':
     x = vector([1.0]*dim)
 
     # Perform checks on gradient, Hessian, etc
-#    test_output = pyrol.testObjective(obj,x,test_opt)
-#    print(test_output)
+    test_output = pyrol.testObjective(obj,x,test_opt)
+    print(test_output)
 
 
     # Solve the optimization problem with the given options

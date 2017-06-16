@@ -62,6 +62,7 @@ inline std::string PyString_AsString(PyObject* p)
 #include "ROL_Objective.hpp"
 #include "ROL_RandomVector.hpp"
 #include "ROL_StdVector.hpp"
+#include "ROL_ValidParameters.hpp"
 
 
 #endif // PYROL_HPP

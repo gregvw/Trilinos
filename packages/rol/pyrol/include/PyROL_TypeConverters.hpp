@@ -121,7 +121,8 @@ inline std::string pyObjectTypeAsString( PyOBJECT_TYPE type ) {
 }
 
 inline void dictToParameterList( PyObject* pyDict,
-                          Teuchos::ParameterList &parlist ) {
+                                 Teuchos::ParameterList &parlist, 
+                                 bool validateParameters=false ) {
 
   // Get list of dictionary keys
   PyObject* pyKeyList = PyDict_Keys(pyDict);
@@ -196,6 +197,13 @@ inline void dictToParameterList( PyObject* pyDict,
     Py_XDECREF(pyValue);
   } // for(i...)
   Py_XDECREF(pyKeyList);
+ 
+// TODO: Implement white list for PyROL parameters or create PyROL specific parameter validation
+//  if( validateParameters ) {  
+//    Teuchos::RCP<const Teuchos::ParameterList> validParlist = ROL::getValidROLParameters();
+//    parlist.validateParametersAndSetDefaults(*validParlist);
+//  }
+
 }
 
 

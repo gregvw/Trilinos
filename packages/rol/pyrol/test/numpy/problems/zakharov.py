@@ -11,6 +11,7 @@ class Objective(object):
 #        print("zakharov::__init__")
         self.n = n
         self.k = np.array([1.0+i for i in range(self.n)])
+        self.kdotk = sum([(i+1.0)**2 for i in range(self.n)])
 
     def value(self,x,tol=0):
 #        print("zakharov::value")
@@ -45,8 +46,7 @@ class Objective(object):
 #        print("zakharov::invHessVec")
         kdotv  = self.k.dot(v)
         kdotx  = self.k.dot(x)
-        kdotk  = self.k.dot(self.k)
-        coeff  = -kdotv/(2.0*kdotk+16.0/(2.0+3.0*kdotx**2))
+        coeff  = -kdotv/(2.0*self.kdotk+16.0/(2.0+3.0*kdotx**2))
         ihv[:] = 0.5*v[:]+coeff*self.k[:]
         
         

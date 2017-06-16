@@ -71,7 +71,8 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
   Teuchos::RCP<RV> v = x->clone();   
 
   ROL::RandomizeVector(*d,-1.0,1.0);
-  ROL::RandomizeVector(*v,-1.0,1.0);
+//  ROL::RandomizeVector(*v,-1.0,1.0);
+  v->applyUnary(ROL::Elementwise::Fill<double>(1.0));
 
   // Finite difference order
   int order = 1;
@@ -181,6 +182,7 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
       double tol = std::sqrt(ROL::ROL_EPSILON<double>());
       obj.hessVec(*hv, *v, *x, tol);
       obj.invHessVec(*ihhv, *hv, *x, tol);
+
       ihhv->axpy(-1.0,*v);
       outputStream << std::endl;
       outputStream << "Checking inverse Hessian" << std::endl;
@@ -189,13 +191,10 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
     else {
       TEUCHOS_TEST_FOR_EXCEPTION(true,std::logic_error, "Cannot check inverse Hessian-vector product. "
         "Objective does not implement a invHessVec method.");
-
     }
   }
 
-
   PyObject* pyOutput  = PyString_FromString(C_TEXT(outputStream.str())); 
-
 
   return pyOutput;
 }

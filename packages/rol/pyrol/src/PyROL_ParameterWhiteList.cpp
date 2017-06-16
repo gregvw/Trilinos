@@ -1,12 +1,3 @@
-// @HEADER
-// ************************************************************************
-//
-//               Rapid Optimization Library (ROL) Package
-//                 Copyright (2014) Sandia Corporation
-//
-// Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-// license for use of this work by or on behalf of the U.S. Government.
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -41,43 +32,11 @@
 // ************************************************************************
 // @HEADER
 
-#include <Python.h>
+#include "PyROL_ParameterWhiteList.hpp"
 
-#include "test/PyROL_TestVector.hpp"
-#include "test/PyROL_TestObjective.hpp"
+namespace PyROL {
 
-extern "C" {
-
-static PyMethodDef test_methods[] = {
-  {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
-  {"testObjective",(PyCFunction)testVector,METH_VARARGS,testObjective_doc},
-  {NULL,NULL,0,NULL}
-}; // testMethods
-
-static char test_doc[] =
-  "Module for testing PyROL components";
-
-
-#if PY_MAJOR_VERSION >= 3
-static struct PyModuleDef test_module = {
-  PyModuleDef_HEAD_INIT,
-  "test",
-  test_doc,
-  -1,
-  test_methods
+const std::vector<const char*> ParameterWhiteList::exempt = { "Algorithm", "Return Iterates"
 };
-#endif
 
-PyMODINIT_FUNC
-#if PY_MAJOR_VERSION >= 3
-PyInit_test(void) {
-  return PyModule_Create(&test_module);
-}
-#else
-inittest(void) {
-  Py_InitModule3("test",test_methods,test_doc);
-}
-#endif
-
-
-} // extern "C"
+} // namespace PyROL

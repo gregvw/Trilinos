@@ -102,6 +102,7 @@ Teuchos::RCP<ROL::Vector<double>> NumPyVector::basis( int i ) const {
   return Teuchos::rcp( new NumPyVector( pyVector, true ) );
 }
 
+
 void NumPyVector::applyUnary( const UnaryFunction &f ) {
   for( npy_intp i=0; i<size_; ++i ) {
     data_[i] = f.apply(data_[i]);
@@ -112,6 +113,13 @@ void NumPyVector::applyBinary( const BinaryFunction &f, const ROL::Vector<double
   const NumPyVector &ex = Teuchos::dyn_cast<const NumPyVector>(x);
   for( npy_intp i=0; i<size_; ++i ) {
     data_[i] = f.apply(data_[i],ex[i]);
+  }
+}
+
+void NumPyVector::axpy( const double alpha, const ROL::Vector<double> &x ) {
+  const NumPyVector &ex = Teuchos::dyn_cast<const NumPyVector>(x);
+  for( npy_intp i=0; i<size_; ++i ) {
+    data_[i] += alpha * ex[i];
   }
 }
 
