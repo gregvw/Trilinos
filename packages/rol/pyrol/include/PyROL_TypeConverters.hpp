@@ -54,8 +54,9 @@ PyObject_AsVector( PyObject *pyObj ) {
 
   Teuchos::RCP<ROL::Vector<double>> vec;
 #ifdef ENABLE_NUMPY
+
   // Check to see if this is a NumPy array
-  if( PyObject_HasAttrString(pyObj,"__array_interface__") ) {
+  if( PyArray_Check(pyObj) ) {
     vec = Teuchos::rcp( new NumPyVector(pyObj) );
   }
   else {
