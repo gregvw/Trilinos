@@ -63,16 +63,17 @@ PythonVector::PythonVector( const PythonVector & v ):
   AttributeManager( v.pyVector_, attrList_, className_ ),
   pyVector_( v.pyVector_ ), has_ownership_(false) {
 //  std::cout << "PythonVector Copy Constructor" << std::endl;
-//  Py_INCREF(pyVector_);
+  Py_INCREF(pyVector_);
 }
 
 
 PythonVector::~PythonVector() {
   TEUCHOS_TEST_FOR_EXCEPTION( !(pyVector_->ob_refcnt), std::logic_error,
     "~PythonVector() was called but pyVector already has zero references");
-  int n = has_ownership_ ? 0 : 1;
-  while(Py_REFCNT(pyVector_) > n)
-    Py_DECREF(pyVector_);
+//  int n = has_ownership_ ? 0 : 1;
+//  while(Py_REFCNT(pyVector_) > n)
+//    Py_DECREF(pyVector_);
+//    std::cout << "~PythonVector() : Py_REFCNT = " << Py_REFCNT(pyVector_) << std::endl;
  }
 
 int PythonVector::dimension() const {
@@ -92,8 +93,8 @@ Teuchos::RCP<ROL::Vector<double>>
 PythonVector::clone() const {
   PyObject* pyClone = PyObject_CallMethodObjArgs(pyVector_,method_["clone"].name,NULL);
   if (PyErr_Occurred() != NULL) PyErr_Print();
-  Teuchos::RCP<ROL::Vector<double>> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
   Py_INCREF(pyClone);
+  Teuchos::RCP<ROL::Vector<double>> vclone = Teuchos::rcp( new PythonVector( pyClone, true ) );
   return vclone;
 }
 
