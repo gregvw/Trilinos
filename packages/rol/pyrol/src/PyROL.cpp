@@ -44,6 +44,7 @@
 
 #include "test/PyROL_TestVector.hpp"
 #include "test/PyROL_TestObjective.hpp"
+#include "test/PyROL_TestEqualityConstraint.hpp"
 #include "PyROL_SolveUnconstrained.hpp"
 #include "PyROL_SolveEqualityConstrained.hpp"
 
@@ -55,6 +56,8 @@ extern "C" {
 static PyMethodDef pyrol_methods[] = {
   {"testVector",(PyCFunction)testVector,METH_VARARGS,testVector_doc},
   {"testObjective",(PyCFunction)testObjective,METH_VARARGS,testObjective_doc},
+  {"testEqualityConstraint",(PyCFunction)testEqualityConstraint,METH_VARARGS,
+    testEqualityConstraint_doc},
   {"solveUnconstrained",(PyCFunction)solveUnconstrained,METH_VARARGS,
     solveUnconstrained_doc},
   {"solveEqualityConstrained",(PyCFunction)solveEqualityConstrained,

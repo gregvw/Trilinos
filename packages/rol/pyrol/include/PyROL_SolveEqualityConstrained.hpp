@@ -61,7 +61,6 @@ static PyObject* solveEqualityConstrained( PyObject* self, PyObject* pyArgs ) {
   PyObject* pyL;
   PyObject* pyOptions;
   PyObject* pyReturn;
-  pyReturn = PyTuple_New(2);
 
   int parseCheck = PyArg_ParseTuple(pyArgs,"OOOOO",&pyObjective,&pyEqualityConstraint,
                    &pyX,&pyL,&pyOptions);
@@ -87,6 +86,15 @@ static PyObject* solveEqualityConstrained( PyObject* self, PyObject* pyArgs ) {
   std::string algoKey("Algorithm");
   PyObject *pyAlgoKey = PyUnicode_FromString((char*)algoKey.c_str());
 
+  std::string getIteratesKey("Return Iterates");
+  PyObject* pyGetIteratesKey = PyString_FromString(C_TEXT(getIteratesKey));
+  PyObject* pyGetIteratesValue = PyDict_GetItem(pyOptions, pyGetIteratesKey);
+  bool getIteratesValue = false;
+  if( pyGetIteratesValue != NULL && PyObject_IsTrue(pyGetIteratesValue) ) {
+    getIteratesValue = true;
+  } 
+  Py_DECREF(pyGetIteratesKey);
+
   // Borrowed reference
   PyObject *pyAlgoValue = PyDict_GetItem(pyOptions,pyAlgoKey);
   Py_DECREF(pyAlgoKey);
@@ -100,14 +108,20 @@ static PyObject* solveEqualityConstrained( PyObject* self, PyObject* pyArgs ) {
 
   ROL::Algorithm<double> algo(algoValue,parlist,false);
   
-  algo.run(*xp,*lp,obj,con,true); 
+  algo.run(*xp,*lp,obj,con,true,outputStream,true,vectorStream); 
 
   PyObject* pyOutput  = PyString_FromString(C_TEXT(outputStream.str()));
   PyObject* pyVectors = PyString_FromString(C_TEXT(vectorStream.str()));
 
-  PyTuple_SetItem(pyReturn,(Py_ssize_t)(0),pyOutput);
-  PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);   
-  
+  if( getIteratesValue ) {
+    pyReturn = PyTuple_New(2);
+    PyTuple_SetItem(pyReturn,(Py_ssize_t)(0),pyOutput);
+    PyTuple_SetItem(pyReturn,(Py_ssize_t)(1),pyVectors);   
+  }
+  else {
+    pyReturn = pyOutput;
+  }
+
   return pyReturn;
 }
 

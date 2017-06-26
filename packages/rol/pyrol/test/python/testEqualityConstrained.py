@@ -3,26 +3,26 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 
-import numpy as np
 import pyrol
+from vector import vector
 from problems import equality
 
 
 if __name__ == '__main__':
 
-    print("Testing solution of an equality constrained problem using NumPy array")
+    print("Testing solution of an equality constrained problem using Python-implemented vector class")
 
     obj = equality.Objective()
     con = equality.EqualityConstraint()
-    x = np.array([-1.8,1.7,1.9,-0.8,-0.8])
-    l = np.random.rand(3) # Lagrange multipliers
+    x = vector([-1.8,1.7,1.9,-0.8,-0.8])
+    l = vector([1.0,1.0,1.0])   # Lagrange multipliers
 
     # Given solution
-    x_sol = np.array([-1.717143570394391e+00,
-                       1.595709690183565e+00,
-                       1.827245752927178e+00,
-                      -7.636430781841294e-01,
-                      -7.636430781841294e-01])
+    x_sol = vector([-1.717143570394391e+00,
+                     1.595709690183565e+00,
+                     1.827245752927178e+00,
+                    -7.636430781841294e-01,
+                    -7.636430781841294e-01])
  
 
     test_opt = { "Check Gradient"                     : True,
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     solve_output = pyrol.solveEqualityConstrained(obj,con,x,l,solve_opt)
 
     if len(solve_output)>1:
-        dim = len(x)
+        dim = x.dimension()
         print(solve_output[0])
         print("Optimization vectors\n")
         xv = lambda i: "".join(["x[",str(i),"]"])

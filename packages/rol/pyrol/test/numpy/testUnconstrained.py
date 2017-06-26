@@ -23,7 +23,7 @@ if __name__ == '__main__':
                }
        
     solve_opt = { "Algorithm" : "Line Search",
-                  "Return Iterates" : "true", 
+                  "Return Iterates" : "True", 
                   "Step" : {
                     "Line Search" : {
                        "Descent Method" : {
@@ -35,15 +35,6 @@ if __name__ == '__main__':
 
     # Initial guess of solution
     x = np.ones(dim) 
-
-#    v = np.random.randn(dim)
-#    hv = np.zeros(dim)
-#    ihhv = np.zeros(dim)
-#    print("v = {0}".format(v))
-#    obj.hessVec(hv,v,x)
-#    print("hv = {0}".format(hv))
-#    obj.invHessVec(ihhv,hv,x)
-#    print("ihhv = {0}".format(ihhv))
 
     # Perform checks on gradient, Hessian, etc
     test_output = pyrol.testObjective(obj,x,test_opt)

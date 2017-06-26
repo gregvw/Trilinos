@@ -63,16 +63,12 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
   // Get optimization vector
   Teuchos::RCP<RV> x = PyROL::PyObject_AsVector(pyX);  
 
-  // Get parameters
-  Teuchos::ParameterList parlist;
-//  PyROL::dictToParameterList(pyOptions,parlist);
-
   Teuchos::RCP<RV> d = x->clone();
   Teuchos::RCP<RV> v = x->clone();   
 
   ROL::RandomizeVector(*d,-1.0,1.0);
-//  ROL::RandomizeVector(*v,-1.0,1.0);
-  v->applyUnary(ROL::Elementwise::Fill<double>(1.0));
+  ROL::RandomizeVector(*v,-1.0,1.0);
+//  v->applyUnary(ROL::Elementwise::Fill<double>(1.0));
 
   // Finite difference order
   int order = 1;
@@ -81,7 +77,7 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
   std::vector<double> steps;
 
   // Number of finite difference steps
-  int numSteps;
+  int numSteps = 10;
 
   // Get options
   PyObject* pyValue;
@@ -132,7 +128,7 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
   if( pyValue != NULL && PyObject_IsTrue(pyValue) ) {
 
     if( obj.hasImplementation("gradient") ) {
-      outputStream << "\n\nGradient Check\n";
+      outputStream << "\n\nObjective Gradient Check\n";
       obj.checkGradient(*x,*d,steps,true,outputStream,order);   
     }
     else {
@@ -147,7 +143,7 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
   if( pyValue != NULL && PyObject_IsTrue(pyValue) ) {
   
     if( obj.hasImplementation("hessVec") ) {
-      outputStream << "\n\nHessian-Vector Product Check\n";
+      outputStream << "\n\nObjective Hessian-Vector Product Check\n";
       obj.checkHessVec(*x,*v,steps,true,outputStream,order); 
     }
     else {
@@ -162,7 +158,7 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
   if( pyValue != NULL && PyObject_IsTrue(pyValue) ) {
   
     if( obj.hasImplementation("hessVec") ) {
-      outputStream << "\n\nHessian Symmetry Check\n";
+      outputStream << "\n\nObjective Hessian Symmetry Check\n";
       obj.checkHessSym(*x,*d,*v,true,outputStream);
     }
     else {
@@ -176,7 +172,6 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
 
   if( pyValue != NULL && PyObject_IsTrue(pyValue) ) {
     if( obj.hasImplementation("invHessVec") ) {
-      outputStream << "\n\nInverse Hessian Check\n";
       Teuchos::RCP<RV> hv   = x->clone();
       Teuchos::RCP<RV> ihhv = x->clone();
       double tol = std::sqrt(ROL::ROL_EPSILON<double>());
@@ -185,7 +180,7 @@ static PyObject* testObjective( PyObject* self, PyObject *pyArgs ) {
 
       ihhv->axpy(-1.0,*v);
       outputStream << std::endl;
-      outputStream << "Checking inverse Hessian" << std::endl;
+      outputStream << "Checking Objective inverse Hessian" << std::endl;
       outputStream << "||H^{-1}Hv-v|| = " << ihhv->norm() << std::endl;
     }
     else {
@@ -204,7 +199,7 @@ static char testObjective_doc[] =
   "involving derivatives if they have been implemented.\n\n "
   "Arguments:\n"
   "obj     - the objective function \n"
-  "x       - the vector (as a 1D NumPy array) about which to evaluate the objective and its methods\n"
+  "x       - the optimization vector about which to evaluate the objective and its methods\n"
   "options - dictionary specifying how to do the checks. Valid keys and values below. \n\n"
   "    Key                 | Value Type      | Function \n"
   "    --------------------+-----------------+-------------------------------------------------------\n"

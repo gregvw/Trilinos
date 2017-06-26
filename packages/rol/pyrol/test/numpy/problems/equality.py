@@ -37,12 +37,12 @@ class Objective(object):
         hv[0] -= 6*c*v[0]*x[0]+3*h*x[0]**2
         hv[1] -= 6*c*v[1]*x[1]+3*h*x[1]**2
 
-    def invHessVec(self,ihv,v,x,tol):
-        I = np.identity(5)
-        H = np.zeros((5,5))
-        for k in range(5):
-            self.hessVec(H[:,k],I[:,k],x)
-        ihv[:] = np.linalg.solve(H,v)
+#    def invHessVec(self,ihv,v,x,tol):
+#        I = np.identity(5)
+#        H = np.zeros((5,5))
+#        for k in range(5):
+#            self.hessVec(H[:,k],I[:,k],x)
+#        ihv[:] = np.linalg.solve(H,v)
 
 
 class EqualityConstraint(object):
@@ -58,12 +58,11 @@ class EqualityConstraint(object):
         jv[2] = 3.0*(x[0]*x[0]*v[0] + x[1]*x[1]*v[1])
 
     def applyAdjointJacobian(self,ajv,v,x,tol):
-        ajv[:] = 2.0*x*v[0]
-        ajv[0] += 3.0*x[0]**2*v[2]
-        ajv[1] += x[2]*v[1]+3.0*x[1]**2*v[2]
-        ajv[2] += x[1]*v[1]
-        ajv[3] -= 5.0*x[4]*v[2]
-        ajv[4] -= 5.0*x[3]*v[2]
+        ajv[0] = 2*x[0]*v[0] + 3.0*x[0]*x[0]*v[2]
+        ajv[1] = 2*x[1]*v[0] + x[2]*v[1] + 3.0*x[1]*x[1]*v[2]
+        ajv[2] = 2*x[2]*v[0] + x[1]*v[1]
+        ajv[3] = 2*x[3]*v[0] - 5.0*x[4]*v[1]
+        ajv[4] = 2*x[4]*v[0] - 5.0*x[3]*v[1]
 
     def applyAdjointHessian(self,ahuv,u,v,x,tol):
         ahuv[0] = 2.0*u[0]*v[0] +                 6.0*u[2]*x[0]*v[0]
