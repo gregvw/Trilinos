@@ -41,75 +41,51 @@
 // ************************************************************************
 // @HEADER
 
-#ifndef PYROL_HPP
-#define PYROL_HPP
+#ifndef PYROL_INEQUALITYCONSTRAINT_HPP
+#define PYROL_INEQUALITYCONSTRAINT_HPP
 
-#ifdef ENABLE_NUMPY
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#endif
+#include "PyROL_AttributeManager.hpp"
 
-// Python Includes
-#include "Python.h"
-#include "structmember.h"
-#ifdef ENABLE_NUMPY
-#include "numpy/arrayobject.h"
-#endif
+namespace PyROL {
 
+/** \class PyROL::InequalityConstraint
+    \brief Provides a ROL interface for inequality constraint classes implemented in Python
+*/
 
-#if PY_MAJOR_VERSION >= 3
+class InequalityConstraint : public ROL::InequalityConstraint<double>, public AttributeManager {
 
-#define PyInt_FromLong PyLong_FromLong
-#define PyInt_AsLong   PyLong_AsLong
-#define PyInt_Check    PyLong_Check
+  using Vector = ROL::Vector<double>;
 
-#define PyString_FromString        PyUnicode_FromString
-// #define PyString_AsString          PyBytes_AsString
-#define PyString_AsEncodedString   PyUnicode_AsEncodedString
-#define PyString_Check             PyUnicode_Check
+public:
 
-#include<string>
-inline std::string PyString_AsString(PyObject* p)
-{
-  PyObject* pyString = PyUnicode_AsEncodedString(p,"ASCII","strict");
-  std::string s = PyBytes_AsString(pyString);
-  Py_XDECREF(pyString);
-  return s;
-}
+  const static AttributeManager::Name className_;
+
+private:
+
+  const static AttributeManager::AttributeList attrList_;
+
+  PyObject* pyEqCon_;
 
 
-#else // Python 2.7
+public:
 
-#ifndef PyMODINIT_FUNC
-#define PyMODINIT_FUNC void
-#endif
+  InequalityConstraint( PyObject* pyEqCon );
+  virtual ~InequalityConstraint();
+  virtual void value(Vector &c, const Vector &x, double &tol);
+  virtual void applyJacobian(Vector &jv, const Vector &v, const Vector &x, double &tol);
+  virtual void applyAdjointJacobian(Vector &ajv, const Vector &v, const Vector &x, double &tol);
+  virtual void applyAdjointHessian(Vector &ahuv, const Vector &u, const Vector &v, const Vector &x, double &tol);
+  virtual std::vector<double> solveAugmentedSystem(Vector &v1,  Vector &v2, const Vector &b1,
+                                                   const Vector &b2, const Vector &x, double &tol);
+  virtual void applyPreconditioner(Vector &pv, const Vector &v, const Vector &x, const Vector &g, double &tol);
+  virtual void update( const Vector &x, bool flag = true, int iter = -1 );
+  virtual bool isFeasible( const Vector &v );
 
-#endif
-
-#define  C_TEXT(text) ((char*)std::string(text).c_str())
-
-
-// C++ Includes
-#include <algorithm>
-#include <cstdlib>
-#include <iostream>
-#include <iomanip>
-#include <ostream>
-#include <sstream>
-#include <string>
-#include <tuple>
-#include <vector>
-
-// ROL Includes
-#include "ROL_OptimizationSolver.hpp"
-
-// Probably all of these are redundant 
-#include "ROL_Algorithm.hpp"
-#include "ROL_ElementwiseVector.hpp"
-#include "ROL_EqualityConstraint.hpp"
-#include "ROL_Objective.hpp"
-#include "ROL_RandomVector.hpp"
-#include "ROL_StdVector.hpp"
-#include "ROL_ValidParameters.hpp"
+}; // class InequalityConstraint
 
 
-#endif // PYROL_HPP
+} // namespace PyROL
+
+
+
+#endif // PYROL_INEQUALITYCONSTRAINT_HPP
