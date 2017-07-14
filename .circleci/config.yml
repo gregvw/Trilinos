@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: chrisrichardson/pyrol-testing:latest
+    working_directory: /tmp/pyrol-testing
+    steps:
+      - checkout
+      - run:
+          name: Build PyROL
+          command: cd packages/rol/pyrol && mkdir local && export PYTHONPATH=$PWD/local && python3 setup.py install --prefix=local
+      - run:
+          name: Test PyROL
+          command: export PYTHONPATH=$PWD/local && ls -l
