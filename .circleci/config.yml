@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: chrisrichardson/pyrol-testing:latest
         environment:
-	  TRILINOS_DIR: /usr/local
+          TRILINOS_DIR: /usr/local
     working_directory: /tmp/pyrol-testing
     steps:
       - checkout
