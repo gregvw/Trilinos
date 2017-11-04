@@ -71,9 +71,9 @@ class StatusTestFactory;
 template <class Real>
 class Algorithm {
 private:
-  Teuchos::RCP<Step<Real> >           step_;
-  Teuchos::RCP<StatusTest<Real> >     status_;
-  Teuchos::RCP<AlgorithmState<Real> > state_;
+  std::shared_ptr<Step<Real> >           step_;
+  std::shared_ptr<StatusTest<Real> >     status_;
+  std::shared_ptr<AlgorithmState<Real> > state_;
 
   bool printHeader_;
 
@@ -83,21 +83,21 @@ public:
 
   /** \brief Constructor, given a step and a status test.
   */
-  Algorithm( const Teuchos::RCP<Step<Real> > & step,
-             const Teuchos::RCP<StatusTest<Real> > & status,
+  Algorithm( const std::shared_ptr<Step<Real> > & step,
+             const std::shared_ptr<StatusTest<Real> > & status,
              bool printHeader = false ) {
     step_ = step;
     status_ = status;
-    state_ = Teuchos::rcp(new AlgorithmState<Real>);
+    state_ = std::make_shared<AlgorithmState<Real>>();
     printHeader_ = printHeader;
   }
 
   /** \brief Constructor, given a step, a status test, and a
              previously defined algorithm state.
   */
-  Algorithm( const Teuchos::RCP<Step<Real> > & step,
-             const Teuchos::RCP<StatusTest<Real> > & status,
-             const Teuchos::RCP<AlgorithmState<Real> > & state,
+  Algorithm( const std::shared_ptr<Step<Real> > & step,
+             const std::shared_ptr<StatusTest<Real> > & status,
+             const std::shared_ptr<AlgorithmState<Real> > & state,
              bool printHeader = false ) {
     step_ = step;
     status_ = status;
@@ -125,7 +125,7 @@ public:
     StatusTestFactory<Real> statusTestFactory;
     step_   = stepFactory.getStep(stepname,parlist);
     status_ = statusTestFactory.getStatusTest(stepname,parlist);
-    state_  = Teuchos::rcp(new AlgorithmState<Real>);
+    state_  = std::make_shared<AlgorithmState<Real>>();
     printHeader_ = printHeader;
   }
 
@@ -148,7 +148,7 @@ public:
              where the user does not define the dual() method.
   */
   virtual std::vector<std::string> run( Vector<Real>       &x,
-                                        const Vector<Real> &g, 
+                                        const Vector<Real> &g,
                                         Objective<Real>    &obj,
                                         bool               print = false,
                                         std::ostream       &outStream = std::cout,
@@ -162,7 +162,7 @@ public:
   /** \brief Run algorithm on bound constrained problems (Type-B).
              This is the primary Type-B interface.
   */
-  virtual std::vector<std::string> run( Vector<Real>          &x, 
+  virtual std::vector<std::string> run( Vector<Real>          &x,
                                         Objective<Real>       &obj,
                                         BoundConstraint<Real> &bnd,
                                         bool                  print = false,
@@ -176,8 +176,8 @@ public:
              This general interface supports the use of dual optimization vector spaces,
              where the user does not define the dual() method.
   */
-  virtual std::vector<std::string> run( Vector<Real>          &x, 
-                                        const Vector<Real>    &g, 
+  virtual std::vector<std::string> run( Vector<Real>          &x,
+                                        const Vector<Real>    &g,
                                         Objective<Real>       &obj,
                                         BoundConstraint<Real> &bnd,
                                         bool                  print = false,
@@ -190,14 +190,14 @@ public:
 
     std::vector<std::string> output;
 
-    // Initialize Current Iterate Container 
+    // Initialize Current Iterate Container
     if ( state_->iterateVec == Teuchos::null ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
     // Initialize Step Container
-    Teuchos::RCP<Vector<Real> > s = x.clone();
+    std::shared_ptr<Vector<Real> > s = x.clone();
 
     // Initialize Step
     step_->initialize(x, g, obj, bnd, *state_);
@@ -243,7 +243,7 @@ public:
              This is the primary Type-E interface.
   */
   virtual std::vector<std::string> run( Vector<Real>             &x,
-                                        Vector<Real>             &l, 
+                                        Vector<Real>             &l,
                                         Objective<Real>          &obj,
                                         Constraint<Real>         &con,
                                         bool                     print = false,
@@ -261,9 +261,9 @@ public:
              constraint vector spaces, where the user does not define the dual() method.
   */
   virtual std::vector<std::string> run( Vector<Real>             &x,
-                                        const Vector<Real>       &g, 
-                                        Vector<Real>             &l, 
-                                        const Vector<Real>       &c, 
+                                        const Vector<Real>       &g,
+                                        Vector<Real>             &l,
+                                        const Vector<Real>       &c,
                                         Objective<Real>          &obj,
                                         Constraint<Real>         &con,
                                         bool                     print = false,
@@ -272,24 +272,24 @@ public:
                                         std::ostream             &vectorStream = std::cout ) {
     if( printVectors ) {
       x.print(vectorStream);
-    } 
+    }
 
     std::vector<std::string> output;
 
-    // Initialize Current Iterate Container 
+    // Initialize Current Iterate Container
     if ( state_->iterateVec == Teuchos::null ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
-    // Initialize Current Lagrange Multiplier Container 
+    // Initialize Current Lagrange Multiplier Container
     if ( state_->lagmultVec == Teuchos::null ) {
       state_->lagmultVec = l.clone();
     }
     state_->lagmultVec->set(l);
 
     // Initialize Step Container
-    Teuchos::RCP<Vector<Real> > s = x.clone();
+    std::shared_ptr<Vector<Real> > s = x.clone();
 
     // Initialize Step
     step_->initialize(x, g, l, c, obj, con, *state_);
@@ -311,9 +311,9 @@ public:
       step_->compute(*s, x, l, obj, con, *state_);
       step_->update(x, l, *s, obj, con, *state_);
 
-      if( printVectors ) { 
+      if( printVectors ) {
         x.print(vectorStream);
-      } 
+      }
 
       output.push_back(step_->print(*state_,printHeader_));
       if ( print ) {
@@ -327,7 +327,7 @@ public:
              This is the primary Type-EB interface.
   */
   virtual std::vector<std::string> run( Vector<Real>             &x,
-                                        Vector<Real>             &l, 
+                                        Vector<Real>             &l,
                                         Objective<Real>          &obj,
                                         Constraint<Real>         &con,
                                         BoundConstraint<Real>    &bnd,
@@ -343,9 +343,9 @@ public:
              constraint vector spaces, where the user does not define the dual() method.
   */
   virtual std::vector<std::string> run( Vector<Real>             &x,
-                                        const Vector<Real>       &g, 
-                                        Vector<Real>             &l, 
-                                        const Vector<Real>       &c, 
+                                        const Vector<Real>       &g,
+                                        Vector<Real>             &l,
+                                        const Vector<Real>       &c,
                                         Objective<Real>          &obj,
                                         Constraint<Real>         &con,
                                         BoundConstraint<Real>    &bnd,
@@ -354,25 +354,25 @@ public:
                                         bool                     printVectors = false,
                                         std::ostream             &vectorStream = std::cout ) {
     if(printVectors) {
-      x.print(vectorStream); 
-    } 
+      x.print(vectorStream);
+    }
 
     std::vector<std::string> output;
 
-    // Initialize Current Iterate Container 
+    // Initialize Current Iterate Container
     if ( state_->iterateVec == Teuchos::null ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
-    // Initialize Current Lagrange Multiplier Container 
+    // Initialize Current Lagrange Multiplier Container
     if ( state_->lagmultVec == Teuchos::null ) {
       state_->lagmultVec = l.clone();
     }
     state_->lagmultVec->set(l);
 
     // Initialize Step Container
-    Teuchos::RCP<Vector<Real> > s = x.clone();
+    std::shared_ptr<Vector<Real> > s = x.clone();
 
     // Initialize Step
     step_->initialize(x, g, l, c, obj, con, bnd, *state_);
@@ -410,11 +410,11 @@ public:
                                         bool                       print = false,
                                         std::ostream              &outStream = std::cout ) {
     // Get components of optimization problem
-    Teuchos::RCP<Objective<Real> >          obj = opt.getObjective();
-    Teuchos::RCP<Vector<Real> >             x   = opt.getSolutionVector();
-    Teuchos::RCP<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
-    Teuchos::RCP<Constraint<Real> >         con = opt.getConstraint();
-    Teuchos::RCP<Vector<Real> >             l   = opt.getMultiplierVector();
+    std::shared_ptr<Objective<Real> >          obj = opt.getObjective();
+    std::shared_ptr<Vector<Real> >             x   = opt.getSolutionVector();
+    std::shared_ptr<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
+    std::shared_ptr<Constraint<Real> >         con = opt.getConstraint();
+    std::shared_ptr<Vector<Real> >             l   = opt.getMultiplierVector();
 
     // Call appropriate run function
     if ( con == Teuchos::null ) {
@@ -443,12 +443,12 @@ public:
     return step_->print(*state_,withHeader);
   }
 
-  Teuchos::RCP<const AlgorithmState<Real> > getState(void) const {
+  std::shared_ptr<const AlgorithmState<Real> > getState(void) const {
     return state_;
   }
 
   void reset(void) {
-    state_  = Teuchos::rcp(new AlgorithmState<Real>);
+    state_  = std::make_shared<AlgorithmState<Real>>();
   }
 
 
