@@ -1,0 +1,9 @@
+.*.swp
+.*.swo
+build
+bin
+commit.txt
+*.so
+*.a
+*.dylib
+*.pyc

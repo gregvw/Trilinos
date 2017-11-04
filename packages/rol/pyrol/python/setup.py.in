@@ -1,0 +1,101 @@
+if '${CMAKE_ENABLE_NUMPY}' in ['ON','TRUE',1]:
+  from numpy.distutils.core import setup, Extension
+  from numpy.distutils.command.build_ext import build_ext
+else:
+  from distutils.core import setup, Extension
+  from distutils.command.build_ext import build_ext
+
+
+import sys
+import os
+import platform
+
+if __name__ == '__main__':
+
+    print('PyROL Setup')
+    print('-'*120)
+    print('\nParameters passed to distutils from CMake:')
+    print('CMAKE_C_COMPILER = ${CMAKE_C_COMPILER}')
+    print('CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}')
+    print('CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}')
+    print('CMAKE_SHARED_LINKER_FLAGS = ${CMAKE_SHARED_LINKER_FLAGS}')
+    print('PYTHON_LIBRARY = ${PYTHON_LIBRARY}')
+
+    print('Setup will place the module pyrol.so in the directory ${PYROL_TEST}')
+
+    # If pyrol.so already exists in target location, delete it before rebuilding
+    pyrol_output=os.path.join('${PYROL_TEST}','pyrol.so')
+    if os.path.isfile(pyrol_output):
+        os.remove(pyrol_output)    
+
+
+    os.environ["CFLAGS"]   = "${CMAKE_CXX_FLAGS}" 
+    os.environ["CXXFLAGS"] = "${CMAKE_CXX_FLAGS}" 
+
+ 
+    # This doesn't seem to make it through from CMake directly
+    if '${CMAKE_ENABLE_NUMPY}' in ['ON','TRUE',1]:
+        os.environ["CFLAGS"]   += " -DENABLE_NUMPY=${CMAKE_ENABLE_NUMPY}" 
+        os.environ["CXXFLAGS"] += " -DENABLE_NUMPY=${CMAKE_ENABLE_NUMPY}" 
+        
+    if '${PYROL_DEBUG_MODE}' in ['ON','TRUE',1]:
+        os.environ["CFLAGS"]   += " -DPYROL_DEBUG_MODE=${PYROL_DEBUG_MODE}"
+        os.environ["CXXFLAGS"] += " -DPYROL_DEBUG_MODE=${PYROL_DEBUG_MODE}"
+
+    pyrol_include_path        = '${CMAKE_SOURCE_DIR}/include'
+    trilinos_include_path     = '${Trilinos_INCLUDE_DIRS}'
+    trilinos_library_path     = '${Trilinos_LIBRARY_DIRS}'
+
+    header_paths = [pyrol_include_path,
+                os.path.join(pyrol_include_path,'test'),
+                trilinos_include_path]
+
+    def is_shared(lib):
+      return ( lib.split('.')[-1] in ['so', 'dylib'] )
+
+    trilinos_libraries = [os.path.join(trilinos_library_path,f) for f in os.listdir(trilinos_library_path) if is_shared(f) ]
+    trilinos_tpl_libraries = list(set('${Trilinos_TPL_LIBRARIES}'.split(';')))
+    python_library = ['${PYTHON_LIBRARY}']
+
+    
+    print('-'*120)
+    print('Linking PyROL with the following Trilinos libraries:')
+    for lib in trilinos_libraries:
+      print(os.path.split(lib)[1])
+    print('-'*120)
+
+    link_libraries = trilinos_libraries +  trilinos_tpl_libraries
+
+    pyrol_src = '${CMAKE_SOURCE_DIR}/src/'
+
+    pyrol_source_files = [os.path.join(pyrol_src,f) for f in os.listdir(pyrol_src) if f.endswith('.cpp')]
+
+    os.environ["LDFLAGS"]="${CMAKE_SHARED_LINKER_FLAGS}"
+    if platform.system() == 'Darwin':
+        os.environ["LDFLAGS"] = " -rpath ${Trilinos_LIBRARY_DIRS}"
+ 
+    pyrol = Extension('pyrol',sources=pyrol_source_files,
+                  include_dirs=header_paths,
+    #              extra_link_args=["${CMAKE_SHARED_LINKER_FLAGS}"],
+                  extra_objects=link_libraries
+    )
+
+
+
+#test = Extension('pyrol.test',sources=[pyrol_src+'PyROL_Test.cpp'],
+#                 include_dirs=header_paths,
+#                 extra_compile_args=['${CMAKE_CXX_FLAGS}'],
+#                 extra_link_args=["${CMAKE_SHARED_LINKER_FLAGS}"],
+#                 extra_objects=trilinos_libraries+trilinos_tpl_libraries
+#)
+
+
+    setup(name='pyrol',
+         version='${PACKAGE_VERSION}',
+          description='Python interface to the Rapid Optimization Library',
+          ext_modules=[pyrol]
+    )
+
+    # set of shared libraries 
+#    if sys.platform == 'darwin':
+ 
