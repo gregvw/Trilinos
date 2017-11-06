@@ -39,7 +39,7 @@
 #define ROL_CARRAY_VECTOR_H
 
 #include "ROL_Vector.hpp"
-#include "Teuchos_ArrayRCP.hpp"
+#include "Teuchos_Arraystd::shared_ptr.hpp"
 
 /** \class ROL::CArrayVector
     \brief Provides the C array implementation of the ROL::Vector interface
@@ -57,42 +57,42 @@ class CArrayVector : public Vector<Real> {
 
     private:
         unsigned int dim_; 
-        Teuchos::ArrayRCP<Element> array_;
+        Teuchos::Arraystd::shared_ptr<Element> array_;
     public:
         // Create from C array with raw ptr
         CArrayVector(Element* array, unsigned int dim) : 
             dim_(dim),array_(array,0,dim,false) {}
  
-        // Create from Teuchos ArrayRCP
-        CArrayVector(const Teuchos::ArrayRCP<Element> array) : 
+        // Create from Teuchos Arraystd::shared_ptr
+        CArrayVector(const Teuchos::Arraystd::shared_ptr<Element> array) : 
             dim_(array.size()),array_(array) {}
  
         // Create an array of all zeros
         CArrayVector(unsigned int dim) : 
             dim_(dim),array_(dim) {}
 
-        Teuchos::ArrayRCP<Element> getVector() const {
+        Teuchos::Arraystd::shared_ptr<Element> getVector() const {
             return array_;
         }
 
-        Teuchos::ArrayRCP<Element> getVector() {
+        Teuchos::Arraystd::shared_ptr<Element> getVector() {
             return array_;
         }
        
         void plus( const Vector<Real> &x ) {
             // Need to make sure object has a getVector method
-            const CArrayVector &ex = Teuchos::dyn_cast<const CArrayVector>(x);            
+            const CArrayVector &ex = dynamic_cast<const CArrayVector>(x);            
 
-            Teuchos::ArrayRCP<Element> xp(ex.getVector());
+            Teuchos::Arraystd::shared_ptr<Element> xp(ex.getVector());
             for(unsigned int i=0; i<dim_; ++i) {
                 (array_)[i] += xp[i];
             }
         }
 
         Real dot( const Vector<Real> &x ) const {
-            const CArrayVector &ex = Teuchos::dyn_cast<const CArrayVector>(x);
+            const CArrayVector &ex = dynamic_cast<const CArrayVector>(x);
             
-            Teuchos::ArrayRCP<Element> xp(ex.getVector());
+            Teuchos::Arraystd::shared_ptr<Element> xp(ex.getVector());
             Real val = 0;
             for(unsigned int i=0; i<dim_; ++i){
                 val += (array_)[i]*(xp)[i];
@@ -116,13 +116,13 @@ class CArrayVector : public Vector<Real> {
             return dim_;
         }
 
-        Teuchos::RCP<Vector<Real> > clone() const {
-            return Teuchos::rcp( new CArrayVector( Teuchos::ArrayRCP<Element>(dim_) ) );   
+        std::shared_ptr<Vector<Real> > clone() const {
+            return std::make_shared<CArrayVector( Teuchos::Arraystd::shared_ptr<Element>>(dim_) );   
         }
         
-        Teuchos::RCP<Vector<Real> > basis (const int i ) const {
-            Teuchos::RCP<CArrayVector> e = 
-                Teuchos::rcp( new CArrayVector(dim_) );
+        std::shared_ptr<Vector<Real> > basis (const int i ) const {
+            std::shared_ptr<CArrayVector> e = 
+                std::make_shared<CArrayVector>(dim_);
             (e->getVector())[i] = 1.0;
             return e; 
         }         

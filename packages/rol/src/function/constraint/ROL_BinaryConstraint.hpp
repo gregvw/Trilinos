@@ -60,20 +60,20 @@ namespace ROL {
 template<class Real>
 class BinaryConstraint : public Constraint<Real> {
 
-  template <typename T> using RCP = Teuchos::RCP<T>;
+  template <typename T> using std::shared_ptr = std::shared_ptr<T>;
 
   using V = Vector<Real>;
 
 
 private:
 
-  const RCP<const V> lo_;    // Lower Bound Vector
-  const RCP<const V> up_;    // Upper Bound Vector
+  const std::shared_ptr<const V> lo_;    // Lower Bound Vector
+  const std::shared_ptr<const V> up_;    // Upper Bound Vector
 
-  RCP<V> d_;     // Scratch Vector
+  std::shared_ptr<V> d_;     // Scratch Vector
 
-//  RCP<V> dl_;    // Scratch Vectors
-//  RCP<V> du_;    // Scratch Vectors
+//  std::shared_ptr<V> dl_;    // Scratch Vectors
+//  std::shared_ptr<V> du_;    // Scratch Vectors
 
   Real   gamma_; // Penality parameter 
 
@@ -127,14 +127,14 @@ private:
 
 public:
 
-  BinaryConstraint( const RCP<const V> &lo, const RCP<const V> &up, Real gamma ) :
+  BinaryConstraint( const std::shared_ptr<const V> &lo, const std::shared_ptr<const V> &up, Real gamma ) :
       lo_( lo ), up_( up ), d_( lo_->clone() ), gamma_( gamma ) {} 
 
   BinaryConstraint( const BoundConstraint<Real> &bnd, Real gamma ) :
       BinaryConstraint( bnd.getLowerBound(), bnd.getUpperBound(), gamma ) {}
    
 
-  BinaryConstraint( const RCP<const BoundConstraint<Real>> &bnd, Real gamma ) :
+  BinaryConstraint( const std::shared_ptr<const BoundConstraint<Real>> &bnd, Real gamma ) :
       BinaryConstraint( bnd->getLowerBound(), bnd->getUpperBound(), gamma ) {}
      
 

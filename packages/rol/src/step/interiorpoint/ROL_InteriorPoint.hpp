@@ -58,11 +58,11 @@ class PenalizedObjective : public ROL::Objective<Real> {
 private:
   typedef typename PartitionedVector<Real>::size_type  size_type;
 
-  Teuchos::RCP<Objective<Real> >       obj_;
-  Teuchos::RCP<Objective<Real> >       barrier_;
-  Teuchos::RCP<Vector<Real> >          x_;
-  Teuchos::RCP<Vector<Real> >          g_;
-  Teuchos::RCP<Vector<Real> >          scratch_;
+  std::shared_ptr<Objective<Real> >       obj_;
+  std::shared_ptr<Objective<Real> >       barrier_;
+  std::shared_ptr<Vector<Real> >          x_;
+  std::shared_ptr<Vector<Real> >          g_;
+  std::shared_ptr<Vector<Real> >          scratch_;
 
   Real mu_;
   Real fval_;
@@ -72,14 +72,14 @@ private:
 
 public:
 
-  PenalizedObjective( const Teuchos::RCP<Objective<Real> >       &obj,
-                      const Teuchos::RCP<BoundConstraint<Real> > &bnd,
+  PenalizedObjective( const std::shared_ptr<Objective<Real> >       &obj,
+                      const std::shared_ptr<BoundConstraint<Real> > &bnd,
                       const Vector<Real>                         &x,
                       Teuchos::ParameterList                     &parlist)
-    : obj_(obj), x_(Teuchos::null), g_(Teuchos::null), scratch_(Teuchos::null),
+    : obj_(obj), x_(nullptr), g_(nullptr), scratch_(nullptr),
       fval_(0), gnorm_(0), nfval_(0), ngval_(0) {
     Teuchos::ParameterList& IPlist = parlist.sublist("Step").sublist("Interior Point");
-    barrier_ = Teuchos::rcp(new ObjectiveFromBoundConstraint<Real>(*bnd,IPlist));
+    barrier_ = std::make_shared<ObjectiveFromBoundConstraint<Real>>(*bnd,IPlist);
     x_       = x.clone();
     g_       = x.dual().clone();
     scratch_ = x.dual().clone();

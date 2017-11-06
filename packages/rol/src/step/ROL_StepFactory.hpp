@@ -47,7 +47,7 @@
 #include "ROL_Types.hpp"
 
 #include "Teuchos_ParameterList.hpp"
-#include "Teuchos_RCP.hpp"
+#include <memory>
 
 #include "ROL_Step.hpp"
 #include "ROL_LineSearchStep.hpp"
@@ -66,19 +66,19 @@ namespace ROL {
     public:
     ~StepFactory(void){}
 
-    Teuchos::RCP<Step<Real> > getStep(const std::string &type,
+    std::shared_ptr<Step<Real> > getStep(const std::string &type,
                                       Teuchos::ParameterList &parlist) const {
       EStep els = StringToEStep(type);
       switch(els) {
-        case STEP_AUGMENTEDLAGRANGIAN: return Teuchos::rcp( new AugmentedLagrangianStep<Real>(parlist) );
-        case STEP_BUNDLE:              return Teuchos::rcp( new BundleStep<Real>(parlist) );
-        case STEP_COMPOSITESTEP:       return Teuchos::rcp( new CompositeStep<Real>(parlist) );
-        case STEP_LINESEARCH:          return Teuchos::rcp( new LineSearchStep<Real>(parlist) );
-        case STEP_MOREAUYOSIDAPENALTY: return Teuchos::rcp( new MoreauYosidaPenaltyStep<Real>(parlist) );
-        case STEP_PRIMALDUALACTIVESET: return Teuchos::rcp( new PrimalDualActiveSetStep<Real>(parlist) );
-        case STEP_TRUSTREGION:         return Teuchos::rcp( new TrustRegionStep<Real>(parlist) );
-        case STEP_INTERIORPOINT:       return Teuchos::rcp( new InteriorPointStep<Real>(parlist) ); 
-        default:                       return Teuchos::null;
+        case STEP_AUGMENTEDLAGRANGIAN: return std::make_shared<AugmentedLagrangianStep<Real>>(parlist);
+        case STEP_BUNDLE:              return std::make_shared<BundleStep<Real>>(parlist);
+        case STEP_COMPOSITESTEP:       return std::make_shared<CompositeStep<Real>>(parlist);
+        case STEP_LINESEARCH:          return std::make_shared<LineSearchStep<Real>>(parlist);
+        case STEP_MOREAUYOSIDAPENALTY: return std::make_shared<MoreauYosidaPenaltyStep<Real>>(parlist);
+        case STEP_PRIMALDUALACTIVESET: return std::make_shared<PrimalDualActiveSetStep<Real>>(parlist);
+        case STEP_TRUSTREGION:         return std::make_shared<TrustRegionStep<Real>>(parlist);
+        case STEP_INTERIORPOINT:       return std::make_shared<InteriorPointStep<Real>>(parlist); 
+        default:                       return nullptr;
       }
     }
   };

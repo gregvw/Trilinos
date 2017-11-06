@@ -68,10 +68,10 @@ class Algorithm;
 template <class Real>
 class Step {
 private:
-  Teuchos::RCP<StepState<Real> > state_;
+  std::shared_ptr<StepState<Real> > state_;
 
 protected:
-  Teuchos::RCP<StepState<Real> > getState(void) {
+  std::shared_ptr<StepState<Real> > getState(void) {
     return state_;
   }
 
@@ -80,7 +80,7 @@ public:
   virtual ~Step() {}
 
   Step(void) { 
-    state_ = Teuchos::rcp( new StepState<Real> );
+    state_ = std::make_shared<StepState<Real>>();
   }
 
 
@@ -113,7 +113,7 @@ public:
     obj.gradient(*(state_->gradientVec),x,tol);
     algo_state.ngrad++;
     if ( con.isActivated() ) {
-      Teuchos::RCP<Vector<Real> > xnew = x.clone();
+      std::shared_ptr<Vector<Real> > xnew = x.clone();
       xnew->set(x);
       xnew->axpy(-one,(Step<Real>::state_->gradientVec)->dual());
       con.project(*xnew);
@@ -195,24 +195,24 @@ public:
 
   void initialize( OptimizationProblem<Real> &opt, AlgorithmState<Real> &algo_state ) {
 
-    using Teuchos::RCP;
+    
 
-    RCP<Objective<Real> >          obj = opt.getObjective();
-    RCP<Vector<Real> >             x   = opt.getSolutionVector();
-    RCP<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
-    RCP<Constraint<Real> >         con = opt.getConstraint();
-    RCP<Vector<Real> >             l   = opt.getMultiplierVector();
+    std::shared_ptr<Objective<Real> >          obj = opt.getObjective();
+    std::shared_ptr<Vector<Real> >             x   = opt.getSolutionVector();
+    std::shared_ptr<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
+    std::shared_ptr<Constraint<Real> >         con = opt.getConstraint();
+    std::shared_ptr<Vector<Real> >             l   = opt.getMultiplierVector();
 
-    if( con == Teuchos::null ) { // has no equality constraint
-      if( bnd == Teuchos::null ) { // has no bound constraint or inactive
-        bnd = Teuchos::rcp(new BoundConstraint<Real> );
+    if( con == nullptr ) { // has no equality constraint
+      if( bnd == nullptr ) { // has no bound constraint or inactive
+        bnd = std::make_shared<BoundConstraint<Real>>();
         bnd->deactivate();
       }
       initialize(*x, x->dual(), *obj, *bnd, algo_state);
     }
     else { // has equality constraint 
 
-      if( bnd == Teuchos::null ) {
+      if( bnd == nullptr ) {
         initialize(*x,x->dual(),*l,l->dual(),*obj,*con,algo_state );
       }
       initialize(*x,x->dual(),*l,l->dual(),*obj,*con,*bnd,algo_state);
@@ -220,23 +220,23 @@ public:
   }
 
   void compute( Vector<Real> &s, OptimizationProblem<Real> &opt, AlgorithmState<Real> &algo_state ) {
-    using Teuchos::RCP;
+    
 
-    RCP<Objective<Real> >          obj = opt.getObjective();
-    RCP<Vector<Real> >             x   = opt.getSolutionVector();
-    RCP<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
-    RCP<Constraint<Real> >         con = opt.getConstraint();
-    RCP<Vector<Real> >             l   = opt.getMultiplierVector();
+    std::shared_ptr<Objective<Real> >          obj = opt.getObjective();
+    std::shared_ptr<Vector<Real> >             x   = opt.getSolutionVector();
+    std::shared_ptr<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
+    std::shared_ptr<Constraint<Real> >         con = opt.getConstraint();
+    std::shared_ptr<Vector<Real> >             l   = opt.getMultiplierVector();
 
-    if( con == Teuchos::null ) { // has no equality constraint
-      if( bnd == Teuchos::null ) { // has no bound constraint
-        bnd = Teuchos::rcp(new BoundConstraint<Real> );
+    if( con == nullptr ) { // has no equality constraint
+      if( bnd == nullptr ) { // has no bound constraint
+        bnd = std::make_shared<BoundConstraint<Real>>();
         bnd->deactivate();
       }
       compute(s,*x, *obj, *bnd, algo_state);
     }
     else { // has equality constraint 
-      if( bnd == Teuchos::null ) {
+      if( bnd == nullptr ) {
         compute(s,*x,*l,*obj,*con,algo_state);
       }
       compute(s,*x,*l,*obj,*con,*bnd,algo_state);
@@ -245,23 +245,23 @@ public:
   }
 
   void update( OptimizationProblem<Real> &opt, const Vector<Real> &s, AlgorithmState<Real> &algo_state ) {
-    using Teuchos::RCP;
+    
 
-    RCP<Objective<Real> >          obj = opt.getObjective();
-    RCP<Vector<Real> >             x   = opt.getSolutionVector();
-    RCP<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
-    RCP<Constraint<Real> >         con = opt.getConstraint();
-    RCP<Vector<Real> >             l   = opt.getMultiplierVector();
+    std::shared_ptr<Objective<Real> >          obj = opt.getObjective();
+    std::shared_ptr<Vector<Real> >             x   = opt.getSolutionVector();
+    std::shared_ptr<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
+    std::shared_ptr<Constraint<Real> >         con = opt.getConstraint();
+    std::shared_ptr<Vector<Real> >             l   = opt.getMultiplierVector();
 
-    if( con == Teuchos::null ) { // has no equality constraint
-      if( bnd == Teuchos::null ) { // has no bound constraint
-        bnd = Teuchos::rcp(new BoundConstraint<Real> );
+    if( con == nullptr ) { // has no equality constraint
+      if( bnd == nullptr ) { // has no bound constraint
+        bnd = std::make_shared<BoundConstraint<Real>>();
         bnd->deactivate();
       }
       update(*x, s, *obj, *bnd, algo_state);
     }
     else { // has equality constraint
-      if( bnd == Teuchos::null ) {
+      if( bnd == nullptr ) {
         update(*x,*l,s,*obj,*con,algo_state);
       }
       update(*x,*l,s,*obj,*con,*bnd,algo_state);
@@ -290,7 +290,7 @@ public:
 
   /** \brief Get state for step object.
   */
-  const Teuchos::RCP<const StepState<Real> > getStepState(void) const {
+  const std::shared_ptr<const StepState<Real> > getStepState(void) const {
     return state_;
   }
 

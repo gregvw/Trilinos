@@ -65,25 +65,25 @@ class BlockOperator2 : public LinearOperator<Real> {
 
 private:
 
-  Teuchos::RCP<OP> bkop_;
-  Teuchos::RCP<std::vector<Teuchos::RCP<OP> > > ops_;
+  std::shared_ptr<OP> bkop_;
+  std::shared_ptr<std::vector<std::shared_ptr<OP> > > ops_;
 
 public:   
 
-  BlockOperator2( Teuchos::RCP<OP> &a11, Teuchos::RCP<OP> &a12,
-                  Teuchos::RCP<OP> &a21, Teuchos::RCP<OP> &a22 ) {
+  BlockOperator2( std::shared_ptr<OP> &a11, std::shared_ptr<OP> &a12,
+                  std::shared_ptr<OP> &a21, std::shared_ptr<OP> &a22 ) {
 
     using std::vector;
-    using Teuchos::RCP;
-    using Teuchos::rcp;
+    
+    
 
-    ops_ = rcp( new vector<RCP<OP> > );
+    ops_ = std::make_shared<vector<std::shared_ptr<OP> >>();
     ops_->push_back(a11);
     ops_->push_back(a12);
     ops_->push_back(a21);
     ops_->push_back(a22);
             
-    bkop_ = rcp( new BlockOperator<Real>(ops_) );
+    bkop_ = std::make_shared<BlockOperator<Real>>(ops_);
  
   }
 
@@ -101,7 +101,7 @@ public:
 
   } 
 
-  Teuchos::RCP<LinearOperator<Real> > getOperator( int row, int col ) const {
+  std::shared_ptr<LinearOperator<Real> > getOperator( int row, int col ) const {
     int dex = 2*row+col;
     if( 0<=dex && dex<=3 ) {
       return (*ops_)[dex];

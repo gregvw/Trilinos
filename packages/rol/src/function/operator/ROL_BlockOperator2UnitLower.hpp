@@ -68,24 +68,24 @@ class BlockOperator2UnitLower : public LinearOperator<Real> {
 
 private:
 
-  Teuchos::RCP<OP> C_;
+  std::shared_ptr<OP> C_;
 
 
 public:   
 
-  BlockOperator2UnitLower( Teuchos::RCP<OP> &C ) : C_(C) {}
+  BlockOperator2UnitLower( std::shared_ptr<OP> &C ) : C_(C) {}
   }
 
   void apply( V &Hv, const V &v, Real &tol ) const {
-    using Teuchos::RCP;
+    
 
-    PV &Hv_pv = Teuchos::dyn_cast<PV>(Hv);
-    const PV &v_pv = Teuchos::dyn_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV>(Hv);
+    const PV &v_pv = dynamic_cast<const PV>(v);
       
-    RCP<V> Hv1 = Hv_pv.get(0);
-    RCP<V> Hv2 = Hv_pv.get(1);
-    RCP<const V> v1 = v_pv.get(0);
-    RCP<const V> v2 = v_pv.get(1);
+    std::shared_ptr<V> Hv1 = Hv_pv.get(0);
+    std::shared_ptr<V> Hv2 = Hv_pv.get(1);
+    std::shared_ptr<const V> v1 = v_pv.get(0);
+    std::shared_ptr<const V> v2 = v_pv.get(1);
 
     Hv1->set(*v1);
     C_->apply(*Hv2,*v1,tol);
@@ -94,15 +94,15 @@ public:
 
 
   void applyInverse( V &Hv, const V &v Real &tol ) const {
-    using Teuchos::RCP;
+    
 
-    PV &Hv_pv = Teuchos::dyn_cast<PV>(Hv);
-    const PV &v_pv = Teuchos::dyn_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV>(Hv);
+    const PV &v_pv = dynamic_cast<const PV>(v);
       
-    RCP<V> Hv1 = Hv_pv.get(0);
-    RCP<V> Hv2 = Hv_pv.get(1);
-    RCP<const V> v1 = v_pv.get(0);
-    RCP<const V> v2 = v_pv.get(1);
+    std::shared_ptr<V> Hv1 = Hv_pv.get(0);
+    std::shared_ptr<V> Hv2 = Hv_pv.get(1);
+    std::shared_ptr<const V> v1 = v_pv.get(0);
+    std::shared_ptr<const V> v2 = v_pv.get(1);
  
     Hv1->set(*v1);
     C_->apply(*Hv2,*v1,tol);
@@ -111,7 +111,7 @@ public:
 
   } 
 
-  Teuchos::RCP<LinearOperator<Real> > getOperator( int row, int col ) const {
+  std::shared_ptr<LinearOperator<Real> > getOperator( int row, int col ) const {
     if( row == 1 && col == 0 ) {
       return C_;
     } 

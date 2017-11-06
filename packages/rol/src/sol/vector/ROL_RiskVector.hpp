@@ -53,28 +53,28 @@ namespace ROL {
 template<class Real> 
 class RiskVector : public Vector<Real> {
 private:
-  Teuchos::RCP<std::vector<Real> > statObj_;
-  Teuchos::RCP<StdVector<Real> >   statObj_vec_;
+  std::shared_ptr<std::vector<Real> > statObj_;
+  std::shared_ptr<StdVector<Real> >   statObj_vec_;
   bool augmentedObj_;
   int nStatObj_;
 
-  std::vector<Teuchos::RCP<std::vector<Real> > > statCon_;
-  std::vector<Teuchos::RCP<StdVector<Real> > >   statCon_vec_;
+  std::vector<std::shared_ptr<std::vector<Real> > > statCon_;
+  std::vector<std::shared_ptr<StdVector<Real> > >   statCon_vec_;
   bool augmentedCon_;
   std::vector<int> nStatCon_;
 
-  Teuchos::RCP<Vector<Real> >      vec_;
+  std::shared_ptr<Vector<Real> >      vec_;
 
   mutable bool isDualInitialized_;
-  mutable Teuchos::RCP<std::vector<Real> > dualObj_;
-  mutable std::vector<Teuchos::RCP<std::vector<Real> > > dualCon_;
-  mutable Teuchos::RCP<Vector<Real> > dual_vec1_;
-  mutable Teuchos::RCP<RiskVector<Real> > dual_vec_;
+  mutable std::shared_ptr<std::vector<Real> > dualObj_;
+  mutable std::vector<std::shared_ptr<std::vector<Real> > > dualCon_;
+  mutable std::shared_ptr<Vector<Real> > dual_vec1_;
+  mutable std::shared_ptr<RiskVector<Real> > dual_vec_;
 
-  void initializeObj(Teuchos::RCP<Teuchos::ParameterList> &parlist,
+  void initializeObj(std::shared_ptr<Teuchos::ParameterList> &parlist,
                const Real stat = 1) {
     // Get risk measure information
-    if (parlist != Teuchos::null) {
+    if (parlist != nullptr) {
       std::string name;
       std::vector<Real> lower, upper;
       bool activated(false);
@@ -82,8 +82,8 @@ private:
       augmentedObj_ = (nStatObj_ > 0) ? true : false;
       // Initialize statistic vector
       if (augmentedObj_) {
-        statObj_     = Teuchos::rcp(new std::vector<Real>(nStatObj_,stat));
-        statObj_vec_ = Teuchos::rcp(new StdVector<Real>(statObj_));
+        statObj_     = std::make_shared<std::vector<Real>>(nStatObj_,stat);
+        statObj_vec_ = std::make_shared<StdVector<Real>>(statObj_);
       }
     }
     else {
@@ -92,12 +92,12 @@ private:
     }
   } 
 
-  void initializeCon(std::vector<Teuchos::RCP<Teuchos::ParameterList> > &parlist,
+  void initializeCon(std::vector<std::shared_ptr<Teuchos::ParameterList> > &parlist,
                const Real stat = 1) {
     int size = parlist.size();
     statCon_.resize(size); statCon_vec_.resize(size); nStatCon_.resize(size);
     for (int i = 0; i < size; ++i) { 
-      if (parlist[i] != Teuchos::null) {
+      if (parlist[i] != nullptr) {
         // Get risk measure information
         std::string name;
         std::vector<Real> lower, upper;
@@ -106,17 +106,17 @@ private:
         augmentedCon_ = (nStatCon_[i] > 0) ? true : augmentedCon_;
         // Initialize statistic vector
         if (nStatCon_[i] > 0) {
-          statCon_[i]     = Teuchos::rcp(new std::vector<Real>(nStatCon_[i],stat));
-          statCon_vec_[i] = Teuchos::rcp(new StdVector<Real>(statCon_[i]));
+          statCon_[i]     = std::make_shared<std::vector<Real>>(nStatCon_[i],stat);
+          statCon_vec_[i] = std::make_shared<StdVector<Real>>(statCon_[i]);
         }
         else {
-          statCon_[i]     = Teuchos::null;
-          statCon_vec_[i] = Teuchos::null;
+          statCon_[i]     = nullptr;
+          statCon_vec_[i] = nullptr;
         }
       }
       else {
-        statCon_[i]     = Teuchos::null;
-        statCon_vec_[i] = Teuchos::null;
+        statCon_[i]     = nullptr;
+        statCon_vec_[i] = nullptr;
       }
     }
   }
@@ -124,10 +124,10 @@ private:
 public:
   
   // Objective risk only
-  RiskVector( Teuchos::RCP<Teuchos::ParameterList> &parlist,
-        const Teuchos::RCP<Vector<Real> >          &vec,
+  RiskVector( std::shared_ptr<Teuchos::ParameterList> &parlist,
+        const std::shared_ptr<Vector<Real> >          &vec,
         const Real stat = 0 )
-    : statObj_(Teuchos::null), statObj_vec_(Teuchos::null),
+    : statObj_(nullptr), statObj_vec_(nullptr),
       augmentedObj_(false), nStatObj_(0),
       augmentedCon_(false),
       vec_(vec), isDualInitialized_(false) {
@@ -135,10 +135,10 @@ public:
   }
 
   // Inequality constraint risk only
-  RiskVector( std::vector<Teuchos::RCP<Teuchos::ParameterList> > &parlist,
-        const Teuchos::RCP<Vector<Real> > &vec,
+  RiskVector( std::vector<std::shared_ptr<Teuchos::ParameterList> > &parlist,
+        const std::shared_ptr<Vector<Real> > &vec,
         const Real stat = 0 )
-    : statObj_(Teuchos::null), statObj_vec_(Teuchos::null),
+    : statObj_(nullptr), statObj_vec_(nullptr),
       augmentedObj_(false), nStatObj_(0),
       augmentedCon_(false),
       vec_(vec), isDualInitialized_(false) {
@@ -146,11 +146,11 @@ public:
   }
 
   // Objective and inequality constraint risk
-  RiskVector( Teuchos::RCP<Teuchos::ParameterList> & parlistObj,
-              std::vector<Teuchos::RCP<Teuchos::ParameterList> > &parlistCon,
-        const Teuchos::RCP<Vector<Real> > &vec,
+  RiskVector( std::shared_ptr<Teuchos::ParameterList> & parlistObj,
+              std::vector<std::shared_ptr<Teuchos::ParameterList> > &parlistCon,
+        const std::shared_ptr<Vector<Real> > &vec,
         const Real stat = 0 )
-    : statObj_(Teuchos::null), statObj_vec_(Teuchos::null),
+    : statObj_(nullptr), statObj_vec_(nullptr),
       augmentedObj_(false), nStatObj_(0),
       augmentedCon_(false),
       vec_(vec), isDualInitialized_(false) {
@@ -159,27 +159,27 @@ public:
   }
  
   // Build from components
-  RiskVector( const Teuchos::RCP<Vector<Real> >                    &vec,
-              const Teuchos::RCP<std::vector<Real> >               &statObj,
-              const std::vector<Teuchos::RCP<std::vector<Real> > > &statCon )
-    : statObj_(Teuchos::null), statObj_vec_(Teuchos::null),
+  RiskVector( const std::shared_ptr<Vector<Real> >                    &vec,
+              const std::shared_ptr<std::vector<Real> >               &statObj,
+              const std::vector<std::shared_ptr<std::vector<Real> > > &statCon )
+    : statObj_(nullptr), statObj_vec_(nullptr),
       augmentedObj_(false), nStatObj_(0), augmentedCon_(false),
       vec_(vec), isDualInitialized_(false) {
-    if (statObj != Teuchos::null) {
+    if (statObj != nullptr) {
       statObj_      = statObj;
-      statObj_vec_  = Teuchos::rcp(new StdVector<Real>(statObj_));
+      statObj_vec_  = std::make_shared<StdVector<Real>>(statObj_);
       augmentedObj_ = true;
       nStatObj_     = statObj->size();
     }
     int size = statCon.size();
     statCon_.clear(); statCon_vec_.clear(); nStatCon_.clear();
-    statCon_.resize(size,Teuchos::null);
-    statCon_vec_.resize(size,Teuchos::null);
+    statCon_.resize(size,nullptr);
+    statCon_vec_.resize(size,nullptr);
     nStatCon_.resize(size,0);
     for (int i = 0; i < size; ++i) {
-      if (statCon[i] != Teuchos::null) {
+      if (statCon[i] != nullptr) {
         statCon_[i]     = statCon[i];
-        statCon_vec_[i] = Teuchos::rcp(new StdVector<Real>(statCon_[i]));
+        statCon_vec_[i] = std::make_shared<StdVector<Real>>(statCon_[i]);
         augmentedCon_   = true;
         nStatCon_[i]    = statCon[i]->size();
       }
@@ -187,15 +187,15 @@ public:
   }
 
   void set( const Vector<Real> &x ) {
-    const RiskVector<Real> &xs = Teuchos::dyn_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
     vec_->set(*(xs.getVector()));
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->set(*(xs.getStatisticVector(0)));
     }
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           statCon_vec_[i]->set(*(xs.getStatisticVector(1,i)));
         }
       }
@@ -203,15 +203,15 @@ public:
   }
 
   void plus( const Vector<Real> &x ) {
-    const RiskVector<Real> &xs = Teuchos::dyn_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
     vec_->plus(*(xs.getVector()));
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->plus(*(xs.getStatisticVector(0)));
     }
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           statCon_vec_[i]->plus(*(xs.getStatisticVector(1,i)));
         }
       }
@@ -220,13 +220,13 @@ public:
 
   void scale( const Real alpha ) {
     vec_->scale(alpha);
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->scale(alpha);
     }
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           statCon_vec_[i]->scale(alpha);
         }
       }
@@ -234,15 +234,15 @@ public:
   }
 
   void axpy( const Real alpha, const Vector<Real> &x ) {
-    const RiskVector<Real> &xs = Teuchos::dyn_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
     vec_->axpy(alpha,*(xs.getVector()));
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->axpy(alpha,*(xs.getStatisticVector(0)));
     }
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           statCon_vec_[i]->axpy(alpha,*(xs.getStatisticVector(1,i)));
         }
       }
@@ -250,15 +250,15 @@ public:
   }
 
   Real dot( const Vector<Real> &x ) const {
-    const RiskVector<Real> &xs = Teuchos::dyn_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
     Real val = vec_->dot(*(xs.getVector()));
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
       val += statObj_vec_->dot(*(xs.getStatisticVector(0)));
     }
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           val += statCon_vec_[i]->dot(*(xs.getStatisticVector(1,i)));
         }
       }
@@ -270,50 +270,50 @@ public:
     return sqrt( dot(*this) );
   }
 
-  Teuchos::RCP<Vector<Real> > clone(void) const {
-    Teuchos::RCP<std::vector<Real> > e2 = Teuchos::null;
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
-      e2 = Teuchos::rcp(new std::vector<Real>(nStatObj_,static_cast<Real>(0)));
+  std::shared_ptr<Vector<Real> > clone(void) const {
+    std::shared_ptr<std::vector<Real> > e2 = nullptr;
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
+      e2 = std::make_shared<std::vector<Real>(nStatObj_,static_cast<Real>>(0));
     }
     int size = statCon_vec_.size();
-    std::vector<Teuchos::RCP<std::vector<Real> > > e3(size, Teuchos::null);
+    std::vector<std::shared_ptr<std::vector<Real> > > e3(size, nullptr);
     for (int j = 0; j < size; ++j) {
-      if (statCon_vec_[j] != Teuchos::null) {
-        e3[j] = Teuchos::rcp(new std::vector<Real>(nStatCon_[j],static_cast<Real>(0)));
+      if (statCon_vec_[j] != nullptr) {
+        e3[j] = std::make_shared<std::vector<Real>(nStatCon_[j],static_cast<Real>>(0));
       }
     }
-    return Teuchos::rcp(new RiskVector(vec_->clone(),e2,e3));
+    return std::make_shared<RiskVector(vec_->clone>(),e2,e3);
   }
 
   const Vector<Real> &dual(void) const {
     // Initialize dual vectors if not already initialized
     if ( !isDualInitialized_ ) {
       dual_vec1_ = vec_->dual().clone();
-      dualObj_ = Teuchos::null;
-      if (statObj_ != Teuchos::null) {
-        dualObj_ = Teuchos::rcp(new std::vector<Real>(statObj_->size()));
+      dualObj_ = nullptr;
+      if (statObj_ != nullptr) {
+        dualObj_ = std::make_shared<std::vector<Real>(statObj_->size>());
       }
       int size = statCon_.size();
-      dualCon_.clear(); dualCon_.resize(size,Teuchos::null);
+      dualCon_.clear(); dualCon_.resize(size,nullptr);
       for (int i = 0; i < size; ++i) {
-        if (statCon_[i] != Teuchos::null) {
-          dualCon_[i] = Teuchos::rcp(new std::vector<Real>(statCon_[i]->size()));
+        if (statCon_[i] != nullptr) {
+          dualCon_[i] = std::make_shared<std::vector<Real>(statCon_[i]->size>());
         }
       }
-      dual_vec_  = Teuchos::rcp(new RiskVector<Real>(dual_vec1_,dualObj_,dualCon_));
+      dual_vec_  = std::make_shared<RiskVector<Real>>(dual_vec1_,dualObj_,dualCon_);
       isDualInitialized_ = true;
     }
     // Set vector component 
     dual_vec1_->set(vec_->dual());
     // Set statistic component
-    if ( augmentedObj_ && statObj_vec_ != Teuchos::null ) {
-      Teuchos::rcp_dynamic_cast<RiskVector<Real> >(dual_vec_)->setStatistic(*statObj_,0);
+    if ( augmentedObj_ && statObj_vec_ != nullptr ) {
+      std::dynamic_pointer_cast<RiskVector<Real> >(dual_vec_)->setStatistic(*statObj_,0);
     }
     if ( augmentedCon_ ) {
       int size = statCon_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_[i] != Teuchos::null) {
-          Teuchos::rcp_dynamic_cast<RiskVector<Real> >(dual_vec_)->setStatistic(*statCon_[i],1,i);
+        if (statCon_[i] != nullptr) {
+          std::dynamic_pointer_cast<RiskVector<Real> >(dual_vec_)->setStatistic(*statCon_[i],1,i);
         }
       }
     }
@@ -321,21 +321,21 @@ public:
     return *dual_vec_;
   }
 
-  Teuchos::RCP<Vector<Real> > basis( const int i )  const {
-    Teuchos::RCP<Vector<Real> > e1;
-    Teuchos::RCP<std::vector<Real> > e2 = Teuchos::null;
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
-      e2 = Teuchos::rcp(new std::vector<Real>(nStatObj_,static_cast<Real>(0)));
+  std::shared_ptr<Vector<Real> > basis( const int i )  const {
+    std::shared_ptr<Vector<Real> > e1;
+    std::shared_ptr<std::vector<Real> > e2 = nullptr;
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
+      e2 = std::make_shared<std::vector<Real>(nStatObj_,static_cast<Real>>(0));
     }
     int size = statCon_vec_.size();
-    std::vector<Teuchos::RCP<std::vector<Real> > > e3(size);
+    std::vector<std::shared_ptr<std::vector<Real> > > e3(size);
     for (int j = 0; j < size; ++j) {
-      if (statCon_vec_[j] != Teuchos::null) {
-        e3[j] = Teuchos::rcp(new std::vector<Real>(nStatCon_[j],static_cast<Real>(0)));
+      if (statCon_vec_[j] != nullptr) {
+        e3[j] = std::make_shared<std::vector<Real>(nStatCon_[j],static_cast<Real>>(0));
       }
     }
     int n1 = vec_->dimension(), n2 = 0;
-    if (statObj_vec_ != Teuchos::null) {
+    if (statObj_vec_ != nullptr) {
       n2 = statObj_vec_->dimension();
     }
     if ( i < n1 ) {
@@ -349,7 +349,7 @@ public:
       e1 = vec_->clone(); e1->zero();
       int sum = n1+n2, sum0 = sum;
       for (int j = 0; j < size; ++j) {
-        if (statCon_vec_[j] != Teuchos::null) {
+        if (statCon_vec_[j] != nullptr) {
           sum += nStatCon_[j];
           if (i < sum) {
             (*e3[j])[i-sum0] = static_cast<Real>(1);
@@ -362,18 +362,18 @@ public:
         throw Exception::NotImplemented(">>> ROL::RiskVector::Basis: index out of bounds!");
       }
     }
-    return Teuchos::rcp(new RiskVector<Real>(e1,e2,e3));
+    return std::make_shared<RiskVector<Real>>(e1,e2,e3);
   }
 
   void applyUnary( const Elementwise::UnaryFunction<Real> &f ) {
     vec_->applyUnary(f);
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->applyUnary(f);
     }
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           statCon_vec_[i]->applyUnary(f);
         }
       }
@@ -381,15 +381,15 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const Vector<Real> &x ) {
-    const RiskVector<Real> &xs = Teuchos::dyn_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
     vec_->applyBinary(f,*xs.getVector());
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->applyBinary(f,*xs.getStatisticVector(0));
     }
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           statCon_vec_[i]->applyBinary(f,*xs.getStatisticVector(1,i));
         }
       }
@@ -399,13 +399,13 @@ public:
   Real reduce( const Elementwise::ReductionOp<Real> &r ) const {
     Real result = r.initialValue();
     r.reduce(vec_->reduce(r),result);
-    if (augmentedObj_ && statObj_vec_ != Teuchos::null) {
+    if (augmentedObj_ && statObj_vec_ != nullptr) {
       r.reduce(statObj_vec_->reduce(r),result);
     }
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           r.reduce(statCon_vec_[i]->reduce(r),result);
         }
       }
@@ -421,7 +421,7 @@ public:
     if (augmentedCon_) {
       int size = statCon_vec_.size();
       for (int i = 0; i < size; ++i) {
-        if (statCon_vec_[i] != Teuchos::null) {
+        if (statCon_vec_[i] != nullptr) {
           dim += statCon_vec_[i]->dimension();
         }
       }
@@ -432,7 +432,7 @@ public:
   /***************************************************************************/
   /************ ROL VECTOR ACCESSOR FUNCTIONS ********************************/
   /***************************************************************************/
-  Teuchos::RCP<const StdVector<Real> > getStatisticVector(const int comp, const int index = 0) const {
+  std::shared_ptr<const StdVector<Real> > getStatisticVector(const int comp, const int index = 0) const {
     if (comp == 0) {
       return statObj_vec_;
     }
@@ -442,10 +442,10 @@ public:
     else {
       throw Exception::NotImplemented(">>> ROL::RiskVector::getStatisticVector: Component must be 0 or 1!");
     }
-    return Teuchos::null;
+    return nullptr;
   }
 
-  Teuchos::RCP<StdVector<Real> > getStatisticVector(const int comp, const int index = 0) {
+  std::shared_ptr<StdVector<Real> > getStatisticVector(const int comp, const int index = 0) {
     if (comp == 0) {
       return statObj_vec_;
     }
@@ -455,21 +455,21 @@ public:
     else {
       throw Exception::NotImplemented(">>> ROL::RiskVector::getStatistic: Component must be 0 or 1!");
     }
-    return Teuchos::null;
+    return nullptr;
   }
 
-  Teuchos::RCP<const Vector<Real> > getVector(void) const {
+  std::shared_ptr<const Vector<Real> > getVector(void) const {
     return vec_;
   }
 
-  Teuchos::RCP<Vector<Real> > getVector(void) {
+  std::shared_ptr<Vector<Real> > getVector(void) {
     return vec_;
   }
 
   /***************************************************************************/
   /************ COMPONENT ACCESSOR FUNCTIONS *********************************/
   /***************************************************************************/
-  Teuchos::RCP<std::vector<Real> > getStatistic(const int comp = 0, const int index = 0) {
+  std::shared_ptr<std::vector<Real> > getStatistic(const int comp = 0, const int index = 0) {
     if (comp == 0) {
       if (augmentedObj_) {
         return statObj_;
@@ -483,10 +483,10 @@ public:
     else {
       throw Exception::NotImplemented(">>> ROL::RiskVector::getStatistic: Component must be 0 or 1!");
     }
-    return Teuchos::null;
+    return nullptr;
   }
 
-  Teuchos::RCP<const std::vector<Real> > getStatistic(const int comp = 0, const int index = 0) const {
+  std::shared_ptr<const std::vector<Real> > getStatistic(const int comp = 0, const int index = 0) const {
     if (comp == 0) {
       if (augmentedObj_) {
         return statObj_;
@@ -500,7 +500,7 @@ public:
     else {
       throw Exception::NotImplemented(">>> ROL::RiskVector::getStatistic: Component must be 0 or 1!");
     }
-    return Teuchos::null;
+    return nullptr;
   }
 
   void setStatistic(const Real stat, const int comp = 0, const int index = 0) {

@@ -47,7 +47,7 @@
 #include "ROL_Types.hpp"
 
 #include "Teuchos_ParameterList.hpp"
-#include "Teuchos_RCP.hpp"
+#include <memory>
 
 #include "ROL_Krylov.hpp"
 #include "ROL_GMRES.hpp"
@@ -60,7 +60,7 @@ namespace ROL {
   class GMRES;
 
   template<class Real>
-  inline Teuchos::RCP<Krylov<Real> > KrylovFactory( Teuchos::ParameterList &parlist ) {
+  inline std::shared_ptr<Krylov<Real> > KrylovFactory( Teuchos::ParameterList &parlist ) {
     Real em4(1e-4), em2(1e-2);
     EKrylov ekv = StringToEKrylov(
                    parlist.sublist("General").sublist("Krylov").get("Type","Conjugate Gradients"));
@@ -70,12 +70,12 @@ namespace ROL {
     bool inexact = parlist.sublist("General").get("Inexact Hessian-Times-A-Vector",false);
     switch(ekv) {
       case KRYLOV_CR: 
-        return Teuchos::rcp( new ConjugateResiduals<Real>(absTol,relTol,maxit,inexact) );
+        return std::make_shared<ConjugateResiduals<Real>>(absTol,relTol,maxit,inexact);
       case KRYLOV_CG: 
-        return Teuchos::rcp( new ConjugateGradients<Real>(absTol,relTol,maxit,inexact) );
+        return std::make_shared<ConjugateGradients<Real>>(absTol,relTol,maxit,inexact);
       case KRYLOV_GMRES:
-        return Teuchos::rcp( new GMRES<Real>(parlist) );
-      default:        return Teuchos::null;
+        return std::make_shared<GMRES<Real>>(parlist);
+      default:        return nullptr;
     }
   }
 }

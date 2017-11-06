@@ -60,7 +60,7 @@ template<class Real>
 class TrustRegion {
 private:
 
-  Teuchos::RCP<Vector<Real> > prim_, dual_;
+  std::shared_ptr<Vector<Real> > prim_, dual_;
 
   ETrustRegionModel TRmodel_;
 

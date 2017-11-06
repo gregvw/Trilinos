@@ -66,10 +66,10 @@ namespace ROL {
 template <class Real>
 class TrustRegionModel : public Objective<Real> {
 private:
-  Teuchos::RCP<Objective<Real> > obj_;
-  Teuchos::RCP<const Vector<Real> > x_, g_;
-  Teuchos::RCP<Vector<Real> > dual_;
-  Teuchos::RCP<Secant<Real> > secant_;
+  std::shared_ptr<Objective<Real> > obj_;
+  std::shared_ptr<const Vector<Real> > x_, g_;
+  std::shared_ptr<Vector<Real> > dual_;
+  std::shared_ptr<Secant<Real> > secant_;
 
   const bool useSecantPrecond_;
   const bool useSecantHessVec_;
@@ -79,7 +79,7 @@ public:
   virtual ~TrustRegionModel() {}
 
   TrustRegionModel(Objective<Real> &obj, const Vector<Real> &x, const Vector<Real> &g, const bool init = true)
-    : secant_(Teuchos::null), useSecantPrecond_(false), useSecantHessVec_(false) {
+    : secant_(nullptr), useSecantPrecond_(false), useSecantHessVec_(false) {
     obj_  = Teuchos::rcpFromRef(obj);
     x_    = Teuchos::rcpFromRef(x);
     g_    = Teuchos::rcpFromRef(g);
@@ -89,7 +89,7 @@ public:
   }
 
   TrustRegionModel(Objective<Real> &obj, const Vector<Real> &x, const Vector<Real> &g,
-                   const Teuchos::RCP<Secant<Real> > &secant,
+                   const std::shared_ptr<Secant<Real> > &secant,
                    const bool useSecantPrecond, const bool useSecantHessVec)
     : secant_(secant), useSecantPrecond_(useSecantPrecond), useSecantHessVec_(useSecantHessVec) {
     obj_  = Teuchos::rcpFromRef(obj);
@@ -159,20 +159,20 @@ public:
 
   virtual void updateActualReduction(Real &ared, const Vector<Real> &s) {}
 
-  virtual const Teuchos::RCP<const Vector<Real> > getGradient(void) const {
+  virtual const std::shared_ptr<const Vector<Real> > getGradient(void) const {
     return g_;
   }
 
-  virtual const Teuchos::RCP<const Vector<Real> > getIterate(void) const {
+  virtual const std::shared_ptr<const Vector<Real> > getIterate(void) const {
     return x_;
   }
 
-  virtual const Teuchos::RCP<Objective<Real> > getObjective(void) const {
+  virtual const std::shared_ptr<Objective<Real> > getObjective(void) const {
     return obj_;
   }
 
-  virtual const Teuchos::RCP<BoundConstraint<Real> > getBoundConstraint(void) const {
-    return Teuchos::null;
+  virtual const std::shared_ptr<BoundConstraint<Real> > getBoundConstraint(void) const {
+    return nullptr;
   }
 
   virtual void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {}

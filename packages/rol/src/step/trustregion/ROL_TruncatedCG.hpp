@@ -57,13 +57,13 @@ namespace ROL {
 template<class Real>
 class TruncatedCG : public TrustRegion<Real> {
 private:
-  Teuchos::RCP<Vector<Real> > primalVector_;
+  std::shared_ptr<Vector<Real> > primalVector_;
 
-  Teuchos::RCP<Vector<Real> > s_;
-  Teuchos::RCP<Vector<Real> > g_;
-  Teuchos::RCP<Vector<Real> > v_;
-  Teuchos::RCP<Vector<Real> > p_;
-  Teuchos::RCP<Vector<Real> > Hp_;
+  std::shared_ptr<Vector<Real> > s_;
+  std::shared_ptr<Vector<Real> > g_;
+  std::shared_ptr<Vector<Real> > v_;
+  std::shared_ptr<Vector<Real> > p_;
+  std::shared_ptr<Vector<Real> > Hp_;
 
   int maxit_;
   Real tol1_;
@@ -198,9 +198,9 @@ public:
 
     // Compute Cauchy Point
     Real scnorm = 0.0;
-    Teuchos::RCP<Vector<Real> > sc = x.clone();
+    std::shared_ptr<Vector<Real> > sc = x.clone();
     cauchypoint(*sc,scnorm,del,iflag,iter,x,grad,gnorm,pObj);
-    Teuchos::RCP<Vector<Real> > xc = x.clone();
+    std::shared_ptr<Vector<Real> > xc = x.clone();
     xc->set(x);
     xc->plus(*sc);
 
@@ -208,30 +208,30 @@ public:
     s.set(*sc); 
     snorm = s.norm();
     Real snorm2  = snorm*snorm;
-    Teuchos::RCP<Vector<Real> > s1 = x.clone();
+    std::shared_ptr<Vector<Real> > s1 = x.clone();
     s1->zero();
     Real s1norm2 = 0.0;
 
     // Gradient Vector
-    Teuchos::RCP<Vector<Real> > g = x.clone(); 
+    std::shared_ptr<Vector<Real> > g = x.clone(); 
     g->set(grad);
-    Teuchos::RCP<Vector<Real> > Hs = x.clone();
+    std::shared_ptr<Vector<Real> > Hs = x.clone();
     pObj.reducedHessVec(*Hs,s,*xc,x,tol);
     g->plus(*Hs);
     Real normg = g->norm();
 
     // Preconditioned Gradient Vector
-    Teuchos::RCP<Vector<Real> > v  = x.clone();
+    std::shared_ptr<Vector<Real> > v  = x.clone();
     pObj.reducedPrecond(*v,*g,*xc,x,tol);
 
     // Basis Vector
-    Teuchos::RCP<Vector<Real> > p = x.clone(); 
+    std::shared_ptr<Vector<Real> > p = x.clone(); 
     p->set(*v); 
     p->scale(-1.0);
     Real pnorm2 = v->dot(*g);
 
     // Hessian Times Basis Vector
-    Teuchos::RCP<Vector<Real> > Hp = x.clone();
+    std::shared_ptr<Vector<Real> > Hp = x.clone();
 
     iter        = 0; 
     iflag       = 0; 

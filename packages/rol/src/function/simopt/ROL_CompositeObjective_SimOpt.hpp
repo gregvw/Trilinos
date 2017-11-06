@@ -58,21 +58,21 @@ namespace ROL {
 template <class Real>
 class CompositeObjective_SimOpt : public Objective_SimOpt<Real> {
 private:
-  const std::vector<Teuchos::RCP<Objective_SimOpt<Real> > > obj_vec_;
-  const Teuchos::RCP<StdObjective<Real> > std_obj_;
+  const std::vector<std::shared_ptr<Objective_SimOpt<Real> > > obj_vec_;
+  const std::shared_ptr<StdObjective<Real> > std_obj_;
 
-  Teuchos::RCP<std::vector<Real> > obj_value_;
-  Teuchos::RCP<std::vector<Real> > obj_grad_;
-  Teuchos::RCP<std::vector<Real> > obj_gv_;
-  Teuchos::RCP<std::vector<Real> > obj_hess_;
-  Teuchos::RCP<StdVector<Real> > obj_value_vec_;
-  Teuchos::RCP<StdVector<Real> > obj_grad_vec_;
-  Teuchos::RCP<StdVector<Real> > obj_gv_vec_;
-  Teuchos::RCP<StdVector<Real> > obj_hess_vec_;
-  std::vector<Teuchos::RCP<Vector<Real> > > vec_grad1_;
-  std::vector<Teuchos::RCP<Vector<Real> > > vec_grad2_;
-  std::vector<Teuchos::RCP<Vector<Real> > > vec_hess1_;
-  std::vector<Teuchos::RCP<Vector<Real> > > vec_hess2_;
+  std::shared_ptr<std::vector<Real> > obj_value_;
+  std::shared_ptr<std::vector<Real> > obj_grad_;
+  std::shared_ptr<std::vector<Real> > obj_gv_;
+  std::shared_ptr<std::vector<Real> > obj_hess_;
+  std::shared_ptr<StdVector<Real> > obj_value_vec_;
+  std::shared_ptr<StdVector<Real> > obj_grad_vec_;
+  std::shared_ptr<StdVector<Real> > obj_gv_vec_;
+  std::shared_ptr<StdVector<Real> > obj_hess_vec_;
+  std::vector<std::shared_ptr<Vector<Real> > > vec_grad1_;
+  std::vector<std::shared_ptr<Vector<Real> > > vec_grad2_;
+  std::vector<std::shared_ptr<Vector<Real> > > vec_hess1_;
+  std::vector<std::shared_ptr<Vector<Real> > > vec_hess2_;
 
   bool isInitialized_, isValueComputed_;
   bool isGradientComputed_, isGradient1Computed_, isGradient2Computed_;
@@ -80,10 +80,10 @@ private:
   void initialize(const Vector<Real> &u, const Vector<Real> &z) {
     if (!isInitialized_){
       int size = obj_vec_.size();
-      vec_grad1_.clear(); vec_grad1_.resize(size,Teuchos::null);
-      vec_grad2_.clear(); vec_grad2_.resize(size,Teuchos::null);
-      vec_hess1_.clear(); vec_hess1_.resize(size,Teuchos::null);
-      vec_hess2_.clear(); vec_hess2_.resize(size,Teuchos::null);
+      vec_grad1_.clear(); vec_grad1_.resize(size,nullptr);
+      vec_grad2_.clear(); vec_grad2_.resize(size,nullptr);
+      vec_hess1_.clear(); vec_hess1_.resize(size,nullptr);
+      vec_hess2_.clear(); vec_hess2_.resize(size,nullptr);
       for (int i = 0; i < size; ++i) {
         vec_grad1_[i] = u.dual().clone();
         vec_grad2_[i] = z.dual().clone();
@@ -178,19 +178,19 @@ private:
   }
 
 public:
-  CompositeObjective_SimOpt(const std::vector<Teuchos::RCP<Objective_SimOpt<Real> > > &obj_vec,
-                            const Teuchos::RCP<StdObjective<Real> > &std_obj)
+  CompositeObjective_SimOpt(const std::vector<std::shared_ptr<Objective_SimOpt<Real> > > &obj_vec,
+                            const std::shared_ptr<StdObjective<Real> > &std_obj)
     : obj_vec_(obj_vec), std_obj_(std_obj),
       isInitialized_(false), isValueComputed_(false),
       isGradientComputed_(false), isGradient1Computed_(false), isGradient2Computed_(false) {
-    obj_value_ = Teuchos::rcp(new std::vector<Real>(obj_vec_.size(),0));
-    obj_value_vec_ = Teuchos::rcp(new StdVector<Real>(obj_value_));
-    obj_grad_ = Teuchos::rcp(new std::vector<Real>(obj_vec_.size(),0));
-    obj_grad_vec_ = Teuchos::rcp(new StdVector<Real>(obj_grad_));
-    obj_gv_ = Teuchos::rcp(new std::vector<Real>(obj_vec_.size(),0));
-    obj_gv_vec_ = Teuchos::rcp(new StdVector<Real>(obj_gv_));
-    obj_hess_ = Teuchos::rcp(new std::vector<Real>(obj_vec_.size(),0));
-    obj_hess_vec_ = Teuchos::rcp(new StdVector<Real>(obj_hess_));
+    obj_value_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_value_vec_ = std::make_shared<StdVector<Real>>(obj_value_);
+    obj_grad_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_grad_vec_ = std::make_shared<StdVector<Real>>(obj_grad_);
+    obj_gv_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_gv_vec_ = std::make_shared<StdVector<Real>>(obj_gv_);
+    obj_hess_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_hess_vec_ = std::make_shared<StdVector<Real>>(obj_hess_);
   }
 
   void update( const Vector<Real> &u, const Vector<Real> &z, bool flag = true, int iter = -1 ) {

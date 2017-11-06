@@ -61,25 +61,25 @@ class LinearOperatorProduct : public LinearOperator<Real> {
   typedef Vector<Real>         V;
   typedef LinearOperator<Real> OP;
  
-  typedef typename std::vector<Teuchos::RCP<OP> >::size_type size_type;
+  typedef typename std::vector<std::shared_ptr<OP> >::size_type size_type;
 
 private:
 
-  Teuchos::RCP<std::vector<Teuchos::RCP<OP> > > ops_;
+  std::shared_ptr<std::vector<std::shared_ptr<OP> > > ops_;
 
 public:
 
-  LinearOperatorSum( Teuchos::RCP<OP> &A, 
-                     Teuchos::RCP<OP> &B) {
-    ops_ = Teuchos::rcp(new std::vector<OP> > );
+  LinearOperatorSum( std::shared_ptr<OP> &A, 
+                     std::shared_ptr<OP> &B) {
+    ops_ = std::make_shared<std::vector<OP> >>();
     ops_->push_back(A);
     ops_->push_back(B);
   }
 
-  LinearOperatorSum( Teuchos::RCP<OP> &A, 
-                     Teuchos::RCP<OP> &B, 
-                     Teuchos::RCP<OP> &C) {
-    ops_ = Teuchos::rcp(new std::vector<OP> > );
+  LinearOperatorSum( std::shared_ptr<OP> &A, 
+                     std::shared_ptr<OP> &B, 
+                     std::shared_ptr<OP> &C) {
+    ops_ = std::make_shared<std::vector<OP> >>();
     ops_->push_back(A);
     ops_->push_back(B);
     ops_->push_back(C);

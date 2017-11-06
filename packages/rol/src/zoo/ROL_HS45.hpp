@@ -76,14 +76,14 @@ namespace ZOO {
     uint  dim_;
     Real fact_;
 
-    Teuchos::RCP<const vector> getVector( const V& x ) {
-      using Teuchos::dyn_cast;
-      return dyn_cast<const SV>(x).getVector();  
+    std::shared_ptr<const vector> getVector( const V& x ) {
+      
+      return dynamic_cast<const SV>(x).getVector();  
     }
 
-    Teuchos::RCP<vector> getVector( V& x ) {
-      using Teuchos::dyn_cast;
-      return dyn_cast<SV>(x).getVector();
+    std::shared_ptr<vector> getVector( V& x ) {
+      
+      return dynamic_cast<SV>(x).getVector();
     }
 
   public:
@@ -95,8 +95,8 @@ namespace ZOO {
     }
 
     Real value( const Vector<Real> &x, Real &tol ) {
-      using Teuchos::RCP;
-      RCP<const vector> ex = getVector(x); 
+      
+      std::shared_ptr<const vector> ex = getVector(x); 
       Real prod = 1.0;
       for ( uint i = 0; i < dim_; i++ ) {
         prod *= (*ex)[i];
@@ -105,9 +105,9 @@ namespace ZOO {
     }
 
     void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-      using Teuchos::RCP;
-      RCP<const vector> ex = getVector(x);
-      RCP<vector> eg = getVector(g);
+      
+      std::shared_ptr<const vector> ex = getVector(x);
+      std::shared_ptr<vector> eg = getVector(g);
 
       Real prod = 1.0;
       for ( uint j = 0; j < dim_; j++ ) {
@@ -123,10 +123,10 @@ namespace ZOO {
 #if USE_HESSVEC
     void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
 
-      using Teuchos::RCP;
-      RCP<const vector> ex = getVector(x);
-      RCP<const vector> ev = getVector(v);
-      RCP<vector> ehv = getVector(hv);
+      
+      std::shared_ptr<const vector> ex = getVector(x);
+      std::shared_ptr<const vector> ev = getVector(v);
+      std::shared_ptr<vector> ehv = getVector(hv);
 
       hv.zero();
       Real prod = 1.0;
@@ -148,40 +148,40 @@ namespace ZOO {
   };
 
 template<class Real>
-void getHS45( Teuchos::RCP<Objective<Real> >       &obj,
-              Teuchos::RCP<BoundConstraint<Real> > &con, 
-              Teuchos::RCP<Vector<Real> >          &x0,
-              Teuchos::RCP<Vector<Real> >          &x ) {
+void getHS45( std::shared_ptr<Objective<Real> >       &obj,
+              std::shared_ptr<BoundConstraint<Real> > &con, 
+              std::shared_ptr<Vector<Real> >          &x0,
+              std::shared_ptr<Vector<Real> >          &x ) {
   // Problem dimension
   int n = 10;
 
   // Get Initial Guess
-  Teuchos::RCP<std::vector<Real> > x0p = Teuchos::rcp(new std::vector<Real>(n,0.0));
+  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,0.0);
   for ( int i = 0; i < n; i++ ) {
     (*x0p)[i] = 2.0;
   }
-  x0 = Teuchos::rcp(new StdVector<Real>(x0p));
+  x0 = std::make_shared<StdVector<Real>>(x0p);
 
   // Get Solution
-  Teuchos::RCP<std::vector<Real> > xp = Teuchos::rcp(new std::vector<Real>(n,0.0));
+  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(n,0.0);
   for ( int i = 0; i < n; i++ ) {
     (*xp)[i] = (Real)(i+1);
   }
-  x = Teuchos::rcp(new StdVector<Real>(xp));
+  x = std::make_shared<StdVector<Real>>(xp);
 
   // Instantiate Objective Function
-  obj = Teuchos::rcp(new Objective_HS45<Real>(n));
+  obj = std::make_shared<Objective_HS45<Real>>(n);
 
   // Instantiate BoundConstraint
-  Teuchos::RCP<std::vector<Real> > lp = Teuchos::rcp(new std::vector<Real>(n,0.0));
-  Teuchos::RCP<std::vector<Real> > up = Teuchos::rcp(new std::vector<Real>(n,0.0));
+  std::shared_ptr<std::vector<Real> > lp = std::make_shared<std::vector<Real>>(n,0.0);
+  std::shared_ptr<std::vector<Real> > up = std::make_shared<std::vector<Real>>(n,0.0);
   for ( int i = 0; i < n; i++ ) { 
     (*lp)[i] = 0.0;
     (*up)[i] = static_cast<Real>(i+1);
   }
-  Teuchos::RCP<Vector<Real> > l = Teuchos::rcp(new StdVector<Real>(lp));
-  Teuchos::RCP<Vector<Real> > u = Teuchos::rcp(new StdVector<Real>(up));
-  con = Teuchos::rcp(new Bounds<Real>(l,u));
+  std::shared_ptr<Vector<Real> > l = std::make_shared<StdVector<Real>>(lp);
+  std::shared_ptr<Vector<Real> > u = std::make_shared<StdVector<Real>>(up);
+  con = std::make_shared<Bounds<Real>>(l,u);
   con->project(*x0);
 }
 

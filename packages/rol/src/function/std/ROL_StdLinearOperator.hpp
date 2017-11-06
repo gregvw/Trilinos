@@ -65,7 +65,7 @@ namespace ROL {
 template <class Real>
 class StdLinearOperator : public LinearOperator<Real> {
  
-  template <typename T> using RCP = Teuchos::RCP<T>;
+  template <typename T> using std::shared_ptr = std::shared_ptr<T>;
   
   typedef StdVector<Real> SV;
 
@@ -73,7 +73,7 @@ class StdLinearOperator : public LinearOperator<Real> {
 
 private:
 
-  RCP<std::vector<Real> > A_;
+  std::shared_ptr<std::vector<Real> > A_;
   int N_;
   int INFO_;
   
@@ -87,7 +87,7 @@ public:
 
   StdLinearOperator() {}
 
-  StdLinearOperator( RCP<std::vector<Real> > &A ) : A_(A) { 
+  StdLinearOperator( std::shared_ptr<std::vector<Real> > &A ) : A_(A) { 
     int N2 = A_->size();
     N_ = (std::round(std::sqrt(N2)));
     bool isSquare = N_*N_ == N2;
@@ -101,7 +101,7 @@ public:
   
   using LinearOperator<Real>::update;
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
-    RCP<const vector> xp = Teuchos::dyn_cast<const SV>(x).getVector();
+    std::shared_ptr<const vector> xp = dynamic_cast<const SV>(x).getVector();
     update(*xp,flag,iter);   
   }
 
@@ -110,9 +110,9 @@ public:
   // Matrix multiplication
   using LinearOperator<Real>::apply;
   void apply( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const {
-    using Teuchos::dyn_cast;    
-    RCP<vector> Hvp = dyn_cast<SV>(Hv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+        
+    std::shared_ptr<vector> Hvp = dynamic_cast<SV>(Hv).getVector();
+    std::shared_ptr<const vector> vp = dynamic_cast<const SV>(v).getVector();
     apply(*Hvp,*vp,tol);
   }
 
@@ -125,9 +125,9 @@ public:
   // Matrix multiplication with transpose
   using LinearOperator<Real>::applyAdjoint;
   void applyAdjoint( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const {
-    using Teuchos::dyn_cast;    
-    RCP<vector> Hvp = dyn_cast<SV>(Hv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+        
+    std::shared_ptr<vector> Hvp = dynamic_cast<SV>(Hv).getVector();
+    std::shared_ptr<const vector> vp = dynamic_cast<const SV>(v).getVector();
     applyAdjoint(*Hvp,*vp,tol);
   }
 
@@ -142,9 +142,9 @@ public:
 
   using LinearOperator<Real>::applyInverse;
   void applyInverse( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const { 
-    using Teuchos::dyn_cast;
-    RCP<vector> Hvp = dyn_cast<SV>(Hv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+    
+    std::shared_ptr<vector> Hvp = dynamic_cast<SV>(Hv).getVector();
+    std::shared_ptr<const vector> vp = dynamic_cast<const SV>(v).getVector();
     applyInverse(*Hvp,*vp,tol);
   }
 
@@ -179,9 +179,9 @@ public:
 
   using LinearOperator<Real>::applyAdjointInverse;
   void applyAdjointInverse( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const { 
-    using Teuchos::dyn_cast;
-    RCP<vector> Hvp = dyn_cast<SV>(Hv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+    
+    std::shared_ptr<vector> Hvp = dynamic_cast<SV>(Hv).getVector();
+    std::shared_ptr<const vector> vp = dynamic_cast<const SV>(v).getVector();
     applyAdjointInverse(*Hvp,*vp,tol);
   }
 

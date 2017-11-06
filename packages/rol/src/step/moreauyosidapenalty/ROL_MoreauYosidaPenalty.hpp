@@ -48,7 +48,7 @@
 #include "ROL_BoundConstraint.hpp"
 #include "ROL_Vector.hpp"
 #include "ROL_Types.hpp"
-#include "Teuchos_RCP.hpp"
+#include <memory>
 #include <iostream>
 
 /** @ingroup func_group
@@ -64,22 +64,22 @@ namespace ROL {
 template <class Real>
 class MoreauYosidaPenalty : public Objective<Real> {
 private:
-  const Teuchos::RCP<Objective<Real> > obj_;
-  const Teuchos::RCP<BoundConstraint<Real> > con_;
+  const std::shared_ptr<Objective<Real> > obj_;
+  const std::shared_ptr<BoundConstraint<Real> > con_;
 
-  Teuchos::RCP<Vector<Real> > g_;
-  Teuchos::RCP<Vector<Real> > l_;
-  Teuchos::RCP<Vector<Real> > u_;
-  Teuchos::RCP<Vector<Real> > l1_;
-  Teuchos::RCP<Vector<Real> > u1_;
-  Teuchos::RCP<Vector<Real> > dl1_;
-  Teuchos::RCP<Vector<Real> > du1_;
-  Teuchos::RCP<Vector<Real> > xlam_;
-  Teuchos::RCP<Vector<Real> > v_;
-  Teuchos::RCP<Vector<Real> > dv_;
-  Teuchos::RCP<Vector<Real> > dv2_;
-  Teuchos::RCP<Vector<Real> > lam_;
-  Teuchos::RCP<Vector<Real> > tmp_;
+  std::shared_ptr<Vector<Real> > g_;
+  std::shared_ptr<Vector<Real> > l_;
+  std::shared_ptr<Vector<Real> > u_;
+  std::shared_ptr<Vector<Real> > l1_;
+  std::shared_ptr<Vector<Real> > u1_;
+  std::shared_ptr<Vector<Real> > dl1_;
+  std::shared_ptr<Vector<Real> > du1_;
+  std::shared_ptr<Vector<Real> > xlam_;
+  std::shared_ptr<Vector<Real> > v_;
+  std::shared_ptr<Vector<Real> > dv_;
+  std::shared_ptr<Vector<Real> > dv2_;
+  std::shared_ptr<Vector<Real> > lam_;
+  std::shared_ptr<Vector<Real> > tmp_;
 
   Real mu_;
   Real fval_;
@@ -130,7 +130,7 @@ private:
   }
 
   void initialize(const ROL::Vector<Real> &x,
-                  const Teuchos::RCP<ROL::BoundConstraint<Real> > &con) {
+                  const std::shared_ptr<ROL::BoundConstraint<Real> > &con) {
     g_    = x.dual().clone();
     l_    = x.clone();
     l1_   = x.clone();
@@ -157,8 +157,8 @@ private:
 public:
   ~MoreauYosidaPenalty() {}
 
-  MoreauYosidaPenalty(const Teuchos::RCP<Objective<Real> > &obj,
-                      const Teuchos::RCP<BoundConstraint<Real> > &con, 
+  MoreauYosidaPenalty(const std::shared_ptr<Objective<Real> > &obj,
+                      const std::shared_ptr<BoundConstraint<Real> > &con, 
                       const ROL::Vector<Real> &x,
                       const Real mu = 1e1)
     : obj_(obj), con_(con), mu_(mu),
@@ -167,8 +167,8 @@ public:
     initialize(x,con);
   }
 
-  MoreauYosidaPenalty(const Teuchos::RCP<Objective<Real> > &obj,
-                      const Teuchos::RCP<BoundConstraint<Real> > &con, 
+  MoreauYosidaPenalty(const std::shared_ptr<Objective<Real> > &obj,
+                      const std::shared_ptr<BoundConstraint<Real> > &con, 
                       const ROL::Vector<Real> &x,
                       Teuchos::ParameterList &parlist)
     : obj_(obj), con_(con),
@@ -180,8 +180,8 @@ public:
     mu_               = list.get("Initial Penalty Parameter",1e1);
   }
 
-  MoreauYosidaPenalty(const Teuchos::RCP<Objective<Real> > &obj,
-                      const Teuchos::RCP<BoundConstraint<Real> > &con, 
+  MoreauYosidaPenalty(const std::shared_ptr<Objective<Real> > &obj,
+                      const std::shared_ptr<BoundConstraint<Real> > &con, 
                       const ROL::Vector<Real> &x,
                       const ROL::Vector<Real> &lam,
                       Teuchos::ParameterList &parlist)
@@ -239,7 +239,7 @@ public:
     return fval_;
   }
 
-  Teuchos::RCP<Vector<Real> > getGradient(void) const {
+  std::shared_ptr<Vector<Real> > getGradient(void) const {
     return g_;
   }
 

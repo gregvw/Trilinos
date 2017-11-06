@@ -60,10 +60,10 @@ template <class Real>
 class ProjectedSecantStep : public Step<Real> {
 private:
 
-  Teuchos::RCP<Secant<Real> > secant_; ///< Secant object (used for quasi-Newton)
+  std::shared_ptr<Secant<Real> > secant_; ///< Secant object (used for quasi-Newton)
   ESecant esec_;
-  Teuchos::RCP<Vector<Real> > d_;      ///< Additional vector storage
-  Teuchos::RCP<Vector<Real> > gp_;     ///< Additional vector storage
+  std::shared_ptr<Vector<Real> > d_;      ///< Additional vector storage
+  std::shared_ptr<Vector<Real> > gp_;     ///< Additional vector storage
   int verbosity_;                      ///< Verbosity level
   const bool computeObj_;
   bool useProjectedGrad_;              ///< Whether or not to use to the projected gradient criticality measure
@@ -83,16 +83,16 @@ public:
       @param[in]     secant     is a user-defined secant object
   */
   ProjectedSecantStep( Teuchos::ParameterList &parlist,
-                       const Teuchos::RCP<Secant<Real> > &secant = Teuchos::null, 
+                       const std::shared_ptr<Secant<Real> > &secant = nullptr, 
                        const bool computeObj = true )
-    : Step<Real>(), secant_(secant), d_(Teuchos::null), gp_(Teuchos::null),
+    : Step<Real>(), secant_(secant), d_(nullptr), gp_(nullptr),
       verbosity_(0), computeObj_(computeObj), useProjectedGrad_(false) {
     // Parse ParameterList
     Teuchos::ParameterList& Glist = parlist.sublist("General");
     useProjectedGrad_ = Glist.get("Projected Gradient Criticality Measure", false);
     verbosity_ = parlist.sublist("General").get("Print Verbosity",0);
     // Initialize secant object
-    if ( secant == Teuchos::null ) {
+    if ( secant == nullptr ) {
       esec_ = StringToESecant(parlist.sublist("General").sublist("Secant").get("Type","Limited-Memory BFGS"));
       secant_ = SecantFactory<Real>(parlist);
     }
@@ -109,7 +109,7 @@ public:
   void compute( Vector<Real> &s, const Vector<Real> &x,
                 Objective<Real> &obj, BoundConstraint<Real> &bnd,
                 AlgorithmState<Real> &algo_state ) {
-    Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
     Real one(1);
 
     // Compute projected secant step
@@ -129,7 +129,7 @@ public:
                Objective<Real> &obj, BoundConstraint<Real> &bnd,
                AlgorithmState<Real> &algo_state ) {
     Real tol = std::sqrt(ROL_EPSILON<Real>()), one(1);
-    Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
 
     // Update iterate and store previous step
     algo_state.iter++;

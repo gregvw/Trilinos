@@ -53,12 +53,12 @@ namespace ROL {
 template <class Real>
 class RiskBoundConstraint : public BoundConstraint<Real> {
 private:
-  Teuchos::RCP<BoundConstraint<Real> > bc_;
+  std::shared_ptr<BoundConstraint<Real> > bc_;
 
-  Teuchos::RCP<StdBoundConstraint<Real> > statObj_bc_;
+  std::shared_ptr<StdBoundConstraint<Real> > statObj_bc_;
   std::vector<Real> lowerObj_, upperObj_;
 
-  std::vector<Teuchos::RCP<StdBoundConstraint<Real> > > statCon_bc_;
+  std::vector<std::shared_ptr<StdBoundConstraint<Real> > > statCon_bc_;
   std::vector<std::vector<Real> > lowerCon_, upperCon_;
 
   bool augmentedObj_, activatedObj_;
@@ -69,7 +69,7 @@ private:
   std::vector<int> nStatCon_;
 
   mutable bool isLOinitialized_, isHIinitialized_; 
-  mutable Teuchos::RCP<RiskVector<Real> > lo_, hi_;
+  mutable std::shared_ptr<RiskVector<Real> > lo_, hi_;
 
   void setBoundInfo(Teuchos::ParameterList &parlist,
                     int &nStat,
@@ -96,41 +96,41 @@ private:
     }
   }
 
-  bool buildObjStatBnd(Teuchos::RCP<Teuchos::ParameterList> &parlist) {
+  bool buildObjStatBnd(std::shared_ptr<Teuchos::ParameterList> &parlist) {
     // Objective statistic bound
-    if (parlist != Teuchos::null) {
+    if (parlist != nullptr) {
       setBoundInfo(*parlist,nStatObj_,lowerObj_,upperObj_,augmentedObj_,activatedObj_);
       // Build statistic bound constraint
       if ( augmentedObj_ ) {
-        statObj_bc_ = Teuchos::rcp(new StdBoundConstraint<Real>(lowerObj_,upperObj_));
+        statObj_bc_ = std::make_shared<StdBoundConstraint<Real>>(lowerObj_,upperObj_);
       }
     }
     else {
       augmentedObj_ = false;
       activatedObj_ = false;
       nStatObj_     = 0;
-      statObj_bc_   = Teuchos::null;
+      statObj_bc_   = nullptr;
     }
     // Determine whether or not bound constraint is activated
     if ( !activatedObj_ ) {
-      if ( statObj_bc_ != Teuchos::null ) {
+      if ( statObj_bc_ != nullptr ) {
         statObj_bc_->deactivate();
       }
     }
     return activatedObj_;
   }
 
-  bool buildConStatBnd(std::vector<Teuchos::RCP<Teuchos::ParameterList> > &parlist) {
+  bool buildConStatBnd(std::vector<std::shared_ptr<Teuchos::ParameterList> > &parlist) {
     // Constraint statistic bound
     int size = parlist.size();
     nStatCon_.clear(); nStatCon_.resize(size,0);
     lowerCon_.clear(); lowerCon_.resize(size);
     upperCon_.clear(); upperCon_.resize(size);
     activatedCon_.clear(); activatedCon_.resize(size,false);
-    statCon_bc_.clear(); statCon_bc_.resize(size,Teuchos::null);
+    statCon_bc_.clear(); statCon_bc_.resize(size,nullptr);
     bool activated = false;
     for (int i = 0; i < size; ++i) {
-      if ( parlist[i] != Teuchos::null ) {
+      if ( parlist[i] != nullptr ) {
         bool augmented = false;
         int nStat = 0;
         std::vector<Real> lo, up;
@@ -143,16 +143,16 @@ private:
         augmentedCon_ = (augmented ? true : augmentedCon_);
         // Build statistic bound constraint
         if ( augmented ) {
-          statCon_bc_[i] = Teuchos::rcp(new StdBoundConstraint<Real>(lowerCon_[i],upperCon_[i]));
+          statCon_bc_[i] = std::make_shared<StdBoundConstraint<Real>>(lowerCon_[i],upperCon_[i]);
         }
       }
       else {
         activatedCon_[i] = false;
         nStatCon_[i]     = 0;
-        statCon_bc_[i]   = Teuchos::null;
+        statCon_bc_[i]   = nullptr;
       }
       if ( !activatedCon_[i] ) {
-        if ( statCon_bc_[i] != Teuchos::null ) {
+        if ( statCon_bc_[i] != nullptr ) {
           statCon_bc_[i]->deactivate();
         }
       }
@@ -164,9 +164,9 @@ private:
 public:
 
   // Objective risk only
-  RiskBoundConstraint(Teuchos::RCP<Teuchos::ParameterList > &parlist,
-                const Teuchos::RCP<BoundConstraint<Real> >  &bc = Teuchos::null)
-   : BoundConstraint<Real>(), bc_(bc), statObj_bc_(Teuchos::null),
+  RiskBoundConstraint(std::shared_ptr<Teuchos::ParameterList > &parlist,
+                const std::shared_ptr<BoundConstraint<Real> >  &bc = nullptr)
+   : BoundConstraint<Real>(), bc_(bc), statObj_bc_(nullptr),
      augmentedObj_(false), activatedObj_(false),
      augmentedCon_(false),
      isLOinitialized_(false), isHIinitialized_(false) {
@@ -174,16 +174,16 @@ public:
     // Determine whether or not bound constraint is activated
     BoundConstraint<Real>::activate();
     if ( !activatedObj ) {
-      if ( bc == Teuchos::null || (bc != Teuchos::null && !bc->isActivated()) ) {
+      if ( bc == nullptr || (bc != nullptr && !bc->isActivated()) ) {
         BoundConstraint<Real>::deactivate();
       }
     }
   }
 
   // Constraint risk only
-  RiskBoundConstraint(std::vector<Teuchos::RCP<Teuchos::ParameterList> > &parlist,
-                const Teuchos::RCP<BoundConstraint<Real> >               &bc = Teuchos::null)
-   : BoundConstraint<Real>(), bc_(bc), statObj_bc_(Teuchos::null),
+  RiskBoundConstraint(std::vector<std::shared_ptr<Teuchos::ParameterList> > &parlist,
+                const std::shared_ptr<BoundConstraint<Real> >               &bc = nullptr)
+   : BoundConstraint<Real>(), bc_(bc), statObj_bc_(nullptr),
      augmentedObj_(false), activatedObj_(false),
      augmentedCon_(false),
      isLOinitialized_(false), isHIinitialized_(false) {
@@ -191,17 +191,17 @@ public:
     // Determine whether or not bound constraint is activated
     BoundConstraint<Real>::activate();
     if ( !activatedCon ) {
-      if ( bc == Teuchos::null || (bc != Teuchos::null && !bc->isActivated()) ) {
+      if ( bc == nullptr || (bc != nullptr && !bc->isActivated()) ) {
         BoundConstraint<Real>::deactivate();
       }
     }
   }
 
   // Objective and constraint risk
-  RiskBoundConstraint(Teuchos::RCP<Teuchos::ParameterList>               &parlistObj,
-                      std::vector<Teuchos::RCP<Teuchos::ParameterList> > &parlistCon,
-                const Teuchos::RCP<BoundConstraint<Real> >               &bc = Teuchos::null)
-   : BoundConstraint<Real>(), bc_(bc), statObj_bc_(Teuchos::null),
+  RiskBoundConstraint(std::shared_ptr<Teuchos::ParameterList>               &parlistObj,
+                      std::vector<std::shared_ptr<Teuchos::ParameterList> > &parlistCon,
+                const std::shared_ptr<BoundConstraint<Real> >               &bc = nullptr)
+   : BoundConstraint<Real>(), bc_(bc), statObj_bc_(nullptr),
      augmentedObj_(false), activatedObj_(false),
      augmentedCon_(false),
      isLOinitialized_(false), isHIinitialized_(false) {
@@ -210,7 +210,7 @@ public:
     // Determine whether or not bound constraint is activated
     BoundConstraint<Real>::activate();
     if ( !activatedObj && !activatedCon ) {
-      if ( bc == Teuchos::null || (bc != Teuchos::null && !bc->isActivated()) ) {
+      if ( bc == nullptr || (bc != nullptr && !bc->isActivated()) ) {
         BoundConstraint<Real>::deactivate();
       }
     }
@@ -218,188 +218,188 @@ public:
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
       statObj_bc_->update(*xs,flag,iter);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
           statCon_bc_[i]->update(*xs,flag,iter);
         }
       }
     }
-    if ( bc_ != Teuchos::null && bc_->isActivated() ) {
-      Teuchos::RCP<const Vector<Real> > xv = Teuchos::dyn_cast<const RiskVector<Real> >(x).getVector();
+    if ( bc_ != nullptr && bc_->isActivated() ) {
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
       bc_->update(*xv,flag,iter);
     }
   }
 
   void project( Vector<Real> &x ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      Teuchos::RCP<StdVector<Real> > xs = Teuchos::dyn_cast<RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real> >(x).getStatisticVector(0);
       statObj_bc_->project(*xs);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          Teuchos::RCP<StdVector<Real> > xs = Teuchos::dyn_cast<RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real> >(x).getStatisticVector(1,i);
           statCon_bc_[i]->project(*xs);
         }
       }
     }
-    if ( bc_ != Teuchos::null && bc_->isActivated() ) {
-      Teuchos::RCP<Vector<Real> > xvec = Teuchos::dyn_cast<RiskVector<Real> >(x).getVector();
+    if ( bc_ != nullptr && bc_->isActivated() ) {
+      std::shared_ptr<Vector<Real> > xvec = dynamic_cast<RiskVector<Real> >(x).getVector();
       bc_->project(*xvec);
     }
   }
 
   void projectInterior( Vector<Real> &x ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      Teuchos::RCP<StdVector<Real> > xs = Teuchos::dyn_cast<RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real> >(x).getStatisticVector(0);
       statObj_bc_->projectInterior(*xs);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          Teuchos::RCP<StdVector<Real> > xs = Teuchos::dyn_cast<RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real> >(x).getStatisticVector(1,i);
           statCon_bc_[i]->projectInterior(*xs);
         }
       }
     }
-    if ( bc_ != Teuchos::null && bc_->isActivated() ) {
-      Teuchos::RCP<Vector<Real> > xvec = Teuchos::dyn_cast<RiskVector<Real> >(x).getVector();
+    if ( bc_ != nullptr && bc_->isActivated() ) {
+      std::shared_ptr<Vector<Real> > xvec = dynamic_cast<RiskVector<Real> >(x).getVector();
       bc_->projectInterior(*xvec);
     }
   }
 
   void pruneUpperActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      Teuchos::RCP<StdVector<Real> >       vs = Teuchos::dyn_cast<RiskVector<Real> >(v).getStatisticVector(0);
-      Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
       statObj_bc_->pruneUpperActive(*vs,*xs,eps);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          Teuchos::RCP<StdVector<Real> >       vs = Teuchos::dyn_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
-          Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
           statCon_bc_[i]->pruneUpperActive(*vs,*xs,eps);
         }
       }
     }
-    if ( bc_ != Teuchos::null && bc_->isActivated() ) {
-      Teuchos::RCP<Vector<Real> >       vv = Teuchos::dyn_cast<RiskVector<Real> >(v).getVector();
-      Teuchos::RCP<const Vector<Real> > xv = Teuchos::dyn_cast<const RiskVector<Real> >(x).getVector();
+    if ( bc_ != nullptr && bc_->isActivated() ) {
+      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real> >(v).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
       bc_->pruneUpperActive(*vv,*xv,eps);
     }
   }
 
   void pruneUpperActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      Teuchos::RCP<StdVector<Real> >       vs = Teuchos::dyn_cast<RiskVector<Real> >(v).getStatisticVector(0);
-      Teuchos::RCP<const StdVector<Real> > gs = Teuchos::dyn_cast<const RiskVector<Real> >(g).getStatisticVector(0);
-      Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real> >(g).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
       statObj_bc_->pruneUpperActive(*vs,*gs,*xs,eps);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          Teuchos::RCP<StdVector<Real> >       vs = Teuchos::dyn_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
-          Teuchos::RCP<const StdVector<Real> > gs = Teuchos::dyn_cast<const RiskVector<Real> >(g).getStatisticVector(1,i);
-          Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real> >(g).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
           statCon_bc_[i]->pruneUpperActive(*vs,*gs,*xs,eps);
         }
       }
     }
-    if ( bc_ != Teuchos::null && bc_->isActivated() ) {
-      Teuchos::RCP<Vector<Real> >       vv = Teuchos::dyn_cast<RiskVector<Real> >(v).getVector();
-      Teuchos::RCP<const Vector<Real> > gv = Teuchos::dyn_cast<const RiskVector<Real> >(g).getVector();
-      Teuchos::RCP<const Vector<Real> > xv = Teuchos::dyn_cast<const RiskVector<Real> >(x).getVector();
+    if ( bc_ != nullptr && bc_->isActivated() ) {
+      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real> >(v).getVector();
+      std::shared_ptr<const Vector<Real> > gv = dynamic_cast<const RiskVector<Real> >(g).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
       bc_->pruneUpperActive(*vv,*gv,*xv,eps);
     }
   }
  
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      Teuchos::RCP<StdVector<Real> >       vs = Teuchos::dyn_cast<RiskVector<Real> >(v).getStatisticVector(0);
-      Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
       statObj_bc_->pruneLowerActive(*vs,*xs,eps);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          Teuchos::RCP<StdVector<Real> >       vs = Teuchos::dyn_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
-          Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
           statCon_bc_[i]->pruneLowerActive(*vs,*xs,eps);
         }
       }
     }
-    if ( bc_ != Teuchos::null && bc_->isActivated() ) {
-      Teuchos::RCP<Vector<Real> >       vv = Teuchos::dyn_cast<RiskVector<Real> >(v).getVector();
-      Teuchos::RCP<const Vector<Real> > xv = Teuchos::dyn_cast<const RiskVector<Real> >(x).getVector();
+    if ( bc_ != nullptr && bc_->isActivated() ) {
+      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real> >(v).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
       bc_->pruneLowerActive(*vv,*xv,eps);
     }
   }
 
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      Teuchos::RCP<StdVector<Real> >       vs = Teuchos::dyn_cast<RiskVector<Real> >(v).getStatisticVector(0);
-      Teuchos::RCP<const StdVector<Real> > gs = Teuchos::dyn_cast<const RiskVector<Real> >(g).getStatisticVector(0);
-      Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real> >(g).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
       statObj_bc_->pruneLowerActive(*vs,*gs,*xs,eps);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          Teuchos::RCP<StdVector<Real> >       vs = Teuchos::dyn_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
-          Teuchos::RCP<const StdVector<Real> > gs = Teuchos::dyn_cast<const RiskVector<Real> >(g).getStatisticVector(1,i);
-          Teuchos::RCP<const StdVector<Real> > xs = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real> >(g).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
           statCon_bc_[i]->pruneLowerActive(*vs,*gs,*xs,eps);
         }
       }
     }
-    if ( bc_ != Teuchos::null && bc_->isActivated() ) {
-      Teuchos::RCP<Vector<Real> >       vv = Teuchos::dyn_cast<RiskVector<Real> >(v).getVector();
-      Teuchos::RCP<const Vector<Real> > gv = Teuchos::dyn_cast<const RiskVector<Real> >(g).getVector();
-      Teuchos::RCP<const Vector<Real> > xv = Teuchos::dyn_cast<const RiskVector<Real> >(x).getVector();
+    if ( bc_ != nullptr && bc_->isActivated() ) {
+      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real> >(v).getVector();
+      std::shared_ptr<const Vector<Real> > gv = dynamic_cast<const RiskVector<Real> >(g).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
       bc_->pruneLowerActive(*vv,*gv,*xv,eps);
     }
   } 
 
-  const Teuchos::RCP<const Vector<Real> > getLowerBound(void) const {
+  const std::shared_ptr<const Vector<Real> > getLowerBound(void) const {
     if (!isLOinitialized_) {
-      const Teuchos::RCP<const Vector<Real> > vlo = bc_->getLowerBound();
-      Teuchos::RCP<std::vector<Real> > lowerObj = Teuchos::rcp(new std::vector<Real>(lowerObj_));
+      const std::shared_ptr<const Vector<Real> > vlo = bc_->getLowerBound();
+      std::shared_ptr<std::vector<Real> > lowerObj = std::make_shared<std::vector<Real>>(lowerObj_);
       int size = statCon_bc_.size();
-      std::vector<Teuchos::RCP<std::vector<Real> > > lowerCon(size);
+      std::vector<std::shared_ptr<std::vector<Real> > > lowerCon(size);
       for (int i = 0; i < size; ++i) {
-        lowerCon[i] = Teuchos::rcp(new std::vector<Real>(lowerCon_[i]));
+        lowerCon[i] = std::make_shared<std::vector<Real>>(lowerCon_[i]);
       }
-      lo_ = Teuchos::rcp(new RiskVector<Real>(Teuchos::rcp_const_cast<Vector<Real> >(vlo),
+      lo_ = std::make_shared<RiskVector<Real>(std::const_pointer_cast<Vector<Real> >(vlo>(),
                                               lowerObj,lowerCon));
       isLOinitialized_ = true;
     }
     return lo_;
   }
 
-  const Teuchos::RCP<const Vector<Real> > getUpperBound(void) const {
+  const std::shared_ptr<const Vector<Real> > getUpperBound(void) const {
     if (!isHIinitialized_) {
-      const Teuchos::RCP<const Vector<Real> > vhi = bc_->getUpperBound();
-      Teuchos::RCP<std::vector<Real> > upperObj = Teuchos::rcp(new std::vector<Real>(upperObj_));
+      const std::shared_ptr<const Vector<Real> > vhi = bc_->getUpperBound();
+      std::shared_ptr<std::vector<Real> > upperObj = std::make_shared<std::vector<Real>>(upperObj_);
       int size = statCon_bc_.size();
-      std::vector<Teuchos::RCP<std::vector<Real> > > upperCon(size);
+      std::vector<std::shared_ptr<std::vector<Real> > > upperCon(size);
       for (int i = 0; i < size; ++i) {
-        upperCon[i] = Teuchos::rcp(new std::vector<Real>(upperCon_[i]));
+        upperCon[i] = std::make_shared<std::vector<Real>>(upperCon_[i]);
       }
-      hi_ = Teuchos::rcp(new RiskVector<Real>(Teuchos::rcp_const_cast<Vector<Real> >(vhi),
+      hi_ = std::make_shared<RiskVector<Real>(std::const_pointer_cast<Vector<Real> >(vhi>(),
                                               upperObj,upperCon));
       isHIinitialized_ = true;
     }
@@ -409,20 +409,20 @@ public:
   bool isFeasible( const Vector<Real> &v ) { 
     bool flagstat = true, flagcon = true, flagvec = true;
     if ( augmentedObj_ && activatedObj_ ) {
-      Teuchos::RCP<const StdVector<Real> > vs = Teuchos::dyn_cast<const RiskVector<Real> >(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > vs = dynamic_cast<const RiskVector<Real> >(v).getStatisticVector(0);
       flagstat = statObj_bc_->isFeasible(*vs);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          Teuchos::RCP<const StdVector<Real> > vs = Teuchos::dyn_cast<const RiskVector<Real> >(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > vs = dynamic_cast<const RiskVector<Real> >(v).getStatisticVector(1,i);
           flagcon = (!statCon_bc_[i]->isFeasible(*vs) ? false : flagcon);
         }
       }
     }
-    if ( bc_ != Teuchos::null && bc_->isActivated() ) {
-      Teuchos::RCP<const Vector<Real> > vv = Teuchos::dyn_cast<const RiskVector<Real> >(v).getVector();
+    if ( bc_ != nullptr && bc_->isActivated() ) {
+      std::shared_ptr<const Vector<Real> > vv = dynamic_cast<const RiskVector<Real> >(v).getVector();
       flagvec = bc_->isFeasible(*vv);
     }
     return (flagstat && flagcon && flagvec);

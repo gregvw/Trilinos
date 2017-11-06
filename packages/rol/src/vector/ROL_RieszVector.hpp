@@ -76,7 +76,7 @@ class RieszDualVector;
 template <class Real>
 class RieszPrimalVector : public ElementwiseVector<Real> {
 
-  template<typename T> using RCP = Teuchos::RCP<T>;
+  template<typename T> using std::shared_ptr = std::shared_ptr<T>;
  
   using V = Vector<Real>;
   using DualVector = RieszDualVector<Real>;
@@ -84,24 +84,24 @@ class RieszPrimalVector : public ElementwiseVector<Real> {
 
 private:
 
-  const   RCP<V>          v_;
-  mutable RCP<DualVector> dual_;
-  const   RCP<OP>         op_;
+  const   std::shared_ptr<V>          v_;
+  mutable std::shared_ptr<DualVector> dual_;
+  const   std::shared_ptr<OP>         op_;
   mutable Real            tol_;
 
   mutable bool isDualInitialized_;
 
   void initialize_dual( void ) const {
 
-    dual_ = Teuchos::rcp( new DualVector(v_->clone(),op_,tol_) );   
+    dual_ = std::make_shared<DualVector(v_->clone>(),op_,tol_);   
     op_->apply(*(dual_->getVector()),*v_,tol_);
     isDualInitialized_ = true;
   }
 
 public:
 
-  RieszPrimalVector( const RCP<V>  &v, 
-                     const RCP<OP> &op,
+  RieszPrimalVector( const std::shared_ptr<V>  &v, 
+                     const std::shared_ptr<OP> &op,
                      Real tol=std::sqrt(ROL_EPSILON<Real>()) ) : 
     v_(v), op_(op), tol_(tol), isDualInitialized_(false) {  
   }   
@@ -113,12 +113,12 @@ public:
       initialize_dual();
     }
 
-    const RieszPrimalVector &ex = Teuchos::dyn_cast<const RieszPrimalVector>(x);
+    const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector>(x);
     return dual_->getVector()->dot(*(ex.getVector()));    
   }
 
-  virtual RCP<V> clone() const {
-    return Teuchos::rcp( new RieszPrimalVector( v_->clone(), op_, tol_ ) );   
+  virtual std::shared_ptr<V> clone() const {
+    return std::make_shared<RieszPrimalVector( v_->clone>(), op_, tol_ );   
   }
 
   virtual const V & dual() const {
@@ -133,7 +133,7 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const RieszPrimalVector &ex = Teuchos::dyn_cast<const RieszPrimalVector>(x);
+    const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector>(x);
     v_->applyBinary(f,*(ex.getVector()));
   } 
 
@@ -142,11 +142,11 @@ public:
   }
 
 
-  RCP<V> getVector( void ) { 
+  std::shared_ptr<V> getVector( void ) { 
     return v_;
   }
 
-  RCP<const V> getVector( void ) const {
+  std::shared_ptr<const V> getVector( void ) const {
     return v_;
   }
   
@@ -157,7 +157,7 @@ public:
 template<class Real>
 class RieszDualVector : public ElementwiseVector<Real> {
 
-  template<typename T> using RCP = Teuchos::RCP<T>;
+  template<typename T> using std::shared_ptr = std::shared_ptr<T>;
 
   using V = Vector<Real>;
   using PrimalVector = RieszPrimalVector<Real>;
@@ -165,24 +165,24 @@ class RieszDualVector : public ElementwiseVector<Real> {
 
 private:
 
-  const   RCP<V>            v_;
-  mutable RCP<PrimalVector>  primal_;
-  const   RCP<OP>            op_;
+  const   std::shared_ptr<V>            v_;
+  mutable std::shared_ptr<PrimalVector>  primal_;
+  const   std::shared_ptr<OP>            op_;
   mutable Real               tol_;
 
   mutable bool isPrimalInitialized_;
 
   void initialize_primal( void ) const {
 
-    primal_ = Teuchos::rcp( new PrimalVector(v_->clone(),op_,tol_) );   
+    primal_ = std::make_shared<PrimalVector(v_->clone>(),op_,tol_);   
     op_->applyInverse(*(primal_->getVector()),*v_,tol_);
     isPrimalInitialized_ = true;
   }
 
 public:
 
-  RieszDualVector( const RCP<V>  &v, 
-                   const RCP<OP> &op,
+  RieszDualVector( const std::shared_ptr<V>  &v, 
+                   const std::shared_ptr<OP> &op,
                    Real tol=std::sqrt(ROL_EPSILON<Real>()) ) : 
     v_(v), op_(op), tol_(tol), isPrimalInitialized_(false) {  
   }   
@@ -194,12 +194,12 @@ public:
       initialize_primal();
     }
    
- const RieszDualVector &ex = Teuchos::dyn_cast<const RieszDualVector>(x);
+ const RieszDualVector &ex = dynamic_cast<const RieszDualVector>(x);
     return primal_->getVector()->dot(*(ex.getVector()));    
   }
 
-  virtual RCP<V> clone() const {
-    return Teuchos::rcp( new RieszDualVector( v_->clone(), op_, tol_ ) );   
+  virtual std::shared_ptr<V> clone() const {
+    return std::make_shared<RieszDualVector( v_->clone>(), op_, tol_ );   
   }
 
   virtual const V & dual() const {
@@ -214,7 +214,7 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const RieszDualVector &ex = Teuchos::dyn_cast<const RieszDualVector>(x);
+    const RieszDualVector &ex = dynamic_cast<const RieszDualVector>(x);
     v_->applyBinary(f,*(ex.getVector()));
   } 
 
@@ -223,11 +223,11 @@ public:
   }
 
 
-  RCP<V> getVector( void ) { 
+  std::shared_ptr<V> getVector( void ) { 
     return v_;
   }
 
-  RCP<const V> getVector( void ) const {
+  std::shared_ptr<const V> getVector( void ) const {
     return v_;
   }
   

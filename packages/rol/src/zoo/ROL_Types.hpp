@@ -61,7 +61,7 @@
 #include <sstream>
 #include <limits>
 #include <Teuchos_getConst.hpp>
-#include <Teuchos_RCP.hpp>
+#include <Teuchos_std::shared_ptr.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_TestForException.hpp>
 #include <ROL_Vector.hpp>
@@ -102,9 +102,9 @@ std::string NumberToString( T Number )
     Real aggregateGradientNorm;
     Real aggregateModelError;
     bool flag;
-    Teuchos::RCP<Vector<Real> > iterateVec;
-    Teuchos::RCP<Vector<Real> > lagmultVec;
-    Teuchos::RCP<Vector<Real> > minIterVec;
+    std::shared_ptr<Vector<Real> > iterateVec;
+    std::shared_ptr<Vector<Real> > lagmultVec;
+    std::shared_ptr<Vector<Real> > minIterVec;
     AlgorithmState(void) : iter(0), minIter(0), nfval(0), ngrad(0), value(0), minValue(0), 
       gnorm(std::numeric_limits<Real>::max()),
       cnorm(std::numeric_limits<Real>::max()),
@@ -112,22 +112,22 @@ std::string NumberToString( T Number )
       aggregateGradientNorm(std::numeric_limits<Real>::max()),
       aggregateModelError(std::numeric_limits<Real>::max()),
       flag(false),
-      iterateVec(Teuchos::null), lagmultVec(Teuchos::null), minIterVec(Teuchos::null) {}
+      iterateVec(nullptr), lagmultVec(nullptr), minIterVec(nullptr) {}
   };  
   
   /** \brief  State for step class.  Will be used for restarts.
    */  
   template<class Real>
   struct StepState {
-    Teuchos::RCP<Vector<Real> > gradientVec;
-    Teuchos::RCP<Vector<Real> > descentVec;
-    Teuchos::RCP<Vector<Real> > constraintVec;
+    std::shared_ptr<Vector<Real> > gradientVec;
+    std::shared_ptr<Vector<Real> > descentVec;
+    std::shared_ptr<Vector<Real> > constraintVec;
     int nfval;
     int ngrad;
     Real searchSize; // line search parameter (alpha) or trust-region radius (delta)
-    StepState(void) : gradientVec(Teuchos::null),
-                      descentVec(Teuchos::null),
-                      constraintVec(Teuchos::null),
+    StepState(void) : gradientVec(nullptr),
+                      descentVec(nullptr),
+                      constraintVec(nullptr),
                       nfval(0),
                       ngrad(0),
                       searchSize(0) {}

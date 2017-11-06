@@ -44,9 +44,9 @@ private:
   /// Thermal voltage (constant)
   Real Vth_; 
   /// Vector of measured currents in DC analysis (data)
-  Teuchos::RCP<std::vector<Real> > Imeas_;
+  std::shared_ptr<std::vector<Real> > Imeas_;
   /// Vector of source voltages in DC analysis (input) 
-  Teuchos::RCP<std::vector<Real> > Vsrc_; 
+  std::shared_ptr<std::vector<Real> > Vsrc_; 
   /// If true, use Lambert-W function to solve circuit, else use Newton's method.
   bool lambertw_; 
   /// Percentage of noise to add to measurements; if 0.0 - no noise.
@@ -80,8 +80,8 @@ public:
                          bool use_adjoint, int use_hessvec)
     : Vth_(Vth), lambertw_(lambertw), use_adjoint_(use_adjoint), use_hessvec_(use_hessvec) {
     int n  = (Vsrc_max-Vsrc_min)/Vsrc_step + 1;
-    Vsrc_  = Teuchos::rcp(new std::vector<Real>(n,0.0));
-    Imeas_ = Teuchos::rcp(new std::vector<Real>(n,0.0));
+    Vsrc_  = std::make_shared<std::vector<Real>>(n,0.0);
+    Imeas_ = std::make_shared<std::vector<Real>>(n,0.0);
     std::ofstream output ("Measurements.dat");
     Real left = 0.0, right = 1.0;
     // Generate problem data
@@ -135,8 +135,8 @@ public:
     } // count number of lines
     input_file.clear(); // reset to beginning of file
     input_file.seekg(0,std::ios::beg); 
-    Vsrc_  = Teuchos::rcp(new std::vector<Real>(dim,0.0));
-    Imeas_ = Teuchos::rcp(new std::vector<Real>(dim,0.0));
+    Vsrc_  = std::make_shared<std::vector<Real>>(dim,0.0);
+    Imeas_ = std::make_shared<std::vector<Real>>(dim,0.0);
     Real Vsrc, Imeas;
     std::cout << "Using input file to generate data." << "\n";
     for( int i = 0; i < dim; i++ ){
@@ -155,9 +155,9 @@ public:
 
   //! Solve circuit given optimization parameters Is and Rs
   void solve_circuit(Vector<Real> &I, const Vector<Real> &S){
-    using Teuchos::RCP;
-    RCP<vector> Ip = getVector(I);
-    RCP<const vector> Sp = getVector(S);
+    
+    std::shared_ptr<vector> Ip = getVector(I);
+    std::shared_ptr<const vector> Sp = getVector(S);
 
     uint n = Ip->size();
     
@@ -186,11 +186,11 @@ public:
     ---
    */
   Real value(const Vector<Real> &S, Real &tol){
-    using Teuchos::RCP;  using Teuchos::rcp;
-    RCP<const vector> Sp = getVector(S);
+      
+    std::shared_ptr<const vector> Sp = getVector(S);
     uint n = Imeas_->size();
-    STDV I( rcp( new vector(n,0.0) ) );
-    RCP<vector> Ip = getVector(I);
+    STDV I( std::make_shared<vector>(n,0.0) );
+    std::shared_ptr<vector> Ip = getVector(I);
 
     // Solve state equation
     solve_circuit(I,S);
@@ -205,22 +205,22 @@ public:
   //! Compute the gradient of the reduced objective function either using adjoint or using sensitivities
   void gradient(Vector<Real> &g, const Vector<Real> &S, Real &tol){
 
-    using Teuchos::RCP;  using Teuchos::rcp;
-    RCP<vector> gp = getVector(g);
-    RCP<const vector> Sp = getVector(S);
+      
+    std::shared_ptr<vector> gp = getVector(g);
+    std::shared_ptr<const vector> Sp = getVector(S);
     
     uint n = Imeas_->size();
     
-    STDV I( rcp( new vector(n,0.0) ) );
-    RCP<vector> Ip = getVector(I);
+    STDV I( std::make_shared<vector>(n,0.0) );
+    std::shared_ptr<vector> Ip = getVector(I);
     
     // Solve state equation      
     solve_circuit(I,S);
     
     if ( use_adjoint_ ) {      
       // Compute the gradient of the reduced objective function using adjoint computation
-      STDV lambda( rcp( new vector(n,0.0) ) );
-      RCP<vector> lambdap = getVector(lambda);
+      STDV lambda( std::make_shared<vector>(n,0.0) );
+      std::shared_ptr<vector> lambdap = getVector(lambda);
       
       // Solve adjoint equation
       solve_adjoint(lambda,I,S);
@@ -234,14 +234,14 @@ public:
     }
     else {
       // Compute the gradient of the reduced objective function using sensitivities
-      STDV sensIs( rcp( new vector(n,0.0) ) );
-      STDV sensRs( rcp( new vector(n,0.0) ) );
+      STDV sensIs( std::make_shared<vector>(n,0.0) );
+      STDV sensRs( std::make_shared<vector>(n,0.0) );
       // Solve sensitivity equations
       solve_sensitivity_Is(sensIs,I,S);
       solve_sensitivity_Rs(sensRs,I,S);
       
-      RCP<vector> sensIsp = getVector(sensIs);
-      RCP<vector> sensRsp = getVector(sensRs);
+      std::shared_ptr<vector> sensIsp = getVector(sensIs);
+      std::shared_ptr<vector> sensRsp = getVector(sensRs);
       
       // Write sensitivities into file
       std::ofstream output ("Sensitivities.dat");
@@ -269,32 +269,32 @@ public:
    */
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &S, Real &tol ){
 
-    using Teuchos::RCP;  using Teuchos::rcp;    
+          
 
     if ( use_hessvec_ == 0 ) {
       Objective<Real>::hessVec(hv, v, S, tol);
     }
     else if ( use_hessvec_ == 1 ) {
-      RCP<vector> hvp = getVector(hv);
-      RCP<const vector> vp = getVector(v);
-      RCP<const vector> Sp = getVector(S);
+      std::shared_ptr<vector> hvp = getVector(hv);
+      std::shared_ptr<const vector> vp = getVector(v);
+      std::shared_ptr<const vector> Sp = getVector(S);
       
       uint n = Imeas_->size();
       
-      STDV I( rcp( new vector(n,0.0) ) );
-      RCP<vector> Ip = getVector(I);
+      STDV I( std::make_shared<vector>(n,0.0) );
+      std::shared_ptr<vector> Ip = getVector(I);
       
       // Solve state equation      
       solve_circuit(I,S);
       
-      STDV lambda( rcp( new vector(n,0.0) ) );
-      RCP<vector> lambdap = getVector(lambda);
+      STDV lambda( std::make_shared<vector>(n,0.0) );
+      std::shared_ptr<vector> lambdap = getVector(lambda);
       
       // Solve adjoint equation
       solve_adjoint(lambda,I,S);
       
-      STDV w( rcp( new vector(n,0.0) ) );
-      RCP<vector> wp = getVector(w);
+      STDV w( std::make_shared<vector>(n,0.0) );
+      std::shared_ptr<vector> wp = getVector(w);
       
       // Solve state sensitivity equation
       for ( uint i = 0; i < n; i++ ){
@@ -303,8 +303,8 @@ public:
                    / diodeI((*Ip)[i],(*Vsrc_)[i],(*Sp)[0],(*Sp)[1]);
       }
       
-      STDV p( rcp( new vector(n,0.0) ) );
-      RCP<vector> pp = getVector(p);
+      STDV p( std::make_shared<vector>(n,0.0) );
+      std::shared_ptr<vector> pp = getVector(p);
       
       // Solve for p
       for ( uint j = 0; j < n; j++ ) {
@@ -329,27 +329,27 @@ public:
     }
     else if ( use_hessvec_ == 2 ) {
       //Gauss-Newton approximation
-      RCP<vector> hvp = getVector(hv);
-      RCP<const vector> vp = getVector(v);
-      RCP<const vector> Sp = getVector(S);
+      std::shared_ptr<vector> hvp = getVector(hv);
+      std::shared_ptr<const vector> vp = getVector(v);
+      std::shared_ptr<const vector> Sp = getVector(S);
       
       uint n = Imeas_->size();
 
-      STDV I( rcp( new vector(n,0.0) ) );
-      RCP<vector> Ip = getVector(I);
+      STDV I( std::make_shared<vector>(n,0.0) );
+      std::shared_ptr<vector> Ip = getVector(I);
 
       // Solve state equation                                                                                
       solve_circuit(I,S);
 
       // Compute sensitivities
-      STDV sensIs( rcp( new vector(n,0.0) ) );
-      STDV sensRs( rcp( new vector(n,0.0) ) );
+      STDV sensIs( std::make_shared<vector>(n,0.0) );
+      STDV sensRs( std::make_shared<vector>(n,0.0) );
 
       // Solve sensitivity equations                                                                          
       solve_sensitivity_Is(sensIs,I,S);
       solve_sensitivity_Rs(sensRs,I,S);
-      RCP<vector> sensIsp = getVector(sensIs);
-      RCP<vector> sensRsp = getVector(sensRs);
+      std::shared_ptr<vector> sensIsp = getVector(sensIs);
+      std::shared_ptr<vector> sensRsp = getVector(sensRs);
       
       // Compute approximate Hessian
       Real H11 = 0.0; Real H12 = 0.0; Real H22 = 0.0;
@@ -380,7 +380,7 @@ public:
     ---
    */
   void generate_plot(Real Is_lo, Real Is_up, Real Is_step, Real Rs_lo, Real Rs_up, Real Rs_step){
-    Teuchos::RCP<std::vector<Real> > S_rcp = Teuchos::rcp(new std::vector<Real>(2,0.0) );
+    std::shared_ptr<std::vector<Real> > S_rcp = std::make_shared<std::vector<Real>>(2,0.0);
     StdVector<Real> S(S_rcp);
     std::ofstream output ("Objective.dat");
 
@@ -407,32 +407,32 @@ public:
 
 private:
 
-  Teuchos::RCP<const vector> getVector( const V& x ) {
-    using Teuchos::dyn_cast;  using Teuchos::getConst;
+  std::shared_ptr<const vector> getVector( const V& x ) {
+      using Teuchos::getConst;
     try { 
-      return dyn_cast<const STDV>(getConst(x)).getVector();
+      return dynamic_cast<const STDV>(getConst(x)).getVector();
     }
     catch (std::exception &e) {
       try { 
-        return dyn_cast<const PSV>(getConst(x)).getVector();
+        return dynamic_cast<const PSV>(getConst(x)).getVector();
       }
       catch (std::exception &e) {
-        return dyn_cast<const DSV>(getConst(x)).getVector();
+        return dynamic_cast<const DSV>(getConst(x)).getVector();
       }
     }
   }
 
-  Teuchos::RCP<vector> getVector( V& x ) {
-    using Teuchos::dyn_cast;
+  std::shared_ptr<vector> getVector( V& x ) {
+    
     try {
-      return dyn_cast<STDV>(x).getVector(); 
+      return dynamic_cast<STDV>(x).getVector(); 
     }
     catch (std::exception &e) {
       try {
-        return dyn_cast<PSV>(x).getVector(); 
+        return dynamic_cast<PSV>(x).getVector(); 
       }
       catch (std::exception &e) {
-        return dyn_cast<DSV>(x).getVector(); 
+        return dynamic_cast<DSV>(x).getVector(); 
       }
     }
   }
@@ -685,10 +685,10 @@ private:
    */
   void solve_adjoint(Vector<Real> &lambda, const Vector<Real> &I, const Vector<Real> &S){
     
-    using Teuchos::RCP;
-    RCP<vector> lambdap = getVector(lambda);
-    RCP<const vector> Ip = getVector(I);
-    RCP<const vector> Sp = getVector(S);
+    
+    std::shared_ptr<vector> lambdap = getVector(lambda);
+    std::shared_ptr<const vector> Ip = getVector(I);
+    std::shared_ptr<const vector> Sp = getVector(S);
     
     uint n = Ip->size();
     for ( uint i = 0; i < n; i++ ){
@@ -706,10 +706,10 @@ private:
   */
   void solve_sensitivity_Is(Vector<Real> &sens, const Vector<Real> &I, const Vector<Real> &S){
 
-    using Teuchos::RCP;
-    RCP<vector> sensp = getVector(sens);
-    RCP<const vector> Ip = getVector(I);
-    RCP<const vector> Sp = getVector(S);     
+    
+    std::shared_ptr<vector> sensp = getVector(sens);
+    std::shared_ptr<const vector> Ip = getVector(I);
+    std::shared_ptr<const vector> Sp = getVector(S);     
     
     uint n = Ip->size();
     for ( uint i = 0; i < n; i++ ) {
@@ -727,10 +727,10 @@ private:
   */
   void solve_sensitivity_Rs(Vector<Real> &sens, const Vector<Real> &I, const Vector<Real> &S){
          
-    using Teuchos::RCP;
-    RCP<vector> sensp = getVector(sens);
-    RCP<const vector> Ip = getVector(I);
-    RCP<const vector> Sp = getVector(S);
+    
+    std::shared_ptr<vector> sensp = getVector(sens);
+    std::shared_ptr<const vector> Ip = getVector(I);
+    std::shared_ptr<const vector> Sp = getVector(S);
     
     uint n = Ip->size();
     for ( uint i = 0; i < n; i++ ) {
@@ -742,12 +742,12 @@ private:
 
 
   // template<class Real>
-  // void getDiodeCircuit( Teuchos::RCP<Objective<Real> > &obj, Vector<Real> &x0, Vector<Real> &x ) {
+  // void getDiodeCircuit( std::shared_ptr<Objective<Real> > &obj, Vector<Real> &x0, Vector<Real> &x ) {
   //   // Cast Initial Guess and Solution Vectors                                     
-  //   Teuchos::RCP<std::vector<Real> > x0p =
-  //     Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<PrimalScaledStdVector<Real> >(x0)).getVector());
-  //   Teuchos::RCP<std::vector<Real> > xp =
-  //     Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<PrimalScaledStdVector<Real> >(x)).getVector());
+  //   std::shared_ptr<std::vector<Real> > x0p =
+  //     std::const_pointer_cast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real> >(x0)).getVector());
+  //   std::shared_ptr<std::vector<Real> > xp =
+  //     std::const_pointer_cast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real> >(x)).getVector());
 
   //   int n = xp->size();
 
@@ -757,7 +757,7 @@ private:
   //   xp->resize(n);
 
   //   // Instantiate Objective Function                                                                              
-  //   obj = Teuchos::rcp( new Objective_DiodeCircuit<Real> (0.02585,0.0,1.0,1.e-2));
+  //   obj = std::make_shared<Objective_DiodeCircuit<Real>>(0.02585,0.0,1.0,1.e-2);
   //   //ROL::Objective_DiodeCircuit<Real> obj(0.02585,0.0,1.0,1.e-2);
 
   //   // Get Initial Guess

@@ -54,21 +54,21 @@ namespace ROL {
 template<class Real>
 class RiskNeutralObjective : public Objective<Real> {
 private:
-  Teuchos::RCP<Objective<Real> >       ParametrizedObjective_;
-  Teuchos::RCP<SampleGenerator<Real> > ValueSampler_;
-  Teuchos::RCP<SampleGenerator<Real> > GradientSampler_;
-  Teuchos::RCP<SampleGenerator<Real> > HessianSampler_;
+  std::shared_ptr<Objective<Real> >       ParametrizedObjective_;
+  std::shared_ptr<SampleGenerator<Real> > ValueSampler_;
+  std::shared_ptr<SampleGenerator<Real> > GradientSampler_;
+  std::shared_ptr<SampleGenerator<Real> > HessianSampler_;
 
   Real value_;
-  Teuchos::RCP<Vector<Real> > gradient_;
-  Teuchos::RCP<Vector<Real> > pointDual_;
-  Teuchos::RCP<Vector<Real> > sumDual_;
+  std::shared_ptr<Vector<Real> > gradient_;
+  std::shared_ptr<Vector<Real> > pointDual_;
+  std::shared_ptr<Vector<Real> > sumDual_;
 
   bool firstUpdate_;
   bool storage_;
 
   std::map<std::vector<Real>,Real> value_storage_;
-  std::map<std::vector<Real>,Teuchos::RCP<Vector<Real> > > gradient_storage_;
+  std::map<std::vector<Real>,std::shared_ptr<Vector<Real> > > gradient_storage_;
 
   void getValue(Real &val, const Vector<Real> &x,
           const std::vector<Real> &param, Real &tol) {
@@ -93,8 +93,8 @@ private:
       ParametrizedObjective_->setParameter(param);
       ParametrizedObjective_->gradient(g,x,tol);
       if ( storage_ ) {
-        Teuchos::RCP<Vector<Real> > tmp = g.clone();
-        gradient_storage_.insert(std::pair<std::vector<Real>,Teuchos::RCP<Vector<Real> > >(param,tmp));
+        std::shared_ptr<Vector<Real> > tmp = g.clone();
+        gradient_storage_.insert(std::pair<std::vector<Real>,std::shared_ptr<Vector<Real> > >(param,tmp));
         gradient_storage_[param]->set(g);
       }
     }
@@ -110,10 +110,10 @@ private:
 public:
   virtual ~RiskNeutralObjective() {}
 
-  RiskNeutralObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
-                        const Teuchos::RCP<SampleGenerator<Real> > &vsampler, 
-                        const Teuchos::RCP<SampleGenerator<Real> > &gsampler,
-                        const Teuchos::RCP<SampleGenerator<Real> > &hsampler,
+  RiskNeutralObjective( const std::shared_ptr<Objective<Real> >       &pObj,
+                        const std::shared_ptr<SampleGenerator<Real> > &vsampler, 
+                        const std::shared_ptr<SampleGenerator<Real> > &gsampler,
+                        const std::shared_ptr<SampleGenerator<Real> > &hsampler,
                         const bool storage = true )
     : ParametrizedObjective_(pObj),
       ValueSampler_(vsampler), GradientSampler_(gsampler), HessianSampler_(hsampler),
@@ -122,9 +122,9 @@ public:
     gradient_storage_.clear();
   }
 
-  RiskNeutralObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
-                        const Teuchos::RCP<SampleGenerator<Real> > &vsampler, 
-                        const Teuchos::RCP<SampleGenerator<Real> > &gsampler,
+  RiskNeutralObjective( const std::shared_ptr<Objective<Real> >       &pObj,
+                        const std::shared_ptr<SampleGenerator<Real> > &vsampler, 
+                        const std::shared_ptr<SampleGenerator<Real> > &gsampler,
                         const bool storage = true )
     : ParametrizedObjective_(pObj),
       ValueSampler_(vsampler), GradientSampler_(gsampler), HessianSampler_(gsampler),
@@ -133,8 +133,8 @@ public:
     gradient_storage_.clear();
   }
 
-  RiskNeutralObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
-                        const Teuchos::RCP<SampleGenerator<Real> > &sampler,
+  RiskNeutralObjective( const std::shared_ptr<Objective<Real> >       &pObj,
+                        const std::shared_ptr<SampleGenerator<Real> > &sampler,
                         const bool storage = true )
     : ParametrizedObjective_(pObj),
       ValueSampler_(sampler), GradientSampler_(sampler), HessianSampler_(sampler),
@@ -188,7 +188,7 @@ public:
 
   virtual void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
     g.zero(); pointDual_->zero(); sumDual_->zero();
-    std::vector<Teuchos::RCP<Vector<Real> > > ptgs;
+    std::vector<std::shared_ptr<Vector<Real> > > ptgs;
     Real one(1), two(2), error(two*tol + one);
     while ( error > tol ) {
       GradientSampler_->refine();

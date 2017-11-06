@@ -54,22 +54,22 @@ namespace ROL {
 template <class Real>
 class Reduced_Objective_SimOpt : public Objective<Real> {
 private:
-  const Teuchos::RCP<Objective_SimOpt<Real> > obj_;          
-  const Teuchos::RCP<Constraint_SimOpt<Real> > con_; 
-  Teuchos::RCP<SimController<Real> > stateStore_;
-  Teuchos::RCP<SimController<Real> > adjointStore_;
+  const std::shared_ptr<Objective_SimOpt<Real> > obj_;          
+  const std::shared_ptr<Constraint_SimOpt<Real> > con_; 
+  std::shared_ptr<SimController<Real> > stateStore_;
+  std::shared_ptr<SimController<Real> > adjointStore_;
 
   // Primal vectors
-  Teuchos::RCP<Vector<Real> > state_;                              
-  Teuchos::RCP<Vector<Real> > adjoint_;                            
-  Teuchos::RCP<Vector<Real> > state_sens_;                              
-  Teuchos::RCP<Vector<Real> > adjoint_sens_;                            
+  std::shared_ptr<Vector<Real> > state_;                              
+  std::shared_ptr<Vector<Real> > adjoint_;                            
+  std::shared_ptr<Vector<Real> > state_sens_;                              
+  std::shared_ptr<Vector<Real> > adjoint_sens_;                            
 
   // Dual vectors
-  Teuchos::RCP<Vector<Real> > dualstate_;
-  Teuchos::RCP<Vector<Real> > dualstate1_;
-  Teuchos::RCP<Vector<Real> > dualadjoint_;
-  Teuchos::RCP<Vector<Real> > dualcontrol_;
+  std::shared_ptr<Vector<Real> > dualstate_;
+  std::shared_ptr<Vector<Real> > dualstate1_;
+  std::shared_ptr<Vector<Real> > dualadjoint_;
+  std::shared_ptr<Vector<Real> > dualcontrol_;
 
   const bool storage_;             
   const bool useFDhessVec_;
@@ -169,18 +169,18 @@ public:
       @param[in] useFDhessVec is a flag whether or not to use a finite-difference Hessian approximation.
   */
   Reduced_Objective_SimOpt(
-      const Teuchos::RCP<Objective_SimOpt<Real> > &obj, 
-      const Teuchos::RCP<Constraint_SimOpt<Real> > &con, 
-      const Teuchos::RCP<Vector<Real> > &state, 
-      const Teuchos::RCP<Vector<Real> > &control, 
-      const Teuchos::RCP<Vector<Real> > &adjoint,
+      const std::shared_ptr<Objective_SimOpt<Real> > &obj, 
+      const std::shared_ptr<Constraint_SimOpt<Real> > &con, 
+      const std::shared_ptr<Vector<Real> > &state, 
+      const std::shared_ptr<Vector<Real> > &control, 
+      const std::shared_ptr<Vector<Real> > &adjoint,
       const bool storage = true,
       const bool useFDhessVec = false) 
     : obj_(obj), con_(con),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    stateStore_   = Teuchos::rcp(new SimController<Real>());
-    adjointStore_ = Teuchos::rcp(new SimController<Real>());
+    stateStore_   = std::make_shared<SimController<Real>>();
+    adjointStore_ = std::make_shared<SimController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     state_sens_   = state->clone();
@@ -205,21 +205,21 @@ public:
       @param[in] useFDhessVec is a flag whether or not to use a finite-difference Hessian approximation.
   */
   Reduced_Objective_SimOpt(
-      const Teuchos::RCP<Objective_SimOpt<Real> > &obj,
-      const Teuchos::RCP<Constraint_SimOpt<Real> > &con,
-      const Teuchos::RCP<Vector<Real> > &state,
-      const Teuchos::RCP<Vector<Real> > &control, 
-      const Teuchos::RCP<Vector<Real> > &adjoint,
-      const Teuchos::RCP<Vector<Real> > &dualstate,
-      const Teuchos::RCP<Vector<Real> > &dualcontrol, 
-      const Teuchos::RCP<Vector<Real> > &dualadjoint,
+      const std::shared_ptr<Objective_SimOpt<Real> > &obj,
+      const std::shared_ptr<Constraint_SimOpt<Real> > &con,
+      const std::shared_ptr<Vector<Real> > &state,
+      const std::shared_ptr<Vector<Real> > &control, 
+      const std::shared_ptr<Vector<Real> > &adjoint,
+      const std::shared_ptr<Vector<Real> > &dualstate,
+      const std::shared_ptr<Vector<Real> > &dualcontrol, 
+      const std::shared_ptr<Vector<Real> > &dualadjoint,
       const bool storage = true,
       const bool useFDhessVec = false)
     : obj_(obj), con_(con),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    stateStore_   = Teuchos::rcp(new SimController<Real>());
-    adjointStore_ = Teuchos::rcp(new SimController<Real>());
+    stateStore_   = std::make_shared<SimController<Real>>();
+    adjointStore_ = std::make_shared<SimController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     state_sens_   = state->clone();
@@ -242,18 +242,18 @@ public:
       @param[in] useFDhessVec is a flag whether or not to use a finite-difference Hessian approximation.
   */
   Reduced_Objective_SimOpt(
-      const Teuchos::RCP<Objective_SimOpt<Real> > &obj, 
-      const Teuchos::RCP<Constraint_SimOpt<Real> > &con, 
-      const Teuchos::RCP<SimController<Real> > &stateStore, 
-      const Teuchos::RCP<Vector<Real> > &state, 
-      const Teuchos::RCP<Vector<Real> > &control, 
-      const Teuchos::RCP<Vector<Real> > &adjoint,
+      const std::shared_ptr<Objective_SimOpt<Real> > &obj, 
+      const std::shared_ptr<Constraint_SimOpt<Real> > &con, 
+      const std::shared_ptr<SimController<Real> > &stateStore, 
+      const std::shared_ptr<Vector<Real> > &state, 
+      const std::shared_ptr<Vector<Real> > &control, 
+      const std::shared_ptr<Vector<Real> > &adjoint,
       const bool storage = true,
       const bool useFDhessVec = false) 
     : obj_(obj), con_(con), stateStore_(stateStore),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    adjointStore_ = Teuchos::rcp(new SimController<Real>());
+    adjointStore_ = std::make_shared<SimController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     state_sens_   = state->clone();
@@ -279,21 +279,21 @@ public:
       @param[in] useFDhessVec is a flag whether or not to use a finite-difference Hessian approximation.
   */
   Reduced_Objective_SimOpt(
-      const Teuchos::RCP<Objective_SimOpt<Real> > &obj,
-      const Teuchos::RCP<Constraint_SimOpt<Real> > &con,
-      const Teuchos::RCP<SimController<Real> > &stateStore, 
-      const Teuchos::RCP<Vector<Real> > &state,
-      const Teuchos::RCP<Vector<Real> > &control, 
-      const Teuchos::RCP<Vector<Real> > &adjoint,
-      const Teuchos::RCP<Vector<Real> > &dualstate,
-      const Teuchos::RCP<Vector<Real> > &dualcontrol, 
-      const Teuchos::RCP<Vector<Real> > &dualadjoint,
+      const std::shared_ptr<Objective_SimOpt<Real> > &obj,
+      const std::shared_ptr<Constraint_SimOpt<Real> > &con,
+      const std::shared_ptr<SimController<Real> > &stateStore, 
+      const std::shared_ptr<Vector<Real> > &state,
+      const std::shared_ptr<Vector<Real> > &control, 
+      const std::shared_ptr<Vector<Real> > &adjoint,
+      const std::shared_ptr<Vector<Real> > &dualstate,
+      const std::shared_ptr<Vector<Real> > &dualcontrol, 
+      const std::shared_ptr<Vector<Real> > &dualadjoint,
       const bool storage = true,
       const bool useFDhessVec = false)
     : obj_(obj), con_(con), stateStore_(stateStore),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    adjointStore_ = Teuchos::rcp(new SimController<Real>());
+    adjointStore_ = std::make_shared<SimController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     state_sens_   = state->clone();

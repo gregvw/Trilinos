@@ -59,11 +59,11 @@ class Bundle_AS : public Bundle<Real> {
 /***********************************************************************************************/
 private:
 
-  Teuchos::RCP<Vector<Real> > tG_;
-  Teuchos::RCP<Vector<Real> > eG_;
-  Teuchos::RCP<Vector<Real> > yG_;
-  Teuchos::RCP<Vector<Real> > gx_;
-  Teuchos::RCP<Vector<Real> > ge_;
+  std::shared_ptr<Vector<Real> > tG_;
+  std::shared_ptr<Vector<Real> > eG_;
+  std::shared_ptr<Vector<Real> > yG_;
+  std::shared_ptr<Vector<Real> > gx_;
+  std::shared_ptr<Vector<Real> > ge_;
 
   std::set<unsigned> workingSet_;
   std::set<unsigned> nworkingSet_;

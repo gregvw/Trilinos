@@ -25,7 +25,7 @@ filenames_h = glob.glob(filename + "/**/*.hpp", recursive=True)
 filenames_c = glob.glob(filename + "/**/*.cpp", recursive=True)
 filenames = filenames_h + filenames_c
 
-writeback = False
+writeback = True
 
 for filename in filenames:
     print ("=============================================================================")

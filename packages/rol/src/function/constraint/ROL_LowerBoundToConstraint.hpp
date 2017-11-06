@@ -56,7 +56,7 @@ namespace ROL {
 template <class Real>
 class LowerBoundToConstraint : public Constraint<Real> {
 private:
-  Teuchos::RCP<Vector<Real> > lo_;
+  std::shared_ptr<Vector<Real> > lo_;
 
 public:
   LowerBoundToConstraint(BoundConstraint<Real> &bnd) {

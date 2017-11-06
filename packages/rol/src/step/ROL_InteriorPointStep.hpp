@@ -62,19 +62,19 @@ typedef Constraint_Partitioned<Real>            IPCON;
 
 private:
 
-  Teuchos::RCP<StatusTest<Real> >       status_;
-  Teuchos::RCP<Step<Real> >             step_;  
-  Teuchos::RCP<IPOBJ>                   ipobj_;
-  Teuchos::RCP<IPCON>                   ipcon_;
-  Teuchos::RCP<Algorithm<Real> >        algo_;
-  Teuchos::RCP<Teuchos::ParameterList>  parlist_;
-  Teuchos::RCP<BoundConstraint<Real> >  bnd_;
+  std::shared_ptr<StatusTest<Real> >       status_;
+  std::shared_ptr<Step<Real> >             step_;  
+  std::shared_ptr<IPOBJ>                   ipobj_;
+  std::shared_ptr<IPCON>                   ipcon_;
+  std::shared_ptr<Algorithm<Real> >        algo_;
+  std::shared_ptr<Teuchos::ParameterList>  parlist_;
+  std::shared_ptr<BoundConstraint<Real> >  bnd_;
 
   // Storage
-  Teuchos::RCP<Vector<Real> > x_;
-  Teuchos::RCP<Vector<Real> > g_;
-  Teuchos::RCP<Vector<Real> > l_;
-  Teuchos::RCP<Vector<Real> > c_;
+  std::shared_ptr<Vector<Real> > x_;
+  std::shared_ptr<Vector<Real> > g_;
+  std::shared_ptr<Vector<Real> > l_;
+  std::shared_ptr<Vector<Real> > c_;
 
   Real mu_;      // Barrier parameter
   Real mumin_;   // Minimal value of barrier parameter
@@ -102,15 +102,15 @@ public:
 
   InteriorPointStep(Teuchos::ParameterList &parlist) :
     Step<Real>(), 
-    status_(Teuchos::null), 
-    step_(Teuchos::null),
-    ipobj_(Teuchos::null),
-    ipcon_(Teuchos::null),
-    algo_(Teuchos::null), 
-    x_(Teuchos::null),
-    g_(Teuchos::null),
-    l_(Teuchos::null),
-    c_(Teuchos::null),
+    status_(nullptr), 
+    step_(nullptr),
+    ipobj_(nullptr),
+    ipcon_(nullptr),
+    algo_(nullptr), 
+    x_(nullptr),
+    g_(nullptr),
+    l_(nullptr),
+    c_(nullptr),
     hasEquality_(false) {
 
     using Teuchos::ParameterList;
@@ -135,7 +135,7 @@ public:
     stol_  = stlist.get("Step Tolerance", 1.e-8);
     maxit_ = stlist.get("Iteration Limit", 100);
  
-    parlist_ = Teuchos::rcp(&parlist, false);
+    parlist_ = &parlist, false;
   }
 
   /** \brief Initialize step with equality constraint 
@@ -146,7 +146,7 @@ public:
                    AlgorithmState<Real> &algo_state ) {
     hasEquality_ = true;
 
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
     state->constraintVec = c.clone();
@@ -159,8 +159,8 @@ public:
 
     x_->set(x);
 
-    ipobj_ = Teuchos::rcp(&Teuchos::dyn_cast<IPOBJ>(obj),false);
-    ipcon_ = Teuchos::rcp(&Teuchos::dyn_cast<IPCON>(con),false);
+    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
+    ipcon_ = &dynamic_cast<IPCON>(con),false;
 
     // Set initial penalty
     ipobj_->updatePenalty(mu_);
@@ -202,7 +202,7 @@ public:
                    AlgorithmState<Real> &algo_state ) {
     bnd.projectInterior(x);
 
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
 
@@ -211,7 +211,7 @@ public:
     g_ = g.clone();
 
     // Set initial penalty
-    ipobj_ = Teuchos::rcp(&Teuchos::dyn_cast<IPOBJ>(obj),false);
+    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
     ipobj_->updatePenalty(mu_);
 
     algo_state.nfval = 0;
@@ -230,7 +230,7 @@ public:
     algo_state.nfval += ipobj_->getNumberFunctionEvaluations();
     algo_state.ngrad += ipobj_->getNumberGradientEvaluations();
 
-    bnd_ = Teuchos::rcp(new BoundConstraint<Real>());
+    bnd_ = std::make_shared<BoundConstraint<Real>>();
     bnd_->deactivate();
   }
 
@@ -245,11 +245,11 @@ public:
                 Constraint<Real>     &con, 
                 AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = Teuchos::rcp(&Teuchos::dyn_cast<IPOBJ>(obj),false);
-    ipcon_ = Teuchos::rcp(&Teuchos::dyn_cast<IPCON>(con),false);
+    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
+    ipcon_ = &dynamic_cast<IPCON>(con),false;
 
     // Create the algorithm 
-    algo_ = Teuchos::rcp( new Algorithm<Real>("Composite Step",*parlist_,false) );
+    algo_ = std::make_shared<Algorithm<Real>>("Composite Step",*parlist_,false);
 
     //  Run the algorithm
     x_->set(x);
@@ -277,10 +277,10 @@ public:
                 BoundConstraint<Real> &bnd,
                 AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = Teuchos::rcp(&Teuchos::dyn_cast<IPOBJ>(obj),false);
+    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
 
     // Create the algorithm 
-    algo_ = Teuchos::rcp( new Algorithm<Real>("Trust Region",*parlist_,false) );
+    algo_ = std::make_shared<Algorithm<Real>>("Trust Region",*parlist_,false);
 
     //  Run the algorithm
     x_->set(x);
@@ -302,8 +302,8 @@ public:
                Constraint<Real>     &con,
                AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = Teuchos::rcp(&Teuchos::dyn_cast<IPOBJ>(obj),false);
-    ipcon_ = Teuchos::rcp(&Teuchos::dyn_cast<IPCON>(con),false);
+    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
+    ipcon_ = &dynamic_cast<IPCON>(con),false;
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {
@@ -311,7 +311,7 @@ public:
       ipobj_->updatePenalty(mu_);
     }
 
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
  
     // Update optimization vector
     x.plus(s);
@@ -354,7 +354,7 @@ public:
                AlgorithmState<Real>  &algo_state ) {
     update(x,l,s,obj,con,algo_state); 
 
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     x_->set(x);
     x_->axpy(static_cast<Real>(-1),state->gradientVec->dual());
     bnd.project(*x_);
@@ -368,7 +368,7 @@ public:
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective
-    ipobj_ = Teuchos::rcp(&Teuchos::dyn_cast<IPOBJ>(obj),false);
+    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {
@@ -376,7 +376,7 @@ public:
       ipobj_->updatePenalty(mu_);
     }
 
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
  
     // Update optimization vector
     x.plus(s);

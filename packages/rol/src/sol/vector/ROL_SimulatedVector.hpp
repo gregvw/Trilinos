@@ -68,28 +68,28 @@ template<class Real>
 class SimulatedVector : public Vector<Real> {
 
   typedef Vector<Real>                       V;
-  typedef Teuchos::RCP<V>                    RCPV;
-  typedef Teuchos::RCP<BatchManager<Real> >  RCPBM;
+  typedef std::shared_ptr<V>                    std::shared_ptrV;
+  typedef std::shared_ptr<BatchManager<Real> >  std::shared_ptrBM;
   typedef SimulatedVector<Real>              PV;
 
 private:
-  const std::vector<RCPV>                    vecs_;
-  Teuchos::RCP<BatchManager<Real> >          bman_;
-  mutable std::vector<RCPV>             dual_vecs_;
-  mutable Teuchos::RCP<PV>              dual_pvec_;
+  const std::vector<std::shared_ptrV>                    vecs_;
+  std::shared_ptr<BatchManager<Real> >          bman_;
+  mutable std::vector<std::shared_ptrV>             dual_vecs_;
+  mutable std::shared_ptr<PV>              dual_pvec_;
 public:
 
   typedef typename std::vector<PV>::size_type    size_type;
 
-  SimulatedVector( const std::vector<RCPV> &vecs, const RCPBM &bman ) : vecs_(vecs), bman_(bman) {
+  SimulatedVector( const std::vector<std::shared_ptrV> &vecs, const std::shared_ptrBM &bman ) : vecs_(vecs), bman_(bman) {
     for( size_type i=0; i<vecs_.size(); ++i ) {
       dual_vecs_.push_back((vecs_[i]->dual()).clone());
     }
   }
 
   void set( const V &x ) {
-    using Teuchos::dyn_cast;
-    const PV &xs = dyn_cast<const PV>(dyn_cast<const V>(x));
+    
+    const PV &xs = dynamic_cast<const PV>(dynamic_cast<const V>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -101,8 +101,8 @@ public:
   }
 
   void plus( const V &x ) {
-    using Teuchos::dyn_cast;
-    const PV &xs = dyn_cast<const PV>(dyn_cast<const V>(x));
+    
+    const PV &xs = dynamic_cast<const PV>(dynamic_cast<const V>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -120,8 +120,8 @@ public:
   }
 
   void axpy( const Real alpha, const V &x ) {
-    using Teuchos::dyn_cast;
-    const PV &xs = dyn_cast<const PV>(x);
+    
+    const PV &xs = dynamic_cast<const PV>(x);
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -133,8 +133,8 @@ public:
   }
 
   virtual Real dot( const V &x ) const {
-    using Teuchos::dyn_cast;
-    const PV &xs = dyn_cast<const PV>(x);
+    
+    const PV &xs = dynamic_cast<const PV>(x);
 
    TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -155,41 +155,41 @@ public:
     return std::sqrt(dot(*this));
   }
 
-  virtual RCPV clone() const {
-    using Teuchos::RCP;
-    using Teuchos::rcp;
+  virtual std::shared_ptrV clone() const {
+    
+    
 
-    std::vector<RCPV> clonevec;
+    std::vector<std::shared_ptrV> clonevec;
     for( size_type i=0; i<vecs_.size(); ++i ) {
       clonevec.push_back(vecs_[i]->clone());
     }
-    return rcp( new PV(clonevec, bman_) );
+    return std::make_shared<PV>(clonevec, bman_);
   }
 
   virtual const V& dual(void) const {
-    using Teuchos::rcp;
+    
 
     for( size_type i=0; i<vecs_.size(); ++i ) {
       dual_vecs_[i]->set(vecs_[i]->dual());
     }
-    dual_pvec_ = rcp( new PV( dual_vecs_, bman_ ) );
+    dual_pvec_ = std::make_shared<PV>( dual_vecs_, bman_ );
     return *dual_pvec_;
   }
 
-  RCPV basis( const int i ) const { // this must be fixed for distributed batching
+  std::shared_ptrV basis( const int i ) const { // this must be fixed for distributed batching
 
     TEUCHOS_TEST_FOR_EXCEPTION( i >= dimension() || i<0,
                                 std::invalid_argument,
                                 "Error: Basis index must be between 0 and vector dimension." );
 
-    using Teuchos::RCP;
-    using Teuchos::rcp;
-    using Teuchos::dyn_cast;
+    
+    
+    
 
-    RCPV bvec = clone();
+    std::shared_ptrV bvec = clone();
 
     // Downcast
-    PV &eb = dyn_cast<PV>(*bvec);
+    PV &eb = dynamic_cast<PV>(*bvec);
 
     int begin = 0;
     int end = 0;
@@ -235,7 +235,7 @@ public:
 
   // Apply the same binary function to each pair of subvectors in this vector and x
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const PV &xs = Teuchos::dyn_cast<const PV>(x);
+    const PV &xs = dynamic_cast<const PV>(x);
 
     for( size_type i=0; i<vecs_.size(); ++i ) {
       vecs_[i]->applyBinary(f,*xs.get(i));
@@ -255,11 +255,11 @@ public:
 
   // In distributed batching mode, these are understood to take local indices.
 
-  Teuchos::RCP<const Vector<Real> > get(size_type i) const {
+  std::shared_ptr<const Vector<Real> > get(size_type i) const {
     return vecs_[i];
   }
 
-  Teuchos::RCP<Vector<Real> > get(size_type i) {
+  std::shared_ptr<Vector<Real> > get(size_type i) {
     return vecs_[i];
   }
 
@@ -279,30 +279,30 @@ public:
 
 // Helper methods
 template<class Real>
-Teuchos::RCP<Vector<Real> > CreateSimulatedVector( const Teuchos::RCP<Vector<Real> > &a, const Teuchos::RCP<BatchManager<Real> > &bman ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<Vector<Real> >       RCPV;
+std::shared_ptr<Vector<Real> > CreateSimulatedVector( const std::shared_ptr<Vector<Real> > &a, const std::shared_ptr<BatchManager<Real> > &bman ) {
+  
+  
+  typedef std::shared_ptr<Vector<Real> >       std::shared_ptrV;
   typedef SimulatedVector<Real>  PV;
 
-  RCPV temp[] = {a};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+1), bman ) );
+  std::shared_ptrV temp[] = {a};
+  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+1), bman );
 }
 
 template<class Real>
 class PrimalSimulatedVector : public SimulatedVector<Real> {
 private:
-  const std::vector<Teuchos::RCP<Vector<Real> > >   vecs_;
-  const Teuchos::RCP<BatchManager<Real> >           bman_;
-  const Teuchos::RCP<SampleGenerator<Real> >        sampler_;
-  mutable std::vector<Teuchos::RCP<Vector<Real> > > dual_vecs_;
-  mutable Teuchos::RCP<DualSimulatedVector<Real> >  dual_pvec_;
+  const std::vector<std::shared_ptr<Vector<Real> > >   vecs_;
+  const std::shared_ptr<BatchManager<Real> >           bman_;
+  const std::shared_ptr<SampleGenerator<Real> >        sampler_;
+  mutable std::vector<std::shared_ptr<Vector<Real> > > dual_vecs_;
+  mutable std::shared_ptr<DualSimulatedVector<Real> >  dual_pvec_;
   mutable bool isDualInitialized_;
 public:
 
-  PrimalSimulatedVector(const std::vector<Teuchos::RCP<Vector<Real> > > &vecs,
-                        const Teuchos::RCP<BatchManager<Real> >         &bman,
-                        const Teuchos::RCP<SampleGenerator<Real> >      &sampler)
+  PrimalSimulatedVector(const std::vector<std::shared_ptr<Vector<Real> > > &vecs,
+                        const std::shared_ptr<BatchManager<Real> >         &bman,
+                        const std::shared_ptr<SampleGenerator<Real> >      &sampler)
     : SimulatedVector<Real>(vecs,bman), vecs_(vecs), bman_(bman), sampler_(sampler),
       isDualInitialized_(false) {
     for( int i=0; i<sampler_->numMySamples(); ++i ) {
@@ -312,7 +312,7 @@ public:
 
   Real dot(const Vector<Real> &x) const {
     const SimulatedVector<Real> &xs
-      = Teuchos::dyn_cast<const SimulatedVector<Real> >(x);
+      = dynamic_cast<const SimulatedVector<Real> >(x);
 
    TEUCHOS_TEST_FOR_EXCEPTION( sampler_->numMySamples() != static_cast<int>(xs.numVectors()),
                                std::invalid_argument,
@@ -334,17 +334,17 @@ public:
     return result;
   }
 
-  Teuchos::RCP<Vector<Real> > clone(void) const {
-    std::vector<Teuchos::RCP<Vector<Real> > > clonevec;
+  std::shared_ptr<Vector<Real> > clone(void) const {
+    std::vector<std::shared_ptr<Vector<Real> > > clonevec;
     for( int i=0; i<sampler_->numMySamples(); ++i ) {
       clonevec.push_back(vecs_[i]->clone());
     }
-    return Teuchos::rcp( new PrimalSimulatedVector<Real>(clonevec, bman_, sampler_) );
+    return std::make_shared<PrimalSimulatedVector<Real>>(clonevec, bman_, sampler_);
   }
 
   const Vector<Real>& dual(void) const {
     if (!isDualInitialized_) {
-      dual_pvec_ = Teuchos::rcp( new DualSimulatedVector<Real>(dual_vecs_, bman_, sampler_) );
+      dual_pvec_ = std::make_shared<DualSimulatedVector<Real>>(dual_vecs_, bman_, sampler_);
       isDualInitialized_ = true;
     }
     for( int i=0; i<sampler_->numMySamples(); ++i ) {
@@ -359,17 +359,17 @@ public:
 template<class Real>
 class DualSimulatedVector : public SimulatedVector<Real> {
 private:
-  const std::vector<Teuchos::RCP<Vector<Real> > >    vecs_;
-  const Teuchos::RCP<BatchManager<Real> >            bman_;
-  const Teuchos::RCP<SampleGenerator<Real> >         sampler_;
-  mutable std::vector<Teuchos::RCP<Vector<Real> > >  primal_vecs_;
-  mutable Teuchos::RCP<PrimalSimulatedVector<Real> > primal_pvec_;
+  const std::vector<std::shared_ptr<Vector<Real> > >    vecs_;
+  const std::shared_ptr<BatchManager<Real> >            bman_;
+  const std::shared_ptr<SampleGenerator<Real> >         sampler_;
+  mutable std::vector<std::shared_ptr<Vector<Real> > >  primal_vecs_;
+  mutable std::shared_ptr<PrimalSimulatedVector<Real> > primal_pvec_;
   mutable bool isPrimalInitialized_;
 public:
 
-  DualSimulatedVector(const std::vector<Teuchos::RCP<Vector<Real> > > &vecs,
-                      const Teuchos::RCP<BatchManager<Real> >         &bman,
-                      const Teuchos::RCP<SampleGenerator<Real> >      &sampler)
+  DualSimulatedVector(const std::vector<std::shared_ptr<Vector<Real> > > &vecs,
+                      const std::shared_ptr<BatchManager<Real> >         &bman,
+                      const std::shared_ptr<SampleGenerator<Real> >      &sampler)
     : SimulatedVector<Real>(vecs,bman), vecs_(vecs), bman_(bman), sampler_(sampler),
       isPrimalInitialized_(false) {
     for( int i=0; i<sampler_->numMySamples(); ++i ) {
@@ -379,7 +379,7 @@ public:
 
   Real dot(const Vector<Real> &x) const {
     const SimulatedVector<Real> &xs
-      = Teuchos::dyn_cast<const SimulatedVector<Real> >(x);
+      = dynamic_cast<const SimulatedVector<Real> >(x);
 
    TEUCHOS_TEST_FOR_EXCEPTION( sampler_->numMySamples() != static_cast<Real>(xs.numVectors()),
                                std::invalid_argument,
@@ -401,17 +401,17 @@ public:
     return result;
   }
 
-  Teuchos::RCP<Vector<Real> > clone(void) const {
-    std::vector<Teuchos::RCP<Vector<Real> > > clonevec;
+  std::shared_ptr<Vector<Real> > clone(void) const {
+    std::vector<std::shared_ptr<Vector<Real> > > clonevec;
     for( int i=0; i<sampler_->numMySamples(); ++i ) {
       clonevec.push_back(vecs_[i]->clone());
     }
-    return Teuchos::rcp( new DualSimulatedVector<Real>(clonevec, bman_, sampler_) );
+    return std::make_shared<DualSimulatedVector<Real>>(clonevec, bman_, sampler_);
   }
 
   const Vector<Real>& dual(void) const {
     if (!isPrimalInitialized_) {
-      primal_pvec_ = Teuchos::rcp( new PrimalSimulatedVector<Real>(primal_vecs_, bman_, sampler_) );
+      primal_pvec_ = std::make_shared<PrimalSimulatedVector<Real>>(primal_vecs_, bman_, sampler_);
       isPrimalInitialized_ = true;
     }
     const Real one(1);
@@ -425,98 +425,98 @@ public:
 };
 
 template<class Real>
-Teuchos::RCP<const Vector<Real> > CreateSimulatedVector( const Teuchos::RCP<const Vector<Real> > &a, const Teuchos::RCP<BatchManager<Real> > &bman ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<const Vector<Real> >      RCPV;
+std::shared_ptr<const Vector<Real> > CreateSimulatedVector( const std::shared_ptr<const Vector<Real> > &a, const std::shared_ptr<BatchManager<Real> > &bman ) {
+  
+  
+  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
   typedef const SimulatedVector<Real> PV;
 
-  RCPV temp[] = {a};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+1), bman ) );
+  std::shared_ptrV temp[] = {a};
+  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+1), bman );
 }
 
 template<class Real>
-Teuchos::RCP<Vector<Real> > CreateSimulatedVector( const Teuchos::RCP<Vector<Real> > &a,
-                                                   const Teuchos::RCP<Vector<Real> > &b,
-                                                   const Teuchos::RCP<BatchManager<Real> > &bman ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<Vector<Real> >      RCPV;
+std::shared_ptr<Vector<Real> > CreateSimulatedVector( const std::shared_ptr<Vector<Real> > &a,
+                                                   const std::shared_ptr<Vector<Real> > &b,
+                                                   const std::shared_ptr<BatchManager<Real> > &bman ) {
+  
+  
+  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
   typedef SimulatedVector<Real> PV;
 
-  RCPV temp[] = {a,b};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+2), bman ) );
+  std::shared_ptrV temp[] = {a,b};
+  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+2), bman );
 }
 
 template<class Real>
-Teuchos::RCP<const Vector<Real> > CreateSimulatedVector( const Teuchos::RCP<const Vector<Real> > &a,
-                                                         const Teuchos::RCP<const Vector<Real> > &b,
-                                                         const Teuchos::RCP<BatchManager<Real> > &bman ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<const Vector<Real> >      RCPV;
+std::shared_ptr<const Vector<Real> > CreateSimulatedVector( const std::shared_ptr<const Vector<Real> > &a,
+                                                         const std::shared_ptr<const Vector<Real> > &b,
+                                                         const std::shared_ptr<BatchManager<Real> > &bman ) {
+  
+  
+  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
   typedef const SimulatedVector<Real> PV;
 
-  RCPV temp[] = {a,b};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+2), bman ) );
+  std::shared_ptrV temp[] = {a,b};
+  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+2), bman );
 }
 
 template<class Real>
-Teuchos::RCP<Vector<Real> > CreateSimulatedVector( const Teuchos::RCP<Vector<Real> > &a,
-                                                   const Teuchos::RCP<Vector<Real> > &b,
-                                                   const Teuchos::RCP<Vector<Real> > &c,
-                                                   const Teuchos::RCP<BatchManager<Real> > &bman ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<Vector<Real> >      RCPV;
+std::shared_ptr<Vector<Real> > CreateSimulatedVector( const std::shared_ptr<Vector<Real> > &a,
+                                                   const std::shared_ptr<Vector<Real> > &b,
+                                                   const std::shared_ptr<Vector<Real> > &c,
+                                                   const std::shared_ptr<BatchManager<Real> > &bman ) {
+  
+  
+  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
   typedef SimulatedVector<Real> PV;
 
-  RCPV temp[] = {a,b,c};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+3), bman ) );
+  std::shared_ptrV temp[] = {a,b,c};
+  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+3), bman );
 }
 
 template<class Real>
-Teuchos::RCP<const Vector<Real> > CreateSimulatedVector( const Teuchos::RCP<const Vector<Real> > &a,
-                                                         const Teuchos::RCP<const Vector<Real> > &b,
-                                                         const Teuchos::RCP<const Vector<Real> > &c,
-                                                         const Teuchos::RCP<BatchManager<Real> > &bman ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<const Vector<Real> >      RCPV;
+std::shared_ptr<const Vector<Real> > CreateSimulatedVector( const std::shared_ptr<const Vector<Real> > &a,
+                                                         const std::shared_ptr<const Vector<Real> > &b,
+                                                         const std::shared_ptr<const Vector<Real> > &c,
+                                                         const std::shared_ptr<BatchManager<Real> > &bman ) {
+  
+  
+  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
   typedef const SimulatedVector<Real> PV;
 
-  RCPV temp[] = {a,b,c};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+3), bman ) );
+  std::shared_ptrV temp[] = {a,b,c};
+  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+3), bman );
 }
 
 template<class Real>
-Teuchos::RCP<Vector<Real> > CreateSimulatedVector( const Teuchos::RCP<Vector<Real> > &a,
-                                                   const Teuchos::RCP<Vector<Real> > &b,
-                                                   const Teuchos::RCP<Vector<Real> > &c,
-                                                   const Teuchos::RCP<Vector<Real> > &d,
-                                                   const Teuchos::RCP<BatchManager<Real> > &bman ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<Vector<Real> >      RCPV;
+std::shared_ptr<Vector<Real> > CreateSimulatedVector( const std::shared_ptr<Vector<Real> > &a,
+                                                   const std::shared_ptr<Vector<Real> > &b,
+                                                   const std::shared_ptr<Vector<Real> > &c,
+                                                   const std::shared_ptr<Vector<Real> > &d,
+                                                   const std::shared_ptr<BatchManager<Real> > &bman ) {
+  
+  
+  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
   typedef SimulatedVector<Real> PV;
 
-  RCPV temp[] = {a,b,c,d};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+4), bman ) );
+  std::shared_ptrV temp[] = {a,b,c,d};
+  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+4), bman );
 }
 
 template<class Real>
-Teuchos::RCP<const Vector<Real> > CreateSimulatedVector( const Teuchos::RCP<const Vector<Real> > &a,
-                                                         const Teuchos::RCP<const Vector<Real> > &b,
-                                                         const Teuchos::RCP<const Vector<Real> > &c,
-                                                         const Teuchos::RCP<const Vector<Real> > &d,
-                                                         const Teuchos::RCP<BatchManager<Real> > &bman ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<const Vector<Real> >      RCPV;
+std::shared_ptr<const Vector<Real> > CreateSimulatedVector( const std::shared_ptr<const Vector<Real> > &a,
+                                                         const std::shared_ptr<const Vector<Real> > &b,
+                                                         const std::shared_ptr<const Vector<Real> > &c,
+                                                         const std::shared_ptr<const Vector<Real> > &d,
+                                                         const std::shared_ptr<BatchManager<Real> > &bman ) {
+  
+  
+  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
   typedef const SimulatedVector<Real> PV;
 
-  RCPV temp[] = {a,b,c,d};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+4), bman ) );
+  std::shared_ptrV temp[] = {a,b,c,d};
+  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+4), bman );
 }
 
 } // namespace ROL

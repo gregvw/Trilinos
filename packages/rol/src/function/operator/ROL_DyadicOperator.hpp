@@ -62,13 +62,13 @@ class DyadicOperator : public ROL::LinearOperator<Real> {
 
 private:
 
-  const Teuchos::RCP<const V> x_;
-  const Teuchos::RCP<const V> y_;
+  const std::shared_ptr<const V> x_;
+  const std::shared_ptr<const V> y_;
 
 public:
   
-  DyadicOperator( const Teuchos::RCP<const V> &x,
-                  const Teuchos::RCP<const V> &y ) : x_(x), y_(y) {}
+  DyadicOperator( const std::shared_ptr<const V> &x,
+                  const std::shared_ptr<const V> &y ) : x_(x), y_(y) {}
 
   void apply( V &Hv, const V &v, Real &tol ) const {
     Hv.set(*x_);

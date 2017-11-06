@@ -44,7 +44,7 @@
 #ifndef ROL_HMCROBJECTIVE_HPP
 #define ROL_HMCROBJECTIVE_HPP
 
-#include "Teuchos_RCP.hpp"
+#include <memory>
 #include "ROL_RiskVector.hpp"
 #include "ROL_Objective.hpp"
 #include "ROL_SampleGenerator.hpp"
@@ -54,32 +54,32 @@ namespace ROL {
 template<class Real>
 class HMCRObjective : public Objective<Real> {
 private:
-  Teuchos::RCP<Objective<Real> > ParametrizedObjective_;
+  std::shared_ptr<Objective<Real> > ParametrizedObjective_;
 
   Real order_;
   Real prob_;
 
-  Teuchos::RCP<SampleGenerator<Real> > ValueSampler_;
-  Teuchos::RCP<SampleGenerator<Real> > GradientSampler_;
-  Teuchos::RCP<SampleGenerator<Real> > HessianSampler_;
+  std::shared_ptr<SampleGenerator<Real> > ValueSampler_;
+  std::shared_ptr<SampleGenerator<Real> > GradientSampler_;
+  std::shared_ptr<SampleGenerator<Real> > HessianSampler_;
 
-  Teuchos::RCP<Vector<Real> > pointGrad_;
-  Teuchos::RCP<Vector<Real> > pointHess_;
+  std::shared_ptr<Vector<Real> > pointGrad_;
+  std::shared_ptr<Vector<Real> > pointHess_;
 
-  Teuchos::RCP<Vector<Real> > gradient0_;
-  Teuchos::RCP<Vector<Real> > sumGrad0_;
-  Teuchos::RCP<Vector<Real> > gradient1_;
-  Teuchos::RCP<Vector<Real> > sumGrad1_;
-  Teuchos::RCP<Vector<Real> > gradient2_;
-  Teuchos::RCP<Vector<Real> > sumGrad2_;
-  Teuchos::RCP<Vector<Real> > hessvec_;
-  Teuchos::RCP<Vector<Real> > sumHess_;
+  std::shared_ptr<Vector<Real> > gradient0_;
+  std::shared_ptr<Vector<Real> > sumGrad0_;
+  std::shared_ptr<Vector<Real> > gradient1_;
+  std::shared_ptr<Vector<Real> > sumGrad1_;
+  std::shared_ptr<Vector<Real> > gradient2_;
+  std::shared_ptr<Vector<Real> > sumGrad2_;
+  std::shared_ptr<Vector<Real> > hessvec_;
+  std::shared_ptr<Vector<Real> > sumHess_;
  
   bool initialized_;
   bool storage_;
 
   std::map<std::vector<Real>,Real> value_storage_;
-  std::map<std::vector<Real>,Teuchos::RCP<Vector<Real> > > gradient_storage_;
+  std::map<std::vector<Real>,std::shared_ptr<Vector<Real> > > gradient_storage_;
 
   void initialize(const Vector<Real> &x) {
     pointGrad_ = x.dual().clone();
@@ -95,10 +95,10 @@ private:
     initialized_ = true;
   }
 
-  void unwrap_const_CVaR_vector(Teuchos::RCP<Vector<Real> > &xvec, Real &xvar,
+  void unwrap_const_CVaR_vector(std::shared_ptr<Vector<Real> > &xvec, Real &xvar,
                           const Vector<Real> &x) {
-    xvec = Teuchos::rcp_const_cast<Vector<Real> >(Teuchos::dyn_cast<const RiskVector<Real> >(x).getVector());
-    xvar = (*Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatistic(0))[0];
+    xvec = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real> >(x).getVector());
+    xvar = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(0))[0];
     if ( !initialized_ ) {
       initialize(*xvec);
     }
@@ -127,8 +127,8 @@ private:
       ParametrizedObjective_->setParameter(param);
       ParametrizedObjective_->gradient(g,x,tol);
       if ( storage_ ) {
-        Teuchos::RCP<Vector<Real> > tmp = g.clone();
-        gradient_storage_.insert(std::pair<std::vector<Real>,Teuchos::RCP<Vector<Real> > >(param,tmp));
+        std::shared_ptr<Vector<Real> > tmp = g.clone();
+        gradient_storage_.insert(std::pair<std::vector<Real>,std::shared_ptr<Vector<Real> > >(param,tmp));
         gradient_storage_[param]->set(g);
       }
     }
@@ -144,11 +144,11 @@ private:
 public:
   virtual ~HMCRObjective() {}
 
-  HMCRObjective( Teuchos::RCP<Objective<Real> > &pObj,
+  HMCRObjective( std::shared_ptr<Objective<Real> > &pObj,
                  Real order, Real prob,
-                 Teuchos::RCP<SampleGenerator<Real> > &vsampler, 
-                 Teuchos::RCP<SampleGenerator<Real> > &gsampler,
-                 Teuchos::RCP<SampleGenerator<Real> > &hsampler,
+                 std::shared_ptr<SampleGenerator<Real> > &vsampler, 
+                 std::shared_ptr<SampleGenerator<Real> > &gsampler,
+                 std::shared_ptr<SampleGenerator<Real> > &hsampler,
                  bool storage = true )
     : ParametrizedObjective_(pObj),
       ValueSampler_(vsampler), GradientSampler_(gsampler), HessianSampler_(hsampler),
@@ -159,10 +159,10 @@ public:
     gradient_storage_.clear();
   }
 
-  HMCRObjective( Teuchos::RCP<Objective<Real> > &pObj,
+  HMCRObjective( std::shared_ptr<Objective<Real> > &pObj,
                  Real order, Real prob,
-                 Teuchos::RCP<SampleGenerator<Real> > &vsampler, 
-                 Teuchos::RCP<SampleGenerator<Real> > &gsampler,
+                 std::shared_ptr<SampleGenerator<Real> > &vsampler, 
+                 std::shared_ptr<SampleGenerator<Real> > &gsampler,
                  bool storage = true )
     : ParametrizedObjective_(pObj),
       ValueSampler_(vsampler), GradientSampler_(gsampler), HessianSampler_(gsampler),
@@ -173,9 +173,9 @@ public:
     gradient_storage_.clear();
   }
 
-  HMCRObjective( Teuchos::RCP<Objective<Real> > &pObj,
+  HMCRObjective( std::shared_ptr<Objective<Real> > &pObj,
                  Real order, Real prob,
-                 Teuchos::RCP<SampleGenerator<Real> > &sampler,
+                 std::shared_ptr<SampleGenerator<Real> > &sampler,
                  bool storage = true )
     : ParametrizedObjective_(pObj), order_(order), prob_(prob),
       ValueSampler_(sampler), GradientSampler_(sampler), HessianSampler_(sampler),
@@ -187,7 +187,7 @@ public:
   }
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
-    Teuchos::RCP<Vector<Real> > xvec; Real xvar = 0.0;
+    std::shared_ptr<Vector<Real> > xvec; Real xvar = 0.0;
     unwrap_const_CVaR_vector(xvec,xvar,x);
     ParametrizedObjective_->update(*xvec,flag,iter);
     ValueSampler_->update(*xvec);
@@ -204,7 +204,7 @@ public:
   }
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    Teuchos::RCP<Vector<Real> > xvec; Real xvar = 0.0;
+    std::shared_ptr<Vector<Real> > xvec; Real xvar = 0.0;
     unwrap_const_CVaR_vector(xvec,xvar,x);
     // Initialize storage
     std::vector<Real> point;
@@ -233,9 +233,9 @@ public:
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-    Teuchos::RCP<Vector<Real> > xvec; Real xvar = 0.0;
+    std::shared_ptr<Vector<Real> > xvec; Real xvar = 0.0;
     unwrap_const_CVaR_vector(xvec,xvar,x);
-    RiskVector<Real> &gc = Teuchos::dyn_cast<RiskVector<Real> >(g);
+    RiskVector<Real> &gc = dynamic_cast<RiskVector<Real> >(g);
     // Initialize storage
     g.zero(); sumGrad0_->zero();
     std::vector<Real> point, val(2,0.0), myval(2,0.0);
@@ -281,11 +281,11 @@ public:
 
   void hessVec( Vector<Real> &hv, const Vector<Real> &v,
                         const Vector<Real> &x, Real &tol ) {
-    Teuchos::RCP<Vector<Real> > xvec; Real xvar = 0.0;
+    std::shared_ptr<Vector<Real> > xvec; Real xvar = 0.0;
     unwrap_const_CVaR_vector(xvec,xvar,x);
-    Teuchos::RCP<Vector<Real> > vvec; Real vvar = 0.0;
+    std::shared_ptr<Vector<Real> > vvec; Real vvar = 0.0;
     unwrap_const_CVaR_vector(vvec,vvar,v);
-    RiskVector<Real> &hvc = Teuchos::dyn_cast<RiskVector<Real> >(hv);
+    RiskVector<Real> &hvc = dynamic_cast<RiskVector<Real> >(hv);
     // Initialize storage
     hv.zero();
     sumGrad0_->zero(); sumGrad1_->zero(); sumGrad2_->zero(); sumHess_->zero();

@@ -51,12 +51,12 @@ namespace ROL {
 template <class Real>
 class Constraint_State : public Constraint<Real> {
 private:
-  const Teuchos::RCP<Constraint_SimOpt<Real> > con_;
-  const Teuchos::RCP<const Vector<Real> > z_;
+  const std::shared_ptr<Constraint_SimOpt<Real> > con_;
+  const std::shared_ptr<const Vector<Real> > z_;
 
 public:
-  Constraint_State(const Teuchos::RCP<Constraint_SimOpt<Real> > &con,
-                   const Teuchos::RCP<const Vector<Real> > &z) : con_(con), z_(z) {}
+  Constraint_State(const std::shared_ptr<Constraint_SimOpt<Real> > &con,
+                   const std::shared_ptr<const Vector<Real> > &z) : con_(con), z_(z) {}
 
   void value(Vector<Real> &c,const Vector<Real> &u,Real &tol) {
     con_->value(c,u,*z_,tol);
@@ -80,7 +80,7 @@ public:
   }
 
   void applyPreconditioner(Vector<Real> &pv,const Vector<Real> &v,const Vector<Real> &u,const Vector<Real> &g,Real &tol) {
-    Teuchos::RCP<Vector<Real> > ijv = u.clone();
+    std::shared_ptr<Vector<Real> > ijv = u.clone();
     con_->applyInverseJacobian_1(*ijv,v,u,*z_,tol);
     con_->applyInverseAdjointJacobian_1(pv,ijv->dual(),u,*z_,tol);
   }

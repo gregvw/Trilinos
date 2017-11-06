@@ -114,7 +114,7 @@ public:
              bool printHeader = false) {
 
 // Uncomment to test for parameter inconsistencies
-//    Teuchos::RCP<const Teuchos::ParameterList> validParlist = getValidROLParameters();
+//    std::shared_ptr<const Teuchos::ParameterList> validParlist = getValidROLParameters();
 //    parlist.validateParametersAndSetDefaults(*validParlist);
 
     EStep els = StringToEStep(stepname);
@@ -191,7 +191,7 @@ public:
     std::vector<std::string> output;
 
     // Initialize Current Iterate Container
-    if ( state_->iterateVec == Teuchos::null ) {
+    if ( state_->iterateVec == nullptr ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
@@ -207,7 +207,7 @@ public:
     }
 
     // Initialize Minimum Value and Vector
-    if ( state_->minIterVec == Teuchos::null ) {
+    if ( state_->minIterVec == nullptr ) {
       state_->minIterVec = x.clone();
     }
     state_->minIterVec->set(x);
@@ -277,13 +277,13 @@ public:
     std::vector<std::string> output;
 
     // Initialize Current Iterate Container
-    if ( state_->iterateVec == Teuchos::null ) {
+    if ( state_->iterateVec == nullptr ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
     // Initialize Current Lagrange Multiplier Container
-    if ( state_->lagmultVec == Teuchos::null ) {
+    if ( state_->lagmultVec == nullptr ) {
       state_->lagmultVec = l.clone();
     }
     state_->lagmultVec->set(l);
@@ -299,7 +299,7 @@ public:
     }
 
     // Initialize Minimum Value and Vector
-    if ( state_->minIterVec == Teuchos::null ) {
+    if ( state_->minIterVec == nullptr ) {
       state_->minIterVec = x.clone();
     }
     state_->minIterVec->set(x);
@@ -360,13 +360,13 @@ public:
     std::vector<std::string> output;
 
     // Initialize Current Iterate Container
-    if ( state_->iterateVec == Teuchos::null ) {
+    if ( state_->iterateVec == nullptr ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
     // Initialize Current Lagrange Multiplier Container
-    if ( state_->lagmultVec == Teuchos::null ) {
+    if ( state_->lagmultVec == nullptr ) {
       state_->lagmultVec = l.clone();
     }
     state_->lagmultVec->set(l);
@@ -382,7 +382,7 @@ public:
     }
 
     // Initialize Minimum Value and Vector
-    if ( state_->minIterVec == Teuchos::null ) {
+    if ( state_->minIterVec == nullptr ) {
       state_->minIterVec = x.clone();
     }
     state_->minIterVec->set(x);
@@ -417,8 +417,8 @@ public:
     std::shared_ptr<Vector<Real> >             l   = opt.getMultiplierVector();
 
     // Call appropriate run function
-    if ( con == Teuchos::null ) {
-      if ( bnd == Teuchos::null ) {
+    if ( con == nullptr ) {
+      if ( bnd == nullptr ) {
         return run(*x,*obj,print,outStream);
       }
       else {
@@ -426,7 +426,7 @@ public:
       }
     }
     else {
-      if ( bnd == Teuchos::null ) {
+      if ( bnd == nullptr ) {
         return run(*x,*l,*obj,*con,print,outStream);
       }
       else {

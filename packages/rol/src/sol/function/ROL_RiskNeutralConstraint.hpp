@@ -44,7 +44,7 @@
 #ifndef ROL_RISKNEUTRALCONSTRAINT_HPP
 #define ROL_RISKNEUTRALCONSTRAINT_HPP
 
-#include "Teuchos_RCP.hpp"
+#include <memory>
 #include "ROL_Vector.hpp"
 #include "ROL_Constraint.hpp"
 #include "ROL_SampleGenerator.hpp"
@@ -54,12 +54,12 @@ namespace ROL {
 template<class Real>
 class RiskNeutralConstraint : public Constraint<Real> {
 private:
-  const Teuchos::RCP<Constraint<Real> >      con_;
-  const Teuchos::RCP<SampleGenerator<Real> > xsampler_;
-  const Teuchos::RCP<BatchManager<Real> >    cbman_;
+  const std::shared_ptr<Constraint<Real> >      con_;
+  const std::shared_ptr<SampleGenerator<Real> > xsampler_;
+  const std::shared_ptr<BatchManager<Real> >    cbman_;
 
-  Teuchos::RCP<Vector<Real> > conVec_;
-  Teuchos::RCP<Vector<Real> > optVec_;
+  std::shared_ptr<Vector<Real> > conVec_;
+  std::shared_ptr<Vector<Real> > optVec_;
 
   bool initialized_;
 
@@ -72,9 +72,9 @@ private:
   }
 
 public:
-  RiskNeutralConstraint( const Teuchos::RCP<Constraint<Real> >      &con,
-                         const Teuchos::RCP<SampleGenerator<Real> > &xsampler,
-                         const Teuchos::RCP<BatchManager<Real> >    &cbman)
+  RiskNeutralConstraint( const std::shared_ptr<Constraint<Real> >      &con,
+                         const std::shared_ptr<SampleGenerator<Real> > &xsampler,
+                         const std::shared_ptr<BatchManager<Real> >    &cbman)
     : con_(con), xsampler_(xsampler), cbman_(cbman), initialized_(false) {}
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {

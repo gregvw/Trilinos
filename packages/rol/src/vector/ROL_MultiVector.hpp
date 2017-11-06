@@ -54,7 +54,7 @@
 #include <vector>
 
 #include "ROL_Vector.hpp"
-#include "Teuchos_ArrayRCP.hpp"
+#include "Teuchos_Arraystd::shared_ptr.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
 namespace ROL {
@@ -63,10 +63,10 @@ template<class Real>
 class MultiVector {
 
     typedef Vector<Real>          V;       // Single vector 
-    typedef Teuchos::RCP<V>       PV;      // Pointer to a vector
-    typedef Teuchos::ArrayRCP<PV> APV;     // Array of pointers to vectors
+    typedef std::shared_ptr<V>       PV;      // Pointer to a vector
+    typedef Teuchos::Arraystd::shared_ptr<PV> APV;     // Array of pointers to vectors
     typedef MultiVector<Real>     MV;      // Instance of the base class
-    typedef Teuchos::RCP<MV>      PMV;     // Pointer to an instance of the class 
+    typedef std::shared_ptr<MV>      PMV;     // Pointer to an instance of the class 
 
     public:
 

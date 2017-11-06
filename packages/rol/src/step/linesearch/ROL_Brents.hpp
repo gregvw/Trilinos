@@ -60,8 +60,8 @@ private:
   int niter_;
   bool test_;
 
-  Teuchos::RCP<Vector<Real> > xnew_; 
-//  Teuchos::RCP<LineSearch<Real> > btls_;
+  std::shared_ptr<Vector<Real> > xnew_; 
+//  std::shared_ptr<LineSearch<Real> > btls_;
 
 public:
 
@@ -76,7 +76,7 @@ public:
     niter_ = list.get("Iteration Limit",1000);
     test_ = list.get("Run Test Upon Initialization",true);
 //    tol_ = parlist.sublist("Step").sublist("Line Search").sublist("Line-Search Method").get("Bracketing Tolerance",1.e-8);
-//    btls_ = Teuchos::rcp(new BackTracking<Real>(parlist));
+//    btls_ = std::make_shared<BackTracking<Real>>(parlist);
   }
 
   void initialize( const Vector<Real> &x, const Vector<Real> &s, const Vector<Real> &g,
@@ -107,8 +107,8 @@ public:
     // TODO: Bracketing
 
     // Run Brents
-    Teuchos::RCP<typename LineSearch<Real>::ScalarFunction> phi
-      = Teuchos::rcp(new typename LineSearch<Real>::Phi(*xnew_,x,s,obj,con));
+    std::shared_ptr<typename LineSearch<Real>::ScalarFunction> phi
+      = std::make_shared<typename LineSearch<Real>::Phi>(*xnew_,x,s,obj,con);
     int neval = 0;
     Real A(0), B = alpha;
     run_brents(neval, fval, alpha, *phi, A, B);
@@ -209,8 +209,8 @@ private:
   };
 
   bool test_brents(void) const {
-    Teuchos::RCP<typename LineSearch<Real>::ScalarFunction> phi
-       = Teuchos::rcp(new testFunction());
+    std::shared_ptr<typename LineSearch<Real>::ScalarFunction> phi
+       = std::make_shared<testFunction>();
     Real A(0), B(0), alpha(0), fval(0);
     Real error(0), error_i(0);
     Real zero(0), two(2), three(3);

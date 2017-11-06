@@ -131,43 +131,43 @@ private:
   static const size_type LOWER = 2;
   static const size_type UPPER = 3;
 
-  Teuchos::RCP<const V>   x_;            // Optimization vector
-  Teuchos::RCP<const V>   l_;            //  constraint multiplier
-  Teuchos::RCP<const V>   zl_;           // Lower bound multiplier
-  Teuchos::RCP<const V>   zu_;           // Upper bound multiplier
+  std::shared_ptr<const V>   x_;            // Optimization vector
+  std::shared_ptr<const V>   l_;            //  constraint multiplier
+  std::shared_ptr<const V>   zl_;           // Lower bound multiplier
+  std::shared_ptr<const V>   zu_;           // Upper bound multiplier
 
-  Teuchos::RCP<const V>   xl_;           // Lower bound
-  Teuchos::RCP<const V>   xu_;           // Upper bound 
+  std::shared_ptr<const V>   xl_;           // Lower bound
+  std::shared_ptr<const V>   xu_;           // Upper bound 
 
-  const Teuchos::RCP<const V> maskL_;   
-  const Teuchos::RCP<const V> maskU_;
+  const std::shared_ptr<const V> maskL_;   
+  const std::shared_ptr<const V> maskU_;
 
   Teuchos::RPC<V> scratch_;
 
-  const Teuchos::RCP<PENALTY> penalty_;
-  const Teuchos::RCP<OBJ>     obj_;
-  const Teuchos::RCP<CON>     con_;
+  const std::shared_ptr<PENALTY> penalty_;
+  const std::shared_ptr<OBJ>     obj_;
+  const std::shared_ptr<CON>     con_;
 
 
 public:
 
-  PrimalDualInteriorPointResidual( const Teuchos::RCP<PENALTY> &penalty, 
-                                   const Teuchos::RCP<CON> &con,
+  PrimalDualInteriorPointResidual( const std::shared_ptr<PENALTY> &penalty, 
+                                   const std::shared_ptr<CON> &con,
                                    const V &x,
-                                         Teuchos::RCP<V> &scratch ) :
+                                         std::shared_ptr<V> &scratch ) :
     penalty_(penalty), con_(con), scratch_(scratch) {
 
     obj_   = penalty_->getObjective();
     maskL_ = penalty_->getLowerMask();
     maskU_ = penalty_->getUpperMask();
 
-    Teuchos::RCP<BND> bnd = penalty_->getBoundConstraint();
+    std::shared_ptr<BND> bnd = penalty_->getBoundConstraint();
     xl_ = bnd->getLowerBound();
     xu_ = bnd->getUpperBound();
 
 
     // Get access to the four components
-    const PV &x_pv = Teuchos::dyn_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV>(x);
     
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -180,7 +180,7 @@ public:
   void update( const Vector<Real> &x, bool flag = true, int iter = -1  ) {
 
     // Get access to the four components
-    const PV &x_pv = Teuchos::dyn_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV>(x);
     
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -194,18 +194,18 @@ public:
 
   // Evaluate the gradient of the Lagrangian
   void value( V &c, const V &x, Real &tol ) {
-    using Teuchos::RCP;
+    
 
-    PV &c_pv = Teuchos::dyn_cast<PV>(c);
-    const PV &x_pv = Teuchos::dyn_cast<const PV>(x); 
+    PV &c_pv = dynamic_cast<PV>(c);
+    const PV &x_pv = dynamic_cast<const PV>(x); 
 
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
     zl_ = x_pv.get(LOWER);
     zu_ = x_pv.get(UPPER); 
 
-    RCP<V> cx  = c_pv.get(OPT);
-    RCP<V> cl  = c_pv.get(EQUAL);
+    std::shared_ptr<V> cx  = c_pv.get(OPT);
+    std::shared_ptr<V> cl  = c_pv.get(EQUAL);
    
     // TODO: Add check as to whether we really need to recompute these
     penalty_->gradient(*cx,*x_,tol);
@@ -220,19 +220,19 @@ public:
 
   void applyJacobian( V &jv, const V &v, const V &x, Real &tol ) {
 
-    using Teuchos::RCP;
+    
 
-    PV &jv_pv = Teuchos::dyn_cast<PV>(jv);
-    const PV &v_pv = Teuchos::dyn_cast<const PV>(v);
-    const PV &x_pv = Teuchos::dyn_cast<const PV>(x); 
+    PV &jv_pv = dynamic_cast<PV>(jv);
+    const PV &v_pv = dynamic_cast<const PV>(v);
+    const PV &x_pv = dynamic_cast<const PV>(x); 
 
     // output vector components
-    RCP<V> jvx  = jv_pv.get(OPT);
-    RCP<V> jvl  = jv_pv.get(EQUAL);
+    std::shared_ptr<V> jvx  = jv_pv.get(OPT);
+    std::shared_ptr<V> jvl  = jv_pv.get(EQUAL);
 
     // input vector components
-    RCP<const V> vx  = v_pv.get(OPT);
-    RCP<const V> vl  = v_pv.get(EQUAL); 
+    std::shared_ptr<const V> vx  = v_pv.get(OPT);
+    std::shared_ptr<const V> vl  = v_pv.get(EQUAL); 
 
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);

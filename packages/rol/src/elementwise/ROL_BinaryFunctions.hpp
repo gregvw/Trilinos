@@ -194,13 +194,13 @@ class BinaryComposition : public BinaryFunction<Real> {
 
 private:
 
-  Teuchos::RCP<BinaryFunction<Real> > f_;
-  Teuchos::RCP<UnaryFunction<Real> >  g_;
+  std::shared_ptr<BinaryFunction<Real> > f_;
+  std::shared_ptr<UnaryFunction<Real> >  g_;
 
 public:
 
-  BinaryComposition( Teuchos::RCP<BinaryFunction<Real> > &f,
-                     Teuchos::RCP<UnaryFunction<Real> > &g ) : f_(f), g_(g) {}
+  BinaryComposition( std::shared_ptr<BinaryFunction<Real> > &f,
+                     std::shared_ptr<UnaryFunction<Real> > &g ) : f_(f), g_(g) {}
   Real apply( const Real &x, const Real &y ) const {
     return g_->apply(f_->apply(x,y));
   }

@@ -78,25 +78,25 @@ class HouseholderReflector : public LinearOperator<Real> {
   
 private:
 
-  const Teuchos::RCP<const V> x_;
-  const Teuchos::RCP<const V> y_;
+  const std::shared_ptr<const V> x_;
+  const std::shared_ptr<const V> y_;
 
-  Teuchos::RCP<V> u_;
+  std::shared_ptr<V> u_;
 
 public:
   
-  HouseholderReflector( const Teuchos::RCP<const Vector<Real> > &x, 
-                        const Teuchos::RCP<const Vector<Real> > &y) : x_(x), y_(y), u_(x->clone()) {}
+  HouseholderReflector( const std::shared_ptr<const Vector<Real> > &x, 
+                        const std::shared_ptr<const Vector<Real> > &y) : x_(x), y_(y), u_(x->clone()) {}
   
 
-  HouseholderReflector( const Teuchos::RCP<const Vector<Real> > &x,
-                        const Teuchos::RCP<const Vector<Real> > &y,
-                        Teuchos::RCP<Vector<Real> > &scratch ) : x_(x), y_(y), u_(scratch) {}
+  HouseholderReflector( const std::shared_ptr<const Vector<Real> > &x,
+                        const std::shared_ptr<const Vector<Real> > &y,
+                        std::shared_ptr<Vector<Real> > &scratch ) : x_(x), y_(y), u_(scratch) {}
 
-  HouseholderReflector( const Teuchos::RCP<const Vector<Real> > &x ) : x_(x), y_(x->basis(0)), u_(x->clone()) {}
+  HouseholderReflector( const std::shared_ptr<const Vector<Real> > &x ) : x_(x), y_(x->basis(0)), u_(x->clone()) {}
   
-  HouseholderReflector( const Teuchos::RCP<const Vector<Real> > &x,
-                        Teuchos::RCP<Vector<Real> > &scratch ) : x_(x), y_(x->basis(0)), u_(scratch) {}
+  HouseholderReflector( const std::shared_ptr<const Vector<Real> > &x,
+                        std::shared_ptr<Vector<Real> > &scratch ) : x_(x), y_(x->basis(0)), u_(scratch) {}
   
                       
 
