@@ -134,7 +134,7 @@ public:
     std::shared_ptr<std::vector<Real> > stati;
     int N = 0, Ni = 0;
     // Must make x a risk vector with appropriate statistic
-    const RiskVector<Real> &xr = dynamic_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xr = dynamic_cast<const RiskVector<Real>&>(x);
     std::shared_ptr<const Vector<Real> > xptr = xr.getVector();
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
@@ -173,8 +173,8 @@ public:
     std::shared_ptr<std::vector<Real> > xstati, vstati;
     int N = 0, Ni = 0;
     // Must make x and v risk vectors with appropriate statistics
-    const RiskVector<Real> &xr = dynamic_cast<const RiskVector<Real> >(x);
-    const RiskVector<Real> &vr = dynamic_cast<const RiskVector<Real> >(v);
+    const RiskVector<Real> &xr = dynamic_cast<const RiskVector<Real>&>(x);
+    const RiskVector<Real> &vr = dynamic_cast<const RiskVector<Real>&>(v);
     std::shared_ptr<const Vector<Real> > xptr = xr.getVector();
     std::shared_ptr<const Vector<Real> > vptr = vr.getVector();
     x0 = std::const_pointer_cast<Vector<Real> >(xptr);
@@ -237,7 +237,7 @@ public:
   void getGradient(Vector<Real> &g, SampleGenerator<Real> &sampler) {
     g.zero();
     // g does not have the correct dimension if it is a risk vector
-    RiskVector<Real> &gr = dynamic_cast<RiskVector<Real> >(g);
+    RiskVector<Real> &gr = dynamic_cast<RiskVector<Real>&>(g);
     std::shared_ptr<std::vector<Real> > stat, stati;
     stat = std::make_shared<std::vector<Real>>(0);
     for (uint i = 0; i < size_; ++i) {
@@ -266,7 +266,7 @@ public:
   void getHessVec(Vector<Real> &hv, SampleGenerator<Real> &sampler) {
     hv.zero();
     // hv does not have the correct dimension if it is a risk vector
-    RiskVector<Real> &hvr = dynamic_cast<RiskVector<Real> >(hv);
+    RiskVector<Real> &hvr = dynamic_cast<RiskVector<Real>&>(hv);
     std::shared_ptr<std::vector<Real> > stat, stati;
     stat = std::make_shared<std::vector<Real>>(0);
     for (uint i = 0; i < size_; ++i) {

@@ -68,12 +68,12 @@ private:
 
   std::shared_ptr<const vector> getVector( const V& x ) {
     
-    return dynamic_cast<const SV>(x).getVector();
+    return dynamic_cast<const SV&>(x).getVector();
   }
 
   std::shared_ptr<vector> getVector( V& x ) {
     
-    return dynamic_cast<SV>(x).getVector();
+    return dynamic_cast<SV&>(x).getVector();
   }
 
 public:
@@ -126,12 +126,12 @@ private:
   
   std::shared_ptr<const vector> getVector( const V& x ) {
     
-    return dynamic_cast<const SV>(x).getVector();
+    return dynamic_cast<const SV&>(x).getVector();
   }
 
   std::shared_ptr<vector> getVector( V& x ) {
     
-    return dynamic_cast<SV>(x).getVector();
+    return dynamic_cast<SV&>(x).getVector();
   }
 
 public:

@@ -4,6 +4,10 @@ import re
 import sys
 import glob
 
+def repl_dynamic_cast(matchobj):
+    g = matchobj.group(1)
+    return 'dynamic_cast<'+g.strip()+'&>'
+
 def repl_rcp(matchobj):
     g = matchobj.group(1)
 
@@ -47,13 +51,13 @@ for filename in filenames:
     data = re.sub('Teuchos::RCP', 'std::shared_ptr', data)
     data = re.sub('RCP', 'std::shared_ptr', data)
     data = re.sub('Teuchos::rcp_dynamic_cast', 'std::dynamic_pointer_cast', data)
-    data = re.sub('Teuchos::dyn_cast', 'dynamic_cast', data)
-    data = re.sub('dyn_cast', 'dynamic_cast', data)
     data = re.sub('Teuchos::rcp_const_cast', 'std::const_pointer_cast', data)
 
     # More complex replacement (with make_shared)
     data = re.sub('Teuchos::rcp\((.*)\)', repl_rcp, data)
     data = re.sub('rcp\((.*)\)', repl_rcp, data)
+    data = re.sub('Teuchos::dyn_cast<(.*)>', repl_dynamic_cast, data)
+    data = re.sub('dyn_cast<(.*)>', repl_dynamic_cast, data)
 
     print(data)
 

@@ -132,7 +132,7 @@ public:
                  PLIST &parlist ) :
                  obj_(obj), eqcon_(eqcon), incon_(incon) {
 
-    const PV &xpv = dynamic_cast<const PV>(x);
+    const PV &xpv = dynamic_cast<const PV&>(x);
     xopt_  = xpv.get(OPT);
     slack_ = xpv.get(SLACK);     
     sfun_  = slack_->clone();
@@ -148,7 +148,7 @@ public:
 
   Real value( const V &x, Real &tol ) {
 
-    const PV &xpv = dynamic_cast<const PV>(x);
+    const PV &xpv = dynamic_cast<const PV&>(x);
     xopt_  = xpv.get(OPT);
     slack_ = xpv.get(SLACK);
 
@@ -174,11 +174,11 @@ public:
 
   Real dirDeriv( const V &x, const V &d, Real tol ) {
    
-    const PV &xpv = dynamic_cast<const PV>(x);
+    const PV &xpv = dynamic_cast<const PV&>(x);
     xopt_  = xpv.get(OPT);
     slack_ = xpv.get(SLACK);
 
-    const PV &dpv = dynamic_cast<const PV>(d);
+    const PV &dpv = dynamic_cast<const PV&>(d);
     std::shared_ptr<V> dopt   = dpv.get(OPT);
     std::shared_ptr<V> dslack = dpv.get(SLACK);
 

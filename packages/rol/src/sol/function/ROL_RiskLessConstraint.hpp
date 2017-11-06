@@ -59,26 +59,26 @@ public:
     : con_(con) {}
 
   void value(Vector<Real> &c, const Vector<Real> &x, Real &tol) {
-    std::shared_ptr<const Vector<Real> > x0 = dynamic_cast<const RiskVector<Real> >(x).getVector();
+    std::shared_ptr<const Vector<Real> > x0 = dynamic_cast<const RiskVector<Real>&>(x).getVector();
     con_->value(c,*x0,tol);
   }
 
   void applyJacobian(Vector<Real> &jv, const Vector<Real> &v, const Vector<Real> &x, Real &tol) {
-    std::shared_ptr<const Vector<Real> > x0 = dynamic_cast<const RiskVector<Real> >(x).getVector();
-    std::shared_ptr<const Vector<Real> > v0 = dynamic_cast<const RiskVector<Real> >(v).getVector();
+    std::shared_ptr<const Vector<Real> > x0 = dynamic_cast<const RiskVector<Real>&>(x).getVector();
+    std::shared_ptr<const Vector<Real> > v0 = dynamic_cast<const RiskVector<Real>&>(v).getVector();
     con_->applyJacobian(jv,*v0,*x0,tol);
   }
 
   void applyAdjointJacobian(Vector<Real> &ajv, const Vector<Real> &v, const Vector<Real> &x, Real &tol) {
-    std::shared_ptr<const Vector<Real> > x0 = dynamic_cast<const RiskVector<Real> >(x).getVector();
-    std::shared_ptr<Vector<Real> > ajv0 = dynamic_cast<RiskVector<Real> >(ajv).getVector();
+    std::shared_ptr<const Vector<Real> > x0 = dynamic_cast<const RiskVector<Real>&>(x).getVector();
+    std::shared_ptr<Vector<Real> > ajv0 = dynamic_cast<RiskVector<Real>&>(ajv).getVector();
     con_->applyAdjointJacobian(*ajv0,v,*x0,tol);
   }
 
   void applyAdjointHessian(Vector<Real> &ahuv, const Vector<Real> &u, const Vector<Real> &v, const Vector<Real> &x, Real &tol) {
-    std::shared_ptr<const Vector<Real> > x0 = dynamic_cast<const RiskVector<Real> >(x).getVector();
-    std::shared_ptr<const Vector<Real> > v0 = dynamic_cast<const RiskVector<Real> >(v).getVector();
-    std::shared_ptr<Vector<Real> > ahuv0 = dynamic_cast<RiskVector<Real> >(ahuv).getVector();
+    std::shared_ptr<const Vector<Real> > x0 = dynamic_cast<const RiskVector<Real>&>(x).getVector();
+    std::shared_ptr<const Vector<Real> > v0 = dynamic_cast<const RiskVector<Real>&>(v).getVector();
+    std::shared_ptr<Vector<Real> > ahuv0 = dynamic_cast<RiskVector<Real>&>(ahuv).getVector();
     con_->applyAdjointHessian(*ahuv0,u,*v0,*x0,tol);
   }
 

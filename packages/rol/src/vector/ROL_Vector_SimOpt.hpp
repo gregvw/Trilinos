@@ -70,8 +70,8 @@ public:
   }
 
   void plus( const Vector<Real> &x ) {
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(x));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
     vec1_->plus(*(xs.get_1()));
     vec2_->plus(*(xs.get_2()));
   }   
@@ -82,15 +82,15 @@ public:
   }
 
   void axpy( const Real alpha, const Vector<Real> &x ) {
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(x));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
     vec1_->axpy(alpha,*(xs.get_1()));
     vec2_->axpy(alpha,*(xs.get_2()));
   }
 
   Real dot( const Vector<Real> &x ) const {
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(x));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
     return vec1_->dot(*(xs.get_1())) + vec2_->dot(*(xs.get_2()));
   }
 
@@ -135,7 +135,7 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const Vector<Real> &x ) {
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(x);
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(x);
 
     vec1_->applyBinary(f,*xs.get_1());
     vec2_->applyBinary(f,*xs.get_2());

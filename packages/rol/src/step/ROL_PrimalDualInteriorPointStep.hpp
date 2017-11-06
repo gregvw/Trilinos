@@ -315,7 +315,7 @@ public:
      
     using Elementwise::ValueSet;   
 
-    std::shared_ptr<PENALTY> &ipPen = dynamic_cast<PENALTY>(obj);
+    std::shared_ptr<PENALTY> &ipPen = dynamic_cast<PENALTY&>(obj);
 
     // Initialize step state
     std::shared_ptr<STATE> state = Step<Real>::getState();    

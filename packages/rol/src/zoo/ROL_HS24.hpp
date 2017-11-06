@@ -73,16 +73,16 @@ public:
 
   Real value( const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> xp = dynamic_cast<const SV>(x).getVector(); 
+    std::shared_ptr<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
 
     return rt3_*(*xp)[0]*std::pow((*xp)[1],3)*((*xp)[0]-6)/81.0;
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> xp = dynamic_cast<const SV>(x).getVector(); 
+    std::shared_ptr<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
 
-    std::shared_ptr<vector> gp = dynamic_cast<SV>(g).getVector(); 
+    std::shared_ptr<vector> gp = dynamic_cast<SV&>(g).getVector(); 
 
     (*gp)[0] = 2*rt3_*std::pow((*xp)[1],3)*((*xp)[0]-3)/81.0;
     (*gp)[1] = rt3_*(*xp)[0]*std::pow((*xp)[1],2)*((*xp)[0]-6)/27.0;
@@ -92,9 +92,9 @@ public:
   
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> xp = dynamic_cast<const SV>(x).getVector(); 
-    std::shared_ptr<const vector> vp = dynamic_cast<const SV>(v).getVector(); 
-    std::shared_ptr<vector> hvp = dynamic_cast<SV>(hv).getVector(); 
+    std::shared_ptr<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
+    std::shared_ptr<const vector> vp = dynamic_cast<const SV&>(v).getVector(); 
+    std::shared_ptr<vector> hvp = dynamic_cast<SV&>(hv).getVector(); 
 
     Real a00 = pow((*xp)[1],3)/81.0;
     Real a01 = pow((*xp)[1],2)*((*xp)[0]-3)/27.0;
@@ -123,8 +123,8 @@ public:
 
   void value( Vector<Real> &c, const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> xp = dynamic_cast<const SV>(x).getVector();
-    std::shared_ptr<vector> cp = dynamic_cast<SV>(c).getVector();
+    std::shared_ptr<const vector> xp = dynamic_cast<const SV&>(x).getVector();
+    std::shared_ptr<vector> cp = dynamic_cast<SV&>(c).getVector();
 
     (*cp)[0] =  (*xp)[0]/rt3_ -      (*xp)[1];
     (*cp)[1] =  (*xp)[0]      + rt3_*(*xp)[1];
@@ -135,8 +135,8 @@ public:
   void applyJacobian( Vector<Real> &jv, const Vector<Real> &v,
                       const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> vp = dynamic_cast<const SV>(v).getVector();
-    std::shared_ptr<vector> jvp = dynamic_cast<SV>(jv).getVector();
+    std::shared_ptr<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    std::shared_ptr<vector> jvp = dynamic_cast<SV&>(jv).getVector();
 
     (*jvp)[0] =  (*vp)[0]/rt3_ -      (*vp)[1];
     (*jvp)[1] =  (*vp)[0]      + rt3_*(*vp)[1];
@@ -148,8 +148,8 @@ public:
   void applyAdjointJacobian( Vector<Real> &ajv, const Vector<Real> &v, 
                              const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> vp = dynamic_cast<const SV>(v).getVector();
-    std::shared_ptr<vector> ajvp = dynamic_cast<SV>(ajv).getVector();
+    std::shared_ptr<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    std::shared_ptr<vector> ajvp = dynamic_cast<SV&>(ajv).getVector();
 
     (*ajvp)[0] = rt3_*(*vp)[0]/3 + (*vp)[1] - (*vp)[2];
     (*ajvp)[1] = -(*vp)[0] + rt3_*(*vp)[1] - rt3_*(*vp)[2];

@@ -223,7 +223,7 @@ public:
     std::vector<Real> xstat;
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    xstat = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(comp,index));
+    xstat = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index));
     Real stat(0);
     int nQuad = static_cast<int>(wts_.size());
     for (int i = 0; i < nQuad; ++i) {

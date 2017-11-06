@@ -167,7 +167,7 @@ public:
 
 
     // Get access to the four components
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
     
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -180,7 +180,7 @@ public:
   void update( const Vector<Real> &x, bool flag = true, int iter = -1  ) {
 
     // Get access to the four components
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
     
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -196,8 +196,8 @@ public:
   void value( V &c, const V &x, Real &tol ) {
     
 
-    PV &c_pv = dynamic_cast<PV>(c);
-    const PV &x_pv = dynamic_cast<const PV>(x); 
+    PV &c_pv = dynamic_cast<PV&>(c);
+    const PV &x_pv = dynamic_cast<const PV&>(x); 
 
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -222,9 +222,9 @@ public:
 
     
 
-    PV &jv_pv = dynamic_cast<PV>(jv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
-    const PV &x_pv = dynamic_cast<const PV>(x); 
+    PV &jv_pv = dynamic_cast<PV&>(jv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
+    const PV &x_pv = dynamic_cast<const PV&>(x); 
 
     // output vector components
     std::shared_ptr<V> jvx  = jv_pv.get(OPT);

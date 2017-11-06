@@ -267,8 +267,8 @@ public:
   void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
              std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real> >(
-           dynamic_cast<const Vector<Real> >(v)).getVector());
+    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
+           dynamic_cast<const Vector<Real>&>(v)).getVector());
   }
   
   void update(const Real val, const Real weight) {
@@ -364,7 +364,7 @@ public:
     dualVector1_->plus(*(RiskMeasure<Real>::g_));
     sampler.sumAll(*dualVector1_,*dualVector2_);
     // Set RiskVector
-    (dynamic_cast<RiskVector<Real> >(g)).setVector(*dualVector2_);
+    (dynamic_cast<RiskVector<Real>&>(g)).setVector(*dualVector2_);
   }
 
   void getHessVec(Vector<Real> &hv, SampleGenerator<Real> &sampler) {
@@ -437,7 +437,7 @@ public:
     }
     sampler.sumAll(*dualVector1_,*dualVector2_);
     // Fill RiskVector
-    (dynamic_cast<RiskVector<Real> >(hv)).setVector(*dualVector2_);
+    (dynamic_cast<RiskVector<Real>&>(hv)).setVector(*dualVector2_);
   }
 };
 

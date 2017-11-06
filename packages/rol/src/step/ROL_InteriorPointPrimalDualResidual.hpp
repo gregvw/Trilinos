@@ -114,7 +114,7 @@ public:
                       obj_(obj), eqcon_(eqcon), incon_(incon), mu_(1.0) {
 
     // Allocate storage vectors
-    const PV &xpv = dynamic_cast<const PV>(x);
+    const PV &xpv = dynamic_cast<const PV&>(x);
 
     qo_ = xpv.get(OPT)->clone();
     qs_ = xpv.get(SLACK)->clone();
@@ -130,8 +130,8 @@ public:
     
 
     // Downcast to partitioned vectors
-    PV &cpv = dynamic_cast<PV>(c);
-    const PV &xpv = dynamic_cast<const PV>(x);
+    PV &cpv = dynamic_cast<PV&>(c);
+    const PV &xpv = dynamic_cast<const PV&>(x);
 
     std::shared_ptr<const V> xo = xpv.get(OPT);
     std::shared_ptr<const V> xs = xpv.get(SLACK);
@@ -186,9 +186,9 @@ public:
     jv.zero();
 
     // Downcast to partitioned vectors
-    PV &jvpv = dynamic_cast<PV>(jv);
-    const PV &vpv = dynamic_cast<const PV>(v);
-    const PV &xpv = dynamic_cast<const PV>(x);
+    PV &jvpv = dynamic_cast<PV&>(jv);
+    const PV &vpv = dynamic_cast<const PV&>(v);
+    const PV &xpv = dynamic_cast<const PV&>(x);
 
     std::shared_ptr<V> jvo = jvpv.get(OPT);
     std::shared_ptr<V> jvs = jvpv.get(SLACK);
@@ -296,8 +296,8 @@ public:
     
     
 
-    const PV &vpv = dynamic_cast<const PV>(v);
-    PV &Hvpv = dynamic_cast<PV>(Hv);
+    const PV &vpv = dynamic_cast<const PV&>(v);
+    PV &Hvpv = dynamic_cast<PV&>(Hv);
 
     std::shared_ptr<const V> vo = vpv.get(OPT);
     std::shared_ptr<const V> vs = vpv.get(SLACK);
@@ -328,8 +328,8 @@ public:
     
     
 
-    const PV &vpv = dynamic_cast<const PV>(v);
-    PV &Hvpv = dynamic_cast<PV>(Hv);
+    const PV &vpv = dynamic_cast<const PV&>(v);
+    PV &Hvpv = dynamic_cast<PV&>(Hv);
 
     std::shared_ptr<const V> vo = vpv.get(OPT);
     std::shared_ptr<const V> vs = vpv.get(SLACK);

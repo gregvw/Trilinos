@@ -83,7 +83,7 @@ public:
     isDualInitialized_(false) {}
 
   Real dot( const Vector<Real> &x ) const {
-    const PrimalScaledStdVector & ex = dynamic_cast<const PrimalScaledStdVector>(x);
+    const PrimalScaledStdVector & ex = dynamic_cast<const PrimalScaledStdVector&>(x);
     const std::vector<Element>& xval = *ex.getVector();
     const std::vector<Element>& yval = *(StdVector<Real>::getVector());
     uint dimension = yval.size();
@@ -138,7 +138,7 @@ public:
     isDualInitialized_(false) {}
 
   Real dot( const Vector<Real> &x ) const {
-    const DualScaledStdVector & ex = dynamic_cast<const DualScaledStdVector>(x);
+    const DualScaledStdVector & ex = dynamic_cast<const DualScaledStdVector&>(x);
     const std::vector<Element>& xval = *ex.getVector();
     const std::vector<Element>& yval = *(StdVector<Real>::getVector());
     uint dimension = yval.size();

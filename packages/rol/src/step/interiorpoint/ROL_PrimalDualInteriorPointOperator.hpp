@@ -79,7 +79,7 @@ public:
                            Real delta=0 ) : 
     obj_(obj), con_(con), scratch_(scratch), delta_(delta) { 
 
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
 
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -87,7 +87,7 @@ public:
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
 
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
     
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -100,8 +100,8 @@ public:
 
     
 
-    PV &Hv_pv = dynamic_cast<PV>(Hv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV&>(Hv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
 
     // output vector components
     std::shared_ptr<V> Hvx  = Hv_pv.get(OPT);
@@ -156,8 +156,8 @@ public:
   void apply( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const { 
     
 
-    PV &Hv_pv = dynamic_cast<PV>(Hv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV&>(Hv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
 
     // output vector components
     std::shared_ptr<V> Hvx  = Hv_pv.get(OPT);
@@ -200,13 +200,13 @@ class PrimalDualInteriorPointBlock21 : public LinearOperator<Real> {
 public:
  
   PrimalDualInteriorPointBlock21( const V &z ) {
-    const PV &z_pv = dynamic_cast<const PV>(z);
+    const PV &z_pv = dynamic_cast<const PV&>(z);
     zl_ = z_pv.get(LOWER);
     zu_ = z_pv.get(UPPER);  
   }
 
   void update( const Vector<Real> &z, bool flag = true, int iter = -1 ) {
-    const PV &z_pv = dynamic_cast<const PV>(z);
+    const PV &z_pv = dynamic_cast<const PV&>(z);
     zl_ = z_pv.get(LOWER);
     zu_ = z_pv.get(UPPER);  
   } 
@@ -214,8 +214,8 @@ public:
   virtual void apply( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const { 
     
 
-    PV &Hv_pv = dynamic_cast<PV>(Hv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV&>(Hv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
 
     // output vector components
     std::shared_ptr<V> Hvzl  = Hv_pv.get(LOWER);
@@ -265,7 +265,7 @@ public:
  
   PrimalDualInteriorPointBlock22( const std::shared_ptr<BND> &bnd, const Vector<Real> &x ) {
 
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
     
     x_  = x_pv.get(OPT);
     xl_ = bnd.getLowerBound();
@@ -275,15 +275,15 @@ public:
 
   virtual void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
 
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
     x_  = x_pv.get(OPT);
   }
  
   virtual void apply( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const { 
     
 
-    PV &Hv_pv = dynamic_cast<PV>(Hv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV&>(Hv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
 
     // output vector components
     std::shared_ptr<V> Hvzl  = Hv_pv.get(LOWER);
@@ -307,8 +307,8 @@ public:
 
     
 
-    PV &Hv_pv = dynamic_cast<PV>(Hv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV&>(Hv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
 
     // output vector components
     std::shared_ptr<V> Hvzl  = Hv_pv.get(LOWER);

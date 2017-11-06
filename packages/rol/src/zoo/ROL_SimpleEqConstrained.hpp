@@ -77,13 +77,13 @@ namespace ZOO {
     template<class VectorType>
     std::shared_ptr<const vector> getVector( const V& x ) {
       
-      return dynamic_cast<const VectorType>(x).getVector();
+      return dynamic_cast<const VectorType&>(x).getVector();
     }
 
     template<class VectorType>
     std::shared_ptr<vector> getVector( V& x ) {
       
-      return dynamic_cast<VectorType>(x).getVector();
+      return dynamic_cast<VectorType&>(x).getVector();
     }
 
   public:
@@ -222,13 +222,13 @@ namespace ZOO {
     template<class VectorType>
     std::shared_ptr<const vector> getVector( const V& x ) {
       
-      return dynamic_cast<const VectorType>(x).getVector();
+      return dynamic_cast<const VectorType&>(x).getVector();
     }
 
     template<class VectorType> 
     std::shared_ptr<vector> getVector( V& x ) {
       
-      return dynamic_cast<VectorType>(x).getVector(); 
+      return dynamic_cast<VectorType&>(x).getVector(); 
     }
 
   public:
@@ -377,15 +377,15 @@ namespace ZOO {
 
     /*std::vector<Real> solveAugmentedSystem(Vector<Real> &v1, Vector<Real> &v2, const Vector<Real> &b1, const Vector<Real> &b2, const Vector<Real> &x, Real &tol) {
       std::shared_ptr<std::vector<Real> > v1p =
-        std::const_pointer_cast<std::vector<Real> >((dynamic_cast<XPrim>(v1)).getVector());    
+        std::const_pointer_cast<std::vector<Real> >((dynamic_cast<XPrim&>(v1)).getVector());    
       std::shared_ptr<std::vector<Real> > v2p =
-        std::const_pointer_cast<std::vector<Real> >((dynamic_cast<CDual>(v2)).getVector());
+        std::const_pointer_cast<std::vector<Real> >((dynamic_cast<CDual&>(v2)).getVector());
       std::shared_ptr<const std::vector<Real> > b1p =
-        (dynamic_cast<XDual>(const_cast<Vector<Real> &>(b1))).getVector();
+        (dynamic_cast<XDual>(const_cast<Vector<Real> &&>(b1))).getVector();
       std::shared_ptr<const std::vector<Real> > b2p =
-        (dynamic_cast<CPrim>(const_cast<Vector<Real> &>(b2))).getVector();
+        (dynamic_cast<CPrim>(const_cast<Vector<Real> &&>(b2))).getVector();
       std::shared_ptr<const std::vector<Real> > xp =
-        (dynamic_cast<XPrim>(const_cast<Vector<Real> &>(x))).getVector();
+        (dynamic_cast<XPrim>(const_cast<Vector<Real> &&>(x))).getVector();
 
       Real x1 = (*xp)[0];
       Real x2 = (*xp)[1];
@@ -450,8 +450,8 @@ namespace ZOO {
      
 
     // Cast initial guess and solution vectors.
-    std::shared_ptr<vector> x0p  = dynamic_cast<XPrim>(x0).getVector(); 
-    std::shared_ptr<vector> solp = dynamic_cast<XPrim>(sol).getVector();
+    std::shared_ptr<vector> x0p  = dynamic_cast<XPrim&>(x0).getVector(); 
+    std::shared_ptr<vector> solp = dynamic_cast<XPrim&>(sol).getVector();
 
     uint n = 5;
 

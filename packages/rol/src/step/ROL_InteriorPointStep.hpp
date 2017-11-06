@@ -159,8 +159,8 @@ public:
 
     x_->set(x);
 
-    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
-    ipcon_ = &dynamic_cast<IPCON>(con),false;
+    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
+    ipcon_ = &dynamic_cast<IPCON&>(con),false;
 
     // Set initial penalty
     ipobj_->updatePenalty(mu_);
@@ -211,7 +211,7 @@ public:
     g_ = g.clone();
 
     // Set initial penalty
-    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
+    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
     ipobj_->updatePenalty(mu_);
 
     algo_state.nfval = 0;
@@ -245,8 +245,8 @@ public:
                 Constraint<Real>     &con, 
                 AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
-    ipcon_ = &dynamic_cast<IPCON>(con),false;
+    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
+    ipcon_ = &dynamic_cast<IPCON&>(con),false;
 
     // Create the algorithm 
     algo_ = std::make_shared<Algorithm<Real>>("Composite Step",*parlist_,false);
@@ -277,7 +277,7 @@ public:
                 BoundConstraint<Real> &bnd,
                 AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
+    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
 
     // Create the algorithm 
     algo_ = std::make_shared<Algorithm<Real>>("Trust Region",*parlist_,false);
@@ -302,8 +302,8 @@ public:
                Constraint<Real>     &con,
                AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
-    ipcon_ = &dynamic_cast<IPCON>(con),false;
+    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
+    ipcon_ = &dynamic_cast<IPCON&>(con),false;
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {
@@ -368,7 +368,7 @@ public:
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective
-    ipobj_ = &dynamic_cast<IPOBJ>(obj),false;
+    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {

@@ -78,8 +78,8 @@ public:
   void apply( V &Hv, const V &v, Real &tol ) const {
     
 
-    PV &Hv_pv = dynamic_cast<PV>(Hv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV&>(Hv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
       
     std::shared_ptr<V> Hv1 = Hv_pv.get(0);
     std::shared_ptr<V> Hv2 = Hv_pv.get(1);
@@ -95,8 +95,8 @@ public:
   void applyInverse( V &Hv, const V &v Real &tol ) const {
     
 
-    PV &Hv_pv = dynamic_cast<PV>(Hv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
+    PV &Hv_pv = dynamic_cast<PV&>(Hv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
       
     std::shared_ptr<V> Hv1 = Hv_pv.get(0);
     std::shared_ptr<V> Hv2 = Hv_pv.get(1);

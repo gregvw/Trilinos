@@ -59,43 +59,43 @@ public:
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
     std::shared_ptr<const Vector<Real> > x0
-      = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      = dynamic_cast<const RiskVector<Real>&>(x).getVector();
     obj_->update(*x0,flag,iter);
   }
 
   Real value( const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<const Vector<Real> > x0
-      = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      = dynamic_cast<const RiskVector<Real>&>(x).getVector();
     return obj_->value(*x0,tol);
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<Vector<Real> > g0
-      = dynamic_cast<RiskVector<Real> >(g).getVector();
+      = dynamic_cast<RiskVector<Real>&>(g).getVector();
     std::shared_ptr<const Vector<Real> > x0
-      = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      = dynamic_cast<const RiskVector<Real>&>(x).getVector();
     obj_->gradient(*g0,*x0,tol);
   }
 
   void hessVec( Vector<Real> &hv, const Vector<Real> &v,
                 const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<Vector<Real> > hv0
-      = dynamic_cast<RiskVector<Real> >(hv).getVector();
+      = dynamic_cast<RiskVector<Real>&>(hv).getVector();
     std::shared_ptr<const Vector<Real> > v0
-      = dynamic_cast<const RiskVector<Real> >(v).getVector();
+      = dynamic_cast<const RiskVector<Real>&>(v).getVector();
     std::shared_ptr<const Vector<Real> > x0
-      = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      = dynamic_cast<const RiskVector<Real>&>(x).getVector();
     obj_->hessVec(*hv0,*v0,*x0,tol);
   }
 
   void precond( Vector<Real> &Pv, const Vector<Real> &v,
                 const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<Vector<Real> > Pv0
-      = dynamic_cast<RiskVector<Real> >(Pv).getVector();
+      = dynamic_cast<RiskVector<Real>&>(Pv).getVector();
     std::shared_ptr<const Vector<Real> > v0
-      = dynamic_cast<const RiskVector<Real> >(v).getVector();
+      = dynamic_cast<const RiskVector<Real>&>(v).getVector();
     std::shared_ptr<const Vector<Real> > x0
-      = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      = dynamic_cast<const RiskVector<Real>&>(x).getVector();
     obj_->precond(*Pv0,*v0,*x0,tol);
   }
 };

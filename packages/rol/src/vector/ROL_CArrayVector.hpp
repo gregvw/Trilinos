@@ -81,7 +81,7 @@ class CArrayVector : public Vector<Real> {
        
         void plus( const Vector<Real> &x ) {
             // Need to make sure object has a getVector method
-            const CArrayVector &ex = dynamic_cast<const CArrayVector>(x);            
+            const CArrayVector &ex = dynamic_cast<const CArrayVector&>(x);            
 
             Teuchos::Arraystd::shared_ptr<Element> xp(ex.getVector());
             for(unsigned int i=0; i<dim_; ++i) {
@@ -90,7 +90,7 @@ class CArrayVector : public Vector<Real> {
         }
 
         Real dot( const Vector<Real> &x ) const {
-            const CArrayVector &ex = dynamic_cast<const CArrayVector>(x);
+            const CArrayVector &ex = dynamic_cast<const CArrayVector&>(x);
             
             Teuchos::Arraystd::shared_ptr<Element> xp(ex.getVector());
             Real val = 0;

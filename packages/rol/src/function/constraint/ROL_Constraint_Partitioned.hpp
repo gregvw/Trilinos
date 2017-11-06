@@ -63,7 +63,7 @@ private:
 
   Vector<Real>& getOpt( Vector<Real> &xs ) {
     try {
-      return *dynamic_cast<PartitionedVector<Real> >(xs).get(0);
+      return *dynamic_cast<PartitionedVector<Real>&>(xs).get(0);
     }
     catch (std::exception &e) {
       return xs;
@@ -72,7 +72,7 @@ private:
 
   const Vector<Real>& getOpt( const Vector<Real> &xs ) {
     try {
-      return *dynamic_cast<const PartitionedVector<Real> >(xs).get(0);
+      return *dynamic_cast<const PartitionedVector<Real>&>(xs).get(0);
     }
     catch (std::exception &e) {
       return xs;
@@ -80,11 +80,11 @@ private:
   }
 
   Vector<Real>& getSlack( Vector<Real> &xs, const int ind ) {
-    return *dynamic_cast<PartitionedVector<Real> >(xs).get(ind);
+    return *dynamic_cast<PartitionedVector<Real>&>(xs).get(ind);
   }
 
   const Vector<Real>& getSlack( const Vector<Real> &xs, const int ind ) {
-    return *dynamic_cast<const PartitionedVector<Real> >(xs).get(ind);
+    return *dynamic_cast<const PartitionedVector<Real>&>(xs).get(ind);
   }
   
 
@@ -114,7 +114,7 @@ public:
 
   void value( Vector<Real> &c, const Vector<Real> &x, Real &tol ) {
     PartitionedVector<Real> &cpv
-      = dynamic_cast<PartitionedVector<Real> >(c);
+      = dynamic_cast<PartitionedVector<Real>&>(c);
 
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
@@ -134,7 +134,7 @@ public:
                       const Vector<Real> &x,
                       Real &tol ) {
     PartitionedVector<Real> &jvpv
-      = dynamic_cast<PartitionedVector<Real> >(jv);
+      = dynamic_cast<PartitionedVector<Real>&>(jv);
 
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
@@ -158,7 +158,7 @@ public:
     }
 
     const PartitionedVector<Real> &vpv
-      = dynamic_cast<const PartitionedVector<Real> >(v);
+      = dynamic_cast<const PartitionedVector<Real>&>(v);
 
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
@@ -187,7 +187,7 @@ public:
     }
 
     const PartitionedVector<Real> &upv
-      = dynamic_cast<const PartitionedVector<Real> >(u);
+      = dynamic_cast<const PartitionedVector<Real>&>(u);
 
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;

@@ -218,158 +218,158 @@ public:
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(0);
       statObj_bc_->update(*xs,flag,iter);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(1,i);
           statCon_bc_[i]->update(*xs,flag,iter);
         }
       }
     }
     if ( bc_ != nullptr && bc_->isActivated() ) {
-      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real>&>(x).getVector();
       bc_->update(*xv,flag,iter);
     }
   }
 
   void project( Vector<Real> &x ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real>&>(x).getStatisticVector(0);
       statObj_bc_->project(*xs);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real>&>(x).getStatisticVector(1,i);
           statCon_bc_[i]->project(*xs);
         }
       }
     }
     if ( bc_ != nullptr && bc_->isActivated() ) {
-      std::shared_ptr<Vector<Real> > xvec = dynamic_cast<RiskVector<Real> >(x).getVector();
+      std::shared_ptr<Vector<Real> > xvec = dynamic_cast<RiskVector<Real>&>(x).getVector();
       bc_->project(*xvec);
     }
   }
 
   void projectInterior( Vector<Real> &x ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real>&>(x).getStatisticVector(0);
       statObj_bc_->projectInterior(*xs);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> > xs = dynamic_cast<RiskVector<Real>&>(x).getStatisticVector(1,i);
           statCon_bc_[i]->projectInterior(*xs);
         }
       }
     }
     if ( bc_ != nullptr && bc_->isActivated() ) {
-      std::shared_ptr<Vector<Real> > xvec = dynamic_cast<RiskVector<Real> >(x).getVector();
+      std::shared_ptr<Vector<Real> > xvec = dynamic_cast<RiskVector<Real>&>(x).getVector();
       bc_->projectInterior(*xvec);
     }
   }
 
   void pruneUpperActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(0);
-      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(0);
       statObj_bc_->pruneUpperActive(*vs,*xs,eps);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
-          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(1,i);
           statCon_bc_[i]->pruneUpperActive(*vs,*xs,eps);
         }
       }
     }
     if ( bc_ != nullptr && bc_->isActivated() ) {
-      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real> >(v).getVector();
-      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real>&>(v).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real>&>(x).getVector();
       bc_->pruneUpperActive(*vv,*xv,eps);
     }
   }
 
   void pruneUpperActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(0);
-      std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real> >(g).getStatisticVector(0);
-      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real>&>(g).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(0);
       statObj_bc_->pruneUpperActive(*vs,*gs,*xs,eps);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
-          std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real> >(g).getStatisticVector(1,i);
-          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real>&>(g).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(1,i);
           statCon_bc_[i]->pruneUpperActive(*vs,*gs,*xs,eps);
         }
       }
     }
     if ( bc_ != nullptr && bc_->isActivated() ) {
-      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real> >(v).getVector();
-      std::shared_ptr<const Vector<Real> > gv = dynamic_cast<const RiskVector<Real> >(g).getVector();
-      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real>&>(v).getVector();
+      std::shared_ptr<const Vector<Real> > gv = dynamic_cast<const RiskVector<Real>&>(g).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real>&>(x).getVector();
       bc_->pruneUpperActive(*vv,*gv,*xv,eps);
     }
   }
  
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(0);
-      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(0);
       statObj_bc_->pruneLowerActive(*vs,*xs,eps);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
-          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(1,i);
           statCon_bc_[i]->pruneLowerActive(*vs,*xs,eps);
         }
       }
     }
     if ( bc_ != nullptr && bc_->isActivated() ) {
-      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real> >(v).getVector();
-      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real>&>(v).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real>&>(x).getVector();
       bc_->pruneLowerActive(*vv,*xv,eps);
     }
   }
 
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
-      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(0);
-      std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real> >(g).getStatisticVector(0);
-      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(0);
+      std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real>&>(g).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(0);
       statObj_bc_->pruneLowerActive(*vs,*gs,*xs,eps);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real> >(v).getStatisticVector(1,i);
-          std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real> >(g).getStatisticVector(1,i);
-          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real> >(x).getStatisticVector(1,i);
+          std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > gs = dynamic_cast<const RiskVector<Real>&>(g).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > xs = dynamic_cast<const RiskVector<Real>&>(x).getStatisticVector(1,i);
           statCon_bc_[i]->pruneLowerActive(*vs,*gs,*xs,eps);
         }
       }
     }
     if ( bc_ != nullptr && bc_->isActivated() ) {
-      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real> >(v).getVector();
-      std::shared_ptr<const Vector<Real> > gv = dynamic_cast<const RiskVector<Real> >(g).getVector();
-      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real> >(x).getVector();
+      std::shared_ptr<Vector<Real> >       vv = dynamic_cast<RiskVector<Real>&>(v).getVector();
+      std::shared_ptr<const Vector<Real> > gv = dynamic_cast<const RiskVector<Real>&>(g).getVector();
+      std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real>&>(x).getVector();
       bc_->pruneLowerActive(*vv,*gv,*xv,eps);
     }
   } 
@@ -409,20 +409,20 @@ public:
   bool isFeasible( const Vector<Real> &v ) { 
     bool flagstat = true, flagcon = true, flagvec = true;
     if ( augmentedObj_ && activatedObj_ ) {
-      std::shared_ptr<const StdVector<Real> > vs = dynamic_cast<const RiskVector<Real> >(v).getStatisticVector(0);
+      std::shared_ptr<const StdVector<Real> > vs = dynamic_cast<const RiskVector<Real>&>(v).getStatisticVector(0);
       flagstat = statObj_bc_->isFeasible(*vs);
     }
     if (augmentedCon_) {
       int size = statCon_bc_.size();
       for (int i = 0; i < size; ++i) {
         if (activatedCon_[i]) {
-          std::shared_ptr<const StdVector<Real> > vs = dynamic_cast<const RiskVector<Real> >(v).getStatisticVector(1,i);
+          std::shared_ptr<const StdVector<Real> > vs = dynamic_cast<const RiskVector<Real>&>(v).getStatisticVector(1,i);
           flagcon = (!statCon_bc_[i]->isFeasible(*vs) ? false : flagcon);
         }
       }
     }
     if ( bc_ != nullptr && bc_->isActivated() ) {
-      std::shared_ptr<const Vector<Real> > vv = dynamic_cast<const RiskVector<Real> >(v).getVector();
+      std::shared_ptr<const Vector<Real> > vv = dynamic_cast<const RiskVector<Real>&>(v).getVector();
       flagvec = bc_->isFeasible(*vv);
     }
     return (flagstat && flagcon && flagvec);

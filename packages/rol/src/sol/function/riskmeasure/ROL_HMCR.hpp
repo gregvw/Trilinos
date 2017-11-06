@@ -170,7 +170,7 @@ public:
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    xvar_ = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(comp,index))[0];
+    xvar_ = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[0];
     // Initialize additional vector storage
     if ( HMCR_firstReset_ ) {
       mDualVector0_ = (x0->dual()).clone();
@@ -189,10 +189,10 @@ public:
              std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
     v0    = std::const_pointer_cast<Vector<Real> >(
-            dynamic_cast<const RiskVector<Real> >(v).getVector());
+            dynamic_cast<const RiskVector<Real>&>(v).getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    vvar_ = (*dynamic_cast<const RiskVector<Real> >(v).getStatistic(comp,index))[0];
+    vvar_ = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index))[0];
     // Zero temporary storage
     const Real zero(0);
     mDualVector1_->zero(); gDualVector1_->zero();
@@ -261,8 +261,8 @@ public:
     // Set gradients
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    (dynamic_cast<RiskVector<Real> >(g)).setStatistic(var,comp,index);
-    (dynamic_cast<RiskVector<Real> >(g)).setVector(*(RiskMeasure<Real>::dualVector_));
+    (dynamic_cast<RiskVector<Real>&>(g)).setStatistic(var,comp,index);
+    (dynamic_cast<RiskVector<Real> >(g)).setVector(*(RiskMeasure<Real&>::dualVector_));
   }
 
   void update(const Real val, const Vector<Real> &g, const Real gv, const Vector<Real> &hv,
@@ -326,8 +326,8 @@ public:
 
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    (dynamic_cast<RiskVector<Real> >(hv)).setStatistic(var,comp,index);
-    (dynamic_cast<RiskVector<Real> >(hv)).setVector(*(RiskMeasure<Real>::dualVector_));
+    (dynamic_cast<RiskVector<Real>&>(hv)).setStatistic(var,comp,index);
+    (dynamic_cast<RiskVector<Real> >(hv)).setVector(*(RiskMeasure<Real&>::dualVector_));
   }
 };
 

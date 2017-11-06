@@ -68,8 +68,8 @@ public:
   virtual void update( const Vector<Real> &u, const Vector<Real> &z, bool flag = true, int iter = -1 ) {}
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     this->update(*(xs.get_1()),*(xs.get_2()),flag,iter);
   }
 
@@ -79,8 +79,8 @@ public:
   virtual Real value( const Vector<Real> &u, const Vector<Real> &z, Real &tol ) = 0;
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     return this->value(*(xs.get_1()),*(xs.get_2()),tol);
   }
 
@@ -127,10 +127,10 @@ public:
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-    ROL::Vector_SimOpt<Real> &gs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(g));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &gs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(g));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     std::shared_ptr<Vector<Real> > g1 = gs.get_1()->clone();
     std::shared_ptr<Vector<Real> > g2 = gs.get_2()->clone();
     this->gradient_1(*g1,*(xs.get_1()),*(xs.get_2()),tol);
@@ -239,12 +239,12 @@ public:
   }
 
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-    ROL::Vector_SimOpt<Real> &hvs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(hv));
-    const ROL::Vector_SimOpt<Real> &vs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(v));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &hvs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(hv));
+    const ROL::Vector_SimOpt<Real> &vs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(v));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     std::shared_ptr<Vector<Real> > h11 = (hvs.get_1())->clone();
     this->hessVec_11(*h11,*(vs.get_1()),*(xs.get_1()),*(xs.get_2()),tol);
     std::shared_ptr<Vector<Real> > h12 = (hvs.get_1())->clone();

@@ -112,7 +112,7 @@ public:
       sqrt2_(std::sqrt(2.)), sqrtpi_(std::sqrt(Teuchos::ScalarTraits<Real>::pi())) {}
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real> >(x);
+    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real>&>(x);
     const int dimension  = ex.getDimension();
     const int numSamples = ex.getNumSamples();
     Real val = 0., diff = 0., xpt = 0., sum = 0.;
@@ -128,8 +128,8 @@ public:
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-    SROMVector<Real> &eg = dynamic_cast<SROMVector<Real> >(g);
-    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real> >(x);
+    SROMVector<Real> &eg = dynamic_cast<SROMVector<Real>&>(g);
+    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real>&>(x);
     const int dimension  = ex.getDimension();
     const int numSamples = ex.getNumSamples();
     std::vector<Real> gradx(numSamples,0.), gradp(numSamples,0.);

@@ -165,8 +165,8 @@ public:
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    xlam_ = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(comp,index))[0];
-    xmu_  = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(comp,index))[1];
+    xlam_ = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[0];
+    xmu_  = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[1];
     if (firstReset_) {
       dualVector_ = (x0->dual()).clone();
       firstReset_ = false;
@@ -179,11 +179,11 @@ public:
              std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
     v0    = std::const_pointer_cast<Vector<Real> >(
-            dynamic_cast<const RiskVector<Real> >(v).getVector());
+            dynamic_cast<const RiskVector<Real>&>(v).getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    vlam_ = (*dynamic_cast<const RiskVector<Real> >(v).getStatistic(comp,index))[0];
-    vmu_  = (*dynamic_cast<const RiskVector<Real> >(v).getStatistic(comp,index))[1];
+    vlam_ = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index))[0];
+    vmu_  = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index))[1];
   }
 
   // Value update and get functions
@@ -211,7 +211,7 @@ public:
   }
 
   void getGradient(Vector<Real> &g, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &gs = dynamic_cast<RiskVector<Real> >(g);
+    RiskVector<Real> &gs = dynamic_cast<RiskVector<Real>&>(g);
 
     std::vector<Real> mygval(3), gval(3);
     mygval[0] = RiskMeasure<Real>::val_;
@@ -244,7 +244,7 @@ public:
   }
 
   void getHessVec(Vector<Real> &hv, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &hs = dynamic_cast<RiskVector<Real> >(hv);
+    RiskVector<Real> &hs = dynamic_cast<RiskVector<Real>&>(hv);
 
     std::vector<Real> myhval(5), hval(5);
     myhval[0] = RiskMeasure<Real>::val_;

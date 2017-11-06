@@ -153,7 +153,7 @@ public:
   }
 
   void plus( const Vector<Real> &x ) {
-    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector>(x).getVector();
+    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
 
     functionCalls_.plus_++;
     v_->plus(*xp);
@@ -165,7 +165,7 @@ public:
   }
   
   Real dot( const Vector<Real> &x ) const {
-    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector>(x).getVector();
+    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.dot_++;
     return v_->dot(*xp);
   }
@@ -181,7 +181,7 @@ public:
   }
 
   void axpy( const Real alpha, const Vector<Real> &x ) {
-    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector>(x).getVector();
+    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.axpy_++;
     return v_->axpy(alpha,*xp);
   }
@@ -202,7 +202,7 @@ public:
   }
 
   void set( const Vector<Real> &x ) {
-    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector>(x).getVector();
+    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.set_++;
     v_->set(*xp);
   }

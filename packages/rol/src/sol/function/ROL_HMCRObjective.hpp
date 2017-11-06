@@ -97,8 +97,8 @@ private:
 
   void unwrap_const_CVaR_vector(std::shared_ptr<Vector<Real> > &xvec, Real &xvar,
                           const Vector<Real> &x) {
-    xvec = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real> >(x).getVector());
-    xvar = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(0))[0];
+    xvec = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(x).getVector());
+    xvar = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(0))[0];
     if ( !initialized_ ) {
       initialize(*xvec);
     }
@@ -235,7 +235,7 @@ public:
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<Vector<Real> > xvec; Real xvar = 0.0;
     unwrap_const_CVaR_vector(xvec,xvar,x);
-    RiskVector<Real> &gc = dynamic_cast<RiskVector<Real> >(g);
+    RiskVector<Real> &gc = dynamic_cast<RiskVector<Real>&>(g);
     // Initialize storage
     g.zero(); sumGrad0_->zero();
     std::vector<Real> point, val(2,0.0), myval(2,0.0);
@@ -285,7 +285,7 @@ public:
     unwrap_const_CVaR_vector(xvec,xvar,x);
     std::shared_ptr<Vector<Real> > vvec; Real vvar = 0.0;
     unwrap_const_CVaR_vector(vvec,vvar,v);
-    RiskVector<Real> &hvc = dynamic_cast<RiskVector<Real> >(hv);
+    RiskVector<Real> &hvc = dynamic_cast<RiskVector<Real>&>(hv);
     // Initialize storage
     hv.zero();
     sumGrad0_->zero(); sumGrad1_->zero(); sumGrad2_->zero(); sumHess_->zero();

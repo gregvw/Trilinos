@@ -65,7 +65,7 @@ private:
 
   const Vector<Real>& getVector(const Vector<Real> &x, int k) const {
     try {
-      return *(dynamic_cast<const SimulatedVector<Real> >(x).get(k));
+      return *(dynamic_cast<const SimulatedVector<Real>&>(x).get(k));
     }
     catch (const std::bad_cast &e) {
       return x;
@@ -74,7 +74,7 @@ private:
 
   Vector<Real>& getVector(Vector<Real> &x, int k) {
     try {
-      return *(dynamic_cast<SimulatedVector<Real> >(x).get(k));
+      return *(dynamic_cast<SimulatedVector<Real>&>(x).get(k));
     }
     catch (const std::bad_cast &e) {
       return x;

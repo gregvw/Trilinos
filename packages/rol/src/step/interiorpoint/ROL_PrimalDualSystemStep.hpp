@@ -115,7 +115,7 @@ private:
   // Repartition (x,lambda,zl,zu) as (xlambda,z) = ((x,lambda),(zl,zu))
   std::shared_ptr<PV> repartition( V &x ) {
      
-    PV &x_pv = dynamic_cast<PV>(x);
+    PV &x_pv = dynamic_cast<PV&>(x);
     std::shared_ptr<V> xlambda = CreatePartitionedVector(x_pv.get(OPT),x_pv.get(EQUAL));  
     std::shared_ptr<V> z = CreatePartitionedVector(x_pv.get(LOWER),x_pv.get(UPPER));  
  
@@ -127,7 +127,7 @@ private:
 
   // Repartition (x,lambda,zl,zu) as (xlambda,z) = ((x,lambda),(zl,zu))
   std::shared_ptr<const PV> repartition( const V &x ) {
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
     std::shared_ptr<const V> xlambda = CreatePartitionedVector(x_pv.get(OPT),x_pv.get(EQUAL));  
     std::shared_ptr<const V> z = CreatePartitionedVector(x_pv.get(LOWER),x_pv.get(UPPER));  
 

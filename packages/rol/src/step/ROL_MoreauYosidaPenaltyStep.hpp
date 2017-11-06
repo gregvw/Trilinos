@@ -140,7 +140,7 @@ private:
                    Constraint<Real> &con, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state) {
     MoreauYosidaPenalty<Real> &myPen
-      = dynamic_cast<MoreauYosidaPenalty<Real> >(obj);
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     // Update objective and constraint.
@@ -168,7 +168,7 @@ private:
                    BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state) {
     MoreauYosidaPenalty<Real> &myPen
-      = dynamic_cast<MoreauYosidaPenalty<Real> >(obj);
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     // Update objective and constraint.
@@ -276,7 +276,7 @@ public:
                 AlgorithmState<Real> &algo_state ) {
     Real one(1);
     MoreauYosidaPenalty<Real> &myPen
-      = dynamic_cast<MoreauYosidaPenalty<Real> >(obj);
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
     algo_ = std::make_shared<Algorithm<Real>>("Composite Step",parlist_,false);
     x_->set(x); l_->set(l);
     algo_->run(*x_,*l_,myPen,con,print_);
@@ -291,7 +291,7 @@ public:
                         AlgorithmState<Real> &algo_state ) {
     Real one(1);
     MoreauYosidaPenalty<Real> &myPen
-      = dynamic_cast<MoreauYosidaPenalty<Real> >(obj);
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
     algo_ = std::make_shared<Algorithm<Real>>("Trust Region",parlist_,false);
     x_->set(x);
     algo_->run(*x_,myPen,*bnd_,print_);
@@ -307,7 +307,7 @@ public:
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real> &algo_state ) {
     MoreauYosidaPenalty<Real> &myPen
-      = dynamic_cast<MoreauYosidaPenalty<Real> >(obj);
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     state->descentVec->set(s);
     // Update iterate and Lagrange multiplier
@@ -336,7 +336,7 @@ public:
                Objective<Real> &obj, BoundConstraint<Real> &bnd,
                AlgorithmState<Real> &algo_state ) {
     MoreauYosidaPenalty<Real> &myPen
-      = dynamic_cast<MoreauYosidaPenalty<Real> >(obj);
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     state->descentVec->set(s);
     // Update iterate and Lagrange multiplier

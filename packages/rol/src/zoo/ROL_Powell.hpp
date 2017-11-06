@@ -69,7 +69,7 @@ public:
 
   Real value( const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<const std::vector<Real> > xp
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(x).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real f1 = 1.e4*(*xp)[0]*(*xp)[1] - 1.0;
     Real f2 = std::exp(-(*xp)[0]) + std::exp(-(*xp)[1]) - 1.0001;
@@ -79,9 +79,9 @@ public:
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<std::vector<Real> > gp
-      = dynamic_cast<DualScaledStdVector<Real> >(g).getVector();
+      = dynamic_cast<DualScaledStdVector<Real>&>(g).getVector();
     std::shared_ptr<const std::vector<Real> > xp
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(x).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real f1 = 1.e4*(*xp)[0]*(*xp)[1] - 1.0;
     Real f2 = std::exp(-(*xp)[0]) + std::exp(-(*xp)[1]) - 1.0001;
@@ -97,11 +97,11 @@ public:
 #if USE_HESSVEC
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<std::vector<Real> > hvp
-      = dynamic_cast<DualScaledStdVector<Real> >(hv).getVector();
+      = dynamic_cast<DualScaledStdVector<Real>&>(hv).getVector();
     std::shared_ptr<const std::vector<Real> > vp
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(v).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(v).getVector();
     std::shared_ptr<const std::vector<Real> > xp
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(x).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real f1 = 1.e4*(*xp)[0]*(*xp)[1] - 1.0;
     Real f2 = std::exp(-(*xp)[0]) + std::exp(-(*xp)[1]) - 1.0001;
@@ -131,11 +131,11 @@ public:
 #endif
   void invHessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<std::vector<Real> > hvp
-      = dynamic_cast<PrimalScaledStdVector<Real> >(hv).getVector();
+      = dynamic_cast<PrimalScaledStdVector<Real>&>(hv).getVector();
     std::shared_ptr<const std::vector<Real> > vp
-      = dynamic_cast<const DualScaledStdVector<Real> >(v).getVector();
+      = dynamic_cast<const DualScaledStdVector<Real>&>(v).getVector();
     std::shared_ptr<const std::vector<Real> > xp
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(x).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real f1 = 1.e4*(*xp)[0]*(*xp)[1] - 1.0;
     Real f2 = std::exp(-(*xp)[0]) + std::exp(-(*xp)[1]) - 1.0001;

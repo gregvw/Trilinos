@@ -113,7 +113,7 @@ public:
       initialize_dual();
     }
 
-    const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector>(x);
+    const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector&>(x);
     return dual_->getVector()->dot(*(ex.getVector()));    
   }
 
@@ -133,7 +133,7 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector>(x);
+    const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector&>(x);
     v_->applyBinary(f,*(ex.getVector()));
   } 
 
@@ -194,7 +194,7 @@ public:
       initialize_primal();
     }
    
- const RieszDualVector &ex = dynamic_cast<const RieszDualVector>(x);
+ const RieszDualVector &ex = dynamic_cast<const RieszDualVector&>(x);
     return primal_->getVector()->dot(*(ex.getVector()));    
   }
 
@@ -214,7 +214,7 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const RieszDualVector &ex = dynamic_cast<const RieszDualVector>(x);
+    const RieszDualVector &ex = dynamic_cast<const RieszDualVector&>(x);
     v_->applyBinary(f,*(ex.getVector()));
   } 
 

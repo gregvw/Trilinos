@@ -70,15 +70,15 @@ public:
 
   Real value( const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<const std::vector<Real> > ex
-      = dynamic_cast<const StdVector<Real> >(x).getVector();
+      = dynamic_cast<const StdVector<Real>&>(x).getVector();
     return 100.0 * std::pow((*ex)[1] - std::pow((*ex)[0],2.0),2.0) + std::pow(1.0-(*ex)[0],2.0);
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<std::vector<Real> > eg
-      = dynamic_cast<StdVector<Real> >(g).getVector();
+      = dynamic_cast<StdVector<Real>&>(g).getVector();
     std::shared_ptr<const std::vector<Real> > ex
-      = dynamic_cast<const StdVector<Real> >(x).getVector();
+      = dynamic_cast<const StdVector<Real>&>(x).getVector();
    
     (*eg)[0] = -4.0 * 100.0 * ((*ex)[1] - std::pow((*ex)[0],2.0)) * (*ex)[0] - 2.0 * (1.0-(*ex)[0]);
     (*eg)[1] = 2.0 * 100.0 * ((*ex)[1] - std::pow((*ex)[0],2.0)); 
@@ -86,11 +86,11 @@ public:
 #if USE_HESSVEC
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<std::vector<Real> > ehv
-      = dynamic_cast<StdVector<Real> >(hv).getVector();
+      = dynamic_cast<StdVector<Real>&>(hv).getVector();
     std::shared_ptr<const std::vector<Real> > ev
-      = dynamic_cast<const StdVector<Real> >(v).getVector();
+      = dynamic_cast<const StdVector<Real>&>(v).getVector();
     std::shared_ptr<const std::vector<Real> > ex
-      = dynamic_cast<const StdVector<Real> >(x).getVector();
+      = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
     Real h11 = -4.0 * 100.0 * (*ex)[1] + 12.0 * 100.0 * std::pow((*ex)[0],2.0) + 2.0; 
     Real h22 = 2.0 * 100.0;
@@ -103,11 +103,11 @@ public:
 #endif
   void invHessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<std::vector<Real> > ehv
-      = dynamic_cast<StdVector<Real> >(hv).getVector();
+      = dynamic_cast<StdVector<Real>&>(hv).getVector();
     std::shared_ptr<const std::vector<Real> > ev
-      = dynamic_cast<const StdVector<Real> >(v).getVector();
+      = dynamic_cast<const StdVector<Real>&>(v).getVector();
     std::shared_ptr<const std::vector<Real> > ex
-      = dynamic_cast<const StdVector<Real> >(x).getVector();
+      = dynamic_cast<const StdVector<Real>&>(x).getVector();
     
     Real h11 = -4.0 * 100.0 * (*ex)[1] + 12.0 * 100.0 * std::pow((*ex)[0],2.0) + 2.0; 
     Real h22 = 2.0 * 100.0;

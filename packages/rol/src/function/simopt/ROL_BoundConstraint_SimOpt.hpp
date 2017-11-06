@@ -101,8 +101,8 @@ public:
           @param[in]      iter   is the outer algorithm iterations count.
   */
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       bnd1_->update(*(xs.get_1()),flag,iter);
     }
@@ -120,8 +120,8 @@ public:
        @param[in,out]      x is the optimization variable.
   */
   void project( Vector<Real> &x ) {
-    ROL::Vector_SimOpt<Real> &xs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &xs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       std::shared_ptr<Vector<Real> > x1 = xs.get_1()->clone(); x1->set(*(xs.get_1()));
       bnd1_->project(*x1);
@@ -145,8 +145,8 @@ public:
        @param[in,out]      x is the optimization variable.
   */
   void projectInterior( Vector<Real> &x ) {
-    ROL::Vector_SimOpt<Real> &xs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &xs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       std::shared_ptr<Vector<Real> > x1 = xs.get_1()->clone(); x1->set(*(xs.get_1()));
       bnd1_->projectInterior(*x1);
@@ -166,10 +166,10 @@ public:
       to the components of \f$x\f$ that are active at the lower bound are nonnegative.
   */
   bool checkMultipliers( const Vector<Real> &l, const Vector<Real> &x ) {
-    const ROL::Vector_SimOpt<Real> &ls = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(l));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    const ROL::Vector_SimOpt<Real> &ls = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(l));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     bool nn1 = true;
     if ( bnd1_->isActivated() ) {
       nn1 = bnd1_->checkMultipliers(*(ls.get_1()),*(xs.get_1()));
@@ -193,10 +193,10 @@ public:
       @param[in]       eps is the active-set tolerance \f$\epsilon\f$.
   */
   void pruneUpperActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0.0 ) {
-    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(v));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(v));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       std::shared_ptr<Vector<Real> > v1 = vs.get_1()->clone(); v1->set(*(vs.get_1()));
       bnd1_->pruneUpperActive(*v1,*(xs.get_1()),eps);
@@ -223,12 +223,12 @@ public:
       @param[in]       eps is the active-set tolerance \f$\epsilon\f$.
   */
   void pruneUpperActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0.0 ) {
-    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(v));
-    const ROL::Vector_SimOpt<Real> &gs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(g));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(v));
+    const ROL::Vector_SimOpt<Real> &gs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(g));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       std::shared_ptr<Vector<Real> > v1 = vs.get_1()->clone(); v1->set(*(vs.get_1()));
       bnd1_->pruneUpperActive(*v1,*(gs.get_1()),*(xs.get_1()),eps);
@@ -253,10 +253,10 @@ public:
       @param[in]       eps is the active-set tolerance \f$\epsilon\f$.
   */
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0.0 ) {
-    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(v));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(v));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       std::shared_ptr<Vector<Real> > v1 = vs.get_1()->clone(); v1->set(*(vs.get_1()));
       bnd1_->pruneLowerActive(*v1,*(xs.get_1()),eps);
@@ -283,12 +283,12 @@ public:
       @param[in]       eps is the active-set tolerance \f$\epsilon\f$.
   */
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0.0 ) {
-    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(v));
-    const ROL::Vector_SimOpt<Real> &gs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(g));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(v));
+    const ROL::Vector_SimOpt<Real> &gs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(g));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       std::shared_ptr<Vector<Real> > v1 = vs.get_1()->clone(); v1->set(*(vs.get_1()));
       bnd1_->pruneLowerActive(*v1,*(gs.get_1()),*(xs.get_1()),eps);
@@ -327,10 +327,10 @@ public:
       @param[in]       eps is the active-set tolerance \f$\epsilon\f$.
   */
   void pruneActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0.0 ) {
-    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(v));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(v));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       std::shared_ptr<Vector<Real> > v1 = vs.get_1()->clone(); v1->set(*(vs.get_1()));
       bnd1_->pruneActive(*v1,*(xs.get_1()),eps);
@@ -356,12 +356,12 @@ public:
       @param[in]       eps is the active-set tolerance \f$\epsilon\f$.
   */
   void pruneActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0.0 ) {
-    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<ROL::Vector<Real> >(v));
-    const ROL::Vector_SimOpt<Real> &gs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(g));
-    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(x));
+    ROL::Vector_SimOpt<Real> &vs = dynamic_cast<ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<ROL::Vector<Real>&>(v));
+    const ROL::Vector_SimOpt<Real> &gs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(g));
+    const ROL::Vector_SimOpt<Real> &xs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(x));
     if ( bnd1_->isActivated() ) {
       std::shared_ptr<Vector<Real> > v1 = vs.get_1()->clone(); v1->set(*(vs.get_1()));
       bnd1_->pruneActive(*v1,*(gs.get_1()),*(xs.get_1()),eps);
@@ -380,8 +380,8 @@ public:
       @param[in]    v   is the vector to be checked.
   */
   bool isFeasible( const Vector<Real> &v ) { 
-    const ROL::Vector_SimOpt<Real> &vs = dynamic_cast<const ROL::Vector_SimOpt<Real> >(
-      dynamic_cast<const ROL::Vector<Real> >(v));
+    const ROL::Vector_SimOpt<Real> &vs = dynamic_cast<const ROL::Vector_SimOpt<Real>&>(
+      dynamic_cast<const ROL::Vector<Real>&>(v));
     return bnd1_->isFeasible(*(vs.get_1()))*bnd2_->isFeasible(*(vs.get_2()));
   }
 

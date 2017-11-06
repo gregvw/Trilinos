@@ -135,7 +135,7 @@ public:
   */
   virtual void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x) {
     x0 = std::const_pointer_cast<Vector<Real> >(
-         dynamic_cast<const RiskVector<Real> >(x).getVector());
+         dynamic_cast<const RiskVector<Real>&>(x).getVector());
     // Create memory for class members
     if ( firstReset_ ) {
       g_  = (x0->dual()).clone();
@@ -167,7 +167,7 @@ public:
     reset(x0,x);
     // Get vector component of v.  This is important for CVaR.
     v0 = std::const_pointer_cast<Vector<Real> >(
-         dynamic_cast<const RiskVector<Real> >(v).getVector());
+         dynamic_cast<const RiskVector<Real>&>(v).getVector());
   }
 
   /** \brief Update internal risk measure storage for value computation.
@@ -241,7 +241,7 @@ public:
   */
   virtual void getGradient(Vector<Real> &g, SampleGenerator<Real> &sampler) {
     sampler.sumAll(*g_,*dualVector_);
-    (dynamic_cast<RiskVector<Real> >(g)).setVector(*dualVector_);
+    (dynamic_cast<RiskVector<Real>&>(g)).setVector(*dualVector_);
   }
 
   /** \brief Return risk measure Hessian-times-a-vector.
@@ -257,7 +257,7 @@ public:
   */
   virtual void getHessVec(Vector<Real> &hv, SampleGenerator<Real> &sampler) {
     sampler.sumAll(*hv_,*dualVector_);
-    (dynamic_cast<RiskVector<Real> >(hv)).setVector(*dualVector_);
+    (dynamic_cast<RiskVector<Real>&>(hv)).setVector(*dualVector_);
   }
 };
 

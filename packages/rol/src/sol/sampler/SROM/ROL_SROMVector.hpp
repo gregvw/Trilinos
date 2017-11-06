@@ -79,13 +79,13 @@ public:
   }
 
   void set( const Vector<Real> &x ) {
-    const SROMVector &ex = dynamic_cast<const SROMVector>(x);
+    const SROMVector &ex = dynamic_cast<const SROMVector&>(x);
     pvec_->set(*(ex.getProbabilityVector()));
     avec_->set(*(ex.getAtomVector()));
   }
 
   void plus( const Vector<Real> &x ) {
-    const SROMVector &ex = dynamic_cast<const SROMVector>(x);
+    const SROMVector &ex = dynamic_cast<const SROMVector&>(x);
     pvec_->plus(*(ex.getProbabilityVector()));
     avec_->plus(*(ex.getAtomVector()));
   }
@@ -96,13 +96,13 @@ public:
   }
 
   void axpy( const Real alpha, const Vector<Real> &x ) {
-    const SROMVector &ex = dynamic_cast<const SROMVector>(x);
+    const SROMVector &ex = dynamic_cast<const SROMVector&>(x);
     pvec_->axpy(alpha,*(ex.getProbabilityVector()));
     avec_->axpy(alpha,*(ex.getAtomVector()));
   }
 
   Real dot( const Vector<Real> &x ) const {
-    const SROMVector & ex = dynamic_cast<const SROMVector>(x);
+    const SROMVector & ex = dynamic_cast<const SROMVector&>(x);
     Real pval = pvec_->dot(*(ex.getProbabilityVector()));
     Real aval = avec_->dot(*(ex.getAtomVector()));
     return pval + aval;
@@ -142,7 +142,7 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const Vector<Real> &x ) {
-    const SROMVector & ex = dynamic_cast<const SROMVector>(x);
+    const SROMVector & ex = dynamic_cast<const SROMVector&>(x);
     pvec_->applyBinary(f,*(ex.getProbabilityVector()));
     avec_->applyBinary(f,*(ex.getAtomVector()));
   }

@@ -73,11 +73,11 @@ private:
   bool                                 isDualInitialized_;
 
   Real getValue( const V& x ) { 
-    return dynamic_cast<const SingletonVector<Real> >(x).getValue(); 
+    return dynamic_cast<const SingletonVector<Real>&>(x).getValue(); 
   }
  
   void setValue( V& x, Real val ) {
-    dynamic_cast<SingletonVector<Real>>(x).setValue(val);
+    dynamic_cast<SingletonVector<Real>&>(x).setValue(val);
   }
 
 public:

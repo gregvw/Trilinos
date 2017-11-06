@@ -78,8 +78,8 @@ public:
   virtual void apply( V &Hv, const V &v, Real &tol ) const {
  
     // Downcast to Partitioned Vectors
-    PV &Hv_part = dynamic_cast<PV>(Hv);
-    const PV &v_part = dynamic_cast<const PV>(v);
+    PV &Hv_part = dynamic_cast<PV&>(Hv);
+    const PV &v_part = dynamic_cast<const PV&>(v);
     
     uint nvec1 = v_part.numVectors();
     uint nvec2 = Hv_part.numVectors();

@@ -156,14 +156,14 @@ private:
  
   // Extract the optimization and lagrange multiplier
   std::shared_ptr<V> getOptMult( V &vec ) {
-    PV &vec_pv = dynamic_cast<PV>(vec);
+    PV &vec_pv = dynamic_cast<PV&>(vec);
  
     return CreatePartitioned(vec_pv.get(OPT),vec_pv.get(EQUAL));
   }
 
   // Extract the optimization and lagrange multiplier
   std::shared_ptr<const V> getOptMult( const V &vec ) {
-    const PV &vec_pv = dynamic_cast<const PV>(vec);
+    const PV &vec_pv = dynamic_cast<const PV&>(vec);
  
     return CreatePartitioned(vec_pv.get(OPT),vec_pv.get(EQUAL));
   }
@@ -187,7 +187,7 @@ public:
     ngrad_(0), ncval_(0) {
 
     // Get access to the four components
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
     
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -200,7 +200,7 @@ public:
   void update( const Vector<Real> &x, bool flag = true, int iter = -1  ) {
 
     // Get access to the four components
-    const PV &x_pv = dynamic_cast<const PV>(x);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
     
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -221,8 +221,8 @@ public:
     Elementwise::Shift<Real> subtract_mu(-mu_);
     Elementwise::Fill<Real>  fill_minus_mu(-mu_);
 
-    const PV &x_pv = dynamic_cast<const PV>(x);
-    PV &c_pv = dynamic_cast<PV>(c);
+    const PV &x_pv = dynamic_cast<const PV&>(x);
+    PV &c_pv = dynamic_cast<PV&>(c);
   
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);
@@ -315,9 +315,9 @@ public:
 
     
 
-    PV &jv_pv = dynamic_cast<PV>(jv);
-    const PV &v_pv = dynamic_cast<const PV>(v);
-    const PV &x_pv = dynamic_cast<const PV>(x); 
+    PV &jv_pv = dynamic_cast<PV&>(jv);
+    const PV &v_pv = dynamic_cast<const PV&>(v);
+    const PV &x_pv = dynamic_cast<const PV&>(x); 
 
     // output vector components
     std::shared_ptr<V> jvx  = jv_pv.get(OPT);

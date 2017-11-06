@@ -85,7 +85,7 @@ public:
 
   Real value( const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<const std::vector<Real> > ex
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(x).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real val(0), f(0), u(0);
     Real x1 = (*ex)[0], x2 = (*ex)[1], x3 = (*ex)[2];
@@ -100,9 +100,9 @@ public:
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<std::vector<Real> > eg
-      = dynamic_cast<DualScaledStdVector<Real> >(g).getVector();
+      = dynamic_cast<DualScaledStdVector<Real>&>(g).getVector();
     std::shared_ptr<const std::vector<Real> > ex
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(x).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
     g.zero();
 
     Real f(0), df1(0), df2(0), df3(0);
@@ -129,11 +129,11 @@ public:
 #if USE_HESSVEC
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
     std::shared_ptr<std::vector<Real> > ehv
-      = dynamic_cast<DualScaledStdVector<Real> >(hv).getVector();
+      = dynamic_cast<DualScaledStdVector<Real>&>(hv).getVector();
     std::shared_ptr<const std::vector<Real> > ev
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(v).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(v).getVector();
     std::shared_ptr<const std::vector<Real> > ex
-      = dynamic_cast<const PrimalScaledStdVector<Real> >(x).getVector();
+      = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
     hv.zero();
 
     Real f(0);

@@ -856,7 +856,7 @@ public:
                                    const Vector<Real> &x,
                                    const Vector<Real> &g,
                                    Real &tol) {
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(x);
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(x);
     std::shared_ptr<ROL::Vector<Real> > ijv = (xs.get_1())->clone();
 
     try {
@@ -867,7 +867,7 @@ public:
       return;
     }
 
-    const Vector_SimOpt<Real> &gs = dynamic_cast<const Vector_SimOpt<Real> >(g);
+    const Vector_SimOpt<Real> &gs = dynamic_cast<const Vector_SimOpt<Real>&>(g);
     std::shared_ptr<ROL::Vector<Real> > ijv_dual = (gs.get_1())->clone();
     ijv_dual->set(ijv->dual());
 
@@ -887,16 +887,16 @@ public:
                 iter is the outer algorithm iterations count.
   */
   virtual void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(x));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
     update(*(xs.get_1()),*(xs.get_2()),flag,iter);
   }
 
   virtual void value(Vector<Real> &c,
                      const Vector<Real> &x,
                      Real &tol) {
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(x));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
     value(c,*(xs.get_1()),*(xs.get_2()),tol);
   }
 
@@ -905,10 +905,10 @@ public:
                              const Vector<Real> &v,
                              const Vector<Real> &x,
                              Real &tol) { 
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(x));
-    const Vector_SimOpt<Real> &vs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(v));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
+    const Vector_SimOpt<Real> &vs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(v));
     applyJacobian_1(jv,*(vs.get_1()),*(xs.get_1()),*(xs.get_2()),tol);
     std::shared_ptr<Vector<Real> > jv2 = jv.clone();
     applyJacobian_2(*jv2,*(vs.get_2()),*(xs.get_1()),*(xs.get_2()),tol);
@@ -920,10 +920,10 @@ public:
                                     const Vector<Real> &v,
                                     const Vector<Real> &x,
                                     Real &tol) { 
-    Vector_SimOpt<Real> &ajvs = dynamic_cast<Vector_SimOpt<Real> >(
-      dynamic_cast<Vector<Real> >(ajv));
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(x));
+    Vector_SimOpt<Real> &ajvs = dynamic_cast<Vector_SimOpt<Real>&>(
+      dynamic_cast<Vector<Real>&>(ajv));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
     std::shared_ptr<Vector<Real> > ajv1 = (ajvs.get_1())->clone();
     applyAdjointJacobian_1(*ajv1,v,*(xs.get_1()),*(xs.get_2()),tol);
     ajvs.set_1(*ajv1);
@@ -938,12 +938,12 @@ public:
                                    const Vector<Real> &v,
                                    const Vector<Real> &x,
                                    Real &tol) {
-    Vector_SimOpt<Real> &ahwvs = dynamic_cast<Vector_SimOpt<Real> >(
-      dynamic_cast<Vector<Real> >(ahwv));
-    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(x));
-    const Vector_SimOpt<Real> &vs = dynamic_cast<const Vector_SimOpt<Real> >(
-      dynamic_cast<const Vector<Real> >(v));
+    Vector_SimOpt<Real> &ahwvs = dynamic_cast<Vector_SimOpt<Real>&>(
+      dynamic_cast<Vector<Real>&>(ahwv));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
+    const Vector_SimOpt<Real> &vs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(v));
     // Block-row 1
     std::shared_ptr<Vector<Real> > C11 = (ahwvs.get_1())->clone();
     std::shared_ptr<Vector<Real> > C21 = (ahwvs.get_1())->clone();

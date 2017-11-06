@@ -960,8 +960,8 @@ public:
     }
     if (parlist != nullptr) {
       const RiskVector<Real> x
-        = dynamic_cast<const RiskVector<Real> >(
-          dynamic_cast<const Vector<Real> >(*INTERMEDIATE_sol_));
+        = dynamic_cast<const RiskVector<Real>&>(
+          dynamic_cast<const Vector<Real>&>(*INTERMEDIATE_sol_));
       std::string type = parlist->sublist("SOL").get("Stochastic Component Type","Risk Neutral");
       Real val(0);
       if ( type == "Risk Averse" ) {

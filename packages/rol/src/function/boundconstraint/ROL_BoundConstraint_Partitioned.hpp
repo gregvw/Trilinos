@@ -97,7 +97,7 @@ public:
   }
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
-    const PV &xpv = dynamic_cast<const PV>(x);
+    const PV &xpv = dynamic_cast<const PV&>(x);
     for( uint k=0; k<dim_; ++k ) {
       if( bnd_[k]->isActivated() ) {
         bnd_[k]->update(*(xpv.get(k)),flag,iter);   
@@ -106,7 +106,7 @@ public:
   }
 
   void project( Vector<Real> &x ) {
-    PV &xpv = dynamic_cast<PV>(x);
+    PV &xpv = dynamic_cast<PV&>(x);
     for( uint k=0; k<dim_; ++k ) {
       if( bnd_[k]->isActivated() ) {
         bnd_[k]->project(*xpv.get(k));
@@ -115,7 +115,7 @@ public:
   }
 
   void projectInterior( Vector<Real> &x ) {
-    PV &xpv = dynamic_cast<PV>(x);
+    PV &xpv = dynamic_cast<PV&>(x);
     for( uint k=0; k<dim_; ++k ) {
       if( bnd_[k]->isActivated() ) {
         bnd_[k]->projectInterior(*xpv.get(k));
@@ -124,8 +124,8 @@ public:
   }
 
   void pruneUpperActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0.0 ) {
-          PV &vpv = dynamic_cast<PV>(v);
-    const PV &xpv = dynamic_cast<const PV>(x);
+          PV &vpv = dynamic_cast<PV&>(v);
+    const PV &xpv = dynamic_cast<const PV&>(x);
     for( uint k=0; k<dim_; ++k ) {
       if( bnd_[k]->isActivated() ) {
         bnd_[k]->pruneUpperActive(*(vpv.get(k)),*(xpv.get(k)),eps);
@@ -134,9 +134,9 @@ public:
  }
 
   void pruneUpperActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0.0 ) {
-          PV &vpv = dynamic_cast<PV>(v);
-    const PV &gpv = dynamic_cast<const PV>(g);
-    const PV &xpv = dynamic_cast<const PV>(x);
+          PV &vpv = dynamic_cast<PV&>(v);
+    const PV &gpv = dynamic_cast<const PV&>(g);
+    const PV &xpv = dynamic_cast<const PV&>(x);
     for( uint k=0; k<dim_; ++k ) {
       if( bnd_[k]->isActivated() ) {
         bnd_[k]->pruneUpperActive(*(vpv.get(k)),*(gpv.get(k)),*(xpv.get(k)),eps);
@@ -145,8 +145,8 @@ public:
   }
  
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0.0 ) {
-          PV &vpv = dynamic_cast<PV>(v);
-    const PV &xpv = dynamic_cast<const PV>(x);
+          PV &vpv = dynamic_cast<PV&>(v);
+    const PV &xpv = dynamic_cast<const PV&>(x);
    for( uint k=0; k<dim_; ++k ) {
       if( bnd_[k]->isActivated() ) {
         bnd_[k]->pruneLowerActive(*(vpv.get(k)),*(xpv.get(k)),eps);
@@ -155,9 +155,9 @@ public:
   }
 
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x, Real eps = 0.0 ) {
-          PV &vpv = dynamic_cast<PV>(v);
-    const PV &gpv = dynamic_cast<const PV>(g);
-    const PV &xpv = dynamic_cast<const PV>(x);
+          PV &vpv = dynamic_cast<PV&>(v);
+    const PV &gpv = dynamic_cast<const PV&>(g);
+    const PV &xpv = dynamic_cast<const PV&>(x);
     for( uint k=0; k<dim_; ++k ) {
       if( bnd_[k]->isActivated() ) {
         bnd_[k]->pruneLowerActive(*(vpv.get(k)),*(gpv.get(k)),*(xpv.get(k)),eps);
@@ -175,7 +175,7 @@ public:
 
   bool isFeasible( const Vector<Real> &v ) { 
     bool feasible = true;
-    const PV &vs = dynamic_cast<const PV>(v);
+    const PV &vs = dynamic_cast<const PV&>(v);
     for( uint k=0; k<dim_; ++k ) {
       if(bnd_[k]->isActivated()) {
         feasible = feasible && bnd_[k]->isFeasible(*(vs.get(k)));

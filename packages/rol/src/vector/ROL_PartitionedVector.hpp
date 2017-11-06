@@ -77,7 +77,7 @@ public:
 
   void set( const V &x ) {
     
-    const PV &xs = dynamic_cast<const PV>(dynamic_cast<const V>(x));
+    const PV &xs = dynamic_cast<const PV>(dyn_cast<const V&>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -90,7 +90,7 @@ public:
 
   void plus( const V &x ) {
     
-    const PV &xs = dynamic_cast<const PV>(dynamic_cast<const V>(x));
+    const PV &xs = dynamic_cast<const PV>(dyn_cast<const V&>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -109,7 +109,7 @@ public:
 
   void axpy( const Real alpha, const V &x ) {
     
-    const PV &xs = dynamic_cast<const PV>(x);
+    const PV &xs = dynamic_cast<const PV&>(x);
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -122,7 +122,7 @@ public:
 
   Real dot( const V &x ) const {
     
-    const PV &xs = dynamic_cast<const PV>(x);
+    const PV &xs = dynamic_cast<const PV&>(x);
 
    TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -177,7 +177,7 @@ public:
     std::shared_ptrV bvec = clone();
 
     // Downcast
-    PV &eb = dynamic_cast<PV>(*bvec);
+    PV &eb = dynamic_cast<PV&>(*bvec);
 
     int begin = 0;
     int end = 0;
@@ -223,7 +223,7 @@ public:
 
   // Apply the same binary function to each pair of subvectors in this vector and x
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const PV &xs = dynamic_cast<const PV>(x);
+    const PV &xs = dynamic_cast<const PV&>(x);
 
     for( size_type i=0; i<vecs_.size(); ++i ) {
       vecs_[i]->applyBinary(f,*xs.get(i));

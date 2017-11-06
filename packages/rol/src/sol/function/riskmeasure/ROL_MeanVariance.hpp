@@ -217,8 +217,8 @@ public:
   void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
              std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real> >(
-           dynamic_cast<const Vector<Real> >(v)).getVector());
+    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
+           dynamic_cast<const Vector<Real>&>(v)).getVector());
   } 
   
   void update(const Real val, const Real weight) {
@@ -280,7 +280,7 @@ public:
     sampler.sumAll(*dualVector1_,*dualVector2_);
     dualVector3_->plus(*dualVector2_);
     // Set RiskVector
-    (dynamic_cast<RiskVector<Real> >(g)).setVector(*dualVector3_);
+    (dynamic_cast<RiskVector<Real>&>(g)).setVector(*dualVector3_);
   }
 
   void update(const Real val, const Vector<Real> &g, const Real gv, const Vector<Real> &hv,
@@ -340,7 +340,7 @@ public:
     sampler.sumAll(*dualVector1_,*dualVector2_);
     dualVector4_->plus(*dualVector2_);
     // Set RiskVector
-    (dynamic_cast<RiskVector<Real> >(hv)).setVector(*dualVector4_);
+    (dynamic_cast<RiskVector<Real>&>(hv)).setVector(*dualVector4_);
   }
 };
 

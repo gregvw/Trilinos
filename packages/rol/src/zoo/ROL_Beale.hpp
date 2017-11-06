@@ -76,7 +76,7 @@ namespace ZOO {
 
     Real value( const Vector<Real> &x, Real &tol ) {
       std::shared_ptr<const std::vector<Real> > ex
-        = dynamic_cast<const StdVector<Real> >(x).getVector();
+        = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
       Real f1 = 1.5-(*ex)[0]*(1.0-(*ex)[1]);
       Real f2 = 2.25-(*ex)[0]*(1.0-pow((*ex)[1],2));
@@ -87,9 +87,9 @@ namespace ZOO {
 
     void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
       std::shared_ptr<std::vector<Real> > eg
-        = dynamic_cast<StdVector<Real> >(g).getVector();
+        = dynamic_cast<StdVector<Real>&>(g).getVector();
       std::shared_ptr<const std::vector<Real> > ex
-        = dynamic_cast<const StdVector<Real> >(x).getVector();
+        = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
       Real f1 = 1.5-(*ex)[0]*(1.0-(*ex)[1]);
       Real f2 = 2.25-(*ex)[0]*(1.0-pow((*ex)[1],2));
@@ -107,11 +107,11 @@ namespace ZOO {
 #if USE_HESSVEC
     void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
       std::shared_ptr<std::vector<Real> > ehv
-        = dynamic_cast<StdVector<Real> >(hv).getVector();
+        = dynamic_cast<StdVector<Real>&>(hv).getVector();
       std::shared_ptr<const std::vector<Real> > ev
-        = dynamic_cast<const StdVector<Real> >(v).getVector();
+        = dynamic_cast<const StdVector<Real>&>(v).getVector();
       std::shared_ptr<const std::vector<Real> > ex
-        = dynamic_cast<const StdVector<Real> >(x).getVector();
+        = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
       Real f1 = 1.5-(*ex)[0]*(1.0-(*ex)[1]);
       Real f2 = 2.25-(*ex)[0]*(1.0-pow((*ex)[1],2));
@@ -145,11 +145,11 @@ namespace ZOO {
 #endif
     void invHessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
       std::shared_ptr<std::vector<Real> > ehv
-        = dynamic_cast<StdVector<Real> >(hv).getVector();
+        = dynamic_cast<StdVector<Real>&>(hv).getVector();
       std::shared_ptr<const std::vector<Real> > ev
-        = dynamic_cast<const StdVector<Real> >(v).getVector();
+        = dynamic_cast<const StdVector<Real>&>(v).getVector();
       std::shared_ptr<const std::vector<Real> > ex
-        = dynamic_cast<const StdVector<Real> >(x).getVector();
+        = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
       Real f1 = 1.5-(*ex)[0]*(1.0-(*ex)[1]);
       Real f2 = 2.25-(*ex)[0]*(1.0-pow((*ex)[1],2));

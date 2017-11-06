@@ -59,9 +59,9 @@ public:
 
   void sumAll(Vector<Real> &input, Vector<Real> &output) {
     std::shared_ptr<std::vector<Real> > input_ptr
-      = dynamic_cast<StdVector<Real> >(input).getVector();
+      = dynamic_cast<StdVector<Real>&>(input).getVector();
     std::shared_ptr<std::vector<Real> > output_ptr
-      = dynamic_cast<StdVector<Real> >(output).getVector();
+      = dynamic_cast<StdVector<Real>&>(output).getVector();
     int dim_i = static_cast<int>(input_ptr->size());
     int dim_o = static_cast<int>(output_ptr->size());
     TEUCHOS_TEST_FOR_EXCEPTION(dim_i != dim_o, std::invalid_argument,

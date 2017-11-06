@@ -79,13 +79,13 @@ namespace ZOO {
     template<class VectorType>
     std::shared_ptr<const vector> getVector( const V& x ) {
       
-      return dynamic_cast<const VectorType>(x).getVector();
+      return dynamic_cast<const VectorType&>(x).getVector();
     }
 
     template<class VectorType>
     std::shared_ptr<vector> getVector( V& x ) {
       
-      return dynamic_cast<VectorType>(x).getVector();
+      return dynamic_cast<VectorType&>(x).getVector();
     }
 
   public:
@@ -176,13 +176,13 @@ namespace ZOO {
     template<class VectorType>
     std::shared_ptr<const vector> getVector( const V& x ) {
       
-      return dynamic_cast<const VectorType>(x).getVector();
+      return dynamic_cast<const VectorType&>(x).getVector();
     }
 
     template<class VectorType> 
     std::shared_ptr<vector> getVector( V& x ) {
       
-      return dynamic_cast<VectorType>(x).getVector(); 
+      return dynamic_cast<VectorType&>(x).getVector(); 
     }
 
   public:
@@ -328,8 +328,8 @@ namespace ZOO {
      
 
     // Cast initial guess and solution vectors.
-    std::shared_ptr<vector> x0p  = dynamic_cast<XPrim>(x0).getVector(); 
-    std::shared_ptr<vector> solp = dynamic_cast<XPrim>(sol).getVector();
+    std::shared_ptr<vector> x0p  = dynamic_cast<XPrim&>(x0).getVector(); 
+    std::shared_ptr<vector> solp = dynamic_cast<XPrim&>(sol).getVector();
 
     uint n = 2;
 

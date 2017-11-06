@@ -58,10 +58,10 @@ public:
   using TeuchosBatchManager<Real,Ordinal>::sumAll;
 
   void sumAll(Vector<Real> &input, Vector<Real> &output) {
-    Real inval = dynamic_cast<SingletonVector<Real> >(input).getValue();
+    Real inval = dynamic_cast<SingletonVector<Real>&>(input).getValue();
     Real outval(0);
     TeuchosBatchManager<Real,Ordinal>::sumAll(&inval,&outval,1);
-    dynamic_cast<SingletonVector<Real> >(output).setValue(outval);
+    dynamic_cast<SingletonVector<Real>&>(output).setValue(outval);
   }
 };
 

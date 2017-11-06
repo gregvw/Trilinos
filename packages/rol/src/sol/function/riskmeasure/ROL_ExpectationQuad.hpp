@@ -223,8 +223,8 @@ public:
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    xstat_ = (*dynamic_cast<const RiskVector<Real> >(
-               dynamic_cast<const Vector<Real> >(x)).getStatistic(comp,index))[0];
+    xstat_ = (*dynamic_cast<const RiskVector<Real>&>(
+               dynamic_cast<const Vector<Real>&>(x)).getStatistic(comp,index))[0];
     if (firstReset_) {
       dualVector_            = (x0->dual()).clone();
       firstReset_ = false;
@@ -235,12 +235,12 @@ public:
   void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x, 
              std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real> >(
-           dynamic_cast<const Vector<Real> >(v)).getVector());
+    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
+           dynamic_cast<const Vector<Real>&>(v)).getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    vstat_ = (*dynamic_cast<const RiskVector<Real> >(
-               dynamic_cast<const Vector<Real> >(v)).getStatistic(comp,index))[0];
+    vstat_ = (*dynamic_cast<const RiskVector<Real>&>(
+               dynamic_cast<const Vector<Real>&>(v)).getStatistic(comp,index))[0];
   }
 
   void update(const Real val, const Real weight) {
@@ -271,7 +271,7 @@ public:
   }
 
   void getGradient(Vector<Real> &g, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &gs = dynamic_cast<RiskVector<Real> >(dynamic_cast<Vector<Real> >(g));
+    RiskVector<Real> &gs = dynamic_cast<RiskVector<Real> >(Teuchos::dynamic_cast<Vector<Real>&&>(g));
     Real stat  = RiskMeasure<Real>::val_, gstat(0), one(1);
     sampler.sumAll(&stat,&gstat,1);
     gstat += one;
@@ -284,7 +284,7 @@ public:
   }
 
   void getHessVec(Vector<Real> &hv, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &hs = dynamic_cast<RiskVector<Real> >(dynamic_cast<Vector<Real> >(hv));
+    RiskVector<Real> &hs = dynamic_cast<RiskVector<Real> >(Teuchos::dynamic_cast<Vector<Real>&&>(hv));
     Real stat  = RiskMeasure<Real>::val_, gstat(0);
     sampler.sumAll(&stat,&gstat,1);
     int index = RiskMeasure<Real>::getIndex();

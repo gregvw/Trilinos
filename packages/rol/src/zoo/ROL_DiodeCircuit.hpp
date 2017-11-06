@@ -410,14 +410,14 @@ private:
   std::shared_ptr<const vector> getVector( const V& x ) {
       using Teuchos::getConst;
     try { 
-      return dynamic_cast<const STDV>(getConst(x)).getVector();
+      return dynamic_cast<const STDV&>(getConst(x)).getVector();
     }
     catch (std::exception &e) {
       try { 
-        return dynamic_cast<const PSV>(getConst(x)).getVector();
+        return dynamic_cast<const PSV&>(getConst(x)).getVector();
       }
       catch (std::exception &e) {
-        return dynamic_cast<const DSV>(getConst(x)).getVector();
+        return dynamic_cast<const DSV&>(getConst(x)).getVector();
       }
     }
   }
@@ -425,14 +425,14 @@ private:
   std::shared_ptr<vector> getVector( V& x ) {
     
     try {
-      return dynamic_cast<STDV>(x).getVector(); 
+      return dynamic_cast<STDV&>(x).getVector(); 
     }
     catch (std::exception &e) {
       try {
-        return dynamic_cast<PSV>(x).getVector(); 
+        return dynamic_cast<PSV&>(x).getVector(); 
       }
       catch (std::exception &e) {
-        return dynamic_cast<DSV>(x).getVector(); 
+        return dynamic_cast<DSV&>(x).getVector(); 
       }
     }
   }
@@ -745,9 +745,9 @@ private:
   // void getDiodeCircuit( std::shared_ptr<Objective<Real> > &obj, Vector<Real> &x0, Vector<Real> &x ) {
   //   // Cast Initial Guess and Solution Vectors                                     
   //   std::shared_ptr<std::vector<Real> > x0p =
-  //     std::const_pointer_cast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real> >(x0)).getVector());
+  //     std::const_pointer_cast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real>&>(x0)).getVector());
   //   std::shared_ptr<std::vector<Real> > xp =
-  //     std::const_pointer_cast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real> >(x)).getVector());
+  //     std::const_pointer_cast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real>&>(x)).getVector());
 
   //   int n = xp->size();
 

@@ -102,7 +102,7 @@ private:
                        const Real mu, Objective<Real> &obj,
                        BoundConstraint<Real> &bnd) {
     AugmentedLagrangian<Real> &augLag
-      = dynamic_cast<AugmentedLagrangian<Real> >(obj);
+      = dynamic_cast<AugmentedLagrangian<Real>&>(obj);
     Real gnorm = 0., tol = std::sqrt(ROL_EPSILON<Real>());
     augLag.gradient(g,x,tol);
     if ( scaleLagrangian_ ) {
@@ -177,7 +177,7 @@ public:
                    Objective<Real> &obj, Constraint<Real> &con, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state ) {
     AugmentedLagrangian<Real> &augLag
-      = dynamic_cast<AugmentedLagrangian<Real> >(obj);
+      = dynamic_cast<AugmentedLagrangian<Real>&>(obj);
     // Initialize step state
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
@@ -229,7 +229,7 @@ public:
                 BoundConstraint<Real> &bnd, AlgorithmState<Real> &algo_state ) {
     Real one(1);
     AugmentedLagrangian<Real> &augLag
-      = dynamic_cast<AugmentedLagrangian<Real> >(obj);
+      = dynamic_cast<AugmentedLagrangian<Real>&>(obj);
     parlist_.sublist("Status Test").set("Gradient Tolerance",optTolerance_);
     parlist_.sublist("Status Test").set("Step Tolerance",1.e-6*optTolerance_);
     algo_ = std::make_shared<Algorithm<Real>>(subStep_,parlist_,false);
@@ -260,7 +260,7 @@ public:
                AlgorithmState<Real> &algo_state ) {
     Real one(1), oem2(1.e-2);
     AugmentedLagrangian<Real> &augLag
-      = dynamic_cast<AugmentedLagrangian<Real> >(obj);
+      = dynamic_cast<AugmentedLagrangian<Real>&>(obj);
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     // Update the step and store in state
     x.plus(s);

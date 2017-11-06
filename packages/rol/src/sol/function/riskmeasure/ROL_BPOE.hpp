@@ -91,17 +91,17 @@ public:
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    xvar_ = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(comp,index))[0];
+    xvar_ = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[0];
   }
 
   void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
                      std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
     v0 = std::const_pointer_cast<Vector<Real> >(
-         dynamic_cast<const RiskVector<Real> >(v).getVector());
+         dynamic_cast<const RiskVector<Real>&>(v).getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    vvar_ = (*dynamic_cast<const RiskVector<Real> >(v).getStatistic(comp,index))[0];
+    vvar_ = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index))[0];
 
     if ( firstReset_ ) {
       dualVec1_ = (x0->dual()).clone();
@@ -151,7 +151,7 @@ public:
     Real gvar(0);
     if ( gvals[0] > zero) {
       std::shared_ptr<Vector<Real> > gvec
-        = dynamic_cast<RiskVector<Real> >(g).getVector();
+        = dynamic_cast<RiskVector<Real>&>(g).getVector();
       sampler.sumAll(*(RiskMeasure<Real>::g_),*gvec);
       Real norm = std::pow(gvals[0],(order_-one)/order_);
       gvec->scale(xvar_/norm);
@@ -159,7 +159,7 @@ public:
     }
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    dynamic_cast<RiskVector<Real> >(g).setStatistic(gvar,comp,index);
+    dynamic_cast<RiskVector<Real>&>(g).setStatistic(gvar,comp,index);
   }
 
   void update(const Real val, const Vector<Real> &g, const Real gv, const Vector<Real> &hv,
@@ -193,7 +193,7 @@ public:
     Real hvar(0);
     if ( gvals[0] > zero ) {
       std::shared_ptr<Vector<Real> > hvec
-        = dynamic_cast<RiskVector<Real> >(hv).getVector();
+        = dynamic_cast<RiskVector<Real>&>(hv).getVector();
       Real norm0 = ((order_==one) ? one
                      : ((order_==two) ? std::sqrt(gvals[0])
                        : std::pow(gvals[0],(order_-one)/order_)));
@@ -218,7 +218,7 @@ public:
     }
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    dynamic_cast<RiskVector<Real> >(hv).setStatistic(hvar,comp,index);
+    dynamic_cast<RiskVector<Real>&>(hv).setStatistic(hvar,comp,index);
   }
 };
 

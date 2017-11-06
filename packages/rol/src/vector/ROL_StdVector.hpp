@@ -75,7 +75,7 @@ public:
                                 std::invalid_argument,
                                 "Error: Vectors must have the same dimension." );
 
-    const StdVector &ex = dynamic_cast<const StdVector>(x);
+    const StdVector &ex = dynamic_cast<const StdVector&>(x);
     const std::vector<Element>& xval = *ex.getVector();
     std::copy(xval.begin(),xval.end(),std_vec_->begin());   
   }
@@ -86,7 +86,7 @@ public:
                                 std::invalid_argument,
                                 "Error: Vectors must have the same dimension." );
 
-    const StdVector &ex = dynamic_cast<const StdVector>(x);
+    const StdVector &ex = dynamic_cast<const StdVector&>(x);
     const std::vector<Element>& xval = *ex.getVector();
     uint dim  = std_vec_->size();
     for (uint i=0; i<dim; i++) {
@@ -100,7 +100,7 @@ public:
                                 std::invalid_argument,
                                 "Error: Vectors must have the same dimension." );
 
-    const StdVector &ex = dynamic_cast<const StdVector>(x);
+    const StdVector &ex = dynamic_cast<const StdVector&>(x);
     const std::vector<Element>& xval = *ex.getVector();
     uint dim  = std_vec_->size();
     for (uint i=0; i<dim; i++) {
@@ -121,7 +121,7 @@ public:
                                 std::invalid_argument,
                                 "Error: Vectors must have the same dimension." );
 
-    const StdVector & ex = dynamic_cast<const StdVector>(x);
+    const StdVector & ex = dynamic_cast<const StdVector&>(x);
     const std::vector<Element>& xval = *ex.getVector();
     uint dim  = std_vec_->size();
     Real val = 0;
@@ -177,7 +177,7 @@ public:
                                 std::invalid_argument,
                                 "Error: Vectors must have the same dimension." );
 
-    const StdVector & ex = dynamic_cast<const StdVector>(x);
+    const StdVector & ex = dynamic_cast<const StdVector&>(x);
     const std::vector<Element>& xval = *ex.getVector();
     uint dim  = std_vec_->size();
     for (uint i=0; i<dim; i++) {

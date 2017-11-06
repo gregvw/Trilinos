@@ -143,7 +143,7 @@ public:
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    xvar_ = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(comp,index))[0];
+    xvar_ = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[0];
     if ( firstReset_ ) {
       dualVector_ = (x0->dual()).clone();
       firstReset_ = false;
@@ -154,7 +154,7 @@ public:
   void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
              std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    const RiskVector<Real> &vr = dynamic_cast<const RiskVector<Real> >(v);
+    const RiskVector<Real> &vr = dynamic_cast<const RiskVector<Real>&>(v);
     v0    = std::const_pointer_cast<Vector<Real> >(vr.getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
@@ -195,7 +195,7 @@ public:
   }
 
   void getGradient(Vector<Real> &g, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &gs = dynamic_cast<RiskVector<Real> >(g);
+    RiskVector<Real> &gs = dynamic_cast<RiskVector<Real>&>(g);
     Real val = RiskMeasure<Real>::val_, var(0), one(1);
     sampler.sumAll(&val,&var,1);
     
@@ -209,7 +209,7 @@ public:
   }
 
   void getHessVec(Vector<Real> &hv, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &hs = dynamic_cast<RiskVector<Real> >(hv);
+    RiskVector<Real> &hs = dynamic_cast<RiskVector<Real>&>(hv);
     Real val = RiskMeasure<Real>::val_, var(0), one(1);
     sampler.sumAll(&val,&var,1);
 

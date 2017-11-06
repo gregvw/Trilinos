@@ -187,7 +187,7 @@ public:
   }
 
   void set( const Vector<Real> &x ) {
-    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real>&>(x);
     vec_->set(*(xs.getVector()));
     if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->set(*(xs.getStatisticVector(0)));
@@ -203,7 +203,7 @@ public:
   }
 
   void plus( const Vector<Real> &x ) {
-    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real>&>(x);
     vec_->plus(*(xs.getVector()));
     if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->plus(*(xs.getStatisticVector(0)));
@@ -234,7 +234,7 @@ public:
   }
 
   void axpy( const Real alpha, const Vector<Real> &x ) {
-    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real>&>(x);
     vec_->axpy(alpha,*(xs.getVector()));
     if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->axpy(alpha,*(xs.getStatisticVector(0)));
@@ -250,7 +250,7 @@ public:
   }
 
   Real dot( const Vector<Real> &x ) const {
-    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real>&>(x);
     Real val = vec_->dot(*(xs.getVector()));
     if (augmentedObj_ && statObj_vec_ != nullptr) {
       val += statObj_vec_->dot(*(xs.getStatisticVector(0)));
@@ -381,7 +381,7 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const Vector<Real> &x ) {
-    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real> >(x);
+    const RiskVector<Real> &xs = dynamic_cast<const RiskVector<Real>&>(x);
     vec_->applyBinary(f,*xs.getVector());
     if (augmentedObj_ && statObj_vec_ != nullptr) {
       statObj_vec_->applyBinary(f,*xs.getStatisticVector(0));

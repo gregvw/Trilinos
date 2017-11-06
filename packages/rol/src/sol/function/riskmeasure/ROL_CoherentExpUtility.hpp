@@ -89,7 +89,7 @@ public:
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    xstat_ = (*dynamic_cast<const RiskVector<Real> >(x).getStatistic(comp,index))[0];
+    xstat_ = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[0];
     if ( firstReset_ ) {
       scaledGradient1_ = (x0->dual()).clone();
       scaledGradient2_ = (x0->dual()).clone();
@@ -106,10 +106,10 @@ public:
              std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
     v0 = std::const_pointer_cast<Vector<Real> >(
-           dynamic_cast<const RiskVector<Real> >(v).getVector());
+           dynamic_cast<const RiskVector<Real>&>(v).getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    vstat_ = (*dynamic_cast<const RiskVector<Real> >(v).getStatistic(comp,index))[0];
+    vstat_ = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index))[0];
   }
 
   void update(const Real val, const Real weight) {
@@ -141,10 +141,10 @@ public:
     Real gstat = std::log(myval[0]) - myval[1]/(myval[0]*xstat_);
     dualVector1_->scale(one/myval[0]);
     // Set partial derivatives in g vector
-    (dynamic_cast<RiskVector<Real> >(g)).setVector(*dualVector1_);
+    (dynamic_cast<RiskVector<Real>&>(g)).setVector(*dualVector1_);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    (dynamic_cast<RiskVector<Real> >(g)).setStatistic(gstat,comp,index);
+    (dynamic_cast<RiskVector<Real>&>(g)).setStatistic(gstat,comp,index);
   }
 
   void update(const Real val, const Vector<Real> &g, const Real gv, const Vector<Real> &hv,
@@ -188,10 +188,10 @@ public:
     sampler.sumAll(*scaledGradient2_,*dualVector2_);
     dualVector1_->axpy(-vstat_/val[0],*dualVector2_);
 
-    (dynamic_cast<RiskVector<Real> >(hv)).setVector(*dualVector1_);
+    (dynamic_cast<RiskVector<Real>&>(hv)).setVector(*dualVector1_);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    (dynamic_cast<RiskVector<Real> >(hv)).setStatistic(h11+h12,comp,index);
+    (dynamic_cast<RiskVector<Real>&>(hv)).setStatistic(h11+h12,comp,index);
   }
 };
 

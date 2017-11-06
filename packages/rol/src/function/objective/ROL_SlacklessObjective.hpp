@@ -61,16 +61,16 @@ private:
   std::shared_ptr<Objective<Real> > obj_;
 
   std::shared_ptr<Vector<Real> > getOpt( Vector<Real> &xs ) {
-    return dynamic_cast<PartitionedVector<Real> >(xs).get(0);
+    return dynamic_cast<PartitionedVector<Real>&>(xs).get(0);
   }
 
   std::shared_ptr<const Vector<Real> > getOpt( const Vector<Real> &xs ) {
-    return dynamic_cast<const PartitionedVector<Real> >(xs).get(0);
+    return dynamic_cast<const PartitionedVector<Real>&>(xs).get(0);
   }
 
   void zeroSlack( Vector<Real> &x ) {
     PartitionedVector<Real> &xpv
-      = dynamic_cast<PartitionedVector<Real> >(x);
+      = dynamic_cast<PartitionedVector<Real>&>(x);
     const int nvec = static_cast<int>(xpv.numVectors());
     for (int i = 1; i < nvec; ++i) {
       xpv.get(i)->zero();

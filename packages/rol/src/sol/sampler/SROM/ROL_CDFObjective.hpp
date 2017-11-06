@@ -193,7 +193,7 @@ public:
   }
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real> >(x);
+    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real>&>(x);
     const ProbabilityVector<Real> &prob = *(ex.getProbabilityVector());
     const AtomVector<Real> &atom = *(ex.getAtomVector());
     Real val(0), diff(0), pt(0), wt(0), meas(0), lb(0), one(1);
@@ -213,7 +213,7 @@ public:
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
     g.zero();
-    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real> >(x);
+    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real>&>(x);
     const ProbabilityVector<Real> &prob = *(ex.getProbabilityVector());
     const AtomVector<Real> &atom = *(ex.getAtomVector());
     const int numSamples = prob.getNumMyAtoms();
@@ -236,7 +236,7 @@ public:
         }
       }
     }
-    SROMVector<Real> &eg = dynamic_cast<SROMVector<Real> >(g);
+    SROMVector<Real> &eg = dynamic_cast<SROMVector<Real>&>(g);
     ProbabilityVector<Real> &gprob = *(eg.getProbabilityVector());
     AtomVector<Real> &gatom = *(eg.getAtomVector());
     for (int k = 0; k < numSamples; k++) {
@@ -251,10 +251,10 @@ public:
 
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
     hv.zero();
-    const SROMVector<Real> &ev = dynamic_cast<const SROMVector<Real> >(v);
+    const SROMVector<Real> &ev = dynamic_cast<const SROMVector<Real>&>(v);
     const ProbabilityVector<Real> &vprob = *(ev.getProbabilityVector());
     const AtomVector<Real> &vatom = *(ev.getAtomVector());
-    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real> >(x);
+    const SROMVector<Real> &ex = dynamic_cast<const SROMVector<Real>&>(x);
     const ProbabilityVector<Real> &prob = *(ex.getProbabilityVector());
     const AtomVector<Real> &atom = *(ex.getAtomVector());
     const int numSamples = prob.getNumMyAtoms();
@@ -278,7 +278,7 @@ public:
         }
       }
     }
-    SROMVector<Real> &ehv = dynamic_cast<SROMVector<Real> >(hv);
+    SROMVector<Real> &ehv = dynamic_cast<SROMVector<Real>&>(hv);
     ProbabilityVector<Real> &hprob = *(ehv.getProbabilityVector());
     AtomVector<Real> &hatom = *(ehv.getAtomVector());
     for (int k = 0; k < numSamples; k++) {

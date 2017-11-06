@@ -65,7 +65,7 @@ private:
   Real value_;
 
   Real getValueX( const V& x ) const { 
-    return dynamic_cast<const SingletonVector<Real> >(x).getValue(); 
+    return dynamic_cast<const SingletonVector<Real>&>(x).getValue(); 
   }
 
 public:

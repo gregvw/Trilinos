@@ -105,7 +105,7 @@ public:
       isDualInitialized_(false) {}
 
   Real dot(const Vector<Real> &x) const {
-    const std::vector<Real> &xval = *(dynamic_cast<const StdVector<Real> >(x).getVector());
+    const std::vector<Real> &xval = *(dynamic_cast<const StdVector<Real>&>(x).getVector());
     const std::vector<Real> &yval = *(StdVector<Real>::getVector());
     uint numMySamples = static_cast<uint>(yval.size());
     TEUCHOS_TEST_FOR_EXCEPTION( xval.size() != numMySamples, std::invalid_argument,
@@ -158,7 +158,7 @@ public:
       isDualInitialized_(false) {}
 
   Real dot(const Vector<Real> &x) const {
-    const std::vector<Real> &xval = *(dynamic_cast<const StdVector<Real> >(x).getVector());
+    const std::vector<Real> &xval = *(dynamic_cast<const StdVector<Real>&>(x).getVector());
     const std::vector<Real> &yval = *(StdVector<Real>::getVector());
     uint numMySamples = static_cast<uint>(yval.size());
     TEUCHOS_TEST_FOR_EXCEPTION( xval.size() != numMySamples, std::invalid_argument,

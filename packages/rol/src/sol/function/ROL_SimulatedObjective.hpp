@@ -67,10 +67,10 @@ public:
 
   Real value(const Vector<Real> &x,
              Real &tol) {
-    const Vector_SimOpt<Real> &uz = dynamic_cast<const Vector_SimOpt<Real> >(x);
+    const Vector_SimOpt<Real> &uz = dynamic_cast<const Vector_SimOpt<Real>&>(x);
     std::shared_ptr<const Vector<Real> > uptr = uz.get_1();
     std::shared_ptr<const Vector<Real> > zptr = uz.get_2();
-    const SimulatedVector<Real> &pu = dynamic_cast<const SimulatedVector<Real> >(*uptr);
+    const SimulatedVector<Real> &pu = dynamic_cast<const SimulatedVector<Real>&>(*uptr);
 
     std::vector<Real> param;
     Real weight(0);
@@ -94,15 +94,15 @@ public:
                         Real &tol) {
     g.zero();
     // split x
-    const Vector_SimOpt<Real> &xuz = dynamic_cast<const Vector_SimOpt<Real> >(x);
+    const Vector_SimOpt<Real> &xuz = dynamic_cast<const Vector_SimOpt<Real>&>(x);
     std::shared_ptr<const Vector<Real> > xuptr = xuz.get_1();
     std::shared_ptr<const Vector<Real> > xzptr = xuz.get_2();
-    const SimulatedVector<Real> &pxu = dynamic_cast<const SimulatedVector<Real> >(*xuptr);
+    const SimulatedVector<Real> &pxu = dynamic_cast<const SimulatedVector<Real>&>(*xuptr);
     // split g
-    Vector_SimOpt<Real> &guz = dynamic_cast<Vector_SimOpt<Real> >(g);
+    Vector_SimOpt<Real> &guz = dynamic_cast<Vector_SimOpt<Real>&>(g);
     std::shared_ptr<Vector<Real> > guptr = guz.get_1();
     std::shared_ptr<Vector<Real> > gzptr = guz.get_2();
-    SimulatedVector<Real> &pgu = dynamic_cast<SimulatedVector<Real> >(*guptr);
+    SimulatedVector<Real> &pgu = dynamic_cast<SimulatedVector<Real>&>(*guptr);
 
     std::vector<Real> param;
     Real weight(0);
@@ -130,20 +130,20 @@ public:
                        Real &tol) {
     hv.zero();
     // split x
-    const Vector_SimOpt<Real> &xuz = dynamic_cast<const Vector_SimOpt<Real> >(x);
+    const Vector_SimOpt<Real> &xuz = dynamic_cast<const Vector_SimOpt<Real>&>(x);
     std::shared_ptr<const Vector<Real> > xuptr = xuz.get_1();
     std::shared_ptr<const Vector<Real> > xzptr = xuz.get_2();
-    const SimulatedVector<Real> &pxu = dynamic_cast<const SimulatedVector<Real> >(*xuptr);
+    const SimulatedVector<Real> &pxu = dynamic_cast<const SimulatedVector<Real>&>(*xuptr);
     // split v
-    const Vector_SimOpt<Real> &vuz = dynamic_cast<const Vector_SimOpt<Real> >(v);
+    const Vector_SimOpt<Real> &vuz = dynamic_cast<const Vector_SimOpt<Real>&>(v);
     std::shared_ptr<const Vector<Real> > vuptr = vuz.get_1();
     std::shared_ptr<const Vector<Real> > vzptr = vuz.get_2();
-    const SimulatedVector<Real> &pvu = dynamic_cast<const SimulatedVector<Real> >(*vuptr);
+    const SimulatedVector<Real> &pvu = dynamic_cast<const SimulatedVector<Real>&>(*vuptr);
     // split hv
-    Vector_SimOpt<Real> &hvuz = dynamic_cast<Vector_SimOpt<Real> >(hv);
+    Vector_SimOpt<Real> &hvuz = dynamic_cast<Vector_SimOpt<Real>&>(hv);
     std::shared_ptr<Vector<Real> > hvuptr = hvuz.get_1();
     std::shared_ptr<Vector<Real> > hvzptr = hvuz.get_2();
-    SimulatedVector<Real> &phvu = dynamic_cast<SimulatedVector<Real> >(*hvuptr);
+    SimulatedVector<Real> &phvu = dynamic_cast<SimulatedVector<Real>&>(*hvuptr);
 
     std::vector<Real> param;
     Real weight(0);

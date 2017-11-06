@@ -78,12 +78,12 @@ private:
 
   template<class VectorType> 
   std::shared_ptr<const vector> getVector( const V& x ) {
-    return dynamic_cast<const VectorType>((x)).getVector();
+    return dynamic_cast<const VectorType&>((x)).getVector();
   }
 
   template<class VectorType> 
   std::shared_ptr<vector> getVector( V& x ) {
-    return dynamic_cast<VectorType>(x).getVector();
+    return dynamic_cast<VectorType&>(x).getVector();
   }
 
 public:
