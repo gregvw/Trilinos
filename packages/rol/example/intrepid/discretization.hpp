@@ -73,7 +73,7 @@ class Discretization {
   typedef Intrepid::DefaultCubatureFactory<Real>       CubatureFactory;
   typedef Intrepid::Basis_HGRAD_LINE_C1_FEM<Real,FC>   LineBasis;
 
-  template <typename T> using RCP = Teuchos::RCP<T>;
+  template <typename T> using std::shared_ptr = std::shared_ptr<T>;
 
   private:
 
@@ -87,21 +87,21 @@ class Discretization {
 
     shards::CellTopology cellType_; // Cell Topology
     
-    RCP<FC> cubPts_;                // Reference cell cubature points
-    RCP<FC> cubWts_;                // Reference cell cubature weights
-    RCP<FC> cellNodes_;             // Physical cell vertices
-    RCP<FC> jacobian_;              // Jacobians of physical cells
-    RCP<FC> jacInv_;                // Inverses of Jacobians
-    RCP<FC> jacDet_;                // Determinants of Jacobians
-    RCP<FC> wtdMeasure_;            // Weighted measure
-    RCP<FC> valsCubPts_;            // Values at cubature points on reference cell
-    RCP<FC> gradCubPts_;            // Gradient at cubature points on reference cell
-    RCP<FC> tranValsCubPts_;        // Transformed values at cubature points 
-    RCP<FC> tranGradCubPts_;        // Transformed gradient at cubature points
-    RCP<FC> wtdTranValsCubPts_;     // Weighted transformed values at cubature points   
-    RCP<FC> wtdTranGradCubPts_;     // Weighted transformed gradient at cubature points 
-    RCP<FC> physCubPts_;            // Locations of cubature points in physical cells
-    RCP<FC> massMatrices_;          // Mass matrices for each cells
+    std::shared_ptr<FC> cubPts_;                // Reference cell cubature points
+    std::shared_ptr<FC> cubWts_;                // Reference cell cubature weights
+    std::shared_ptr<FC> cellNodes_;             // Physical cell vertices
+    std::shared_ptr<FC> jacobian_;              // Jacobians of physical cells
+    std::shared_ptr<FC> jacInv_;                // Inverses of Jacobians
+    std::shared_ptr<FC> jacDet_;                // Determinants of Jacobians
+    std::shared_ptr<FC> wtdMeasure_;            // Weighted measure
+    std::shared_ptr<FC> valsCubPts_;            // Values at cubature points on reference cell
+    std::shared_ptr<FC> gradCubPts_;            // Gradient at cubature points on reference cell
+    std::shared_ptr<FC> tranValsCubPts_;        // Transformed values at cubature points 
+    std::shared_ptr<FC> tranGradCubPts_;        // Transformed gradient at cubature points
+    std::shared_ptr<FC> wtdTranValsCubPts_;     // Weighted transformed values at cubature points   
+    std::shared_ptr<FC> wtdTranGradCubPts_;     // Weighted transformed gradient at cubature points 
+    std::shared_ptr<FC> physCubPts_;            // Locations of cubature points in physical cells
+    std::shared_ptr<FC> massMatrices_;          // Mass matrices for each cells
 
   public:    
 
@@ -110,7 +110,7 @@ class Discretization {
       cubDegree_(cubDegree), 
       domainLength_(domainLength) {
 
-      using Teuchos::rcp;     
+           
  
       // Set the cell topology (intervals) 
       cellType_ = shards::getCellTopologyData<shards::Line<2> >();
@@ -121,7 +121,7 @@ class Discretization {
       CubatureFactory cubFactory; 
  
       // Get the reference cell cubature       
-      RCP<Cubature> cellCub = cubFactory.create(cellType_,cubDegree_);
+      std::shared_ptr<Cubature> cellCub = cubFactory.create(cellType_,cubDegree_);
 
       // Get number of cubature points
       numCubPts_ = cellCub->getNumPoints();
@@ -131,21 +131,21 @@ class Discretization {
       numFields_ = lineBasis.getCardinality();
 
       // Instantiate field containers
-      cubPts_            = rcp( new FC(numCubPts_,spaceDim_) );
-      cubWts_            = rcp( new FC(numCubPts_) );        
-      cellNodes_         = rcp( new FC(numCells_,numNodes_,spaceDim_) );
-      jacobian_          = rcp( new FC(numCells_,numCubPts_,spaceDim_,spaceDim_) );
-      jacInv_            = rcp( new FC(numCells_,numCubPts_,spaceDim_,spaceDim_) );
-      jacDet_            = rcp( new FC(numCells_,numCubPts_) );
-      wtdMeasure_        = rcp( new FC(numCells_,numCubPts_) );
-      valsCubPts_        = rcp( new FC(numFields_,numCubPts_) );
-      gradCubPts_        = rcp( new FC(numFields_,numCubPts_,spaceDim_) );
-      tranValsCubPts_    = rcp( new FC(numCells_, numFields_, numCubPts_) );
-      tranGradCubPts_    = rcp( new FC(numCells_, numFields_, numCubPts_, spaceDim_) );
-      wtdTranValsCubPts_ = rcp( new FC(numCells_, numFields_, numCubPts_) );
-      wtdTranGradCubPts_ = rcp( new FC(numCells_, numFields_, numCubPts_, spaceDim_) );
-      physCubPts_        = rcp( new FC(numCells_, numCubPts_, spaceDim_) );
-      massMatrices_      = rcp( new FC(numCells_, numFields_, numFields_) );
+      cubPts_            = std::make_shared<FC>(numCubPts_,spaceDim_);
+      cubWts_            = std::make_shared<FC>(numCubPts_);        
+      cellNodes_         = std::make_shared<FC>(numCells_,numNodes_,spaceDim_);
+      jacobian_          = std::make_shared<FC>(numCells_,numCubPts_,spaceDim_,spaceDim_);
+      jacInv_            = std::make_shared<FC>(numCells_,numCubPts_,spaceDim_,spaceDim_);
+      jacDet_            = std::make_shared<FC>(numCells_,numCubPts_);
+      wtdMeasure_        = std::make_shared<FC>(numCells_,numCubPts_);
+      valsCubPts_        = std::make_shared<FC>(numFields_,numCubPts_);
+      gradCubPts_        = std::make_shared<FC>(numFields_,numCubPts_,spaceDim_);
+      tranValsCubPts_    = std::make_shared<FC>(numCells_, numFields_, numCubPts_);
+      tranGradCubPts_    = std::make_shared<FC>(numCells_, numFields_, numCubPts_, spaceDim_);
+      wtdTranValsCubPts_ = std::make_shared<FC>(numCells_, numFields_, numCubPts_);
+      wtdTranGradCubPts_ = std::make_shared<FC>(numCells_, numFields_, numCubPts_, spaceDim_);
+      physCubPts_        = std::make_shared<FC>(numCells_, numCubPts_, spaceDim_);
+      massMatrices_      = std::make_shared<FC>(numCells_, numFields_, numFields_);
 
       Real cellLength = domainLength_/numCells_;
 
@@ -201,27 +201,27 @@ class Discretization {
       return numCubPts_;
     }
     
-    RCP<FC> getPhysCubPts() {
+    std::shared_ptr<FC> getPhysCubPts() {
       return physCubPts_;
     }
 
-    RCP<FC> getTransformedVals() {
+    std::shared_ptr<FC> getTransformedVals() {
       return tranValsCubPts_;  
     } 
      
-    RCP<FC> getTransformedGrad() {
+    std::shared_ptr<FC> getTransformedGrad() {
       return tranGradCubPts_;
     }
 
-    RCP<FC> getWeightedTransformedVals() {
+    std::shared_ptr<FC> getWeightedTransformedVals() {
       return wtdTranValsCubPts_;  
     } 
      
-    RCP<FC> getWeightedTransformedGrad() {
+    std::shared_ptr<FC> getWeightedTransformedGrad() {
       return wtdTranGradCubPts_;
     }
 
-    RCP<FC> getMassMatrices() {
+    std::shared_ptr<FC> getMassMatrices() {
       return massMatrices_;
     }
 

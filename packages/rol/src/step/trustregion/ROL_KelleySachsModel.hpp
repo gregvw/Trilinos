@@ -1,4 +1,4 @@
-// @HEADER
+// @Header
 // ************************************************************************
 //
 //               Rapid Optimization Library (ROL) Package
@@ -75,7 +75,7 @@ public:
                    const Vector<Real> &x, const Vector<Real> &g, const Real eps)
     : TrustRegionModel<Real>::TrustRegionModel(obj,x,g,false),
       secant_(nullptr), useSecantPrecond_(false), useSecantHessVec_(false), eps_(eps) {
-    bnd_  = Teuchos::rcpFromRef(bnd);
+    bnd_.reset(&bnd);
     prim_ = x.clone();
     dual_ = g.clone();
   }
@@ -86,7 +86,7 @@ public:
                    const bool useSecantPrecond, const bool useSecantHessVec)
     : TrustRegionModel<Real>::TrustRegionModel(obj,x,g,false),
       secant_(secant), useSecantPrecond_(useSecantPrecond), useSecantHessVec_(useSecantHessVec), eps_(eps) {
-    bnd_  = Teuchos::rcpFromRef(bnd);
+    bnd_.reset(&bnd);
     prim_ = x.clone();
     dual_ = g.clone();
   }
@@ -215,8 +215,8 @@ public:
     return bnd_;
   }
 
-}; 
+};
 
 } // namespace ROL
 
-#endif 
+#endif

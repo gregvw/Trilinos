@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
   using namespace Teuchos;
 
-  RCP<ParameterList> inlist = rcp( new ParameterList() );
+  std::shared_ptr<ParameterList> inlist = std::make_shared<ParameterList>();
   std::string infile  = "parameters.xml";
   std::string outfile = "tiered_parameters.xml";
 

@@ -82,12 +82,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
     RealT    pi = std::acos(-1);
     ComplexT i(RealT(0),RealT(1));
 
-    RCP<vector> xp = rcp(new vector(N));
+    std::shared_ptr<vector> xp = std::make_shared<vector>(N);
 
     RealT scale = 1.0/std::sqrt(N);    
 

@@ -73,12 +73,12 @@ int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
   bool print = (iprint>0);
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (print)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   int errorFlag  = 0;
 
@@ -92,34 +92,34 @@ int main(int argc, char *argv[]) {
     RealT nl    = 1.0;   // Nonlinearity parameter (1 = Burgers, 0 = linear).
     RealT cH1   = 1.0;   // Scale for derivative term in H1 norm.
     RealT cL2   = 0.0;   // Scale for mass term in H1 norm.
-    Teuchos::RCP<BurgersFEM<RealT> > fem
-      = Teuchos::rcp(new BurgersFEM<RealT>(nx,nl,cH1,cL2));
+    std::shared_ptr<BurgersFEM<RealT> > fem
+      = std::make_shared<BurgersFEM<RealT>>(nx,nl,cH1,cL2);
     fem->test_inverse_mass(*outStream);
     fem->test_inverse_H1(*outStream);
     /*************************************************************************/
     /************* INITIALIZE SIMOPT CONSTRAINT ******************************/
     /*************************************************************************/
     bool hess = true;
-    Teuchos::RCP<ROL::Constraint_SimOpt<RealT> > con
-      = Teuchos::rcp(new Constraint_BurgersControl<RealT>(fem,hess));
+    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
+      = std::make_shared<Constraint_BurgersControl<RealT>>(fem,hess);
     /*************************************************************************/
     /************* INITIALIZE VECTOR STORAGE *********************************/
     /*************************************************************************/
     // INITIALIZE CONTROL VECTORS
-    Teuchos::RCP<std::vector<RealT> > z_rcp
-      = Teuchos::rcp( new std::vector<RealT> (nx+2, 0.0) );
-    Teuchos::RCP<ROL::Vector<RealT> > zp
-      = Teuchos::rcp(new PrimalControlVector(z_rcp,fem));
+    std::shared_ptr<std::vector<RealT> > z_rcp
+      = std::make_shared<std::vector<RealT>>(nx+2, 0.0);
+    std::shared_ptr<ROL::Vector<RealT> > zp
+      = std::make_shared<PrimalControlVector>(z_rcp,fem);
     // INITIALIZE STATE VECTORS
-    Teuchos::RCP<std::vector<RealT> > u_rcp
-      = Teuchos::rcp( new std::vector<RealT> (nx, 1.0) );
-    Teuchos::RCP<ROL::Vector<RealT> > up
-      = Teuchos::rcp(new PrimalStateVector(u_rcp,fem));
+    std::shared_ptr<std::vector<RealT> > u_rcp
+      = std::make_shared<std::vector<RealT>>(nx, 1.0);
+    std::shared_ptr<ROL::Vector<RealT> > up
+      = std::make_shared<PrimalStateVector>(u_rcp,fem);
     // INITIALIZE CONSTRAINT VECTORS
-    Teuchos::RCP<std::vector<RealT> > c_rcp
-      = Teuchos::rcp( new std::vector<RealT> (nx, 1.0) );
-    Teuchos::RCP<ROL::Vector<RealT> > cp
-      = Teuchos::rcp(new PrimalConstraintVector(c_rcp,fem));
+    std::shared_ptr<std::vector<RealT> > c_rcp
+      = std::make_shared<std::vector<RealT>>(nx, 1.0);
+    std::shared_ptr<ROL::Vector<RealT> > cp
+      = std::make_shared<PrimalConstraintVector>(c_rcp,fem);
     /*************************************************************************/
     /************* CHECK DERIVATIVES AND CONSISTENCY *************************/
     /*************************************************************************/

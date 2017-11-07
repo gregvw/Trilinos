@@ -65,12 +65,12 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -79,14 +79,14 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input_05.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist
-      = Teuchos::rcp( new Teuchos::ParameterList() );
+    std::shared_ptr<Teuchos::ParameterList> parlist
+      = std::make_shared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize mesh / degree-of-freedom manager. ***/
     MeshManager_Brick<RealT> meshmgr(*parlist);
-    Teuchos::RCP<Intrepid::FieldContainer<RealT> > nodesPtr = meshmgr.getNodes();
-    Teuchos::RCP<Intrepid::FieldContainer<int> >   cellToNodeMapPtr = meshmgr.getCellToNodeMap();
+    std::shared_ptr<Intrepid::FieldContainer<RealT> > nodesPtr = meshmgr.getNodes();
+    std::shared_ptr<Intrepid::FieldContainer<int> >   cellToNodeMapPtr = meshmgr.getCellToNodeMap();
 
     Intrepid::FieldContainer<RealT> &nodes = *nodesPtr;
     Intrepid::FieldContainer<int>   &cellToNodeMap = *cellToNodeMapPtr;
@@ -94,13 +94,13 @@ int main(int argc, char *argv[]) {
     *outStream << "Number of cells = " << meshmgr.getNumCells() << std::endl;
     *outStream << "Number of edges = " << meshmgr.getNumEdges() << std::endl;
 
-    Teuchos::RCP<MeshManager<RealT> > meshmgrPtr = Teuchos::rcpFromRef(meshmgr);
+    std::shared_ptr<MeshManager<RealT> > meshmgrPtr = Teuchos::rcpFromRef(meshmgr);
 
     // Basis.
-    Teuchos::RCP<Intrepid::Basis<RealT, Intrepid::FieldContainer<RealT> > >    basis =
-      Teuchos::rcp(new Intrepid::Basis_HCURL_HEX_I1_FEM<RealT, Intrepid::FieldContainer<RealT> >);
+    std::shared_ptr<Intrepid::Basis<RealT, Intrepid::FieldContainer<RealT> > >    basis =
+      std::make_shared<Intrepid::Basis_HCURL_HEX_I1_FEM<RealT, Intrepid::FieldContainer<RealT> >>();
     // Cubature.
-    Teuchos::RCP<Intrepid::Cubature<RealT, Intrepid::FieldContainer<RealT> > > cubature;
+    std::shared_ptr<Intrepid::Cubature<RealT, Intrepid::FieldContainer<RealT> > > cubature;
     shards::CellTopology cellType = basis->getBaseCellTopology();                        // get the cell type from any basis
     Intrepid::DefaultCubatureFactory<RealT> cubFactory;                                  // create cubature factory
     int cubDegree = 4;                                                                   // set cubature degree, e.g., 2

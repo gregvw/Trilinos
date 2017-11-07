@@ -64,12 +64,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   int errorFlag  = 0;
 
@@ -81,10 +81,10 @@ int main(int argc, char *argv[]) {
 
     int dim = 100;
 
-    // Instantiate from raw pointer, Teuchos::ArrayRCP, and int (length) constructor
+    // Instantiate from raw pointer, Teuchos::Arraystd::shared_ptr, and int (length) constructor
     ElementT* x_rawp = new ElementT[dim];
 
-    Teuchos::ArrayRCP<ElementT> y_arcp(dim,0);
+    Teuchos::Arraystd::shared_ptr<ElementT> y_adim,0;
 
     ROL::CArrayVector<RealT, ElementT> x(x_rawp,dim);
     ROL::CArrayVector<RealT, ElementT> y(y_arcp);
@@ -101,14 +101,14 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT, ElementT> checkvec(Teuchos::rcp(&consistency, false));
+    ROL::StdVector<RealT, ElementT> checkvec(&consistency, false);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
 
     // Basis tests.
     // set x to first basis vector
-    Teuchos::RCP<ROL::Vector<RealT> > zp = x.clone();
+    std::shared_ptr<ROL::Vector<RealT> > zp = x.clone();
     zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";

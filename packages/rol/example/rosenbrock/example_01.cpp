@@ -65,12 +65,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     ROL::Algorithm<RealT> algo("Line Search",parlist);
 
     // Iteration Vector
-    Teuchos::RCP<std::vector<RealT> > x_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
+    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
     // Set Initial Guess
     for (int i=0; i<dim/2; i++) {
       (*x_rcp)[2*i]   = -1.2;
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
     algo.run(x, obj, true, *outStream);
 
     // Get True Solution
-    Teuchos::RCP<std::vector<RealT> > xtrue_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 1.0) );
+    std::shared_ptr<std::vector<RealT> > xtrue_rcp = std::make_shared<std::vector<RealT>>(dim, 1.0);
     ROL::StdVector<RealT> xtrue(xtrue_rcp);
     
     // Compute Error

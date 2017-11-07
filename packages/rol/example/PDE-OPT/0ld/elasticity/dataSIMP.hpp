@@ -55,9 +55,9 @@ private:
 
 public:
 
-ElasticitySIMPData(const Teuchos::RCP<const Teuchos::Comm<int> > &comm,
-             const Teuchos::RCP<Teuchos::ParameterList> &parlist,
-             const Teuchos::RCP<std::ostream> &outStream) 
+ElasticitySIMPData(const std::shared_ptr<const Teuchos::Comm<int> > &comm,
+             const std::shared_ptr<Teuchos::ParameterList> &parlist,
+             const std::shared_ptr<std::ostream> &outStream) 
 {
     	this->ElasticitySIMP_Initialize(comm, parlist, outStream);
         Real iniDens = parlist->sublist("ElasticitySIMP").get("Initial Density", 1.0);

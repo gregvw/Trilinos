@@ -64,7 +64,7 @@ ROL::ProfiledVector<int,RealT>::functionCalls_ = ROL::VectorFunctionCalls<int>()
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
   using Teuchos::ParameterList;
 
   typedef std::vector<RealT>                  vector;
@@ -75,12 +75,12 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
 
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   int errorFlag = 0;
 
@@ -88,26 +88,26 @@ int main(int argc, char *argv[]) {
     // Dimension of the optimization vector
     int dim = 10; 
 
-    RCP<ParameterList> parlist = rcp(new ParameterList());
+    std::shared_ptr<ParameterList> parlist = std::make_shared<ParameterList>();
     std::string paramfile = "parameters.xml";
     updateParametersFromXmlFile(paramfile,parlist.ptr());
 
     // Define algorithm.
     ROL::Algorithm<RealT> algo("Trust-Region",*parlist);    
 
-    RCP<vector> x_rcp = rcp( new vector(dim,1.0) );
-    RCP<vector> k_rcp = rcp( new vector(dim) );
+    std::shared_ptr<vector> x_rcp = std::make_shared<vector>(dim,1.0);
+    std::shared_ptr<vector> k_rcp = std::make_shared<vector>(dim);
 
     for(int i=0;i<dim;++i) {  
       (*k_rcp)[i] = 1.0 + i;
     }
 
-    RCP<V> xs = rcp( new SV(x_rcp) );
-    RCP<V> ks = rcp( new SV(k_rcp) );
+    std::shared_ptr<V> xs = std::make_shared<SV>(x_rcp);
+    std::shared_ptr<V> ks = std::make_shared<SV>(k_rcp);
 
     // Create ProfiledVector objects
     ROL::ProfiledVector<int,RealT> xpf(xs);
-    RCP<V> kpf = rcp( new ROL::ProfiledVector<int,RealT>(ks) );
+    std::shared_ptr<V> kpf = std::make_shared<ROL::ProfiledVector<int,RealT>>(ks);
 
     ROL::ZOO::Objective_Zakharov<RealT> obj(kpf);    
 

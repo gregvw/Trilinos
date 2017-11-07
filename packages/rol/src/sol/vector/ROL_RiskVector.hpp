@@ -50,7 +50,7 @@
 
 namespace ROL {
 
-template<class Real> 
+template<class Real>
 class RiskVector : public Vector<Real> {
 private:
   std::shared_ptr<std::vector<Real> > statObj_;
@@ -90,13 +90,13 @@ private:
       augmentedObj_ = false;
       nStatObj_     = 0;
     }
-  } 
+  }
 
   void initializeCon(std::vector<std::shared_ptr<Teuchos::ParameterList> > &parlist,
                const Real stat = 1) {
     int size = parlist.size();
     statCon_.resize(size); statCon_vec_.resize(size); nStatCon_.resize(size);
-    for (int i = 0; i < size; ++i) { 
+    for (int i = 0; i < size; ++i) {
       if (parlist[i] != nullptr) {
         // Get risk measure information
         std::string name;
@@ -122,7 +122,7 @@ private:
   }
 
 public:
-  
+
   // Objective risk only
   RiskVector( std::shared_ptr<Teuchos::ParameterList> &parlist,
         const std::shared_ptr<Vector<Real> >          &vec,
@@ -157,7 +157,7 @@ public:
     initializeObj(parlistObj,stat);
     initializeCon(parlistCon,stat);
   }
- 
+
   // Build from components
   RiskVector( const std::shared_ptr<Vector<Real> >                    &vec,
               const std::shared_ptr<std::vector<Real> >               &statObj,
@@ -273,16 +273,16 @@ public:
   std::shared_ptr<Vector<Real> > clone(void) const {
     std::shared_ptr<std::vector<Real> > e2 = nullptr;
     if (augmentedObj_ && statObj_vec_ != nullptr) {
-      e2 = std::make_shared<std::vector<Real>(nStatObj_,static_cast<Real>>(0));
+      e2 = std::make_shared<std::vector<Real>>(nStatObj_, static_cast<Real>(0));
     }
     int size = statCon_vec_.size();
     std::vector<std::shared_ptr<std::vector<Real> > > e3(size, nullptr);
     for (int j = 0; j < size; ++j) {
       if (statCon_vec_[j] != nullptr) {
-        e3[j] = std::make_shared<std::vector<Real>(nStatCon_[j],static_cast<Real>>(0));
+        e3[j] = std::make_shared<std::vector<Real>>(nStatCon_[j], static_cast<Real>(0));
       }
     }
-    return std::make_shared<RiskVector(vec_->clone>(),e2,e3);
+    return std::make_shared<RiskVector>(vec_->clone(),e2,e3);
   }
 
   const Vector<Real> &dual(void) const {
@@ -291,29 +291,29 @@ public:
       dual_vec1_ = vec_->dual().clone();
       dualObj_ = nullptr;
       if (statObj_ != nullptr) {
-        dualObj_ = std::make_shared<std::vector<Real>(statObj_->size>());
+        dualObj_ = std::make_shared<std::vector<Real>>(statObj_->size());
       }
       int size = statCon_.size();
       dualCon_.clear(); dualCon_.resize(size,nullptr);
       for (int i = 0; i < size; ++i) {
         if (statCon_[i] != nullptr) {
-          dualCon_[i] = std::make_shared<std::vector<Real>(statCon_[i]->size>());
+          dualCon_[i] = std::make_shared<std::vector<Real>>(statCon_[i]->size());
         }
       }
       dual_vec_  = std::make_shared<RiskVector<Real>>(dual_vec1_,dualObj_,dualCon_);
       isDualInitialized_ = true;
     }
-    // Set vector component 
+    // Set vector component
     dual_vec1_->set(vec_->dual());
     // Set statistic component
     if ( augmentedObj_ && statObj_vec_ != nullptr ) {
-      std::dynamic_pointer_cast<RiskVector<Real> >(dual_vec_)->setStatistic(*statObj_,0);
+      std::dynamic_pointer_cast<RiskVector<Real>>(dual_vec_)->setStatistic(*statObj_,0);
     }
     if ( augmentedCon_ ) {
       int size = statCon_.size();
       for (int i = 0; i < size; ++i) {
         if (statCon_[i] != nullptr) {
-          std::dynamic_pointer_cast<RiskVector<Real> >(dual_vec_)->setStatistic(*statCon_[i],1,i);
+          std::dynamic_pointer_cast<RiskVector<Real>>(dual_vec_)->setStatistic(*statCon_[i],1,i);
         }
       }
     }
@@ -325,13 +325,13 @@ public:
     std::shared_ptr<Vector<Real> > e1;
     std::shared_ptr<std::vector<Real> > e2 = nullptr;
     if (augmentedObj_ && statObj_vec_ != nullptr) {
-      e2 = std::make_shared<std::vector<Real>(nStatObj_,static_cast<Real>>(0));
+      e2 = std::make_shared<std::vector<Real>>(nStatObj_,static_cast<Real>(0));
     }
     int size = statCon_vec_.size();
     std::vector<std::shared_ptr<std::vector<Real> > > e3(size);
     for (int j = 0; j < size; ++j) {
       if (statCon_vec_[j] != nullptr) {
-        e3[j] = std::make_shared<std::vector<Real>(nStatCon_[j],static_cast<Real>>(0));
+        e3[j] = std::make_shared<std::vector<Real>>(nStatCon_[j],static_cast<Real>(0));
       }
     }
     int n1 = vec_->dimension(), n2 = 0;
@@ -518,7 +518,7 @@ public:
       throw Exception::NotImplemented(">>> ROL::RiskVector::setStatistic: Component must be 0 or 1!");
     }
   }
- 
+
   void setStatistic(const std::vector<Real> &stat, const int comp = 0, const int index = 0) {
     if ( comp == 0 ) {
       if ( augmentedObj_ ) {
@@ -540,7 +540,7 @@ public:
       throw Exception::NotImplemented(">>> ROL::RiskVector::setStatistic: Component must be 0 or 1!");
     }
   }
- 
+
   void setVector(const Vector<Real>& vec) {
     vec_->set(vec);
   }

@@ -62,16 +62,16 @@ int main(int argc, char *argv[]) {
 
   using V = ROL::Vector<RealT>;
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -86,12 +86,12 @@ int main(int argc, char *argv[]) {
     int xdim = 5;
     
     // Optimization vector
-    RCP<V> a  = rcp( new ROL::StdVector<RealT>( rcp( new std::vector<RealT>(xdim) ) ) );
-    RCP<V> c  = rcp( new ROL::SingletonVector<RealT>( 0.0 ) );
+    std::shared_ptr<V> a  = std::make_shared<ROL::StdVector<RealT>( rcp( new std::vector<RealT>>(xdim) ) );
+    std::shared_ptr<V> c  = std::make_shared<ROL::SingletonVector<RealT>>( 0.0 );
 
-    RCP<V> x = a->clone();
-    RCP<V> d = x->clone();
-    RCP<V> v = c->clone();
+    std::shared_ptr<V> x = a->clone();
+    std::shared_ptr<V> d = x->clone();
+    std::shared_ptr<V> v = c->clone();
 
     RealT b = 0.5;
  

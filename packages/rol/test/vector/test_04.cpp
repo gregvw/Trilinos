@@ -62,14 +62,14 @@ void print_vector( const ROL::Vector<Real> &x ) {
   typedef ROL::PartitionedVector<Real> PV;
   typedef typename PV::size_type       size_type;
 
-  const PV eb = Teuchos::dyn_cast<const PV>(x);
+  const PV eb = dynamic_cast<const PV&>(x);
   size_type n = eb.numVectors();
     
   for(size_type k=0; k<n; ++k) {
     std::cout << "[subvector " << k << "]" << std::endl;
-    Teuchos::RCP<const V> vec = eb.get(k);
-    Teuchos::RCP<const std::vector<Real> > vp = 
-      Teuchos::dyn_cast<const SV>(*vec).getVector();  
+    std::shared_ptr<const V> vec = eb.get(k);
+    std::shared_ptr<const std::vector<Real> > vp = 
+      dynamic_cast<const SV&>(*vec).getVector();  
    for(size_type i=0;i<vp->size();++i) {
       std::cout << (*vp)[i] << std::endl;
     }  
@@ -89,13 +89,13 @@ int main(int argc, char *argv[]) {
 
   int iprint = argc - 1;
 
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   oblackholestream bhs; // no output
  
   if( iprint>0 ) 
-    outStream = rcp(&std::cout,false);
+    outStream = &std::cout,false;
   else
-    outStream = rcp(&bhs,false);
+    outStream = &bhs,false;
 
   int errorFlag = 0;
 
@@ -114,14 +114,14 @@ int main(int argc, char *argv[]) {
      
     RealT left = -1e0, right = 1e0;
 
-    std::vector<RCP<V> > x_rcp;
-    std::vector<RCP<V> > y_rcp;
-    std::vector<RCP<V> > z_rcp;
+    std::vector<std::shared_ptr<V> > x_rcp;
+    std::vector<std::shared_ptr<V> > y_rcp;
+    std::vector<std::shared_ptr<V> > z_rcp;
 
     for( PV::size_type k=0; k<nvec; ++k ) {
-      RCP<std::vector<RealT> > xk_rcp = rcp( new std::vector<RealT>(dim[k]) );
-      RCP<std::vector<RealT> > yk_rcp = rcp( new std::vector<RealT>(dim[k]) );
-      RCP<std::vector<RealT> > zk_rcp = rcp( new std::vector<RealT>(dim[k]) );
+      std::shared_ptr<std::vector<RealT> > xk_rcp = std::make_shared<std::vector<RealT>>(dim[k]);
+      std::shared_ptr<std::vector<RealT> > yk_rcp = std::make_shared<std::vector<RealT>>(dim[k]);
+      std::shared_ptr<std::vector<RealT> > zk_rcp = std::make_shared<std::vector<RealT>>(dim[k]);
        
       for( int i=0; i<dim[k]; ++i ) {
         (*xk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
@@ -129,9 +129,9 @@ int main(int argc, char *argv[]) {
         (*zk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
       }
    
-      RCP<V> xk = rcp( new SV( xk_rcp ) );
-      RCP<V> yk = rcp( new SV( yk_rcp ) );
-      RCP<V> zk = rcp( new SV( zk_rcp ) );
+      std::shared_ptr<V> xk = std::make_shared<SV>( xk_rcp );
+      std::shared_ptr<V> yk = std::make_shared<SV>( yk_rcp );
+      std::shared_ptr<V> zk = std::make_shared<SV>( zk_rcp );
 
       x_rcp.push_back(xk);
       y_rcp.push_back(yk);
@@ -141,19 +141,19 @@ int main(int argc, char *argv[]) {
     }
 
     PV x(x_rcp);
-    RCP<V> y = ROL::CreatePartitionedVector<RealT>(y_rcp[0],y_rcp[1],y_rcp[2]);
+    std::shared_ptr<V> y = ROL::CreatePartitionedVector<RealT>(y_rcp[0],y_rcp[1],y_rcp[2]);
     PV z(z_rcp);
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(*y, z, true, *outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    ROL::StdVector<RealT> checkvec(&consistency, false);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
 
     // Basis tests.
     // set x to first basis vector
-    Teuchos::RCP<ROL::Vector<RealT> > zp = x.clone();
+    std::shared_ptr<ROL::Vector<RealT> > zp = x.clone();
     zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";

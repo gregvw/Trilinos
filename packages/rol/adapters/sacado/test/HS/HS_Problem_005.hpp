@@ -66,7 +66,7 @@ template<class Real>
 class Problem_005 : public ROL::NonlinearProgram<Real> {
 
 
-  template<typename T> using RCP = Teuchos::RCP<T>;
+  template<typename T> using std::shared_ptr = std::shared_ptr<T>;
 
   typedef ROL::Vector<Real>             V;
   typedef ROL::Objective<Real>          OBJ;
@@ -84,11 +84,11 @@ public:
 
   int dimension_x() { return 2; }
 
-  const RCP<OBJ> getObjective() { 
-    return Teuchos::rcp( new ROL::Sacado_StdObjective<Real,HS_005::Obj> );
+  const std::shared_ptr<OBJ> getObjective() { 
+    return std::make_shared<ROL::Sacado_StdObjective<Real,HS_005::Obj>>();
   }
 
-  const RCP<const V> getInitialGuess() {
+  const std::shared_ptr<const V> getInitialGuess() {
     Real x[] = {0,0};
     return NP::createOptVector(x);
   };
@@ -103,7 +103,7 @@ public:
     return Real(-std::sqrt(3.0)/2.0-pi/3.0);
   }
 
-  RCP<const V> getSolutionSet() {
+  std::shared_ptr<const V> getSolutionSet() {
     Real x[] = {-pi/3.0+0.5,-pi/3.0-0.5};
     return ROL::CreatePartitionedVector(NP::createOptVector(x));
   }

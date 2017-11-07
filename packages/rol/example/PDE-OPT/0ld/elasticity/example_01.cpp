@@ -70,18 +70,18 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  std::shared_ptr<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   }
   else {
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
   }
 
   int errorFlag  = 0;
@@ -91,14 +91,14 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    Teuchos::RCP<ElasticityData<RealT> > data = Teuchos::rcp(new ElasticityData<RealT>(comm, parlist, outStream));
-    Teuchos::RCP<Tpetra::MultiVector<RealT> > rhs = data->getVecF();
+    std::shared_ptr<ElasticityData<RealT> > data = std::make_shared<ElasticityData<RealT>>(comm, parlist, outStream);
+    std::shared_ptr<Tpetra::MultiVector<RealT> > rhs = data->getVecF();
     data->getSolver()->setB(rhs);
-    Teuchos::RCP<Tpetra::MultiVector<RealT> > sol = Teuchos::rcp(new Tpetra::MultiVector<RealT>(rhs->getMap(), 1, true));
+    std::shared_ptr<Tpetra::MultiVector<RealT> > sol = std::make_shared<Tpetra::MultiVector<RealT>(rhs->getMap>(), 1, true);
     //sol->putScalar(0.0);
     data->getSolver()->setX(sol);
     data->getSolver()->solve();

@@ -67,7 +67,7 @@ private:
 
 public:
 
-  StdVector(const std::shared_ptr<std::vector<Element> > & std_vec) : std_vec_(std_vec) {}
+  StdVector(std::shared_ptr<std::vector<Element>> std_vec) : std_vec_(std_vec) {}
 
   void set( const Vector<Real> &x ) {
 
@@ -77,7 +77,7 @@ public:
 
     const StdVector &ex = dynamic_cast<const StdVector&>(x);
     const std::vector<Element>& xval = *ex.getVector();
-    std::copy(xval.begin(),xval.end(),std_vec_->begin());   
+    std::copy(xval.begin(),xval.end(),std_vec_->begin());
   }
 
   void plus( const Vector<Real> &x ) {
@@ -138,7 +138,7 @@ public:
   }
 
   virtual std::shared_ptr<Vector<Real> > clone() const {
-    return std::make_shared<StdVector( Teuchos::std::make_shared<std::vector<Element>(std_vec_->size>>()));
+    return std::make_shared<StdVector>(std::make_shared<std::vector<Element>>(std_vec_->size()));
   }
 
   std::shared_ptr<const std::vector<Element> > getVector() const {
@@ -155,7 +155,7 @@ public:
                                 std::invalid_argument,
                                 "Error: Basis index must be between 0 and vector dimension." );
 
-    std::shared_ptr<StdVector> e = std::make_shared<StdVector( Teuchos::std::make_shared<std::vector<Element>(std_vec_->size>>(), 0.0));
+    std::shared_ptr<StdVector> e = std::make_shared<StdVector>(std::make_shared<std::vector<Element>>(std_vec_->size(), 0.0));
     (*e->getVector())[i] = 1.0;
     return e;
   }

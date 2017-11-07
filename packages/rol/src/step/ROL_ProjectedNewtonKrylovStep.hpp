@@ -75,12 +75,12 @@ private:
 
   std::shared_ptr<Vector<Real> > gp_;
   std::shared_ptr<Vector<Real> > d_;
- 
+
   int iterKrylov_; ///< Number of Krylov iterations (used for inexact Newton)
   int flagKrylov_; ///< Termination flag for Krylov method (used for inexact Newton)
   int verbosity_;  ///< Verbosity level
   const bool computeObj_;
- 
+
   bool useSecantPrecond_; ///< Whether or not a secant approximation is used for preconditioning inexact Newton
   bool useProjectedGrad_; ///< Whether or not to use to the projected gradient criticality measure
 
@@ -143,7 +143,7 @@ private:
       v_ = x_->clone();
     }
     void apply(Vector<Real> &Hv, const Vector<Real> &v, Real &tol) const {
-      Hv.set(v.dual()); 
+      Hv.set(v.dual());
     }
     void applyInverse(Vector<Real> &Hv, const Vector<Real> &v, Real &tol) const {
       v_->set(v);
@@ -169,7 +169,7 @@ public:
 
   /** \brief Constructor.
 
-      Standard constructor to build a ProjectedNewtonKrylovStep object.  Algorithmic 
+      Standard constructor to build a ProjectedNewtonKrylovStep object.  Algorithmic
       specifications are passed in through a Teuchos::ParameterList.
 
       @param[in]     parlist    is a parameter list containing algorithmic specifications
@@ -198,8 +198,8 @@ public:
 
   /** \brief Constructor.
 
-      Constructor to build a ProjectedNewtonKrylovStep object with user-defined 
-      secant and Krylov objects.  Algorithmic specifications are passed in through 
+      Constructor to build a ProjectedNewtonKrylovStep object with user-defined
+      secant and Krylov objects.  Algorithmic specifications are passed in through
       a Teuchos::ParameterList.
 
       @param[in]     parlist    is a parameter list containing algorithmic specifications
@@ -255,19 +255,19 @@ public:
     std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
 
     // Build Hessian and Preconditioner object
-    std::shared_ptr<Objective<Real> > obj_ptr = Teuchos::rcpFromRef(obj);
-    std::shared_ptr<BoundConstraint<Real> > bnd_ptr = Teuchos::rcpFromRef(bnd);
+    std::shared_ptr<Objective<Real> > obj_ptr(&obj);
+    std::shared_ptr<BoundConstraint<Real> > bnd_ptr(&bnd);
     std::shared_ptr<LinearOperator<Real> > hessian
-      = Teuchos::rcp(new HessianPNK(obj_ptr,bnd_ptr,algo_state.iterateVec,
-                                    step_state->gradientVec,algo_state.gnorm));
+      = std::make_shared<HessianPNK>(obj_ptr,bnd_ptr,algo_state.iterateVec,
+                                    step_state->gradientVec,algo_state.gnorm);
     std::shared_ptr<LinearOperator<Real> > precond;
     if (useSecantPrecond_) {
-      precond = Teuchos::rcp(new PrecondPNK(secant_,bnd_ptr,
-        algo_state.iterateVec,step_state->gradientVec,algo_state.gnorm));
+      precond = std::make_shared<PrecondPNK>(secant_,bnd_ptr,
+        algo_state.iterateVec,step_state->gradientVec,algo_state.gnorm);
     }
     else {
-      precond = Teuchos::rcp(new PrecondPNK(obj_ptr,bnd_ptr,
-        algo_state.iterateVec,step_state->gradientVec,algo_state.gnorm));
+      precond = std::make_shared<PrecondPNK>(obj_ptr,bnd_ptr,
+        algo_state.iterateVec,step_state->gradientVec,algo_state.gnorm);
     }
 
     // Run Krylov method

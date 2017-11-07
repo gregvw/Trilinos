@@ -148,7 +148,7 @@ public:
              where the user does not define the dual() method.
   */
   virtual std::vector<std::string> run( Vector<Real>       &x,
-                                        const Vector<Real> &g,
+                                        const Vector<Real> &g, 
                                         Objective<Real>    &obj,
                                         bool               print = false,
                                         std::ostream       &outStream = std::cout,
@@ -162,7 +162,7 @@ public:
   /** \brief Run algorithm on bound constrained problems (Type-B).
              This is the primary Type-B interface.
   */
-  virtual std::vector<std::string> run( Vector<Real>          &x,
+  virtual std::vector<std::string> run( Vector<Real>          &x, 
                                         Objective<Real>       &obj,
                                         BoundConstraint<Real> &bnd,
                                         bool                  print = false,
@@ -176,8 +176,8 @@ public:
              This general interface supports the use of dual optimization vector spaces,
              where the user does not define the dual() method.
   */
-  virtual std::vector<std::string> run( Vector<Real>          &x,
-                                        const Vector<Real>    &g,
+  virtual std::vector<std::string> run( Vector<Real>          &x, 
+                                        const Vector<Real>    &g, 
                                         Objective<Real>       &obj,
                                         BoundConstraint<Real> &bnd,
                                         bool                  print = false,
@@ -190,7 +190,7 @@ public:
 
     std::vector<std::string> output;
 
-    // Initialize Current Iterate Container
+    // Initialize Current Iterate Container 
     if ( state_->iterateVec == nullptr ) {
       state_->iterateVec = x.clone();
     }
@@ -243,7 +243,7 @@ public:
              This is the primary Type-E interface.
   */
   virtual std::vector<std::string> run( Vector<Real>             &x,
-                                        Vector<Real>             &l,
+                                        Vector<Real>             &l, 
                                         Objective<Real>          &obj,
                                         Constraint<Real>         &con,
                                         bool                     print = false,
@@ -261,9 +261,9 @@ public:
              constraint vector spaces, where the user does not define the dual() method.
   */
   virtual std::vector<std::string> run( Vector<Real>             &x,
-                                        const Vector<Real>       &g,
-                                        Vector<Real>             &l,
-                                        const Vector<Real>       &c,
+                                        const Vector<Real>       &g, 
+                                        Vector<Real>             &l, 
+                                        const Vector<Real>       &c, 
                                         Objective<Real>          &obj,
                                         Constraint<Real>         &con,
                                         bool                     print = false,
@@ -272,17 +272,17 @@ public:
                                         std::ostream             &vectorStream = std::cout ) {
     if( printVectors ) {
       x.print(vectorStream);
-    }
+    } 
 
     std::vector<std::string> output;
 
-    // Initialize Current Iterate Container
+    // Initialize Current Iterate Container 
     if ( state_->iterateVec == nullptr ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
-    // Initialize Current Lagrange Multiplier Container
+    // Initialize Current Lagrange Multiplier Container 
     if ( state_->lagmultVec == nullptr ) {
       state_->lagmultVec = l.clone();
     }
@@ -311,9 +311,9 @@ public:
       step_->compute(*s, x, l, obj, con, *state_);
       step_->update(x, l, *s, obj, con, *state_);
 
-      if( printVectors ) {
+      if( printVectors ) { 
         x.print(vectorStream);
-      }
+      } 
 
       output.push_back(step_->print(*state_,printHeader_));
       if ( print ) {
@@ -327,7 +327,7 @@ public:
              This is the primary Type-EB interface.
   */
   virtual std::vector<std::string> run( Vector<Real>             &x,
-                                        Vector<Real>             &l,
+                                        Vector<Real>             &l, 
                                         Objective<Real>          &obj,
                                         Constraint<Real>         &con,
                                         BoundConstraint<Real>    &bnd,
@@ -343,9 +343,9 @@ public:
              constraint vector spaces, where the user does not define the dual() method.
   */
   virtual std::vector<std::string> run( Vector<Real>             &x,
-                                        const Vector<Real>       &g,
-                                        Vector<Real>             &l,
-                                        const Vector<Real>       &c,
+                                        const Vector<Real>       &g, 
+                                        Vector<Real>             &l, 
+                                        const Vector<Real>       &c, 
                                         Objective<Real>          &obj,
                                         Constraint<Real>         &con,
                                         BoundConstraint<Real>    &bnd,
@@ -354,18 +354,18 @@ public:
                                         bool                     printVectors = false,
                                         std::ostream             &vectorStream = std::cout ) {
     if(printVectors) {
-      x.print(vectorStream);
-    }
+      x.print(vectorStream); 
+    } 
 
     std::vector<std::string> output;
 
-    // Initialize Current Iterate Container
+    // Initialize Current Iterate Container 
     if ( state_->iterateVec == nullptr ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
-    // Initialize Current Lagrange Multiplier Container
+    // Initialize Current Lagrange Multiplier Container 
     if ( state_->lagmultVec == nullptr ) {
       state_->lagmultVec = l.clone();
     }

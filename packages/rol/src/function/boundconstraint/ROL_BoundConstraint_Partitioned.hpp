@@ -71,7 +71,7 @@ private:
   std::shared_ptr<V> u_;
 
   uint dim_;
- 
+
 public:
   ~BoundConstraint_Partitioned() {}
 
@@ -100,7 +100,7 @@ public:
     const PV &xpv = dynamic_cast<const PV&>(x);
     for( uint k=0; k<dim_; ++k ) {
       if( bnd_[k]->isActivated() ) {
-        bnd_[k]->update(*(xpv.get(k)),flag,iter);   
+        bnd_[k]->update(*(xpv.get(k)),flag,iter);
       }
     }
   }
@@ -143,7 +143,7 @@ public:
       }
     }
   }
- 
+
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0.0 ) {
           PV &vpv = dynamic_cast<PV&>(v);
     const PV &xpv = dynamic_cast<const PV&>(x);
@@ -164,16 +164,16 @@ public:
       }
     }
   }
- 
+
   const std::shared_ptr<const Vector<Real> > getLowerBound( void ) const {
     return l_;
   }
-       
+
   const std::shared_ptr<const Vector<Real> > getUpperBound( void ) const {
     return u_;
   }
 
-  bool isFeasible( const Vector<Real> &v ) { 
+  bool isFeasible( const Vector<Real> &v ) {
     bool feasible = true;
     const PV &vs = dynamic_cast<const PV&>(v);
     for( uint k=0; k<dim_; ++k ) {
@@ -188,15 +188,15 @@ public:
 
 
 template<class Real>
-std::shared_ptr<BoundConstraint<Real> > 
+std::shared_ptr<BoundConstraint<Real> >
 CreateBoundConstraint_Partitioned( const std::shared_ptr<BoundConstraint<Real> > &bnd1,
                                    const std::shared_ptr<BoundConstraint<Real> > &bnd2 ) {
 
-     
+
   typedef BoundConstraint<Real>             BND;
   typedef BoundConstraint_Partitioned<Real> BNDP;
   std::shared_ptr<BND> temp[] = {bnd1, bnd2};
-  return std::make_shared<BNDP( std::vector<std::shared_ptr<BND> >>(temp,temp+2) );
+  return std::make_shared<BNDP>(std::vector<std::shared_ptr<BND>>(temp,temp+2));
 }
 
 

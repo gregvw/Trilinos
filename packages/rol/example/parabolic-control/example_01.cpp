@@ -81,14 +81,14 @@ private:
   Real dx_;
   Real dt_;
 
-  Teuchos::RCP<const vector> getVector( const V& x ) {
-    using Teuchos::dyn_cast;
-    return dyn_cast<const SV>(x).getVector(); 
+  std::shared_ptr<const vector> getVector( const V& x ) {
+    
+    return dynamic_cast<const SV&>(x).getVector(); 
   }
 
-  Teuchos::RCP<vector> getVector( V& x ) {
-    using Teuchos::dyn_cast;
-    return dyn_cast<SV>(x).getVector();  
+  std::shared_ptr<vector> getVector( V& x ) {
+    
+    return dynamic_cast<SV&>(x).getVector();  
   }
 
 public:
@@ -258,8 +258,8 @@ public:
 
   Real value( const ROL::Vector<Real> &z, Real &tol ) {
 
-    using Teuchos::RCP;
-    RCP<const vector> zp = getVector(z);
+    
+    std::shared_ptr<const vector> zp = getVector(z);
 
     // SOLVE STATE EQUATION
     std::vector<std::vector<Real> > U;
@@ -299,9 +299,9 @@ public:
 
   void gradient( ROL::Vector<Real> &g, const ROL::Vector<Real> &z, Real &tol ) {
 
-    using Teuchos::RCP;
-    RCP<const vector> zp = getVector(z);
-    RCP<vector> gp = getVector(g);
+    
+    std::shared_ptr<const vector> zp = getVector(z);
+    std::shared_ptr<vector> gp = getVector(g);
 
     // SOLVE STATE EQUATION
     std::vector<std::vector<Real> > U;
@@ -318,9 +318,9 @@ public:
 
   void hessVec( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &z, Real &tol ) {
 
-    using Teuchos::RCP;
-    RCP<const vector> vp = getVector(v);
-    RCP<vector> hvp = getVector(hv);
+    
+    std::shared_ptr<const vector> vp = getVector(v);
+    std::shared_ptr<vector> hvp = getVector(hv);
 
     // SOLVE STATE SENSITIVITY EQUATION
     std::vector<std::vector<Real> > U;
@@ -346,18 +346,18 @@ int main(int argc, char *argv[]) {
 
   typedef typename vector::size_type uint;
 
-  using Teuchos::RCP;  using Teuchos::rcp;
+    
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -373,8 +373,8 @@ int main(int argc, char *argv[]) {
     Objective_PoissonControl<RealT> obj(u0,alpha,nx,nt,T);
 
     // Initialize iteration vectors.
-    RCP<vector> x_rcp = rcp( new vector(nt, 0.0) );
-    RCP<vector> y_rcp = rcp( new vector(nt, 0.0) );
+    std::shared_ptr<vector> x_rcp = std::make_shared<vector>(nt, 0.0);
+    std::shared_ptr<vector> y_rcp = std::make_shared<vector>(nt, 0.0);
 
     for (uint i=0; i<nt; i++) {
       (*x_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
@@ -388,16 +388,16 @@ int main(int argc, char *argv[]) {
     obj.checkHessVec(x,y,true,*outStream);
 
     // Initialize Constraints
-    RCP<vector> l_rcp = rcp( new vector(nt,-1.0) );
-    RCP<vector> u_rcp = rcp( new vector(nt, 1.0) );
-    RCP<V> lo = rcp( new SV(l_rcp) );
-    RCP<V> up = rcp( new SV(u_rcp) );
+    std::shared_ptr<vector> l_rcp = std::make_shared<vector>(nt,-1.0);
+    std::shared_ptr<vector> u_rcp = std::make_shared<vector>(nt, 1.0);
+    std::shared_ptr<V> lo = std::make_shared<SV>(l_rcp);
+    std::shared_ptr<V> up = std::make_shared<SV>(u_rcp);
 
     ROL::Bounds<RealT> icon(lo,up);
 
     // Primal dual active set.
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     // Krylov parameters.
     parlist->sublist("General").sublist("Krylov").set("Absolute Tolerance",1.e-8);
@@ -413,7 +413,7 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Step Tolerance",1.e-14);
     parlist->sublist("Status Test").set("Iteration Limit",100);
     // Define algorithm.
-    Teuchos::RCP<ROL::Algorithm<RealT> > algo = Teuchos::rcp(new ROL::Algorithm<RealT>("Primal Dual Active Set",*parlist,false));
+    std::shared_ptr<ROL::Algorithm<RealT> > algo = std::make_shared<ROL::Algorithm<RealT>>("Primal Dual Active Set",*parlist,false);
     // Run algorithm.
     x.zero();
     algo->run(x, obj, icon, true, *outStream);
@@ -429,7 +429,7 @@ int main(int argc, char *argv[]) {
     // re-load parameters
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     // Set algorithm.
-    algo = Teuchos::rcp(new ROL::Algorithm<RealT>("Trust Region",*parlist,false));
+    algo = std::make_shared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
 
     // Run Algorithm
     y.zero();
@@ -442,7 +442,7 @@ int main(int argc, char *argv[]) {
     }
     file_tr.close();
    
-    RCP<V> diff = x.clone();
+    std::shared_ptr<V> diff = x.clone();
     diff->set(x);
     diff->axpy(-1.0,y);
     RealT error = diff->norm()/std::sqrt((RealT)nt-1.0);

@@ -26,26 +26,26 @@ class InnerProductMatrix{
 
         virtual ~InnerProductMatrix(); 
 
-        void apply(Teuchos::RCP<const std::vector<Real> > xp,
-                   Teuchos::RCP<std::vector<Real> > bp);
+        void apply(std::shared_ptr<const std::vector<Real> > xp,
+                   std::shared_ptr<std::vector<Real> > bp);
 
-        void applyadd(Teuchos::RCP<const std::vector<Real> > xp,
-                      Teuchos::RCP<std::vector<Real> > bp);
+        void applyadd(std::shared_ptr<const std::vector<Real> > xp,
+                      std::shared_ptr<std::vector<Real> > bp);
 
-        void applyaddtimes(Teuchos::RCP<const std::vector<Real> > xp,
-                           Teuchos::RCP<std::vector<Real> > bp, Real factor);
+        void applyaddtimes(std::shared_ptr<const std::vector<Real> > xp,
+                           std::shared_ptr<std::vector<Real> > bp, Real factor);
 
 
-        Real inner(Teuchos::RCP<const std::vector<Real> > up,
-                   Teuchos::RCP<const std::vector<Real> > vp);
-
-        // This method does nothing in the base class
-        virtual void solve(Teuchos::RCP<const std::vector<Real> > bp,
-                           Teuchos::RCP<std::vector<Real> > xp){};
+        Real inner(std::shared_ptr<const std::vector<Real> > up,
+                   std::shared_ptr<const std::vector<Real> > vp);
 
         // This method does nothing in the base class
-        virtual Real inv_inner(Teuchos::RCP<const std::vector<Real> > up,
-                               Teuchos::RCP<const std::vector<Real> > vp){
+        virtual void solve(std::shared_ptr<const std::vector<Real> > bp,
+                           std::shared_ptr<std::vector<Real> > xp){};
+
+        // This method does nothing in the base class
+        virtual Real inv_inner(std::shared_ptr<const std::vector<Real> > up,
+                               std::shared_ptr<const std::vector<Real> > vp){
                                return 0;}
 
     protected:
@@ -99,8 +99,8 @@ InnerProductMatrix<Real>::~InnerProductMatrix(){
 }
 
 template<class Real>
-void InnerProductMatrix<Real>::apply(Teuchos::RCP<const std::vector<Real> > xp,
-                                     Teuchos::RCP<std::vector<Real> > bp ) {
+void InnerProductMatrix<Real>::apply(std::shared_ptr<const std::vector<Real> > xp,
+                                     std::shared_ptr<std::vector<Real> > bp ) {
     for(int i=0;i<ni_;++i) {
         (*bp)[i] = 0;
         for(int j=0;j<ni_;++j ) {
@@ -110,8 +110,8 @@ void InnerProductMatrix<Real>::apply(Teuchos::RCP<const std::vector<Real> > xp,
 }         
 
 template<class Real>
-void InnerProductMatrix<Real>::applyadd(Teuchos::RCP<const std::vector<Real> > xp,
-                                        Teuchos::RCP<std::vector<Real> > bp ) {
+void InnerProductMatrix<Real>::applyadd(std::shared_ptr<const std::vector<Real> > xp,
+                                        std::shared_ptr<std::vector<Real> > bp ) {
     for(int i=0;i<ni_;++i) {
         for(int j=0;j<ni_;++j ) {
             (*bp)[i] += M_[i+ni_*j]*(*xp)[j]; 
@@ -120,8 +120,8 @@ void InnerProductMatrix<Real>::applyadd(Teuchos::RCP<const std::vector<Real> > x
 } 
 
 template<class Real>
-void InnerProductMatrix<Real>::applyaddtimes(Teuchos::RCP<const std::vector<Real> > xp,
-                                             Teuchos::RCP<std::vector<Real> > bp, Real factor ) {
+void InnerProductMatrix<Real>::applyaddtimes(std::shared_ptr<const std::vector<Real> > xp,
+                                             std::shared_ptr<std::vector<Real> > bp, Real factor ) {
     for(int i=0;i<ni_;++i) {
         for(int j=0;j<ni_;++j ) {
             (*bp)[i] += factor*M_[i+ni_*j]*(*xp)[j]; 
@@ -148,10 +148,10 @@ void InnerProductMatrix<Real>::update( const std::vector<Real> &a ){
 
 //! Compute the inner product \f$u^\top M v\f$
 template<class Real>
-Real InnerProductMatrix<Real>::inner( Teuchos::RCP<const std::vector<Real> > up,
-                                      Teuchos::RCP<const std::vector<Real> > vp ) {
+Real InnerProductMatrix<Real>::inner( std::shared_ptr<const std::vector<Real> > up,
+                                      std::shared_ptr<const std::vector<Real> > vp ) {
     Real J = 0;
-    Teuchos::RCP<std::vector<Real> > Mvp = Teuchos::rcp( new std::vector<Real> (ni_,0) );
+    std::shared_ptr<std::vector<Real> > Mvp = std::make_shared<std::vector<Real>>(ni_,0);
     this->apply(vp,Mvp);
     for(int i=0;i<ni_;++i) {
         J += (*up)[i]*(*Mvp)[i];
@@ -168,7 +168,7 @@ template<class Real>
 class InnerProductMatrixSolver : public InnerProductMatrix<Real> {
 
     private:
-        Teuchos::RCP<Teuchos::LAPACK<int,Real> > lapack_; 
+        std::shared_ptr<Teuchos::LAPACK<int,Real> > lapack_; 
         const int         ni_;
         const int         nq_;
         std::vector<Real> M_; 
@@ -180,28 +180,28 @@ class InnerProductMatrixSolver : public InnerProductMatrix<Real> {
 
     // Solve the system Ax=b for x
     public:
-       InnerProductMatrixSolver(Teuchos::RCP<Teuchos::LAPACK<int,Real> > lapack,
+       InnerProductMatrixSolver(std::shared_ptr<Teuchos::LAPACK<int,Real> > lapack,
                                 const std::vector<Real> &U=std::vector<Real>(),
                                 const std::vector<Real> &V=std::vector<Real>(),
                                 const std::vector<Real> &w=std::vector<Real>(),
                                 const int a=1);
 
-       InnerProductMatrixSolver(Teuchos::RCP<Teuchos::LAPACK<int,Real> > lapack,
+       InnerProductMatrixSolver(std::shared_ptr<Teuchos::LAPACK<int,Real> > lapack,
                                 const std::vector<Real> &U=std::vector<Real>(),
                                 const std::vector<Real> &V=std::vector<Real>(),
                                 const std::vector<Real> &w=std::vector<Real>(),
                                 const std::vector<Real> &a=std::vector<Real>());
 
-       void solve(Teuchos::RCP<const std::vector<Real> > bp,
-                  Teuchos::RCP<std::vector<Real> > xp);
+       void solve(std::shared_ptr<const std::vector<Real> > bp,
+                  std::shared_ptr<std::vector<Real> > xp);
 
-       Real inv_inner(Teuchos::RCP<const std::vector<Real> > up,
-                      Teuchos::RCP<const std::vector<Real> > vp);
+       Real inv_inner(std::shared_ptr<const std::vector<Real> > up,
+                      std::shared_ptr<const std::vector<Real> > vp);
 }; 
 
 
 template<class Real>
-InnerProductMatrixSolver<Real>::InnerProductMatrixSolver(Teuchos::RCP<Teuchos::LAPACK<int,Real> > lapack,
+InnerProductMatrixSolver<Real>::InnerProductMatrixSolver(std::shared_ptr<Teuchos::LAPACK<int,Real> > lapack,
                                                          const std::vector<Real> &U,
                                                          const std::vector<Real> &V,
                                                          const std::vector<Real> &w,
@@ -221,7 +221,7 @@ InnerProductMatrixSolver<Real>::InnerProductMatrixSolver(Teuchos::RCP<Teuchos::L
 }
 
 template<class Real>
-InnerProductMatrixSolver<Real>::InnerProductMatrixSolver(Teuchos::RCP<Teuchos::LAPACK<int,Real> > lapack,
+InnerProductMatrixSolver<Real>::InnerProductMatrixSolver(std::shared_ptr<Teuchos::LAPACK<int,Real> > lapack,
                                                          const std::vector<Real> &U,
                                                          const std::vector<Real> &V,
                                                          const std::vector<Real> &w,
@@ -242,8 +242,8 @@ InnerProductMatrixSolver<Real>::InnerProductMatrixSolver(Teuchos::RCP<Teuchos::L
 
 //! \brief solve \f$Mx=b\f$ for \f$x\f$ 
 template<class Real>
-void InnerProductMatrixSolver<Real>::solve(Teuchos::RCP<const std::vector<Real> > bp, 
-                                           Teuchos::RCP<std::vector<Real> > xp){
+void InnerProductMatrixSolver<Real>::solve(std::shared_ptr<const std::vector<Real> > bp, 
+                                           std::shared_ptr<std::vector<Real> > xp){
 
     int nrhs = bp->size()/ni_;
  
@@ -256,10 +256,10 @@ void InnerProductMatrixSolver<Real>::solve(Teuchos::RCP<const std::vector<Real> 
 
 //! Compute the inner product \f$u^\top M^{-1} v\f$
 template<class Real>
-Real InnerProductMatrixSolver<Real>::inv_inner( Teuchos::RCP<const std::vector<Real> > up,
-                                                Teuchos::RCP<const std::vector<Real> > vp ) {
+Real InnerProductMatrixSolver<Real>::inv_inner( std::shared_ptr<const std::vector<Real> > up,
+                                                std::shared_ptr<const std::vector<Real> > vp ) {
     Real J = 0;
-    Teuchos::RCP<std::vector<Real> > Mivp = Teuchos::rcp( new std::vector<Real> (ni_,0) );
+    std::shared_ptr<std::vector<Real> > Mivp = std::make_shared<std::vector<Real>>(ni_,0);
     this->solve(vp,Mivp);
     for(int i=0;i<ni_;++i) {
         //std::cout << (*up)[i] << "  " << (*vp)[i] << "  "  << (*Mivp)[i] << "  \n";

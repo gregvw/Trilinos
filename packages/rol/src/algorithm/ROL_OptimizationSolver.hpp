@@ -165,18 +165,18 @@ public:
   }
 
   int solve( std::ostream &outStream,
-             std::shared_ptr<StatusTest<Real> > status = NULL,
-             const bool combineStatus = true ) {
+       const std::shared_ptr<StatusTest<Real> > &status = nullptr,
+       const bool combineStatus = true ) {
     // Build algorithm
     status_->reset();       // Clear previous status test
     status_->add(status0_); // Default StatusTest
-    if (!status) {
+    if (status != nullptr) {
       if (!combineStatus) { // Use only user-defined StatusTest
         status_->reset();
       }
       status_->add(status); // Add user-defined StatusTest
     }
-    algo_ = std::make_shared<Algorithm<Real>>(step_, status_, state_);
+    algo_ = std::make_shared<Algorithm<Real>>( step_, status_, state_ );
 
     switch(problemType_) {
       case TYPE_U:
@@ -217,3 +217,5 @@ public:
 } // namespace ROL
 
 #endif // ROL_OPTIMIZATIONSOLVER_HPP
+
+

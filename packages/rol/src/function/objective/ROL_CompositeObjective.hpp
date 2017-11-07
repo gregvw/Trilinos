@@ -117,13 +117,13 @@ public:
                      const std::shared_ptr<StdObjective<Real> > &std_obj)
     : obj_vec_(obj_vec), std_obj_(std_obj), isInitialized_(false),
       isValueComputed_(false), isGradientComputed_(false) {
-    obj_value_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_value_ = std::make_shared<std::vector<Real>>(obj_vec_.size(),0);
     obj_value_vec_ = std::make_shared<StdVector<Real>>(obj_value_);
-    obj_grad_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_grad_ = std::make_shared<std::vector<Real>>(obj_vec_.size(),0);
     obj_grad_vec_ = std::make_shared<StdVector<Real>>(obj_grad_);
-    obj_gv_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_gv_ = std::make_shared<std::vector<Real>>(obj_vec_.size(),0);
     obj_gv_vec_ = std::make_shared<StdVector<Real>>(obj_gv_);
-    obj_hess_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_hess_ = std::make_shared<std::vector<Real>>(obj_vec_.size(),0);
     obj_hess_vec_ = std::make_shared<StdVector<Real>>(obj_hess_);
   }
 

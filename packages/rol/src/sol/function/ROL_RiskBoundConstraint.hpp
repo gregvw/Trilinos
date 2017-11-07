@@ -68,7 +68,7 @@ private:
   std::vector<bool> activatedCon_;
   std::vector<int> nStatCon_;
 
-  mutable bool isLOinitialized_, isHIinitialized_; 
+  mutable bool isLOinitialized_, isHIinitialized_;
   mutable std::shared_ptr<RiskVector<Real> > lo_, hi_;
 
   void setBoundInfo(Teuchos::ParameterList &parlist,
@@ -324,7 +324,7 @@ public:
       bc_->pruneUpperActive(*vv,*gv,*xv,eps);
     }
   }
- 
+
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0 ) {
     if ( augmentedObj_ && activatedObj_ ) {
       std::shared_ptr<StdVector<Real> >       vs = dynamic_cast<RiskVector<Real>&>(v).getStatisticVector(0);
@@ -372,7 +372,7 @@ public:
       std::shared_ptr<const Vector<Real> > xv = dynamic_cast<const RiskVector<Real>&>(x).getVector();
       bc_->pruneLowerActive(*vv,*gv,*xv,eps);
     }
-  } 
+  }
 
   const std::shared_ptr<const Vector<Real> > getLowerBound(void) const {
     if (!isLOinitialized_) {
@@ -383,8 +383,8 @@ public:
       for (int i = 0; i < size; ++i) {
         lowerCon[i] = std::make_shared<std::vector<Real>>(lowerCon_[i]);
       }
-      lo_ = std::make_shared<RiskVector<Real>(std::const_pointer_cast<Vector<Real> >(vlo>(),
-                                              lowerObj,lowerCon));
+      lo_ = std::make_shared<RiskVector<Real>>(std::const_pointer_cast<Vector<Real>>(vlo(),
+                                               lowerObj,lowerCon));
       isLOinitialized_ = true;
     }
     return lo_;
@@ -399,14 +399,14 @@ public:
       for (int i = 0; i < size; ++i) {
         upperCon[i] = std::make_shared<std::vector<Real>>(upperCon_[i]);
       }
-      hi_ = std::make_shared<RiskVector<Real>(std::const_pointer_cast<Vector<Real> >(vhi>(),
+      hi_ = std::make_shared<RiskVector<Real>>(std::const_pointer_cast<Vector<Real> >(vhi(),
                                               upperObj,upperCon));
       isHIinitialized_ = true;
     }
     return hi_;
   }
 
-  bool isFeasible( const Vector<Real> &v ) { 
+  bool isFeasible( const Vector<Real> &v ) {
     bool flagstat = true, flagcon = true, flagvec = true;
     if ( augmentedObj_ && activatedObj_ ) {
       std::shared_ptr<const StdVector<Real> > vs = dynamic_cast<const RiskVector<Real>&>(v).getStatisticVector(0);

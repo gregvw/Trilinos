@@ -55,12 +55,12 @@
 #include "Teuchos_ParameterList.hpp"
 
 
-typedef double RealT; 
+typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp;
+
+
 
   typedef std::vector<RealT>    vector;
   typedef ROL::Vector<RealT>    V;
@@ -72,12 +72,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -95,52 +95,52 @@ int main(int argc, char *argv[]) {
     RealT xmin = 0.5;
     RealT xmax = 2.5;
 
-    RCP<vector>  x_rcp  = rcp( new vector(dim,0.0) );
-    RCP<vector>  g_rcp  = rcp( new vector(dim,0.0) );
-    RCP<vector>  v_rcp  = rcp( new vector(dim,0.0) );
-    RCP<vector>  hv_rcp = rcp( new vector(dim,0.0) );
+    auto  x_rcp  = std::make_shared<vector>(dim,0.0);
+    auto  g_rcp  = std::make_shared<vector>(dim,0.0);
+    auto  v_rcp  = std::make_shared<vector>(dim,0.0);
+    auto  hv_rcp = std::make_shared<vector>(dim,0.0);
 
-    RCP<vector>  l_rcp = rcp( new vector(dim,1.0) );
-    RCP<vector>  u_rcp = rcp( new vector(dim,2.0) );
+    auto  l_rcp = std::make_shared<vector>(dim,1.0);
+    auto  u_rcp = std::make_shared<vector>(dim,2.0);
 
-    RCP<vector>  xlog0_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector>  xlog1_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector>  xlog2_rcp = rcp( new vector(dim,0.0) );
+    auto  xlog0_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xlog1_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xlog2_rcp = std::make_shared<vector>(dim,0.0);
 
-    RCP<vector>  xquad0_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector>  xquad1_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector>  xquad2_rcp = rcp( new vector(dim,0.0) );
+    auto  xquad0_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xquad1_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xquad2_rcp = std::make_shared<vector>(dim,0.0);
 
-    RCP<vector>  xdwell0_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector>  xdwell1_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector>  xdwell2_rcp = rcp( new vector(dim,0.0) );
+    auto  xdwell0_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xdwell1_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xdwell2_rcp = std::make_shared<vector>(dim,0.0);
 
 
 
-    SV x(x_rcp); 
+    SV x(x_rcp);
     SV g(g_rcp);
     SV v(v_rcp);
     SV hv(hv_rcp);
 
-    RCP<SV> xlog0 = rcp( new SV(xlog0_rcp) );
-    RCP<SV> xlog1 = rcp( new SV(xlog1_rcp) );
-    RCP<SV> xlog2 = rcp( new SV(xlog2_rcp) );
+    std::shared_ptr<SV> xlog0 = std::make_shared<SV>(xlog0_rcp);
+    std::shared_ptr<SV> xlog1 = std::make_shared<SV>(xlog1_rcp);
+    std::shared_ptr<SV> xlog2 = std::make_shared<SV>(xlog2_rcp);
 
-    RCP<SV> xquad0 = rcp( new SV(xquad0_rcp) );
-    RCP<SV> xquad1 = rcp( new SV(xquad1_rcp) );
-    RCP<SV> xquad2 = rcp( new SV(xquad2_rcp) );
+    std::shared_ptr<SV> xquad0 = std::make_shared<SV>(xquad0_rcp);
+    std::shared_ptr<SV> xquad1 = std::make_shared<SV>(xquad1_rcp);
+    std::shared_ptr<SV> xquad2 = std::make_shared<SV>(xquad2_rcp);
 
-    RCP<SV> xdwell0 = rcp( new SV(xdwell0_rcp) );
-    RCP<SV> xdwell1 = rcp( new SV(xdwell1_rcp) );
-    RCP<SV> xdwell2 = rcp( new SV(xdwell2_rcp) );
+    std::shared_ptr<SV> xdwell0 = std::make_shared<SV>(xdwell0_rcp);
+    std::shared_ptr<SV> xdwell1 = std::make_shared<SV>(xdwell1_rcp);
+    std::shared_ptr<SV> xdwell2 = std::make_shared<SV>(xdwell2_rcp);
 
-    RCP<V> lo = rcp(new SV(l_rcp) );
-    RCP<V> up = rcp(new SV(u_rcp) );  
+    std::shared_ptr<V> lo = std::make_shared<SV>(l_rcp);
+    std::shared_ptr<V> up = std::make_shared<SV>(u_rcp);
 
     for(uint i=0; i<dim; ++i) {
       RealT t = static_cast<RealT>(i)/static_cast<RealT>(dim-1);
       (*x_rcp)[i] = xmin*(1-t) + xmax*t;
-    }    
+    }
 
     // Create bound constraint
     ROL::Bounds<RealT>  bc(lo,up);
@@ -161,63 +161,72 @@ int main(int argc, char *argv[]) {
 
 
     logObj.value(x,tol);
-    xlog0->set(*Teuchos::rcp_static_cast<SV>(logObj.getBarrierVector()));
+    auto q = std::dynamic_pointer_cast<SV>(logObj.getBarrierVector());
+    xlog0->set(*q);
 
     logObj.gradient(g,x,tol);
-    xlog1->set(*Teuchos::rcp_static_cast<SV>(logObj.getBarrierVector()));
+    q = std::dynamic_pointer_cast<SV>(logObj.getBarrierVector());
+    xlog1->set(*q);
 
     logObj.hessVec(hv,v,x,tol);
-    xlog2->set(*Teuchos::rcp_static_cast<SV>(logObj.getBarrierVector()));
+    q = std::dynamic_pointer_cast<SV>(logObj.getBarrierVector());
+    xlog2->set(*q);
 
 
     quadObj.value(x,tol);
-    xquad0->set(*Teuchos::rcp_static_cast<SV>(quadObj.getBarrierVector()));
+    q = std::dynamic_pointer_cast<SV>(quadObj.getBarrierVector());
+    xquad0->set(*q);
 
     quadObj.gradient(g,x,tol);
-    xquad1->set(*Teuchos::rcp_static_cast<SV>(quadObj.getBarrierVector()));
+    q = std::dynamic_pointer_cast<SV>(quadObj.getBarrierVector());
+    xquad1->set(*q);
 
     quadObj.hessVec(hv,v,x,tol);
-    xquad2->set(*Teuchos::rcp_static_cast<SV>(quadObj.getBarrierVector()));
+    q = std::dynamic_pointer_cast<SV>(quadObj.getBarrierVector());
+    xquad2->set(*q);
 
 
     dwellObj.value(x,tol);
-    xdwell0->set(*Teuchos::rcp_static_cast<SV>(dwellObj.getBarrierVector()));
+    q = std::dynamic_pointer_cast<SV>(dwellObj.getBarrierVector());
+    xdwell0->set(*q);
 
     dwellObj.gradient(g,x,tol);
-    xdwell1->set(*Teuchos::rcp_static_cast<SV>(dwellObj.getBarrierVector()));
+    q = std::dynamic_pointer_cast<SV>(dwellObj.getBarrierVector());
+    xdwell1->set(*q);
 
     dwellObj.hessVec(hv,v,x,tol);
-    xdwell2->set(*Teuchos::rcp_static_cast<SV>(dwellObj.getBarrierVector()));
+    q = std::dynamic_pointer_cast<SV>(dwellObj.getBarrierVector());
+    xdwell2->set(*q);
 
 
-    *outStream   << std::setw(14) << "x" 
-                 << std::setw(14) << "log" 
-                 << std::setw(14) << "D(log)" 
-                 << std::setw(14) << "D2(log)" 
-                 << std::setw(14) << "quad" 
-                 << std::setw(14) << "D(quad)" 
-                 << std::setw(14) << "D2(quad)" 
-                 << std::setw(14) << "dwell" 
-                 << std::setw(14) << "D(dwell)" 
-                 << std::setw(14) << "D2(dwell)" 
+    *outStream   << std::setw(14) << "x"
+                 << std::setw(14) << "log"
+                 << std::setw(14) << "D(log)"
+                 << std::setw(14) << "D2(log)"
+                 << std::setw(14) << "quad"
+                 << std::setw(14) << "D(quad)"
+                 << std::setw(14) << "D2(quad)"
+                 << std::setw(14) << "dwell"
+                 << std::setw(14) << "D(dwell)"
+                 << std::setw(14) << "D2(dwell)"
                  << std::endl;
     *outStream   << std::string(140,'-') << std::endl;
 
     for(uint i=0; i<dim; ++i) {
-      *outStream << std::setw(14) << (*x_rcp)[i] 
-                 << std::setw(14) << (*xlog0_rcp)[i] 
+      *outStream << std::setw(14) << (*x_rcp)[i]
+                 << std::setw(14) << (*xlog0_rcp)[i]
                  << std::setw(14) << (*xlog1_rcp)[i]
-                 << std::setw(14) << (*xlog2_rcp)[i] 
-                 << std::setw(14) << (*xquad0_rcp)[i] 
-                 << std::setw(14) << (*xquad1_rcp)[i] 
-                 << std::setw(14) << (*xquad2_rcp)[i] 
-                 << std::setw(14) << (*xdwell0_rcp)[i] 
-                 << std::setw(14) << (*xdwell1_rcp)[i] 
-                 << std::setw(14) << (*xdwell2_rcp)[i] 
+                 << std::setw(14) << (*xlog2_rcp)[i]
+                 << std::setw(14) << (*xquad0_rcp)[i]
+                 << std::setw(14) << (*xquad1_rcp)[i]
+                 << std::setw(14) << (*xquad2_rcp)[i]
+                 << std::setw(14) << (*xdwell0_rcp)[i]
+                 << std::setw(14) << (*xdwell1_rcp)[i]
+                 << std::setw(14) << (*xdwell2_rcp)[i]
                  << std::endl;
-    }    
+    }
 
-  
+
     ROL::RandomizeVector( x,  1.2, 1.8 );
     ROL::RandomizeVector( v, -0.1, 0.1 );
 
@@ -239,12 +248,12 @@ int main(int argc, char *argv[]) {
     *outStream << "Test of double well penalty objective" << std::endl;
     dwellObj.checkGradient(x,v,true,*outStream);    *outStream << std::endl;
     dwellObj.checkHessVec(x,v,true,*outStream);     *outStream << std::endl;
-    
 
 
 
 
-  }   
+
+  }
   catch (std::logic_error err) {
     *outStream << err.what() << "\n";
     errorFlag = -1000;
@@ -259,4 +268,3 @@ int main(int argc, char *argv[]) {
 
 
 }
-

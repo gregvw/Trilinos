@@ -49,10 +49,10 @@
 template <class Real>
 class FractionalObjective : public ROL::Objective_SimOpt<Real> {
 private:
-  const Teuchos::RCP<ROL::Objective_SimOpt<Real> > obj_;
+  const std::shared_ptr<ROL::Objective_SimOpt<Real> > obj_;
 
 public:
-  FractionalObjective(const Teuchos::RCP<ROL::Objective_SimOpt<Real> > &obj)
+  FractionalObjective(const std::shared_ptr<ROL::Objective_SimOpt<Real> > &obj)
     : obj_(obj) {}
 
   void setParameter(const std::vector<Real> &param) {
@@ -66,99 +66,99 @@ public:
 
   Real value( const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
     Teuchos::Array<size_t> cols(1,0);
-    Teuchos::RCP<const Tpetra::MultiVector<> > uf = getConstField(u);
-    Teuchos::RCP<ROL::Vector<Real> > ur
+    std::shared_ptr<const Tpetra::MultiVector<> > uf = getConstField(u);
+    std::shared_ptr<ROL::Vector<Real> > ur
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
+          std::const_pointer_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
     return obj_->value(*ur,z,tol);
   }
 
   void gradient_1( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
     Teuchos::Array<size_t> cols(1,0);
-    Teuchos::RCP<Tpetra::MultiVector<> > gf = getField(g);
-    Teuchos::RCP<ROL::Vector<Real> > gr
-      = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(gf->subViewNonConst(cols())));
-    Teuchos::RCP<const Tpetra::MultiVector<> > uf = getConstField(u);
-    Teuchos::RCP<ROL::Vector<Real> > ur
+    std::shared_ptr<Tpetra::MultiVector<> > gf = getField(g);
+    std::shared_ptr<ROL::Vector<Real> > gr
+      = std::make_shared<ROL::TpetraMultiVector<Real>(gf->subViewNonConst(cols>()));
+    std::shared_ptr<const Tpetra::MultiVector<> > uf = getConstField(u);
+    std::shared_ptr<ROL::Vector<Real> > ur
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
+          std::const_pointer_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
     g.zero();
     obj_->gradient_1(*gr,*ur,z,tol);
-    //Teuchos::RCP<Tpetra::MultiVector<Real> > grf = getField(*gr);
+    //std::shared_ptr<Tpetra::MultiVector<Real> > grf = getField(*gr);
     //gf->getVectorNonConst(0)->scale(static_cast<Real>(1),*grf);
   }
 
   void gradient_2( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
     Teuchos::Array<size_t> cols(1,0);
-    Teuchos::RCP<const Tpetra::MultiVector<> > uf = getConstField(u);
-    Teuchos::RCP<ROL::Vector<Real> > ur
+    std::shared_ptr<const Tpetra::MultiVector<> > uf = getConstField(u);
+    std::shared_ptr<ROL::Vector<Real> > ur
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
+          std::const_pointer_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
     obj_->gradient_2(g,*ur,z,tol);
   }
 
   void hessVec_11( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, 
              const ROL::Vector<Real> &u,  const ROL::Vector<Real> &z, Real &tol ) {
     Teuchos::Array<size_t> cols(1,0);
-    Teuchos::RCP<Tpetra::MultiVector<> > hvf = getField(hv);
-    Teuchos::RCP<ROL::Vector<Real> > hvr
-      = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(hvf->subViewNonConst(cols())));
-    Teuchos::RCP<const Tpetra::MultiVector<> > vf = getConstField(v);
-    Teuchos::RCP<ROL::Vector<Real> > vr
+    std::shared_ptr<Tpetra::MultiVector<> > hvf = getField(hv);
+    std::shared_ptr<ROL::Vector<Real> > hvr
+      = std::make_shared<ROL::TpetraMultiVector<Real>(hvf->subViewNonConst(cols>()));
+    std::shared_ptr<const Tpetra::MultiVector<> > vf = getConstField(v);
+    std::shared_ptr<ROL::Vector<Real> > vr
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(vf)->subViewNonConst(cols())));
-    Teuchos::RCP<const Tpetra::MultiVector<> > uf = getConstField(u);
-    Teuchos::RCP<ROL::Vector<Real> > ur
+          std::const_pointer_cast<Tpetra::MultiVector<> >(vf)->subViewNonConst(cols())));
+    std::shared_ptr<const Tpetra::MultiVector<> > uf = getConstField(u);
+    std::shared_ptr<ROL::Vector<Real> > ur
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
+          std::const_pointer_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
     obj_->hessVec_11(*hvr,*vr,*ur,z,tol);
   }
 
   void hessVec_12( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, 
              const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
     Teuchos::Array<size_t> cols(1,0);
-    Teuchos::RCP<Tpetra::MultiVector<> > hvf = getField(hv);
-    Teuchos::RCP<ROL::Vector<Real> > hvr
-      = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(hvf->subViewNonConst(cols())));
-    Teuchos::RCP<const Tpetra::MultiVector<> > uf = getConstField(u);
-    Teuchos::RCP<ROL::Vector<Real> > ur
+    std::shared_ptr<Tpetra::MultiVector<> > hvf = getField(hv);
+    std::shared_ptr<ROL::Vector<Real> > hvr
+      = std::make_shared<ROL::TpetraMultiVector<Real>(hvf->subViewNonConst(cols>()));
+    std::shared_ptr<const Tpetra::MultiVector<> > uf = getConstField(u);
+    std::shared_ptr<ROL::Vector<Real> > ur
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
+          std::const_pointer_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
     obj_->hessVec_12(*hvr,v,*ur,z,tol);
   }
 
   void hessVec_21( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, 
                    const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
     Teuchos::Array<size_t> cols(1,0);
-    Teuchos::RCP<const Tpetra::MultiVector<> > vf = getConstField(v);
-    Teuchos::RCP<ROL::Vector<Real> > vr
+    std::shared_ptr<const Tpetra::MultiVector<> > vf = getConstField(v);
+    std::shared_ptr<ROL::Vector<Real> > vr
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(vf)->subViewNonConst(cols())));
-    Teuchos::RCP<const Tpetra::MultiVector<> > uf = getConstField(u);
-    Teuchos::RCP<ROL::Vector<Real> > ur
+          std::const_pointer_cast<Tpetra::MultiVector<> >(vf)->subViewNonConst(cols())));
+    std::shared_ptr<const Tpetra::MultiVector<> > uf = getConstField(u);
+    std::shared_ptr<ROL::Vector<Real> > ur
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
+          std::const_pointer_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
     obj_->hessVec_21(hv,*vr,*ur,z,tol);
   }
 
   void hessVec_22( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, 
              const ROL::Vector<Real> &u,  const ROL::Vector<Real> &z, Real &tol ) {
     Teuchos::Array<size_t> cols(1,0);
-    Teuchos::RCP<const Tpetra::MultiVector<> > uf = getConstField(u);
-    Teuchos::RCP<ROL::Vector<Real> > ur
+    std::shared_ptr<const Tpetra::MultiVector<> > uf = getConstField(u);
+    std::shared_ptr<ROL::Vector<Real> > ur
       = Teuchos::rcp(new ROL::TpetraMultiVector<Real>(
-          Teuchos::rcp_const_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
+          std::const_pointer_cast<Tpetra::MultiVector<> >(uf)->subViewNonConst(cols())));
     obj_->hessVec_22(hv,v,*ur,z,tol);
   }
 
 private: // Vector accessor functions
 
-  Teuchos::RCP<const Tpetra::MultiVector<> > getConstField(const ROL::Vector<Real> &x) const {
-    return Teuchos::dyn_cast<const ROL::TpetraMultiVector<Real> >(x).getVector();
+  std::shared_ptr<const Tpetra::MultiVector<> > getConstField(const ROL::Vector<Real> &x) const {
+    return dynamic_cast<const ROL::TpetraMultiVector<Real>&>(x).getVector();
   }
 
-  Teuchos::RCP<Tpetra::MultiVector<> > getField(ROL::Vector<Real> &x) const {
-    return Teuchos::dyn_cast<ROL::TpetraMultiVector<Real> >(x).getVector();
+  std::shared_ptr<Tpetra::MultiVector<> > getField(ROL::Vector<Real> &x) const {
+    return dynamic_cast<ROL::TpetraMultiVector<Real>&>(x).getVector();
   }
 
 }; // class Objective_SimOpt

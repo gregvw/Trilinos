@@ -58,26 +58,26 @@
 int main(int argc, char *argv[]) {
 
   using namespace ROL;
-  using Teuchos::RCP;
-  using Teuchos::rcp;
+
+
 
   typedef int                           OrdinalT;
   typedef double                        RealT;
   typedef Vector<RealT>                 V;
   typedef StdVector<RealT,RealT>        StdV;
   typedef TeuchosVector<OrdinalT,RealT> TV;
-  
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   int errorFlag  = 0;
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 
     TV x(dim,true);
     TV y(dim,true);
-    TV z(dim,true); 
+    TV z(dim,true);
 
     RealT left = -1e0, right = 1e0;
 
@@ -100,15 +100,15 @@ int main(int argc, char *argv[]) {
     RandomizeVector(z, left, right );
 
     // Standard tests.
-    std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    StdV checkvec(Teuchos::rcp(&consistency, false));
+    auto consistency = std::make_shared<std::vector<RealT>>(x.checkVector(y, z, true, *outStream));
+    StdV checkvec(consistency);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
 
     // Basis tests.
     // set x to first basis vector
-    RCP<V> zp = x.basis(0);
+    std::shared_ptr<V> zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";
     if ( std::abs(znorm-1.0) > errtol ) {
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 
     // Repeat the checkVector tests with a zero vector.
     x.scale(0.0);
-    consistency = x.checkVector(x, x, true, *outStream);
+    consistency = std::make_shared<std::vector<RealT>>(x.checkVector(x, x, true, *outStream));
     if (checkvec.norm() > 0.0) {
       errorFlag++;
     }
@@ -153,4 +153,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

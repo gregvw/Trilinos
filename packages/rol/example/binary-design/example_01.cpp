@@ -67,8 +67,8 @@ public:
     : nvars_(nvars), alpha_(alpha) {}
 
   RealT value(const ROL::Vector<Real> &x, Real &tol) {
-    Teuchos::RCP<const std::vector<Real> > ex
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
+    std::shared_ptr<const std::vector<Real> > ex
+        = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
     Real val(0);
     for (int i=0; i<nvars_; ++i) {
@@ -78,10 +78,10 @@ public:
   }
 
   void gradient(ROL::Vector<Real> &g, const ROL::Vector<Real> &x, Real &tol) {
-    Teuchos::RCP<const std::vector<Real> > ex
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
-    Teuchos::RCP<std::vector<Real> > eg
-        = Teuchos::dyn_cast<ROL::StdVector<Real> >(g).getVector();
+    std::shared_ptr<const std::vector<Real> > ex
+        = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
+    std::shared_ptr<std::vector<Real> > eg
+        = dynamic_cast<ROL::StdVector<Real>&>(g).getVector();
 
     const Real one(1), two(2);
     for (int i=0; i<nvars_; ++i) {
@@ -90,12 +90,12 @@ public:
   }
 
   void hessVec(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &x, Real &tol) {
-    Teuchos::RCP<const std::vector<Real> > ex
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
-    Teuchos::RCP<const std::vector<Real> > ev
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(v).getVector();
-    Teuchos::RCP<std::vector<Real> > ehv
-        = Teuchos::dyn_cast<ROL::StdVector<Real> >(hv).getVector();
+    std::shared_ptr<const std::vector<Real> > ex
+        = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
+    std::shared_ptr<const std::vector<Real> > ev
+        = dynamic_cast<const ROL::StdVector<Real>&>(v).getVector();
+    std::shared_ptr<std::vector<Real> > ehv
+        = dynamic_cast<ROL::StdVector<Real>&>(hv).getVector();
 
     const Real two(2);
     for (int i=0; i<nvars_; ++i) {
@@ -116,10 +116,10 @@ public:
     : nvars_(nvars), vol_(vol) {}
 
   void value(ROL::Vector<Real> &c, const ROL::Vector<Real> &x, Real &tol) {
-    Teuchos::RCP<const std::vector<Real> > ex
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
-    Teuchos::RCP<std::vector<Real> > ec
-        = Teuchos::dyn_cast<ROL::StdVector<Real> >(c).getVector();
+    std::shared_ptr<const std::vector<Real> > ex
+        = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
+    std::shared_ptr<std::vector<Real> > ec
+        = dynamic_cast<ROL::StdVector<Real>&>(c).getVector();
 
     const Real one(1);
     for (int i=0; i<nvars_; ++i) {
@@ -132,12 +132,12 @@ public:
   }
 
   void applyJacobian(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &x, Real &tol) {
-    Teuchos::RCP<const std::vector<Real> > ex
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
-    Teuchos::RCP<const std::vector<Real> > ev
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(v).getVector();
-    Teuchos::RCP<std::vector<Real> > ejv
-        = Teuchos::dyn_cast<ROL::StdVector<Real> >(jv).getVector();
+    std::shared_ptr<const std::vector<Real> > ex
+        = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
+    std::shared_ptr<const std::vector<Real> > ev
+        = dynamic_cast<const ROL::StdVector<Real>&>(v).getVector();
+    std::shared_ptr<std::vector<Real> > ejv
+        = dynamic_cast<ROL::StdVector<Real>&>(jv).getVector();
 
     const Real zero(0), one(1), two(2);
     for (int i=0; i<nvars_; ++i) {
@@ -150,12 +150,12 @@ public:
   }
 
   void applyAdjointJacobian(ROL::Vector<Real> &ajv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &x, Real &tol) {
-    Teuchos::RCP<const std::vector<Real> > ex
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
-    Teuchos::RCP<const std::vector<Real> > ev
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(v).getVector();
-    Teuchos::RCP<std::vector<Real> > eajv
-        = Teuchos::dyn_cast<ROL::StdVector<Real> >(ajv).getVector();
+    std::shared_ptr<const std::vector<Real> > ex
+        = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
+    std::shared_ptr<const std::vector<Real> > ev
+        = dynamic_cast<const ROL::StdVector<Real>&>(v).getVector();
+    std::shared_ptr<std::vector<Real> > eajv
+        = dynamic_cast<ROL::StdVector<Real>&>(ajv).getVector();
 
     const Real one(1), two(2);
     for (int i=0; i<nvars_; ++i) {
@@ -164,14 +164,14 @@ public:
   }
 
   void applyAdjointHessian(ROL::Vector<Real> &ahuv, const ROL::Vector<Real> &u, const ROL::Vector<Real> &v, const ROL::Vector<Real> &x, Real &tol) {
-    Teuchos::RCP<const std::vector<Real> > ex
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
-    Teuchos::RCP<const std::vector<Real> > eu
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(u).getVector();
-    Teuchos::RCP<const std::vector<Real> > ev
-        = Teuchos::dyn_cast<const ROL::StdVector<Real> >(v).getVector();
-    Teuchos::RCP<std::vector<Real> > eahuv
-        = Teuchos::dyn_cast<ROL::StdVector<Real> >(ahuv).getVector();
+    std::shared_ptr<const std::vector<Real> > ex
+        = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
+    std::shared_ptr<const std::vector<Real> > eu
+        = dynamic_cast<const ROL::StdVector<Real>&>(u).getVector();
+    std::shared_ptr<const std::vector<Real> > ev
+        = dynamic_cast<const ROL::StdVector<Real>&>(v).getVector();
+    std::shared_ptr<std::vector<Real> > eahuv
+        = dynamic_cast<ROL::StdVector<Real>&>(ahuv).getVector();
 
     const Real two(2);
     for (int i=0; i<nvars_; ++i) {
@@ -186,12 +186,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -203,13 +203,13 @@ int main(int argc, char *argv[]) {
     int   dim   = 10; // Set problem dimension. 
     RealT vol   = 2;  // Set desired volume. 
     RealT alpha = 1;  // Set quadratic penalty. 
-    Teuchos::RCP<std::vector<RealT> > x_rcp = Teuchos::rcp( new std::vector<RealT>(dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > g_rcp = Teuchos::rcp( new std::vector<RealT>(dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > d_rcp = Teuchos::rcp( new std::vector<RealT>(dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > v_rcp = Teuchos::rcp( new std::vector<RealT>(dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > jv_rcp = Teuchos::rcp( new std::vector<RealT>(dim+1, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > ajv_rcp = Teuchos::rcp( new std::vector<RealT>(dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > c_rcp = Teuchos::rcp( new std::vector<RealT>(dim+1, 0.0) );
+    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    std::shared_ptr<std::vector<RealT> > g_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    std::shared_ptr<std::vector<RealT> > d_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    std::shared_ptr<std::vector<RealT> > v_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    std::shared_ptr<std::vector<RealT> > jv_rcp = std::make_shared<std::vector<RealT>>(dim+1, 0.0);
+    std::shared_ptr<std::vector<RealT> > ajv_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    std::shared_ptr<std::vector<RealT> > c_rcp = std::make_shared<std::vector<RealT>>(dim+1, 0.0);
     for (int i=0; i<dim; i++) {
       (*x_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
       (*g_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
@@ -221,19 +221,19 @@ int main(int argc, char *argv[]) {
       (*jv_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
       (*c_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
     }
-    Teuchos::RCP<ROL::Vector<RealT> > x = Teuchos::rcp( new ROL::StdVector<RealT>(x_rcp) );
-    Teuchos::RCP<ROL::Vector<RealT> > g = Teuchos::rcp( new ROL::StdVector<RealT>(g_rcp) );
-    Teuchos::RCP<ROL::Vector<RealT> > d = Teuchos::rcp( new ROL::StdVector<RealT>(d_rcp) );
-    Teuchos::RCP<ROL::Vector<RealT> > v = Teuchos::rcp( new ROL::StdVector<RealT>(v_rcp) );
-    Teuchos::RCP<ROL::Vector<RealT> > jv = Teuchos::rcp( new ROL::StdVector<RealT>(jv_rcp) );
-    Teuchos::RCP<ROL::Vector<RealT> > ajv = Teuchos::rcp( new ROL::StdVector<RealT>(ajv_rcp) );
-    Teuchos::RCP<ROL::Vector<RealT> > c = Teuchos::rcp( new ROL::StdVector<RealT>(c_rcp) );
-    Teuchos::RCP<ROL::Objective<RealT> > obj = Teuchos::rcp(new BinaryDesignObjective<RealT>(dim, alpha));
-    Teuchos::RCP<ROL::Constraint<RealT> > con = Teuchos::rcp(new BinaryDesignConstraint<RealT>(dim, vol));
+    std::shared_ptr<ROL::Vector<RealT> > x = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > g = std::make_shared<ROL::StdVector<RealT>>(g_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > d = std::make_shared<ROL::StdVector<RealT>>(d_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > v = std::make_shared<ROL::StdVector<RealT>>(v_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > jv = std::make_shared<ROL::StdVector<RealT>>(jv_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > ajv = std::make_shared<ROL::StdVector<RealT>>(ajv_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > c = std::make_shared<ROL::StdVector<RealT>>(c_rcp);
+    std::shared_ptr<ROL::Objective<RealT> > obj = std::make_shared<BinaryDesignObjective<RealT>>(dim, alpha);
+    std::shared_ptr<ROL::Constraint<RealT> > con = std::make_shared<BinaryDesignConstraint<RealT>>(dim, vol);
 
    // Define algorithm
-    Teuchos::RCP<Teuchos::ParameterList> parlist
-      = Teuchos::rcp(new Teuchos::ParameterList());
+    std::shared_ptr<Teuchos::ParameterList> parlist
+      = std::make_shared<Teuchos::ParameterList>();
     std::string paramfile = "input.xml";
     Teuchos::updateParametersFromXmlFile(paramfile,parlist.ptr());
     ROL::Algorithm<RealT> algo("Composite Step",*parlist);

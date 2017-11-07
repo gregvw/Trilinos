@@ -75,8 +75,8 @@ public:
     try {
       std::shared_ptr<ConstraintFromObjective<Real> > cfo
         = std::dynamic_pointer_cast<ConstraintFromObjective<Real> >(con);
-      robj_ = std::make_shared<RiskAverseObjective<Real>(cfo->getObjective(>(),
-                parlist,sampler,1,index));
+      robj_ = std::make_shared<RiskAverseObjective<Real>>(cfo->getObjective(),
+                                                          parlist,sampler,1,index);
       con_  = std::make_shared<ConstraintFromObjective<Real>>(robj_);
     }
     catch (std::exception &e) {

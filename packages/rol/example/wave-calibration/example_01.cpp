@@ -68,8 +68,8 @@ typedef std::valarray<RealT> RArray;
 
 class CalibrationObjective : public ROL::Objective<RealT> {
 private:
-  const Teuchos::RCP<std::vector<RealT> > data_; // vector of "measurements"
-  const Teuchos::RCP<std::vector<RealT> > time_; // time vector
+  const std::shared_ptr<std::vector<RealT> > data_; // vector of "measurements"
+  const std::shared_ptr<std::vector<RealT> > time_; // time vector
   const RealT phase_;                            // wave phase
   const RealT amplitude_;                        // wave amplitude
   const RealT exp_const_;                        // exponential decay constant
@@ -77,8 +77,8 @@ private:
 
 public:
   // Constructor.
-  CalibrationObjective( const Teuchos::RCP<std::vector<RealT> > & data,
-                        const Teuchos::RCP<std::vector<RealT> > & time,
+  CalibrationObjective( const std::shared_ptr<std::vector<RealT> > & data,
+                        const std::shared_ptr<std::vector<RealT> > & time,
                         RealT phase,
                         RealT amplitude,
                         RealT exp_const ) :
@@ -97,8 +97,8 @@ public:
 
   // Value of the calibration objective.
   RealT value( const ROL::Vector<RealT> &omega, RealT &tol ) {
-    Teuchos::RCP<const std::vector<RealT> > omega_vec_rcp =
-      (Teuchos::dyn_cast<const ROL::StdVector<RealT> >(omega)).getVector();
+    std::shared_ptr<const std::vector<RealT> > omega_vec_rcp =
+      (dynamic_cast<const ROL::StdVector<RealT>&>(omega)).getVector();
 
     unsigned num_samples = data_->size();
     RealT y(0);
@@ -115,10 +115,10 @@ public:
 
   // Gradient of the calibration objective.
   void gradient(ROL::Vector<RealT> &g, const ROL::Vector<RealT> &omega, RealT &tol ) {
-    Teuchos::RCP<std::vector<RealT> > g_vec_rcp =
-      (Teuchos::dyn_cast<ROL::StdVector<RealT> >(g)).getVector();
-    Teuchos::RCP<const std::vector<RealT> > omega_vec_rcp =
-      (Teuchos::dyn_cast<const ROL::StdVector<RealT> >(omega)).getVector();
+    std::shared_ptr<std::vector<RealT> > g_vec_rcp =
+      (dynamic_cast<ROL::StdVector<RealT>&>(g)).getVector();
+    std::shared_ptr<const std::vector<RealT> > omega_vec_rcp =
+      (dynamic_cast<const ROL::StdVector<RealT>&>(omega)).getVector();
 
     unsigned num_samples = data_->size();
     RealT gy(0);
@@ -166,12 +166,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -196,8 +196,8 @@ int main(int argc, char *argv[]) {
     RealT phase = M_PI/7;
     RealT amplitude = 9.876;
 
-    Teuchos::RCP<std::vector<RealT> > data_rcp = Teuchos::rcp( new std::vector<RealT> (num_samples, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > time_rcp = Teuchos::rcp( new std::vector<RealT> (num_samples, 0.0) );
+    std::shared_ptr<std::vector<RealT> > data_rcp = std::make_shared<std::vector<RealT>>(num_samples, 0.0);
+    std::shared_ptr<std::vector<RealT> > time_rcp = std::make_shared<std::vector<RealT>>(num_samples, 0.0);
 
     // This is for a decay
     RealT decay=200; // number of periods for an e decay
@@ -275,7 +275,7 @@ int main(int argc, char *argv[]) {
     /************** Solve calibration problem. *************/
 
     // Define optimization 'vector' by using ROL::StdVector.
-    Teuchos::RCP<std::vector<RealT> > omega_vec_rcp = Teuchos::rcp( new std::vector<RealT> (1, 0.0) );
+    std::shared_ptr<std::vector<RealT> > omega_vec_rcp = std::make_shared<std::vector<RealT>>(1, 0.0);
     ROL::StdVector<RealT> omega_rol_vec(omega_vec_rcp);
 
     // Define calibration objective.
@@ -311,9 +311,9 @@ int main(int argc, char *argv[]) {
       parlist.sublist("Step").sublist("Trust Region").set("Subproblem Solver", "Truncated CG");
       parlist.sublist("Step").sublist("Trust Region").set("Initial Radius", 1e7);
       parlist.sublist("Step").sublist("Trust Region").set("Maximum Radius", 1e12);
-    Teuchos::RCP<ROL::LineSearchStep<RealT> >   lsstep = Teuchos::rcp(new ROL::LineSearchStep<RealT>(parlist));  // line-search method
-    Teuchos::RCP<ROL::TrustRegionStep<RealT> >  trstep = Teuchos::rcp(new ROL::TrustRegionStep<RealT>(parlist));  // trust-region method
-    Teuchos::RCP<ROL::StatusTest<RealT> >       status = Teuchos::rcp(new ROL::StatusTest<RealT>(gtol, stol, max_iter));  // status test
+    std::shared_ptr<ROL::LineSearchStep<RealT> >   lsstep = std::make_shared<ROL::LineSearchStep<RealT>>(parlist);  // line-search method
+    std::shared_ptr<ROL::TrustRegionStep<RealT> >  trstep = std::make_shared<ROL::TrustRegionStep<RealT>>(parlist);  // trust-region method
+    std::shared_ptr<ROL::StatusTest<RealT> >       status = std::make_shared<ROL::StatusTest<RealT>>(gtol, stol, max_iter);  // status test
 
     // Run simple algorithm (starting at many initial points).
     /*
@@ -352,12 +352,12 @@ int main(int argc, char *argv[]) {
     RealT sigma(4.0);
     RealT dist_to_loc(10*(omega_max-omega_min)/(k_max*num_points));
     srand(0);
-    std::vector<Teuchos::RCP<ROL::Vector<RealT > > >  vec_sample;
-    std::vector<Teuchos::RCP<ROL::Vector<RealT > > >  vec_locmin;
+    std::vector<std::shared_ptr<ROL::Vector<RealT > > >  vec_sample;
+    std::vector<std::shared_ptr<ROL::Vector<RealT > > >  vec_locmin;
     std::vector<RealT> val_sample;
     std::vector<RealT> val_locmin;
     std::vector<RealT> min_distance;
-    Teuchos::RCP<ROL::Vector<RealT> > tmp_vec  = omega_rol_vec.clone();
+    std::shared_ptr<ROL::Vector<RealT> > tmp_vec  = omega_rol_vec.clone();
 
     for (int k=0; k<k_max; ++k) {
 
@@ -366,8 +366,8 @@ int main(int argc, char *argv[]) {
         // Compute random sample ... this would have to be generalized.
         //(vec_sample.back())->randomize();
           RealT tmp = omega_min + (RealT)rand() / ((RealT)RAND_MAX/(omega_max-omega_min));
-          Teuchos::RCP<std::vector<RealT> > last_vec_rcp =
-            (Teuchos::dyn_cast<ROL::StdVector<RealT> >(*(vec_sample.back()))).getVector();
+          std::shared_ptr<std::vector<RealT> > last_vec_rcp =
+            (dynamic_cast<ROL::StdVector<RealT>&>(*(vec_sample.back()))).getVector();
           (*last_vec_rcp)[0] = tmp;
 
         // Compute objective function value at the sample.
@@ -378,14 +378,14 @@ int main(int argc, char *argv[]) {
 
         // Compute minimum distances to points in the sample set.
         std::vector<RealT> tmp_distance;
-        for (std::vector<Teuchos::RCP<ROL::Vector<RealT > > >::iterator itsam = vec_sample.begin(); itsam != vec_sample.end(); ++itsam) {
+        for (std::vector<std::shared_ptr<ROL::Vector<RealT > > >::iterator itsam = vec_sample.begin(); itsam != vec_sample.end(); ++itsam) {
           tmp_vec->set(*(vec_sample.back()));
           tmp_vec->axpy(-1.0, **itsam);
           RealT dist  = tmp_vec->norm();
           tmp_distance.push_back(dist);
         }
         tmp_distance.back() = realmax;
-        for (std::vector<Teuchos::RCP<ROL::Vector<RealT > > >::iterator itsam = vec_sample.begin(); itsam != vec_sample.end(); ++itsam) {
+        for (std::vector<std::shared_ptr<ROL::Vector<RealT > > >::iterator itsam = vec_sample.begin(); itsam != vec_sample.end(); ++itsam) {
           int idx = itsam - vec_sample.begin(); // current iterator index
           if ((tmp_distance[idx] < min_distance[idx]) && (itsam != vec_sample.end()-1)) {
             min_distance[idx] = tmp_distance[idx];
@@ -404,15 +404,15 @@ int main(int argc, char *argv[]) {
         r_k = (1.0/sqrt(M_PI))*pow(tgamma(1.0+dim/2.0)*(omega_max-omega_min)*sigma*log10(nsamples)/nsamples, 1.0/dim);
 
       // Start local optimization runs.
-      for (std::vector<Teuchos::RCP<ROL::Vector<RealT > > >::iterator itsam = vec_sample.begin(); itsam != vec_sample.end(); ++itsam) {
+      for (std::vector<std::shared_ptr<ROL::Vector<RealT > > >::iterator itsam = vec_sample.begin(); itsam != vec_sample.end(); ++itsam) {
         bool islocal = false;
         bool isnearlocal = false;
-        for (std::vector<Teuchos::RCP<ROL::Vector<RealT > > >::iterator itloc = vec_locmin.begin(); itloc != vec_locmin.end(); ++itloc) {
+        for (std::vector<std::shared_ptr<ROL::Vector<RealT > > >::iterator itloc = vec_locmin.begin(); itloc != vec_locmin.end(); ++itloc) {
           if (*itsam == *itloc) {
             islocal = true;
           }
         }
-        for (std::vector<Teuchos::RCP<ROL::Vector<RealT > > >::iterator itloc = vec_locmin.begin(); itloc != vec_locmin.end(); ++itloc) {
+        for (std::vector<std::shared_ptr<ROL::Vector<RealT > > >::iterator itloc = vec_locmin.begin(); itloc != vec_locmin.end(); ++itloc) {
           tmp_vec->set(**itloc);
           tmp_vec->axpy(-1.0, **itsam);
           RealT dist  = tmp_vec->norm();
@@ -424,7 +424,7 @@ int main(int argc, char *argv[]) {
           int idx = itsam - vec_sample.begin(); // current iterator index
           if ((val_sample[idx] <= minval_sample) || (min_distance[idx] > r_k)) {
             ROL::Algorithm<RealT> algo(trstep, status, false);
-            Teuchos::RCP<ROL::Vector<RealT> > soln_vec  = omega_rol_vec.clone();
+            std::shared_ptr<ROL::Vector<RealT> > soln_vec  = omega_rol_vec.clone();
             soln_vec->set(**itsam);
             algo.run(*soln_vec, cal_obj, true, *outStream);
             vec_locmin.push_back(*itsam);
@@ -436,9 +436,9 @@ int main(int argc, char *argv[]) {
 
     *outStream << std::endl << "Number of local minima identified: " << val_locmin.size() << std::endl;
     *outStream << "Minimizers:" << std::endl;
-    for (std::vector<Teuchos::RCP<ROL::Vector<RealT > > >::iterator itloc = vec_locmin.begin(); itloc != vec_locmin.end(); ++itloc) {
-      Teuchos::RCP<const std::vector<RealT> > vec_rcp =
-        (Teuchos::dyn_cast<ROL::StdVector<RealT> >(**itloc)).getVector();
+    for (std::vector<std::shared_ptr<ROL::Vector<RealT > > >::iterator itloc = vec_locmin.begin(); itloc != vec_locmin.end(); ++itloc) {
+      std::shared_ptr<const std::vector<RealT> > vec_rcp =
+        (dynamic_cast<ROL::StdVector<RealT>&>(**itloc)).getVector();
       *outStream << "  " << (*vec_rcp)[0] << std::endl;
     }
     *outStream << std::endl;
@@ -447,7 +447,7 @@ int main(int argc, char *argv[]) {
     std::vector<RealT>::iterator itmin = std::min_element(val_locmin.begin(),val_locmin.end());
     objval_min = *itmin;
     int idx_min = itmin - val_locmin.begin();
-    solution_min = (*(Teuchos::dyn_cast<ROL::StdVector<RealT> >(*(vec_locmin[idx_min]))).getVector())[0];
+    solution_min = (*(dynamic_cast<ROL::StdVector<RealT>&>(*(vec_locmin[idx_min]))).getVector())[0];
 
     /*** End of MLSL. ***/
 

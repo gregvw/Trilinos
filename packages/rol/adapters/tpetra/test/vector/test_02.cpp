@@ -66,14 +66,14 @@ void print_vector( const ROL::Vector<Real> &x ) {
   typedef ROL::SimulatedVector<Real>   PV;
   typedef typename PV::size_type       size_type;
 
-  const PV eb = Teuchos::dyn_cast<const PV>(x);
+  const PV eb = dynamic_cast<const PV&>(x);
   size_type n = eb.numVectors();
     
   for(size_type k=0; k<n; ++k) {
     std::cout << "[subvector " << k << "]" << std::endl;
-    Teuchos::RCP<const V> vec = eb.get(k);
-    Teuchos::RCP<const std::vector<Real> > vp = 
-      Teuchos::dyn_cast<const SV>(*vec).getVector();  
+    std::shared_ptr<const V> vec = eb.get(k);
+    std::shared_ptr<const std::vector<Real> > vp = 
+      dynamic_cast<const SV&>(*vec).getVector();  
    for(size_type i=0;i<vp->size();++i) {
       std::cout << (*vp)[i] << std::endl;
     }  
@@ -90,18 +90,18 @@ int main(int argc, char *argv[]) {
   typedef ROL::SimulatedVector<RealT>   PV;
 
   GlobalMPISession mpiSession(&argc, &argv);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
-  Teuchos::RCP<ROL::TpetraTeuchosBatchManager<RealT> > bman = Teuchos::rcp(new ROL::TpetraTeuchosBatchManager<RealT>(comm));
+  std::shared_ptr<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  std::shared_ptr<ROL::TpetraTeuchosBatchManager<RealT> > bman = std::make_shared<ROL::TpetraTeuchosBatchManager<RealT>>(comm);
 
   int iprint = argc - 1;
 
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   oblackholestream bhs; // no output
  
   if( iprint>0 ) 
-    outStream = Teuchos::rcp(&std::cout,false);
+    outStream = &std::cout,false;
   else
-    outStream = Teuchos::rcp(&bhs,false);
+    outStream = &bhs,false;
 
   int errorFlag = 0;
 
@@ -113,8 +113,8 @@ int main(int argc, char *argv[]) {
     int nSamp = 100;
     std::vector<RealT> tmp(2,0.0); tmp[0] = -1.0; tmp[1] = 1.0;
     std::vector<std::vector<RealT> > bounds(stoch_dim,tmp);
-    Teuchos::RCP<ROL::SampleGenerator<RealT> > sampler
-      = Teuchos::rcp(new ROL::MonteCarloGenerator<RealT>(nSamp,bounds,bman));
+    std::shared_ptr<ROL::SampleGenerator<RealT> > sampler
+      = std::make_shared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman);
 
     int batchID = bman->batchID();
     int nvecloc = sampler->numMySamples();
@@ -127,19 +127,19 @@ int main(int argc, char *argv[]) {
      
     RealT left = -1e0, right = 1e0;
 
-    std::vector<Teuchos::RCP<V> > x_rcp;
-    std::vector<Teuchos::RCP<V> > y_rcp;
-    std::vector<Teuchos::RCP<V> > z_rcp;
+    std::vector<std::shared_ptr<V> > x_rcp;
+    std::vector<std::shared_ptr<V> > y_rcp;
+    std::vector<std::shared_ptr<V> > z_rcp;
 
     for( int k=0; k<nvecloc; ++k ) {
        
-      Teuchos::RCP<std::vector<RealT> > xk_rcp = Teuchos::rcp( new std::vector<RealT>(dim) );
-      Teuchos::RCP<std::vector<RealT> > yk_rcp = Teuchos::rcp( new std::vector<RealT>(dim) );
-      Teuchos::RCP<std::vector<RealT> > zk_rcp = Teuchos::rcp( new std::vector<RealT>(dim) );
+      std::shared_ptr<std::vector<RealT> > xk_rcp = std::make_shared<std::vector<RealT>>(dim);
+      std::shared_ptr<std::vector<RealT> > yk_rcp = std::make_shared<std::vector<RealT>>(dim);
+      std::shared_ptr<std::vector<RealT> > zk_rcp = std::make_shared<std::vector<RealT>>(dim);
 
-      Teuchos::RCP<V> xk = Teuchos::rcp( new SV( xk_rcp ) );
-      Teuchos::RCP<V> yk = Teuchos::rcp( new SV( yk_rcp ) );
-      Teuchos::RCP<V> zk = Teuchos::rcp( new SV( zk_rcp ) );
+      std::shared_ptr<V> xk = std::make_shared<SV>( xk_rcp );
+      std::shared_ptr<V> yk = std::make_shared<SV>( yk_rcp );
+      std::shared_ptr<V> zk = std::make_shared<SV>( zk_rcp );
 
       for( int i=0; i<dim; ++i ) {
         (*xk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    ROL::StdVector<RealT> checkvec(&consistency, false);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
@@ -179,10 +179,10 @@ int main(int argc, char *argv[]) {
     x_rcp.resize(0);
     y_rcp.resize(0);
     for( int k=0; k<nvecloc; ++k ) {
-      Teuchos::RCP<std::vector<RealT> > xk_rcp = Teuchos::rcp( new std::vector<RealT>(dim) );
-      Teuchos::RCP<std::vector<RealT> > yk_rcp = Teuchos::rcp( new std::vector<RealT>(dim) );
-      Teuchos::RCP<V> xk = Teuchos::rcp( new SV( xk_rcp ) );
-      Teuchos::RCP<V> yk = Teuchos::rcp( new SV( yk_rcp ) );
+      std::shared_ptr<std::vector<RealT> > xk_rcp = std::make_shared<std::vector<RealT>>(dim);
+      std::shared_ptr<std::vector<RealT> > yk_rcp = std::make_shared<std::vector<RealT>>(dim);
+      std::shared_ptr<V> xk = std::make_shared<SV>( xk_rcp );
+      std::shared_ptr<V> yk = std::make_shared<SV>( yk_rcp );
       for( int i=0; i<dim; ++i ) {
         (*xk_rcp)[i] = 1.0;
         (*yk_rcp)[i] = 2.0;

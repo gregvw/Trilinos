@@ -56,12 +56,12 @@
 #include "ROL_ScalarFunction.hpp"
 #include "ROL_Bracketing.hpp"
 
-namespace ROL { 
+namespace ROL {
 
 template<class Real>
 class ScalarMinimizationLineSearch : public LineSearch<Real> {
 private:
-  std::shared_ptr<Vector<Real> >             xnew_; 
+  std::shared_ptr<Vector<Real> >             xnew_;
   std::shared_ptr<Vector<Real> >             g_;
   std::shared_ptr<ScalarMinimization<Real> > sm_;
   std::shared_ptr<Bracketing<Real> >         br_;
@@ -107,7 +107,7 @@ private:
       updateIterate(alpha);
       obj_->update(*xnew_);
       obj_->gradient(*g_,*xnew_,ftol_);
-      return s_->dot(g_->dual()); 
+      return s_->dot(g_->dual());
     }
   };
 
@@ -172,7 +172,7 @@ private:
 
 public:
   // Constructor
-  ScalarMinimizationLineSearch( Teuchos::ParameterList &parlist, 
+  ScalarMinimizationLineSearch( Teuchos::ParameterList &parlist,
     const std::shared_ptr<ScalarMinimization<Real> > &sm = nullptr,
     const std::shared_ptr<Bracketing<Real> > &br = nullptr,
     const std::shared_ptr<ScalarFunction<Real> > &sf  = nullptr )
@@ -249,7 +249,7 @@ public:
 
   // Find the minimum of phi(alpha) = f(x + alpha*s) using Brent's method
   void run( Real &alpha, Real &fval, int &ls_neval, int &ls_ngrad,
-            const Real &gs, const Vector<Real> &s, const Vector<Real> &x, 
+            const Real &gs, const Vector<Real> &s, const Vector<Real> &x,
             Objective<Real> &obj, BoundConstraint<Real> &con ) {
     ls_neval = 0; ls_ngrad = 0;
 
@@ -257,10 +257,10 @@ public:
     alpha = LineSearch<Real>::getInitialAlpha(ls_neval,ls_ngrad,fval,gs,x,s,obj,con);
 
     // Build ScalarFunction and ScalarMinimizationStatusTest
-    std::shared_ptr<const Vector<Real> > x_ptr = Teuchos::rcpFromRef(x);
-    std::shared_ptr<const Vector<Real> > s_ptr = Teuchos::rcpFromRef(s);
-    std::shared_ptr<Objective<Real> > obj_ptr = Teuchos::rcpFromRef(obj);
-    std::shared_ptr<BoundConstraint<Real> > bnd_ptr = Teuchos::rcpFromRef(con);
+    std::shared_ptr<const Vector<Real> > x_ptr(&x);
+    std::shared_ptr<const Vector<Real> > s_ptr(&s);
+    std::shared_ptr<Objective<Real> > obj_ptr(&obj);
+    std::shared_ptr<BoundConstraint<Real> > bnd_ptr(&con);
 
 
     std::shared_ptr<ScalarFunction<Real> > phi;
@@ -279,7 +279,7 @@ public:
     int nfval = 0, ngrad = 0;
     Real A(0),      fA = fval;
     Real B = alpha, fB = phi->value(B);
-    br_->run(alpha,fval,A,fA,B,fB,nfval,ngrad,*phi,*test); 
+    br_->run(alpha,fval,A,fA,B,fB,nfval,ngrad,*phi,*test);
     B = alpha;
     ls_neval += nfval; ls_ngrad += ngrad;
 
@@ -288,7 +288,7 @@ public:
     sm_->run(fval, alpha, nfval, ngrad, *phi, A, B, *test);
     ls_neval += nfval; ls_ngrad += ngrad;
 
-    LineSearch<Real>::setNextInitialAlpha(alpha); 
+    LineSearch<Real>::setNextInitialAlpha(alpha);
   }
 };
 

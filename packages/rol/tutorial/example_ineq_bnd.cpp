@@ -131,16 +131,16 @@ public:
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
 
   typedef double RealT;
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs, false;
 
 
   int errorFlag   = 0;
@@ -151,31 +151,31 @@ int main(int argc, char *argv[]) {
     parlist.sublist("Step").set("Type","Augmented Lagrangian");
     
 
-    RCP<std::vector<RealT> > l_rcp = rcp( new std::vector<RealT>(5,-100.0) );
-    RCP<std::vector<RealT> > u_rcp = rcp( new std::vector<RealT>(5, 100.0) );
+    std::shared_ptr<std::vector<RealT> > l_rcp = std::make_shared<std::vector<RealT>>(5,-100.0);
+    std::shared_ptr<std::vector<RealT> > u_rcp = std::make_shared<std::vector<RealT>>(5, 100.0);
 
-    RCP<ROL::Vector<RealT> > lower = rcp( new ROL::StdVector<RealT>( l_rcp ) );
-    RCP<ROL::Vector<RealT> > upper = rcp( new ROL::StdVector<RealT>( u_rcp ) ); 
+    std::shared_ptr<ROL::Vector<RealT> > lower = std::make_shared<ROL::StdVector<RealT>>( l_rcp );
+    std::shared_ptr<ROL::Vector<RealT> > upper = std::make_shared<ROL::StdVector<RealT>>( u_rcp ); 
 
-    RCP<std::vector<RealT> > x_rcp  = rcp( new std::vector<RealT>(5,1.0) );
-    RCP<std::vector<RealT> > li_rcp = rcp( new std::vector<RealT>(1,0.0) );
-    RCP<std::vector<RealT> > ll_rcp = rcp( new std::vector<RealT>(1,0.0) );
-    RCP<std::vector<RealT> > lu_rcp = rcp( new std::vector<RealT>(1,ROL::ROL_INF<RealT>()) );
+    std::shared_ptr<std::vector<RealT> > x_rcp  = std::make_shared<std::vector<RealT>>(5,1.0);
+    std::shared_ptr<std::vector<RealT> > li_rcp = std::make_shared<std::vector<RealT>>(1,0.0);
+    std::shared_ptr<std::vector<RealT> > ll_rcp = std::make_shared<std::vector<RealT>>(1,0.0);
+    std::shared_ptr<std::vector<RealT> > lu_rcp = std::make_shared<std::vector<RealT>(1,ROL::ROL_INF<RealT>>());
 
-    RCP<ROL::Vector<RealT> > x  = rcp( new ROL::StdVector<RealT>(x_rcp) );
-    RCP<ROL::Vector<RealT> > li = rcp( new ROL::StdVector<RealT>(li_rcp) );
-    RCP<ROL::Vector<RealT> > ll = rcp( new ROL::StdVector<RealT>(ll_rcp) );
-    RCP<ROL::Vector<RealT> > lu = rcp( new ROL::StdVector<RealT>(lu_rcp) );
+    std::shared_ptr<ROL::Vector<RealT> > x  = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > li = std::make_shared<ROL::StdVector<RealT>>(li_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > ll = std::make_shared<ROL::StdVector<RealT>>(ll_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > lu = std::make_shared<ROL::StdVector<RealT>>(lu_rcp);
 
-    RCP<ROL::Objective<RealT> >             obj  = rcp( new ObjectiveQL<RealT>() );
-    RCP<ROL::BoundConstraint<RealT> >       bnd  = rcp( new ROL::Bounds<RealT>(lower,upper) );
-    RCP<ROL::Constraint<RealT> >            ineq = rcp( new InequalityQL<RealT>() );
-    RCP<ROL::BoundConstraint<RealT> >       ibnd = rcp( new ROL::Bounds<RealT>(ll,lu) );
+    std::shared_ptr<ROL::Objective<RealT> >             obj  = std::make_shared<ObjectiveQL<RealT>>();
+    std::shared_ptr<ROL::BoundConstraint<RealT> >       bnd  = std::make_shared<ROL::Bounds<RealT>>(lower,upper);
+    std::shared_ptr<ROL::Constraint<RealT> >            ineq = std::make_shared<InequalityQL<RealT>>();
+    std::shared_ptr<ROL::BoundConstraint<RealT> >       ibnd = std::make_shared<ROL::Bounds<RealT>>(ll,lu);
 
     ROL::OptimizationProblem<RealT> problem( obj, x, bnd, ineq, li, ibnd);    
 
     /* checkAdjointJacobianConsistency fails for the OptimizationProblem if we don't do this first... why? */
-    RCP<ROL::Vector<RealT> > u = x->clone(); 
+    std::shared_ptr<ROL::Vector<RealT> > u = x->clone(); 
     RandomizeVector(*u);
     ineq->checkAdjointConsistencyJacobian(*li,*x,*u,true,*outStream);
     /*******************************************************************************************************/

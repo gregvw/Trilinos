@@ -66,7 +66,7 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
 
   typedef std::vector<RealT>            vector;
 
@@ -79,12 +79,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -96,20 +96,20 @@ int main(int argc, char *argv[]) {
 
   try {
 
-    RCP<vector> a_rcp  = rcp( new vector {4.0,2.0,1.0,3.0} );
-    RCP<vector> ai_rcp = rcp( new vector {3.0/10.0, -2.0/10.0, -1.0/10.0, 4.0/10.0} );
+    std::shared_ptr<vector> a_rcp  = std::make_shared<vector {4.0,2.0,1.0,3.0}>();
+    std::shared_ptr<vector> ai_rcp = std::make_shared<vector {3.0/10.0, -2.0/10.0, -1.0/10.0, 4.0/10.0}>();
 
-    RCP<vector> x1_rcp  = rcp( new vector {1.0,-1.0} );
-    RCP<vector> b1_rcp = rcp( new vector(2) );
+    std::shared_ptr<vector> x1_rcp  = std::make_shared<vector {1.0,-1.0}>();
+    std::shared_ptr<vector> b1_rcp = std::make_shared<vector>(2);
 
-    RCP<vector> x2_rcp = rcp( new vector(2) );
-    RCP<vector> b2_rcp  = rcp( new vector {3.0,-1.0} );
+    std::shared_ptr<vector> x2_rcp = std::make_shared<vector>(2);
+    std::shared_ptr<vector> b2_rcp  = std::make_shared<vector {3.0,-1.0}>();
     
-    RCP<vector> y3_rcp = rcp( new vector {-2.0,1.0}  );
-    RCP<vector> c3_rcp = rcp( new vector(2) );
+    std::shared_ptr<vector> y3_rcp = std::make_shared<vector {-2.0,1.0}>();
+    std::shared_ptr<vector> c3_rcp = std::make_shared<vector>(2);
 
-    RCP<vector> y4_rcp = rcp( new vector(2) );
-    RCP<vector> c4_rcp = rcp( new vector {-6.0,1.0} );
+    std::shared_ptr<vector> y4_rcp = std::make_shared<vector>(2);
+    std::shared_ptr<vector> c4_rcp = std::make_shared<vector {-6.0,1.0}>();
 
     StdLinearOperator A(a_rcp);
     StdLinearOperator Ai(ai_rcp);

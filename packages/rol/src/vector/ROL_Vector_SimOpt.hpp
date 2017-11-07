@@ -53,7 +53,7 @@
 
 namespace ROL {
 
-template<class Real> 
+template<class Real>
 class Vector_SimOpt : public Vector<Real> {
 private:
   std::shared_ptr<Vector<Real> > vec1_;
@@ -63,7 +63,7 @@ private:
   mutable std::shared_ptr<Vector_SimOpt<Real> > dual_vec_;
 
 public:
-  Vector_SimOpt( const std::shared_ptr<Vector<Real> > &vec1, const std::shared_ptr<Vector<Real> > &vec2 ) 
+  Vector_SimOpt( const std::shared_ptr<Vector<Real> > &vec1, const std::shared_ptr<Vector<Real> > &vec2 )
     : vec1_(vec1), vec2_(vec2) {
     dual_vec1_ = (vec1_->dual()).clone();
     dual_vec2_ = (vec2_->dual()).clone();
@@ -74,7 +74,7 @@ public:
       dynamic_cast<const Vector<Real>&>(x));
     vec1_->plus(*(xs.get_1()));
     vec2_->plus(*(xs.get_2()));
-  }   
+  }
 
   void scale( const Real alpha ) {
     vec1_->scale(alpha);
@@ -98,16 +98,16 @@ public:
     Real norm1 = vec1_->norm();
     Real norm2 = vec2_->norm();
     return sqrt( norm1*norm1 + norm2*norm2 );
-  } 
+  }
 
   std::shared_ptr<Vector<Real> > clone() const {
-    return std::make_shared<Vector_SimOpt(vec1_->clone(),vec2_->clone>());  
+    return std::make_shared<Vector_SimOpt>(vec1_->clone(),vec2_->clone());
   }
 
   const Vector<Real> & dual(void) const {
     dual_vec1_->set(vec1_->dual());
     dual_vec2_->set(vec2_->dual());
-    dual_vec_ = std::make_shared<Vector_SimOpt<Real>>(dual_vec1_,dual_vec2_); 
+    dual_vec_ = std::make_shared<Vector_SimOpt<Real>>(dual_vec1_,dual_vec2_);
     return *dual_vec_;
   }
 
@@ -139,7 +139,7 @@ public:
 
     vec1_->applyBinary(f,*xs.get_1());
     vec2_->applyBinary(f,*xs.get_2());
-  
+
   }
 
   Real reduce( const Elementwise::ReductionOp<Real> &r ) const {
@@ -155,28 +155,28 @@ public:
     return (vec1_)->dimension() + (vec2_)->dimension();
   }
 
-  std::shared_ptr<const Vector<Real> > get_1() const { 
-    return vec1_; 
+  std::shared_ptr<const Vector<Real> > get_1() const {
+    return vec1_;
   }
 
-  std::shared_ptr<const Vector<Real> > get_2() const { 
-    return vec2_; 
+  std::shared_ptr<const Vector<Real> > get_2() const {
+    return vec2_;
   }
 
-  std::shared_ptr<Vector<Real> > get_1() { 
-    return vec1_; 
+  std::shared_ptr<Vector<Real> > get_1() {
+    return vec1_;
   }
 
-  std::shared_ptr<Vector<Real> > get_2() { 
-    return vec2_; 
+  std::shared_ptr<Vector<Real> > get_2() {
+    return vec2_;
   }
 
-  void set_1(const Vector<Real>& vec) { 
+  void set_1(const Vector<Real>& vec) {
     vec1_->set(vec);
   }
-  
-  void set_2(const Vector<Real>& vec) { 
-    vec2_->set(vec); 
+
+  void set_2(const Vector<Real>& vec) {
+    vec2_->set(vec);
   }
 
   void print( std::ostream &outStream ) const {

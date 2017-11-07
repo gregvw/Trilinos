@@ -69,12 +69,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
   try {
     
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     RealT V_th      = parlist->get("Thermal Voltage", 0.02585);
@@ -120,9 +120,9 @@ int main(int argc, char *argv[]) {
     Objective_DiodeCircuit<RealT> obj(alpha,ns,nz);
     
     // Initialize iteration vectors.
-    Teuchos::RCP<std::vector<RealT> > z_rcp    = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > yz_rcp   = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > soln_rcp = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
+    std::shared_ptr<std::vector<RealT> > z_rcp    = std::make_shared<std::vector<RealT>>(nz, 0.0);
+    std::shared_ptr<std::vector<RealT> > yz_rcp   = std::make_shared<std::vector<RealT>>(nz, 0.0);
+    std::shared_ptr<std::vector<RealT> > soln_rcp = std::make_shared<std::vector<RealT>>(nz, 0.0);
     (*z_rcp)[0]     = init_Is;
     (*z_rcp)[1]     = init_Rs;
     (*yz_rcp)[0]    = init_Is;
@@ -132,11 +132,11 @@ int main(int argc, char *argv[]) {
     ROL::StdVector<RealT> z(z_rcp);
     ROL::StdVector<RealT> yz(yz_rcp);
     ROL::StdVector<RealT> soln(soln_rcp);
-    Teuchos::RCP<ROL::Vector<RealT> > zp  = Teuchos::rcp(&z,false);
-    Teuchos::RCP<ROL::Vector<RealT> > yzp = Teuchos::rcp(&yz,false);
+    std::shared_ptr<ROL::Vector<RealT> > zp  = &z,false;
+    std::shared_ptr<ROL::Vector<RealT> > yzp = &yz,false;
 
-    Teuchos::RCP<std::vector<RealT> > u_rcp  = Teuchos::rcp( new std::vector<RealT> (ns, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > yu_rcp = Teuchos::rcp( new std::vector<RealT> (ns, 0.0) );
+    std::shared_ptr<std::vector<RealT> > u_rcp  = std::make_shared<std::vector<RealT>>(ns, 0.0);
+    std::shared_ptr<std::vector<RealT> > yu_rcp = std::make_shared<std::vector<RealT>>(ns, 0.0);
     std::ifstream input_file("measurements.dat");
     RealT temp, temp_scale;
     for (int i=0; i<ns; i++) {
@@ -149,12 +149,12 @@ int main(int argc, char *argv[]) {
     input_file.close();
     ROL::StdVector<RealT> u(u_rcp);
     ROL::StdVector<RealT> yu(yu_rcp);
-    Teuchos::RCP<ROL::Vector<RealT> > up  = Teuchos::rcp(&u,false);
-    Teuchos::RCP<ROL::Vector<RealT> > yup = Teuchos::rcp(&yu,false);
+    std::shared_ptr<ROL::Vector<RealT> > up  = &u,false;
+    std::shared_ptr<ROL::Vector<RealT> > yup = &yu,false;
 
-    Teuchos::RCP<std::vector<RealT> > jv_rcp  = Teuchos::rcp( new std::vector<RealT> (ns, 1.0) );
+    std::shared_ptr<std::vector<RealT> > jv_rcp  = std::make_shared<std::vector<RealT>>(ns, 1.0);
     ROL::StdVector<RealT> jv(jv_rcp);
-    Teuchos::RCP<ROL::Vector<RealT> > jvp = Teuchos::rcp(&jv,false);
+    std::shared_ptr<ROL::Vector<RealT> > jvp = &jv,false;
 
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> y(yup,yzp);
@@ -175,11 +175,11 @@ int main(int argc, char *argv[]) {
     con.checkInverseAdjointJacobian_1(yu,jv,u,z,true,*outStream);
 
     // Initialize reduced objective function.
-    Teuchos::RCP<std::vector<RealT> > p_rcp  = Teuchos::rcp( new std::vector<RealT> (ns, 0.0) );
+    std::shared_ptr<std::vector<RealT> > p_rcp  = std::make_shared<std::vector<RealT>>(ns, 0.0);
     ROL::StdVector<RealT> p(p_rcp);
-    Teuchos::RCP<ROL::Vector<RealT> > pp  = Teuchos::rcp(&p,false);
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > pobj = Teuchos::rcp(&obj,false);
-    Teuchos::RCP<ROL::Constraint_SimOpt<RealT> > pcon = Teuchos::rcp(&con,false);
+    std::shared_ptr<ROL::Vector<RealT> > pp  = &p,false;
+    std::shared_ptr<ROL::Objective_SimOpt<RealT> > pobj = &obj,false;
+    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > pcon = &con,false;
     ROL::Reduced_Objective_SimOpt<RealT> robj(pobj,pcon,up,zp,pp);
     // Check derivatives.
     *outStream << "Derivatives of reduced objective" << std::endl;
@@ -188,7 +188,7 @@ int main(int argc, char *argv[]) {
     
     // Bound constraints
     RealT tol = 1.e-12;
-    Teuchos::RCP<std::vector<RealT> > g0_rcp = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );;
+    std::shared_ptr<std::vector<RealT> > g0_rcp = std::make_shared<std::vector<RealT>>(nz, 0.0);;
     ROL::StdVector<RealT> g0p(g0_rcp);
     robj.gradient(g0p,z,tol);
     *outStream << std::scientific <<  "Initial gradient = " << (*g0_rcp)[0] << " " << (*g0_rcp)[1] << "\n";
@@ -218,16 +218,16 @@ int main(int argc, char *argv[]) {
     }
     else{
       // SQP.
-      //Teuchos::RCP<std::vector<RealT> > gz_rcp = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
+      //std::shared_ptr<std::vector<RealT> > gz_rcp = std::make_shared<std::vector<RealT>>(nz, 0.0);
       //ROL::StdVector<RealT> gz(gz_rcp);
-      //Teuchos::RCP<ROL::Vector<RealT> > gzp = Teuchos::rcp(&gz,false);
-      Teuchos::RCP<std::vector<RealT> > gu_rcp = Teuchos::rcp( new std::vector<RealT> (ns, 0.0) );
+      //std::shared_ptr<ROL::Vector<RealT> > gzp = &gz,false;
+      std::shared_ptr<std::vector<RealT> > gu_rcp = std::make_shared<std::vector<RealT>>(ns, 0.0);
       ROL::StdVector<RealT> gu(gu_rcp);
-      Teuchos::RCP<ROL::Vector<RealT> > gup = Teuchos::rcp(&gu,false);
+      std::shared_ptr<ROL::Vector<RealT> > gup = &gu,false;
       //ROL::Vector_SimOpt<RealT> g(gup,gzp);
       ROL::Vector_SimOpt<RealT> g(gup,zp);
-      Teuchos::RCP<std::vector<RealT> > c_rcp = Teuchos::rcp( new std::vector<RealT> (ns, 0.0) );
-      Teuchos::RCP<std::vector<RealT> > l_rcp = Teuchos::rcp( new std::vector<RealT> (ns, 0.0) );
+      std::shared_ptr<std::vector<RealT> > c_rcp = std::make_shared<std::vector<RealT>>(ns, 0.0);
+      std::shared_ptr<std::vector<RealT> > l_rcp = std::make_shared<std::vector<RealT>>(ns, 0.0);
       ROL::StdVector<RealT> c(c_rcp);
       ROL::StdVector<RealT> l(l_rcp);
       

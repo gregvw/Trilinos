@@ -59,8 +59,8 @@ typedef double RealT;
 typedef double ElementT;
 
 int main(int argc, char *argv[]) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
+  
+  
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
 
@@ -77,12 +77,12 @@ int main(int argc, char *argv[]) {
 
     int dim = 100; 
   
-    RCP<Thyra::VectorSpaceBase<RealT> > map = Thyra::defaultSpmdVectorSpace<RealT>(dim);   
+    std::shared_ptr<Thyra::VectorSpaceBase<RealT> > map = Thyra::defaultSpmdVectorSpace<RealT>(dim);   
 
-    // Create RCPs to Thyra::Vectors
-    RCP<Thyra::VectorBase<RealT> > x_rcp = Thyra::createMember<RealT>(map);
-    RCP<Thyra::VectorBase<RealT> > y_rcp = Thyra::createMember<RealT>(map);
-    RCP<Thyra::VectorBase<RealT> > W_rcp = Thyra::createMember<RealT>(map);
+    // Create std::shared_ptrs to Thyra::Vectors
+    std::shared_ptr<Thyra::VectorBase<RealT> > x_rcp = Thyra::createMember<RealT>(map);
+    std::shared_ptr<Thyra::VectorBase<RealT> > y_rcp = Thyra::createMember<RealT>(map);
+    std::shared_ptr<Thyra::VectorBase<RealT> > W_rcp = Thyra::createMember<RealT>(map);
 
     // Random elements
     //x_rcp->randomize();
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clone z from x, deep copy x into z, norm of z
-    Teuchos::RCP<ROL::Vector<RealT> > z = x.clone();
+    std::shared_ptr<ROL::Vector<RealT> > z = x.clone();
     z->set(x);
     RealT znorm = z->norm();
     outStream << "\nNorm of ROL::Vector z (clone of x): " << znorm << "\n";
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
       outStream << "---> POSSIBLE ERROR ABOVE!\n";
       errorFlag++;
     }
-    Teuchos::RCP<ROL::Vector<RealT> > w = y.clone();
+    std::shared_ptr<ROL::Vector<RealT> > w = y.clone();
     w = y.clone();
     w->set(y);
     RealT wnorm = w->norm();
@@ -151,9 +151,9 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     // Create Tpetra::MultiVectors (single vectors) 
-    RCP<Thyra::VectorBase<RealT> > x1_rcp = Thyra::createMember<RealT>(map);
-    RCP<Thyra::VectorBase<RealT> > y1_rcp = Thyra::createMember<RealT>(map);
-    RCP<Thyra::VectorBase<RealT> > z1_rcp = Thyra::createMember<RealT>(map);
+    std::shared_ptr<Thyra::VectorBase<RealT> > x1_rcp = Thyra::createMember<RealT>(map);
+    std::shared_ptr<Thyra::VectorBase<RealT> > y1_rcp = Thyra::createMember<RealT>(map);
+    std::shared_ptr<Thyra::VectorBase<RealT> > z1_rcp = Thyra::createMember<RealT>(map);
     ROL::PrimalScaledThyraVector<RealT> x1(x1_rcp,W_rcp);
     ROL::PrimalScaledThyraVector<RealT> y1(y1_rcp,W_rcp);
     ROL::PrimalScaledThyraVector<RealT> z1(z1_rcp,W_rcp);
@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
     Thyra::randomize(-1.0,1.0,z1_rcp.ptr());
 
     std::vector<RealT> consistency = x1.checkVector(y1, z1, true, outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    ROL::StdVector<RealT> checkvec(&consistency, false);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }

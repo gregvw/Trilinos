@@ -96,16 +96,16 @@ public:
 
   std::shared_ptr<Vector<Real> > clone() const {
     uint dimension = (StdVector<Real>::getVector())->size();
-    return Teuchos::rcp( new PrimalScaledStdVector(
-           std::make_shared<std::vector<Element>>(dimension)), scaling_vec_ );
+    return std::make_shared<PrimalScaledStdVector>(
+                std::make_shared<std::vector<Element>>(dimension), scaling_vec_);
   }
 
   const ROL::Vector<Real> & dual() const {
     uint n = StdVector<Real>::getVector()->size();
     if ( !isDualInitialized_ ) {
-      dual_vec_ = Teuchos::rcp(new DualScaledStdVector<Real>(
+      dual_vec_ = std::make_shared<DualScaledStdVector<Real>>(
                   std::make_shared<std::vector<Element>>(n),
-                  scaling_vec_));
+                  scaling_vec_);
       isDualInitialized_ = true;
     }
     for (uint i = 0; i < n; i++) {
@@ -151,16 +151,16 @@ public:
 
   std::shared_ptr<Vector<Real> > clone() const {
     uint dimension = (StdVector<Real>::getVector())->size();
-    return Teuchos::rcp( new DualScaledStdVector(
-           std::make_shared<std::vector<Element>>(dimension)), scaling_vec_ );
+    return std::make_shared<DualScaledStdVector>(
+           std::make_shared<std::vector<Element>>(dimension), scaling_vec_);
   }
 
   const ROL::Vector<Real> & dual() const {
     uint n = StdVector<Real>::getVector()->size();
     if ( !isDualInitialized_ ) {
-      primal_vec_ = Teuchos::rcp(new PrimalScaledStdVector<Real>(
+      primal_vec_ = std::make_shared<PrimalScaledStdVector<Real>>(
                     std::make_shared<std::vector<Element>>(n),
-                    scaling_vec_));
+                    scaling_vec_);
       isDualInitialized_ = true;
     }
     for (uint i = 0; i < n; i++) {

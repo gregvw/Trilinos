@@ -68,28 +68,28 @@ template<class Real>
 class SimulatedVector : public Vector<Real> {
 
   typedef Vector<Real>                       V;
-  typedef std::shared_ptr<V>                    std::shared_ptrV;
-  typedef std::shared_ptr<BatchManager<Real> >  std::shared_ptrBM;
+  typedef std::shared_ptr<V>                    Vptr;
+  typedef std::shared_ptr<BatchManager<Real> >  BMptr;
   typedef SimulatedVector<Real>              PV;
 
 private:
-  const std::vector<std::shared_ptrV>                    vecs_;
+  const std::vector<Vptr>                    vecs_;
   std::shared_ptr<BatchManager<Real> >          bman_;
-  mutable std::vector<std::shared_ptrV>             dual_vecs_;
+  mutable std::vector<Vptr>             dual_vecs_;
   mutable std::shared_ptr<PV>              dual_pvec_;
 public:
 
   typedef typename std::vector<PV>::size_type    size_type;
 
-  SimulatedVector( const std::vector<std::shared_ptrV> &vecs, const std::shared_ptrBM &bman ) : vecs_(vecs), bman_(bman) {
+  SimulatedVector( const std::vector<Vptr> &vecs, const BMptr &bman ) : vecs_(vecs), bman_(bman) {
     for( size_type i=0; i<vecs_.size(); ++i ) {
       dual_vecs_.push_back((vecs_[i]->dual()).clone());
     }
   }
 
   void set( const V &x ) {
-    
-    const PV &xs = dynamic_cast<const PV>(dyn_cast<const V&>(x));
+
+    const PV &xs = dynamic_cast<const PV&>(dynamic_cast<const V&>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -101,8 +101,8 @@ public:
   }
 
   void plus( const V &x ) {
-    
-    const PV &xs = dynamic_cast<const PV>(dyn_cast<const V&>(x));
+
+    const PV &xs = dynamic_cast<const PV&>(dynamic_cast<const V&>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -120,7 +120,7 @@ public:
   }
 
   void axpy( const Real alpha, const V &x ) {
-    
+
     const PV &xs = dynamic_cast<const PV&>(x);
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
@@ -133,7 +133,7 @@ public:
   }
 
   virtual Real dot( const V &x ) const {
-    
+
     const PV &xs = dynamic_cast<const PV&>(x);
 
    TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
@@ -155,11 +155,11 @@ public:
     return std::sqrt(dot(*this));
   }
 
-  virtual std::shared_ptrV clone() const {
-    
-    
+  virtual Vptr clone() const {
 
-    std::vector<std::shared_ptrV> clonevec;
+
+
+    std::vector<Vptr> clonevec;
     for( size_type i=0; i<vecs_.size(); ++i ) {
       clonevec.push_back(vecs_[i]->clone());
     }
@@ -167,7 +167,7 @@ public:
   }
 
   virtual const V& dual(void) const {
-    
+
 
     for( size_type i=0; i<vecs_.size(); ++i ) {
       dual_vecs_[i]->set(vecs_[i]->dual());
@@ -176,17 +176,17 @@ public:
     return *dual_pvec_;
   }
 
-  std::shared_ptrV basis( const int i ) const { // this must be fixed for distributed batching
+  Vptr basis( const int i ) const { // this must be fixed for distributed batching
 
     TEUCHOS_TEST_FOR_EXCEPTION( i >= dimension() || i<0,
                                 std::invalid_argument,
                                 "Error: Basis index must be between 0 and vector dimension." );
 
-    
-    
-    
 
-    std::shared_ptrV bvec = clone();
+
+
+
+    Vptr bvec = clone();
 
     // Downcast
     PV &eb = dynamic_cast<PV&>(*bvec);
@@ -280,13 +280,13 @@ public:
 // Helper methods
 template<class Real>
 std::shared_ptr<Vector<Real> > CreateSimulatedVector( const std::shared_ptr<Vector<Real> > &a, const std::shared_ptr<BatchManager<Real> > &bman ) {
-  
-  
-  typedef std::shared_ptr<Vector<Real> >       std::shared_ptrV;
+
+
+  typedef std::shared_ptr<Vector<Real> >       Vptr;
   typedef SimulatedVector<Real>  PV;
 
-  std::shared_ptrV temp[] = {a};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+1), bman );
+  Vptr temp[] = {a};
+  return std::make_shared<PV>( std::vector<Vptr>(temp, temp+1), bman );
 }
 
 template<class Real>
@@ -426,39 +426,39 @@ public:
 
 template<class Real>
 std::shared_ptr<const Vector<Real> > CreateSimulatedVector( const std::shared_ptr<const Vector<Real> > &a, const std::shared_ptr<BatchManager<Real> > &bman ) {
-  
-  
-  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<const Vector<Real> >      Vptr;
   typedef const SimulatedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+1), bman );
+  Vptr temp[] = {a};
+  return std::make_shared<PV>( std::vector<Vptr>(temp, temp+1), bman );
 }
 
 template<class Real>
 std::shared_ptr<Vector<Real> > CreateSimulatedVector( const std::shared_ptr<Vector<Real> > &a,
                                                    const std::shared_ptr<Vector<Real> > &b,
                                                    const std::shared_ptr<BatchManager<Real> > &bman ) {
-  
-  
-  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<Vector<Real> >      Vptr;
   typedef SimulatedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+2), bman );
+  Vptr temp[] = {a,b};
+  return std::make_shared<PV>( std::vector<Vptr>(temp, temp+2), bman );
 }
 
 template<class Real>
 std::shared_ptr<const Vector<Real> > CreateSimulatedVector( const std::shared_ptr<const Vector<Real> > &a,
                                                          const std::shared_ptr<const Vector<Real> > &b,
                                                          const std::shared_ptr<BatchManager<Real> > &bman ) {
-  
-  
-  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<const Vector<Real> >      Vptr;
   typedef const SimulatedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+2), bman );
+  Vptr temp[] = {a,b};
+  return std::make_shared<PV>( std::vector<Vptr>(temp, temp+2), bman );
 }
 
 template<class Real>
@@ -466,13 +466,13 @@ std::shared_ptr<Vector<Real> > CreateSimulatedVector( const std::shared_ptr<Vect
                                                    const std::shared_ptr<Vector<Real> > &b,
                                                    const std::shared_ptr<Vector<Real> > &c,
                                                    const std::shared_ptr<BatchManager<Real> > &bman ) {
-  
-  
-  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<Vector<Real> >      Vptr;
   typedef SimulatedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b,c};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+3), bman );
+  Vptr temp[] = {a,b,c};
+  return std::make_shared<PV>( std::vector<Vptr>(temp, temp+3), bman );
 }
 
 template<class Real>
@@ -480,13 +480,13 @@ std::shared_ptr<const Vector<Real> > CreateSimulatedVector( const std::shared_pt
                                                          const std::shared_ptr<const Vector<Real> > &b,
                                                          const std::shared_ptr<const Vector<Real> > &c,
                                                          const std::shared_ptr<BatchManager<Real> > &bman ) {
-  
-  
-  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<const Vector<Real> >      Vptr;
   typedef const SimulatedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b,c};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+3), bman );
+  Vptr temp[] = {a,b,c};
+  return std::make_shared<PV>( std::vector<Vptr>(temp, temp+3), bman );
 }
 
 template<class Real>
@@ -495,13 +495,13 @@ std::shared_ptr<Vector<Real> > CreateSimulatedVector( const std::shared_ptr<Vect
                                                    const std::shared_ptr<Vector<Real> > &c,
                                                    const std::shared_ptr<Vector<Real> > &d,
                                                    const std::shared_ptr<BatchManager<Real> > &bman ) {
-  
-  
-  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<Vector<Real> >      Vptr;
   typedef SimulatedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b,c,d};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+4), bman );
+  Vptr temp[] = {a,b,c,d};
+  return std::make_shared<PV>( std::vector<Vptr>(temp, temp+4), bman );
 }
 
 template<class Real>
@@ -510,16 +510,15 @@ std::shared_ptr<const Vector<Real> > CreateSimulatedVector( const std::shared_pt
                                                          const std::shared_ptr<const Vector<Real> > &c,
                                                          const std::shared_ptr<const Vector<Real> > &d,
                                                          const std::shared_ptr<BatchManager<Real> > &bman ) {
-  
-  
-  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<const Vector<Real> >      Vptr;
   typedef const SimulatedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b,c,d};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+4), bman );
+  Vptr temp[] = {a,b,c,d};
+  return std::make_shared<PV>( std::vector<Vptr>(temp, temp+4), bman );
 }
 
 } // namespace ROL
 
 #endif // ROL_SIMULATED_VECTOR_H
-

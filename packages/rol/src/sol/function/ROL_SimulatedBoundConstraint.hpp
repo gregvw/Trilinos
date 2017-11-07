@@ -80,7 +80,7 @@ private:
       return x;
     }
   }
- 
+
 public:
   ~SimulatedBoundConstraint() {}
 
@@ -95,8 +95,8 @@ public:
       uvec[k] = bnd_->getUpperBound()->clone();
       uvec[k]->set(*bnd_->getUpperBound());
     }
-    l_ = std::make_shared<SimulatedVector<Real>(lvec,sampler_->getBatchManager>());
-    u_ = std::make_shared<SimulatedVector<Real>(uvec,sampler_->getBatchManager>());
+    l_ = std::make_shared<SimulatedVector<Real>>(lvec,sampler_->getBatchManager());
+    u_ = std::make_shared<SimulatedVector<Real>>(uvec,sampler_->getBatchManager());
   }
 
   void project( Vector<Real> &x ) {
@@ -130,7 +130,7 @@ public:
       }
     }
   }
- 
+
   void pruneLowerActive( Vector<Real> &v, const Vector<Real> &x, Real eps = 0.0 ) {
    if( bnd_->isActivated() ) {
      for( int k=0; k<sampler_->numMySamples(); ++k ) {
@@ -146,7 +146,7 @@ public:
       }
     }
   }
- 
+
   const std::shared_ptr<const Vector<Real> > getLowerBound( void ) const {
     return l_;
   }
@@ -155,7 +155,7 @@ public:
     return u_;
   }
 
-  bool isFeasible( const Vector<Real> &v ) { 
+  bool isFeasible( const Vector<Real> &v ) {
     bool feasible = true;
     if(bnd_->isActivated()) {
       for( int k=0; k<sampler_->numMySamples(); ++k ) {

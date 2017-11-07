@@ -58,26 +58,26 @@ template<class Real>
 class PartitionedVector : public Vector<Real> {
 
   typedef Vector<Real>                  V;
-  typedef std::shared_ptr<V>               std::shared_ptrV;
+  typedef std::shared_ptr<V>            Vptr;
   typedef PartitionedVector<Real>       PV;
 
 private:
-  const std::vector<std::shared_ptrV>                    vecs_;
-  mutable std::vector<std::shared_ptrV>             dual_vecs_;
+  const std::vector<Vptr>                    vecs_;
+  mutable std::vector<Vptr>             dual_vecs_;
   mutable std::shared_ptr<PV>              dual_pvec_;
 public:
 
   typedef typename std::vector<PV>::size_type    size_type;
 
-  PartitionedVector( const std::vector<std::shared_ptrV> &vecs ) : vecs_(vecs) {
+  PartitionedVector( const std::vector<Vptr> &vecs ) : vecs_(vecs) {
     for( size_type i=0; i<vecs_.size(); ++i ) {
       dual_vecs_.push_back((vecs_[i]->dual()).clone());
     }
   }
 
   void set( const V &x ) {
-    
-    const PV &xs = dynamic_cast<const PV>(dyn_cast<const V&>(x));
+
+    const PV &xs = dynamic_cast<const PV&>(dynamic_cast<const V&>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -89,8 +89,8 @@ public:
   }
 
   void plus( const V &x ) {
-    
-    const PV &xs = dynamic_cast<const PV>(dyn_cast<const V&>(x));
+
+    const PV &xs = dynamic_cast<const PV&>(dynamic_cast<const V&>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -108,7 +108,7 @@ public:
   }
 
   void axpy( const Real alpha, const V &x ) {
-    
+
     const PV &xs = dynamic_cast<const PV&>(x);
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
@@ -121,7 +121,7 @@ public:
   }
 
   Real dot( const V &x ) const {
-    
+
     const PV &xs = dynamic_cast<const PV&>(x);
 
    TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
@@ -143,11 +143,8 @@ public:
     return std::sqrt(result);
   }
 
-  std::shared_ptrV clone() const {
-    
-    
-
-    std::vector<std::shared_ptrV> clonevec;
+  Vptr clone() const {
+    std::vector<Vptr> clonevec;
     for( size_type i=0; i<vecs_.size(); ++i ) {
       clonevec.push_back(vecs_[i]->clone());
     }
@@ -155,8 +152,6 @@ public:
   }
 
   const V& dual(void) const {
-    
-
     for( size_type i=0; i<vecs_.size(); ++i ) {
       dual_vecs_[i]->set(vecs_[i]->dual());
     }
@@ -164,17 +159,13 @@ public:
     return *dual_pvec_;
   }
 
-  std::shared_ptrV basis( const int i ) const {
+  Vptr basis( const int i ) const {
 
     TEUCHOS_TEST_FOR_EXCEPTION( i >= dimension() || i<0,
                                 std::invalid_argument,
                                 "Error: Basis index must be between 0 and vector dimension." );
 
-    
-    
-    
-
-    std::shared_ptrV bvec = clone();
+    Vptr bvec = clone();
 
     // Downcast
     PV &eb = dynamic_cast<PV&>(*bvec);
@@ -273,74 +264,74 @@ public:
 // Helper methods
 template<class Real>
 std::shared_ptr<Vector<Real> > CreatePartitionedVector( const std::shared_ptr<Vector<Real> > &a ) {
-  
-  
-  typedef std::shared_ptr<Vector<Real> >       std::shared_ptrV;
+
+
+  typedef std::shared_ptr<Vector<Real> >       Vptr;
   typedef PartitionedVector<Real>  PV;
 
-  std::shared_ptrV temp[] = {a};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+1) );
+  Vptr temp[] = {a};
+  return std::make_shared<PV>(std::vector<Vptr>(temp, temp+1));
 }
 
 template<class Real>
 std::shared_ptr<const Vector<Real> > CreatePartitionedVector( const std::shared_ptr<const Vector<Real> > &a ) {
-  
-  
-  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<const Vector<Real> >      Vptr;
   typedef const PartitionedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+1) );
+  Vptr temp[] = {a};
+  return std::make_shared<PV>(std::vector<Vptr>(temp, temp+1));
 }
 
 template<class Real>
 std::shared_ptr<Vector<Real> > CreatePartitionedVector( const std::shared_ptr<Vector<Real> > &a,
                                                      const std::shared_ptr<Vector<Real> > &b ) {
-  
-  
-  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<Vector<Real> >      Vptr;
   typedef PartitionedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+2) );
+  Vptr temp[] = {a,b};
+  return std::make_shared<PV>(std::vector<Vptr>(temp, temp+2));
 }
 
 template<class Real>
 std::shared_ptr<const Vector<Real> > CreatePartitionedVector( const std::shared_ptr<const Vector<Real> > &a,
                                                            const std::shared_ptr<const Vector<Real> > &b ) {
-  
-  
-  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<const Vector<Real> >      Vptr;
   typedef const PartitionedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+2) );
+  Vptr temp[] = {a,b};
+  return std::make_shared<PV>(std::vector<Vptr>(temp, temp+2));
 }
 
 template<class Real>
 std::shared_ptr<Vector<Real> > CreatePartitionedVector( const std::shared_ptr<Vector<Real> > &a,
                                                      const std::shared_ptr<Vector<Real> > &b,
                                                      const std::shared_ptr<Vector<Real> > &c ) {
-  
-  
-  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<Vector<Real> >      Vptr;
   typedef PartitionedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b,c};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+3) );
+  Vptr temp[] = {a,b,c};
+  return std::make_shared<PV>(std::vector<Vptr>(temp, temp+3));
 }
 
 template<class Real>
 std::shared_ptr<const Vector<Real> > CreatePartitionedVector( const std::shared_ptr<const Vector<Real> > &a,
                                                            const std::shared_ptr<const Vector<Real> > &b,
                                                            const std::shared_ptr<const Vector<Real> > &c ) {
-  
-  
-  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<const Vector<Real> >      Vptr;
   typedef const PartitionedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b,c};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+3) );
+  Vptr temp[] = {a,b,c};
+  return std::make_shared<PV>(std::vector<Vptr>(temp, temp+3));
 }
 
 template<class Real>
@@ -348,13 +339,13 @@ std::shared_ptr<Vector<Real> > CreatePartitionedVector( const std::shared_ptr<Ve
                                                      const std::shared_ptr<Vector<Real> > &b,
                                                      const std::shared_ptr<Vector<Real> > &c,
                                                      const std::shared_ptr<Vector<Real> > &d ) {
-  
-  
-  typedef std::shared_ptr<Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<Vector<Real> >      Vptr;
   typedef PartitionedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b,c,d};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+4) );
+  Vptr temp[] = {a,b,c,d};
+  return std::make_shared<PV>(std::vector<Vptr>(temp, temp+4));
 }
 
 template<class Real>
@@ -362,16 +353,15 @@ std::shared_ptr<const Vector<Real> > CreatePartitionedVector( const std::shared_
                                                            const std::shared_ptr<const Vector<Real> > &b,
                                                            const std::shared_ptr<const Vector<Real> > &c,
                                                            const std::shared_ptr<const Vector<Real> > &d ) {
-  
-  
-  typedef std::shared_ptr<const Vector<Real> >      std::shared_ptrV;
+
+
+  typedef std::shared_ptr<const Vector<Real> >      Vptr;
   typedef const PartitionedVector<Real> PV;
 
-  std::shared_ptrV temp[] = {a,b,c,d};
-  return std::make_shared<PV( std::vector<std::shared_ptrV>>(temp, temp+4) );
+  Vptr temp[] = {a,b,c,d};
+  return std::make_shared<PV>(std::vector<Vptr>(temp, temp+4));
 }
 
 } // namespace ROL
 
 #endif // ROL_PARTITIONED_VECTOR_H
-

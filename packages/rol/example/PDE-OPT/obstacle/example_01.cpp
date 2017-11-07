@@ -93,16 +93,16 @@ Real evaluateUpperBound(const std::vector<Real> & coord) {
 
 
 template <class Real>
-void computeUpperBound(const Teuchos::RCP<Tpetra::MultiVector<> > & ubVec,
-                       const Teuchos::RCP<const FE<Real> > & fe,
-                       const Teuchos::RCP<Intrepid::FieldContainer<Real> > & cellNodes,
-                       const Teuchos::RCP<Intrepid::FieldContainer<int> > & cellDofs,
+void computeUpperBound(const std::shared_ptr<Tpetra::MultiVector<> > & ubVec,
+                       const std::shared_ptr<const FE<Real> > & fe,
+                       const std::shared_ptr<Intrepid::FieldContainer<Real> > & cellNodes,
+                       const std::shared_ptr<Intrepid::FieldContainer<int> > & cellDofs,
                        const Teuchos::Array<int> & cellIds) {
   int c = fe->gradN()->dimension(0);
   int f = fe->gradN()->dimension(1);
   int d = fe->gradN()->dimension(3);
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > dofPoints =
-    Teuchos::rcp(new Intrepid::FieldContainer<Real>(c,f,d));
+  std::shared_ptr<Intrepid::FieldContainer<Real> > dofPoints =
+    std::make_shared<Intrepid::FieldContainer<Real>>(c,f,d);
   fe->computeDofCoords(dofPoints, cellNodes);
   
   std::vector<Real> coord(d);
@@ -125,19 +125,19 @@ void computeUpperBound(const Teuchos::RCP<Tpetra::MultiVector<> > & ubVec,
 int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm
+  std::shared_ptr<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   }
   else {
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
   }
   int errorFlag  = 0;
 
@@ -146,43 +146,43 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize PDE describing the obstacle problem ***/
-    Teuchos::RCP<MeshManager<RealT> > meshMgr
-      = Teuchos::rcp(new MeshManager_Rectangle<RealT>(*parlist));
-    Teuchos::RCP<PDE_Obstacle<RealT> > pde
-      = Teuchos::rcp(new PDE_Obstacle<RealT>(*parlist));
-    Teuchos::RCP<EnergyObjective<RealT> > obj
-      = Teuchos::rcp(new EnergyObjective<RealT>(pde,meshMgr,comm,*parlist,*outStream));
-    Teuchos::RCP<Assembler<RealT> > assembler = obj->getAssembler();
+    std::shared_ptr<MeshManager<RealT> > meshMgr
+      = std::make_shared<MeshManager_Rectangle<RealT>>(*parlist);
+    std::shared_ptr<PDE_Obstacle<RealT> > pde
+      = std::make_shared<PDE_Obstacle<RealT>>(*parlist);
+    std::shared_ptr<EnergyObjective<RealT> > obj
+      = std::make_shared<EnergyObjective<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
+    std::shared_ptr<Assembler<RealT> > assembler = obj->getAssembler();
 
     // Create state vector and set to zeroes
-    Teuchos::RCP<Tpetra::MultiVector<> > u_rcp = assembler->createStateVector();
+    std::shared_ptr<Tpetra::MultiVector<> > u_rcp = assembler->createStateVector();
     u_rcp->randomize();
-    Teuchos::RCP<ROL::Vector<RealT> > up
-      = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(u_rcp,pde,assembler));
+    std::shared_ptr<ROL::Vector<RealT> > up
+      = std::make_shared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
     // Create state direction vector and set to random
-    Teuchos::RCP<Tpetra::MultiVector<> > du_rcp = assembler->createStateVector();
+    std::shared_ptr<Tpetra::MultiVector<> > du_rcp = assembler->createStateVector();
     du_rcp->randomize();
-    Teuchos::RCP<ROL::Vector<RealT> > dup
-      = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(du_rcp,pde,assembler));
+    std::shared_ptr<ROL::Vector<RealT> > dup
+      = std::make_shared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler);
 
     // Build bound constraints
-    Teuchos::RCP<Tpetra::MultiVector<> > lo_rcp = assembler->createStateVector();
-    Teuchos::RCP<Tpetra::MultiVector<> > hi_rcp = assembler->createStateVector();
+    std::shared_ptr<Tpetra::MultiVector<> > lo_rcp = assembler->createStateVector();
+    std::shared_ptr<Tpetra::MultiVector<> > hi_rcp = assembler->createStateVector();
     lo_rcp->putScalar(0.0); hi_rcp->putScalar(1.0);
     computeUpperBound<RealT>(hi_rcp,pde->getFE(),
                              pde->getCellNodes(),
                              assembler->getDofManager()->getCellDofs(),
                              assembler->getCellIds());
-    Teuchos::RCP<ROL::Vector<RealT> > lop
-      = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(lo_rcp,pde,assembler));
-    Teuchos::RCP<ROL::Vector<RealT> > hip
-      = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(hi_rcp,pde,assembler));
-    Teuchos::RCP<ROL::BoundConstraint<RealT> > bnd
-      = Teuchos::rcp(new ROL::Bounds<RealT>(lop,hip));
+    std::shared_ptr<ROL::Vector<RealT> > lop
+      = std::make_shared<PDE_PrimalSimVector<RealT>>(lo_rcp,pde,assembler);
+    std::shared_ptr<ROL::Vector<RealT> > hip
+      = std::make_shared<PDE_PrimalSimVector<RealT>>(hi_rcp,pde,assembler);
+    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd
+      = std::make_shared<ROL::Bounds<RealT>>(lop,hip);
 
     // Run derivative checks
     obj->checkGradient(*up,*dup,true,*outStream);

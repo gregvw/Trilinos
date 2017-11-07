@@ -69,19 +69,19 @@ typedef std::vector<RealT> vec;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp;
+  
+  
      
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag = 0;
  
@@ -96,23 +96,23 @@ int main(int argc, char *argv[]) {
     int nDoF = numCells*(numFields-1)+1;
 
     // Create discretization
-    RCP<Discretization<RealT>> disc = rcp( new Discretization<RealT>(numCells,numFields,domainLength) );
+    std::shared_ptr<Discretization<RealT>> disc = std::make_shared<Discretization<RealT>>(numCells,numFields,domainLength);
   
-    RCP<vec> u_rcp   = rcp(new vec(nDoF,1.0));      // Simulation vector 
-    RCP<vec> z_rcp   = rcp(new vec(nDoF,1.0));      // Optimization vector 
-    RCP<vec> yu_rcp  = rcp(new vec(nDoF,0.0));      // Test vector in U
-    RCP<vec> yz_rcp  = rcp(new vec(nDoF,0.0));      // Test vector in Z
+    std::shared_ptr<vec> u_rcp   = std::make_shared<vec>(nDoF,1.0);      // Simulation vector 
+    std::shared_ptr<vec> z_rcp   = std::make_shared<vec>(nDoF,1.0);      // Optimization vector 
+    std::shared_ptr<vec> yu_rcp  = std::make_shared<vec>(nDoF,0.0);      // Test vector in U
+    std::shared_ptr<vec> yz_rcp  = std::make_shared<vec>(nDoF,0.0);      // Test vector in Z
 
-    RCP<vec> gu_rcp  = rcp(new vec(nDoF,0.0));      // Gradient w.r.t. Sim vector
-    RCP<vec> gz_rcp  = rcp(new vec(nDoF,0.0));      // Gradient w.r.t. Opt vector
+    std::shared_ptr<vec> gu_rcp  = std::make_shared<vec>(nDoF,0.0);      // Gradient w.r.t. Sim vector
+    std::shared_ptr<vec> gz_rcp  = std::make_shared<vec>(nDoF,0.0);      // Gradient w.r.t. Opt vector
 
-    RCP<vec> utarget_rcp = rcp(new vec(nDoF,1.0));  // Target vector
+    std::shared_ptr<vec> utarget_rcp = std::make_shared<vec>(nDoF,1.0);  // Target vector
 
-    RCP<vec> v_rcp   = rcp(new vec(nDoF,1.0));      // Simulation vector 
-    RCP<vec> w_rcp   = rcp(new vec(nDoF,1.0));      // Optimization vector 
+    std::shared_ptr<vec> v_rcp   = std::make_shared<vec>(nDoF,1.0);      // Simulation vector 
+    std::shared_ptr<vec> w_rcp   = std::make_shared<vec>(nDoF,1.0);      // Optimization vector 
 
-    RCP<vec> c_rcp  = rcp(new vec(nDoF,0.0));       // Constraint vector
-    RCP<vec> l_rcp  = rcp(new vec(nDoF,0.0));       // Lagrange multiplier
+    std::shared_ptr<vec> c_rcp  = std::make_shared<vec>(nDoF,0.0);       // Constraint vector
+    std::shared_ptr<vec> l_rcp  = std::make_shared<vec>(nDoF,0.0);       // Lagrange multiplier
 
     // -----------------------
     // Begin derivative checks
@@ -143,24 +143,24 @@ int main(int argc, char *argv[]) {
     SV c(c_rcp); 
     SV l(l_rcp);
 
-    RCP<V> utarget = Teuchos::rcp(new SV(utarget_rcp) ); 
+    std::shared_ptr<V> utarget = std::make_shared<SV>(utarget_rcp); 
 
-    RCP<V> up   = rcp(&u,false);
-    RCP<V> zp   = rcp(&z,false);
-    RCP<V> gup  = rcp(&gu,false);
-    RCP<V> gzp  = rcp(&gz,false);
-    RCP<V> yup  = rcp(&yu,false);
-    RCP<V> yzp  = rcp(&yz,false);
+    std::shared_ptr<V> up   = &u,false;
+    std::shared_ptr<V> zp   = &z,false;
+    std::shared_ptr<V> gup  = &gu,false;
+    std::shared_ptr<V> gzp  = &gz,false;
+    std::shared_ptr<V> yup  = &yu,false;
+    std::shared_ptr<V> yzp  = &yz,false;
 
     Vector_SimOpt<RealT> uz(up,zp);
     Vector_SimOpt<RealT> g(gup,gzp);
     Vector_SimOpt<RealT> y(yup,yzp);
 
     // Tracking Objective
-    RCP<Objective_SimOpt<RealT>> obj = rcp( new TrackingObjective<RealT>(disc,utarget,gamma) );
+    std::shared_ptr<Objective_SimOpt<RealT>> obj = std::make_shared<TrackingObjective<RealT>>(disc,utarget,gamma);
 
     // Constraint
-    RCP<Constraint_SimOpt<RealT>> con = rcp( new BVPConstraint<RealT>(disc) );
+    std::shared_ptr<Constraint_SimOpt<RealT>> con = std::make_shared<BVPConstraint<RealT>>(disc);
  
     obj->checkGradient(uz,y,true,*outStream);
     obj->checkHessVec(uz,y,true,*outStream);

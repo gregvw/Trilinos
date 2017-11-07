@@ -75,19 +75,19 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm
+  std::shared_ptr<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   }
   else {
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
   }
   int errorFlag  = 0;
 
@@ -96,64 +96,64 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input_ex03.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    Teuchos::RCP<MeshManager<RealT> > meshMgr
-      = Teuchos::rcp(new MeshManager_ThermalFluids<RealT>(*parlist));
+    std::shared_ptr<MeshManager<RealT> > meshMgr
+      = std::make_shared<MeshManager_ThermalFluids<RealT>>(*parlist);
     // Initialize PDE describing Navier-Stokes equations.
-    Teuchos::RCP<PDE_ThermalFluids_ex03<RealT> > pde
-      = Teuchos::rcp(new PDE_ThermalFluids_ex03<RealT>(*parlist));
-    Teuchos::RCP<ROL::Constraint_SimOpt<RealT> > con
-      = Teuchos::rcp(new PDE_Constraint<RealT>(pde,meshMgr,comm,*parlist,*outStream));
+    std::shared_ptr<PDE_ThermalFluids_ex03<RealT> > pde
+      = std::make_shared<PDE_ThermalFluids_ex03<RealT>>(*parlist);
+    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
+      = std::make_shared<PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    Teuchos::RCP<PDE_Constraint<RealT> > pdecon
-      = Teuchos::rcp_dynamic_cast<PDE_Constraint<RealT> >(con);
-    Teuchos::RCP<Assembler<RealT> > assembler = pdecon->getAssembler();
+    std::shared_ptr<PDE_Constraint<RealT> > pdecon
+      = std::dynamic_pointer_cast<PDE_Constraint<RealT> >(con);
+    std::shared_ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
     con->setSolveParameters(*parlist);
     pdecon->outputTpetraData();
 
     // Create state vector and set to zeroes
-    Teuchos::RCP<Tpetra::MultiVector<> > u_rcp, p_rcp, du_rcp, r_rcp, z_rcp, dz_rcp;
+    std::shared_ptr<Tpetra::MultiVector<> > u_rcp, p_rcp, du_rcp, r_rcp, z_rcp, dz_rcp;
     u_rcp  = assembler->createStateVector();     u_rcp->randomize();
     p_rcp  = assembler->createStateVector();     p_rcp->randomize();
     du_rcp = assembler->createStateVector();     du_rcp->randomize();
     r_rcp  = assembler->createResidualVector();  r_rcp->randomize();
     z_rcp  = assembler->createControlVector();   z_rcp->randomize();
     dz_rcp = assembler->createControlVector();   dz_rcp->randomize();
-    Teuchos::RCP<ROL::Vector<RealT> > up, pp, dup, rp, zp, dzp;
-    up  = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(u_rcp,pde,assembler));
-    pp  = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(p_rcp,pde,assembler));
-    dup = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(du_rcp,pde,assembler));
-    rp  = Teuchos::rcp(new PDE_DualSimVector<RealT>(r_rcp,pde,assembler));
-    zp  = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(z_rcp,pde,assembler));
-    dzp = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(dz_rcp,pde,assembler));
+    std::shared_ptr<ROL::Vector<RealT> > up, pp, dup, rp, zp, dzp;
+    up  = std::make_shared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
+    pp  = std::make_shared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler);
+    dup = std::make_shared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler);
+    rp  = std::make_shared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler);
+    zp  = std::make_shared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler);
+    dzp = std::make_shared<PDE_PrimalOptVector<RealT>>(dz_rcp,pde,assembler);
     // Create ROL SimOpt vectors
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> d(dup,dzp);
 
     // Initialize objective function.
-    std::vector<Teuchos::RCP<QoI<RealT> > > qoi_vec(2,Teuchos::null);
+    std::vector<std::shared_ptr<QoI<RealT> > > qoi_vec(2,nullptr);
     qoi_vec[0] = Teuchos::rcp(new QoI_State_ThermalFluids<RealT>(*parlist,
                                                                  pde->getVelocityFE(),
                                                                  pde->getPressureFE(),
                                                                  pde->getThermalFE(),
                                                                  pde->getFieldHelper()));
-    qoi_vec[1] = Teuchos::rcp(new QoI_L2Penalty_ThermalFluids<RealT>(pde->getVelocityFE(),
+    qoi_vec[1] = std::make_shared<QoI_L2Penalty_ThermalFluids<RealT>(pde->getVelocityFE(>(),
                                                                      pde->getPressureFE(),
                                                                      pde->getThermalFE(),
                                                                      pde->getThermalBdryFE(),
                                                                      pde->getBdryCellLocIds(),
                                                                      pde->getFieldHelper()));
-    Teuchos::RCP<StdObjective_ThermalFluids<RealT> > std_obj
-      = Teuchos::rcp(new StdObjective_ThermalFluids<RealT>(*parlist));
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > obj
-      = Teuchos::rcp(new PDE_Objective<RealT>(qoi_vec,std_obj,assembler));
-    Teuchos::RCP<ROL::SimController<RealT> > stateStore
-      = Teuchos::rcp(new ROL::SimController<RealT>());
-    Teuchos::RCP<ROL::Reduced_Objective_SimOpt<RealT> > robj
-      = Teuchos::rcp(new ROL::Reduced_Objective_SimOpt<RealT>(obj, con, stateStore, up, zp, pp, true, false));
+    std::shared_ptr<StdObjective_ThermalFluids<RealT> > std_obj
+      = std::make_shared<StdObjective_ThermalFluids<RealT>>(*parlist);
+    std::shared_ptr<ROL::Objective_SimOpt<RealT> > obj
+      = std::make_shared<PDE_Objective<RealT>>(qoi_vec,std_obj,assembler);
+    std::shared_ptr<ROL::SimController<RealT> > stateStore
+      = std::make_shared<ROL::SimController<RealT>>();
+    std::shared_ptr<ROL::Reduced_Objective_SimOpt<RealT> > robj
+      = std::make_shared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, stateStore, up, zp, pp, true, false);
 
     //up->zero();
     //zp->zero();
@@ -214,13 +214,13 @@ int main(int argc, char *argv[]) {
     }
 
     bool useCompositeStep = parlist->sublist("Problem").get("Full space",false);
-    Teuchos::RCP<ROL::Algorithm<RealT> > algo;
+    std::shared_ptr<ROL::Algorithm<RealT> > algo;
     if ( useCompositeStep ) {
-      algo = Teuchos::rcp(new ROL::Algorithm<RealT>("Composite Step",*parlist,false));
+      algo = std::make_shared<ROL::Algorithm<RealT>>("Composite Step",*parlist,false);
       algo->run(x,*rp,*obj,*con,true,*outStream);
     }
     else {
-      algo = Teuchos::rcp(new ROL::Algorithm<RealT>("Trust Region",*parlist,false));
+      algo = std::make_shared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
       algo->run(*zp,*robj,true,*outStream);
       std::vector<RealT> param;
       stateStore->get(*up,param);
@@ -238,8 +238,8 @@ int main(int argc, char *argv[]) {
     errorFlag += (res[0] > 1.e-6 ? 1 : 0);
     pdecon->outputTpetraData();
 
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > obj0
-      = Teuchos::rcp(new IntegralObjective<RealT>(qoi_vec[0],assembler));
+    std::shared_ptr<ROL::Objective_SimOpt<RealT> > obj0
+      = std::make_shared<IntegralObjective<RealT>>(qoi_vec[0],assembler);
     RealT val = obj0->value(*up,*zp,tol);
     *outStream << "Vorticity Value: " << val << std::endl;
 

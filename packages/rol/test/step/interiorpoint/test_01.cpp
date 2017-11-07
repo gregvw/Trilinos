@@ -72,8 +72,8 @@ public:
 
 template<class Real> 
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
-  Teuchos::RCP<const std::vector<Real> > xp = 
-    Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
+  std::shared_ptr<const std::vector<Real> > xp = 
+    dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
   for( size_t i=0; i<xp->size(); ++i ) {
     outStream << (*xp)[i] << std::endl;
@@ -96,17 +96,17 @@ int main(int argc, char *argv[]) {
 
   typedef Teuchos::ParameterList      PL;
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs;
   if( iprint > 0 ) 
-    outStream = rcp(&std::cout,false);
+    outStream = &std::cout,false;
   else
-    outStream = rcp(&bhs,false);
+    outStream = &bhs,false;
 
   int errorFlag = 0;
    
@@ -130,12 +130,12 @@ int main(int argc, char *argv[]) {
     int dim = 4;
     int numTestVectors = 19;
  
-    RCP<vector> x_rcp  = rcp( new vector(dim, 0.0) ); 
-    RCP<vector> d_rcp  = rcp( new vector(dim, 0.0) );
-    RCP<vector> v_rcp  = rcp( new vector(dim, 0.0) );
-    RCP<vector> l_rcp  = rcp( new vector(dim, 0.0) );
-    RCP<vector> u_rcp  = rcp( new vector(dim, 0.0) );
-    RCP<vector> e0_rcp = rcp( new vector(dim, 0.0) ); // First canonical vector
+    std::shared_ptr<vector> x_rcp  = std::make_shared<vector>(dim, 0.0); 
+    std::shared_ptr<vector> d_rcp  = std::make_shared<vector>(dim, 0.0);
+    std::shared_ptr<vector> v_rcp  = std::make_shared<vector>(dim, 0.0);
+    std::shared_ptr<vector> l_rcp  = std::make_shared<vector>(dim, 0.0);
+    std::shared_ptr<vector> u_rcp  = std::make_shared<vector>(dim, 0.0);
+    std::shared_ptr<vector> e0_rcp = std::make_shared<vector>(dim, 0.0); // First canonical vector
 
     (*e0_rcp)[0] = 1.0;
 
@@ -151,13 +151,13 @@ int main(int argc, char *argv[]) {
 
     RealT xmax = 4.99; 
 
-    RCP<V> x  = rcp( new SV( x_rcp ) );
-    RCP<V> d  = rcp( new SV( d_rcp ) );
-    RCP<V> v  = rcp( new SV( v_rcp ) );
-    RCP<V> l  = rcp( new SV( l_rcp ) );
-    RCP<V> u  = rcp( new SV( u_rcp ) );
+    std::shared_ptr<V> x  = std::make_shared<SV>( x_rcp );
+    std::shared_ptr<V> d  = std::make_shared<SV>( d_rcp );
+    std::shared_ptr<V> v  = std::make_shared<SV>( v_rcp );
+    std::shared_ptr<V> l  = std::make_shared<SV>( l_rcp );
+    std::shared_ptr<V> u  = std::make_shared<SV>( u_rcp );
 
-    RCP<const V> maskL, maskU;
+    std::shared_ptr<const V> maskL, maskU;
 
     ROL::RandomizeVector(*d,left,right);
     ROL::RandomizeVector(*v,left,right);
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
     std::vector<RealT>   values(numTestVectors);        // Computed objective value for each 
     std::vector<RealT>   exact_values(numTestVectors);  
 
-    std::vector<RCP<V> > x_test;
+    std::vector<std::shared_ptr<V> > x_test;
 
     for(int i=0; i<numTestVectors; ++i) {
       x_test.push_back(x->clone());
@@ -174,16 +174,16 @@ int main(int argc, char *argv[]) {
       x_test[i]->applyUnary(ROL::Elementwise::Fill<RealT>(fillValue));
     }
 
-    RCP<OBJ> obj = rcp( new NullObjective<RealT> );
-    RCP<BND> bnd = rcp( new ROL::Bounds<RealT>(l,u) );
+    std::shared_ptr<OBJ> obj = std::make_shared<NullObjective<RealT>>();
+    std::shared_ptr<BND> bnd = std::make_shared<ROL::Bounds<RealT>>(l,u);
 
     ROL::InteriorPointPenalty<RealT> ipobj(obj,bnd,parlist);
 
     maskL = ipobj.getLowerMask();
     maskU = ipobj.getUpperMask();
 
-    RCP<const std::vector<RealT> > maskL_rcp = Teuchos::dyn_cast<const SV>(*maskL).getVector();
-    RCP<const std::vector<RealT> > maskU_rcp = Teuchos::dyn_cast<const SV>(*maskU).getVector();
+    std::shared_ptr<const std::vector<RealT> > maskL_rcp = dynamic_cast<const SV&>(*maskL).getVector();
+    std::shared_ptr<const std::vector<RealT> > maskU_rcp = dynamic_cast<const SV&>(*maskU).getVector();
 
     *outStream << "\nLower bound vector" << std::endl;
     printVector(*l,*outStream);

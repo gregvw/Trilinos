@@ -42,7 +42,7 @@
 // @HEADER
 
 /*! \file  test_03.cpp
- *  \brief Test the elementwise implementation of bound constraints by 
+ *  \brief Test the elementwise implementation of bound constraints by
  *         comparison with the StdBoundConstraint
  */
 
@@ -69,14 +69,14 @@ int main(int argc, char *argv[]) {
   typedef ROL::StdVector<RealT>   SV;
 
   GlobalMPISession mpiSession(&argc, &argv);
- 
+
   int iprint = argc - 1;
-  RCP<std::ostream>  outStream;
+  std::shared_ptr<std::ostream>  outStream;
   oblackholestream   bhs;
   if( iprint > 0 )
-    outStream = rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = rcp(&bhs,false);
+    outStream.reset(&bhs);
 
   int errorFlag = 0;
 
@@ -87,38 +87,38 @@ int main(int argc, char *argv[]) {
     int dim = 5;
 
     // Upper bound vector
-    RCP<vec> u_rcp = rcp(new vec(dim,0.0));
+    std::shared_ptr<vec> u_rcp = std::make_shared<vec>(dim,0.0);
 
     // Lower bound vector
-    RCP<vec> l_rcp = rcp(new vec(dim,0.0));
+    std::shared_ptr<vec> l_rcp = std::make_shared<vec>(dim,0.0);
 
     // Gradient vectors
-    RCP<vec> g1_rcp = rcp(new vec(dim,1.0));
-    RCP<vec> g2_rcp = rcp(new vec(dim,-1.0));
+    std::shared_ptr<vec> g1_rcp = std::make_shared<vec>(dim,1.0);
+    std::shared_ptr<vec> g2_rcp = std::make_shared<vec>(dim,-1.0);
 
     // Test vectors
-    RCP<vec> y_rcp  = rcp(new vec(dim,0.0));
-    RCP<vec> v_rcp  = rcp(new vec(dim,0.0));
-    RCP<vec> vs_rcp = rcp(new vec(dim,0.0));
+    std::shared_ptr<vec> y_rcp  = std::make_shared<vec>(dim,0.0);
+    std::shared_ptr<vec> v_rcp  = std::make_shared<vec>(dim,0.0);
+    std::shared_ptr<vec> vs_rcp = std::make_shared<vec>(dim,0.0);
 
     (*y_rcp)[0] =  2.0;
     (*y_rcp)[1] = -4.0;
     (*y_rcp)[2] =  1.0;
     (*y_rcp)[3] = -1.0;
-    (*y_rcp)[4] =  8.0; 
+    (*y_rcp)[4] =  8.0;
 
     for(int i=0;i<dim;++i) {
       (*u_rcp)[i] =   i+1.0;
       (*l_rcp)[i] = -(i+1.0);
     }
- 
-    RCP<V> lp =  rcp(new SV(l_rcp));
-    RCP<V> up  = rcp(new SV(u_rcp));
-    RCP<V> yp  = rcp(new SV(y_rcp));
-    RCP<V> vp  = rcp(new SV(v_rcp));
-    RCP<V> vsp = rcp(new SV(vs_rcp));
-    RCP<V> g1p = rcp(new SV(g1_rcp));
-    RCP<V> g2p = rcp(new SV(g2_rcp));
+
+    std::shared_ptr<V> lp =  std::make_shared<SV>(l_rcp);
+    std::shared_ptr<V> up  = std::make_shared<SV>(u_rcp);
+    std::shared_ptr<V> yp  = std::make_shared<SV>(y_rcp);
+    std::shared_ptr<V> vp  = std::make_shared<SV>(v_rcp);
+    std::shared_ptr<V> vsp = std::make_shared<SV>(vs_rcp);
+    std::shared_ptr<V> g1p = std::make_shared<SV>(g1_rcp);
+    std::shared_ptr<V> g2p = std::make_shared<SV>(g2_rcp);
 
 
     ROL::Bounds<RealT>     bc(lp,up);
@@ -128,16 +128,16 @@ int main(int argc, char *argv[]) {
     vp->set(*yp);
     vsp->set(*yp);
 
-    bc.project(*vp); 
-    sbc.project(*vsp);  
+    bc.project(*vp);
+    sbc.project(*vsp);
 
     vp->axpy(-1.0,*vsp);
- 
+
     *outStream << "Testing BoundConstraint::project() . . . ";
 
     if(vp->norm() > errtol) {
       *outStream << "failed." << std::endl;
-      ++errorFlag; 
+      ++errorFlag;
     }
     else *outStream << "passed." << std::endl;
 
@@ -145,15 +145,15 @@ int main(int argc, char *argv[]) {
     vp->set(*yp);
     vsp->set(*yp);
 
-    bc.pruneUpperActive(*vp,*yp,0);      
-    sbc.pruneUpperActive(*vsp,*yp,0);      
+    bc.pruneUpperActive(*vp,*yp,0);
+    sbc.pruneUpperActive(*vsp,*yp,0);
     vp->axpy(-1.0,*vsp);
 
     *outStream << "Testing BoundConstraint::pruneUpperActive() without gradient . . . ";
 
     if(vp->norm() > errtol) {
       *outStream << "failed." << std::endl;
-      ++errorFlag; 
+      ++errorFlag;
     }
     else *outStream << "passed." << std::endl;
 
@@ -161,8 +161,8 @@ int main(int argc, char *argv[]) {
     vp->set(*yp);
     vsp->set(*yp);
 
-    bc.pruneLowerActive(*vp,*yp,0);      
-    sbc.pruneLowerActive(*vsp,*yp,0);      
+    bc.pruneLowerActive(*vp,*yp,0);
+    sbc.pruneLowerActive(*vsp,*yp,0);
 
     vp->axpy(-1.0,*vsp);
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
 
     if(vp->norm() > errtol) {
       *outStream << "failed." << std::endl;
-      ++errorFlag; 
+      ++errorFlag;
     }
     else *outStream << "passed." << std::endl;
 
@@ -179,8 +179,8 @@ int main(int argc, char *argv[]) {
     vp->set(*yp);
     vsp->set(*yp);
 
-    bc.pruneUpperActive(*vp,*yp,*g1p,0);      
-    sbc.pruneUpperActive(*vsp,*yp,*g1p,0);      
+    bc.pruneUpperActive(*vp,*yp,*g1p,0);
+    sbc.pruneUpperActive(*vsp,*yp,*g1p,0);
 
     vp->axpy(-1.0,*vsp);
 
@@ -188,16 +188,16 @@ int main(int argc, char *argv[]) {
 
     if(vp->norm() > errtol) {
       *outStream << "failed." << std::endl;
-      ++errorFlag; 
+      ++errorFlag;
     }
     else *outStream << "passed." << std::endl;
-     
+
     // Test pruneLowerActive (with positive gradient)
     vp->set(*yp);
     vsp->set(*yp);
 
-    bc.pruneLowerActive(*vp,*yp,*g1p,0);      
-    sbc.pruneLowerActive(*vsp,*yp,*g1p,0);      
+    bc.pruneLowerActive(*vp,*yp,*g1p,0);
+    sbc.pruneLowerActive(*vsp,*yp,*g1p,0);
 
     vp->axpy(-1.0,*vsp);
 
@@ -205,17 +205,17 @@ int main(int argc, char *argv[]) {
 
     if(vp->norm() > errtol) {
       *outStream << "failed." << std::endl;
-      ++errorFlag; 
+      ++errorFlag;
     }
     else *outStream << "passed." << std::endl;
 
-   
+
     // Test pruneUpperActive (with negative gradient)
     vp->set(*yp);
     vsp->set(*yp);
 
-    bc.pruneUpperActive(*vp,*yp,*g2p,0);      
-    sbc.pruneUpperActive(*vsp,*yp,*g2p,0);      
+    bc.pruneUpperActive(*vp,*yp,*g2p,0);
+    sbc.pruneUpperActive(*vsp,*yp,*g2p,0);
 
     vp->axpy(-1.0,*vsp);
 
@@ -223,16 +223,16 @@ int main(int argc, char *argv[]) {
 
     if(vp->norm() > errtol) {
       *outStream << "failed." << std::endl;
-      ++errorFlag; 
+      ++errorFlag;
     }
     else *outStream << "passed." << std::endl;
-     
+
     // Test pruneLowerActive (with negative gradient)
     vp->set(*yp);
     vsp->set(*yp);
 
-    bc.pruneLowerActive(*vp,*yp,*g2p,0);      
-    sbc.pruneLowerActive(*vsp,*yp,*g2p,0);      
+    bc.pruneLowerActive(*vp,*yp,*g2p,0);
+    sbc.pruneLowerActive(*vsp,*yp,*g2p,0);
 
     vp->axpy(-1.0,*vsp);
 
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
 
     if(vp->norm() > errtol) {
       *outStream << "failed." << std::endl;
-      ++errorFlag; 
+      ++errorFlag;
     }
     else *outStream << "passed." << std::endl;
 
@@ -258,7 +258,6 @@ int main(int argc, char *argv[]) {
   else
     std::cout << "End Result: TEST PASSED\n";
 
-  return 0;  
+  return 0;
 
 }
-

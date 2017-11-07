@@ -78,8 +78,8 @@
 
 typedef double RealT;
 
-Teuchos::RCP<Tpetra::MultiVector<> > createTpetraVector(const Teuchos::RCP<const Tpetra::Map<> > &map) {
-  return Teuchos::rcp(new Tpetra::MultiVector<>(map, 1, true));
+std::shared_ptr<Tpetra::MultiVector<> > createTpetraVector(const std::shared_ptr<const Tpetra::Map<> > &map) {
+  return std::make_shared<Tpetra::MultiVector<>>(map, 1, true);
 }
 
 int main(int argc, char *argv[]) {
@@ -87,18 +87,18 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  std::shared_ptr<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   }
   else {
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
   }
 
   int errorFlag  = 0;
@@ -108,31 +108,31 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     std::string stoch_filename = "stochastic.xml";
-    Teuchos::RCP<Teuchos::ParameterList> stoch_parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    std::shared_ptr<Teuchos::ParameterList> stoch_parlist = std::make_shared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( stoch_filename, stoch_parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    Teuchos::RCP<const Teuchos::Comm<int> > serial_comm = Teuchos::rcp(new Teuchos::SerialComm<int>());
-    Teuchos::RCP<ElasticitySIMPOperators<RealT> > data
-      = Teuchos::rcp(new ElasticitySIMPOperators<RealT>(serial_comm, parlist, outStream));
+    std::shared_ptr<const Teuchos::Comm<int> > serial_comm = std::make_shared<Teuchos::SerialComm<int>>();
+    std::shared_ptr<ElasticitySIMPOperators<RealT> > data
+      = std::make_shared<ElasticitySIMPOperators<RealT>>(serial_comm, parlist, outStream);
     /*** Initialize density filter. ***/
-    Teuchos::RCP<DensityFilter<RealT> > filter
-      = Teuchos::rcp(new DensityFilter<RealT>(serial_comm, parlist, outStream));
+    std::shared_ptr<DensityFilter<RealT> > filter
+      = std::make_shared<DensityFilter<RealT>>(serial_comm, parlist, outStream);
     /*** Build vectors and dress them up as ROL vectors. ***/
-    Teuchos::RCP<const Tpetra::Map<> > vecmap_u = data->getDomainMapA();
-    Teuchos::RCP<const Tpetra::Map<> > vecmap_z = data->getCellMap();
-    Teuchos::RCP<Tpetra::MultiVector<> > u_rcp      = createTpetraVector(vecmap_u);
-    Teuchos::RCP<Tpetra::MultiVector<> > z_rcp      = createTpetraVector(vecmap_z);
-    Teuchos::RCP<Tpetra::MultiVector<> > du_rcp     = createTpetraVector(vecmap_u);
-    Teuchos::RCP<Tpetra::MultiVector<> > dw_rcp     = createTpetraVector(vecmap_u);
-    Teuchos::RCP<Tpetra::MultiVector<> > dz_rcp     = createTpetraVector(vecmap_z);
-    Teuchos::RCP<Tpetra::MultiVector<> > dz2_rcp    = createTpetraVector(vecmap_z);
-    Teuchos::RCP<std::vector<RealT> >    vc_rcp     = Teuchos::rcp(new std::vector<RealT>(1, 0));
-    Teuchos::RCP<std::vector<RealT> >    vc_lam_rcp = Teuchos::rcp(new std::vector<RealT>(1, 0));
-    Teuchos::RCP<std::vector<RealT> >    vscale_rcp = Teuchos::rcp(new std::vector<RealT>(1, 0));
+    std::shared_ptr<const Tpetra::Map<> > vecmap_u = data->getDomainMapA();
+    std::shared_ptr<const Tpetra::Map<> > vecmap_z = data->getCellMap();
+    std::shared_ptr<Tpetra::MultiVector<> > u_rcp      = createTpetraVector(vecmap_u);
+    std::shared_ptr<Tpetra::MultiVector<> > z_rcp      = createTpetraVector(vecmap_z);
+    std::shared_ptr<Tpetra::MultiVector<> > du_rcp     = createTpetraVector(vecmap_u);
+    std::shared_ptr<Tpetra::MultiVector<> > dw_rcp     = createTpetraVector(vecmap_u);
+    std::shared_ptr<Tpetra::MultiVector<> > dz_rcp     = createTpetraVector(vecmap_z);
+    std::shared_ptr<Tpetra::MultiVector<> > dz2_rcp    = createTpetraVector(vecmap_z);
+    std::shared_ptr<std::vector<RealT> >    vc_rcp     = std::make_shared<std::vector<RealT>>(1, 0);
+    std::shared_ptr<std::vector<RealT> >    vc_lam_rcp = std::make_shared<std::vector<RealT>>(1, 0);
+    std::shared_ptr<std::vector<RealT> >    vscale_rcp = std::make_shared<std::vector<RealT>>(1, 0);
     // Set all values to 1 in u, z.
     RealT one(1), two(2);
     u_rcp->putScalar(one);
@@ -146,12 +146,12 @@ int main(int argc, char *argv[]) {
     // Set Scaling vector for density
     bool  useZscale = parlist->sublist("Problem").get<bool>("Use Scaled Density Vectors");
     RealT densityScaling = parlist->sublist("Problem").get<RealT>("Density Scaling");
-    Teuchos::RCP<Tpetra::MultiVector<> > scaleVec = createTpetraVector(vecmap_z);
+    std::shared_ptr<Tpetra::MultiVector<> > scaleVec = createTpetraVector(vecmap_z);
     scaleVec->putScalar(densityScaling);
     if ( !useZscale ) {
       scaleVec->putScalar(one);
     }
-    Teuchos::RCP<const Tpetra::Vector<> > zscale_rcp = scaleVec->getVector(0);
+    std::shared_ptr<const Tpetra::Vector<> > zscale_rcp = scaleVec->getVector(0);
 
     // Randomize d vectors.
     du_rcp->randomize(); //du_rcp->scale(0);
@@ -159,22 +159,22 @@ int main(int argc, char *argv[]) {
     dz_rcp->randomize(); //dz_rcp->scale(0);
     dz2_rcp->randomize();
     // Create ROL::TpetraMultiVectors.
-    Teuchos::RCP<ROL::Vector<RealT> > up
-      = Teuchos::rcp(new ROL::TpetraMultiVector<RealT>(u_rcp));
-    Teuchos::RCP<ROL::Vector<RealT> > dup
-      = Teuchos::rcp(new ROL::TpetraMultiVector<RealT>(du_rcp));
-    Teuchos::RCP<ROL::Vector<RealT> > dwp
-      = Teuchos::rcp(new ROL::TpetraMultiVector<RealT>(dw_rcp));
-    Teuchos::RCP<ROL::Vector<RealT> > zp 
-      = Teuchos::rcp(new ROL::PrimalScaledTpetraMultiVector<RealT>(z_rcp,zscale_rcp));
-    Teuchos::RCP<ROL::Vector<RealT> > dzp
-      = Teuchos::rcp(new ROL::PrimalScaledTpetraMultiVector<RealT>(dz_rcp,zscale_rcp));
-    Teuchos::RCP<ROL::Vector<RealT> > dz2p
-      = Teuchos::rcp(new ROL::PrimalScaledTpetraMultiVector<RealT>(dz2_rcp,zscale_rcp));
-    Teuchos::RCP<ROL::Vector<RealT> > vcp
-      = Teuchos::rcp(new ROL::PrimalScaledStdVector<RealT>(vc_rcp,vscale_rcp));
-    Teuchos::RCP<ROL::Vector<RealT> > vc_lamp
-      = Teuchos::rcp(new ROL::DualScaledStdVector<RealT>(vc_lam_rcp,vscale_rcp));
+    std::shared_ptr<ROL::Vector<RealT> > up
+      = std::make_shared<ROL::TpetraMultiVector<RealT>>(u_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > dup
+      = std::make_shared<ROL::TpetraMultiVector<RealT>>(du_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > dwp
+      = std::make_shared<ROL::TpetraMultiVector<RealT>>(dw_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > zp 
+      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(z_rcp,zscale_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > dzp
+      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(dz_rcp,zscale_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > dz2p
+      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(dz2_rcp,zscale_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > vcp
+      = std::make_shared<ROL::PrimalScaledStdVector<RealT>>(vc_rcp,vscale_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > vc_lamp
+      = std::make_shared<ROL::DualScaledStdVector<RealT>>(vc_lam_rcp,vscale_rcp);
     // Create ROL SimOpt vectors.
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> d(dup,dzp);
@@ -205,24 +205,24 @@ int main(int argc, char *argv[]) {
     RealT scale = (useExpValScale ? gsum : gmin);
 
     /*** Build objective function, constraint and reduced objective function. ***/
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > obj
-       = Teuchos::rcp(new ParametrizedObjective_PDEOPT_ElasticitySIMP<RealT>(data, filter, parlist,scale));
-    Teuchos::RCP<ROL::Constraint_SimOpt<RealT> > con
-       = Teuchos::rcp(new ParametrizedEqualityConstraint_PDEOPT_ElasticitySIMP<RealT>(data, filter, parlist));
-    Teuchos::RCP<ROL::Reduced_Objective_SimOpt<RealT> > objReduced
-       = Teuchos::rcp(new ROL::Reduced_Objective_SimOpt<RealT>(obj, con, up, zp, dwp));
-    Teuchos::RCP<ROL::Constraint<RealT> > volcon
-       = Teuchos::rcp(new EqualityConstraint_PDEOPT_ElasticitySIMP_Volume<RealT>(data, parlist));
+    std::shared_ptr<ROL::Objective_SimOpt<RealT> > obj
+       = std::make_shared<ParametrizedObjective_PDEOPT_ElasticitySIMP<RealT>>(data, filter, parlist,scale);
+    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
+       = std::make_shared<ParametrizedEqualityConstraint_PDEOPT_ElasticitySIMP<RealT>>(data, filter, parlist);
+    std::shared_ptr<ROL::Reduced_Objective_SimOpt<RealT> > objReduced
+       = std::make_shared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, dwp);
+    std::shared_ptr<ROL::Constraint<RealT> > volcon
+       = std::make_shared<EqualityConstraint_PDEOPT_ElasticitySIMP_Volume<RealT>>(data, parlist);
 
     /*** Build bound constraint ***/
-    Teuchos::RCP<Tpetra::MultiVector<> > lo_rcp = Teuchos::rcp(new Tpetra::MultiVector<>(vecmap_z, 1, true));
-    Teuchos::RCP<Tpetra::MultiVector<> > hi_rcp = Teuchos::rcp(new Tpetra::MultiVector<>(vecmap_z, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > lo_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
+    std::shared_ptr<Tpetra::MultiVector<> > hi_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
     lo_rcp->putScalar(0.0); hi_rcp->putScalar(1.0);
-    Teuchos::RCP<ROL::Vector<RealT> > lop
-      = Teuchos::rcp(new ROL::PrimalScaledTpetraMultiVector<RealT>(lo_rcp, zscale_rcp));
-    Teuchos::RCP<ROL::Vector<RealT> > hip
-      = Teuchos::rcp(new ROL::PrimalScaledTpetraMultiVector<RealT>(hi_rcp, zscale_rcp));
-    Teuchos::RCP<ROL::BoundConstraint<RealT> > bnd = Teuchos::rcp(new ROL::Bounds<RealT>(lop,hip));
+    std::shared_ptr<ROL::Vector<RealT> > lop
+      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(lo_rcp, zscale_rcp);
+    std::shared_ptr<ROL::Vector<RealT> > hip
+      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(hi_rcp, zscale_rcp);
+    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd = std::make_shared<ROL::Bounds<RealT>>(lop,hip);
 
     /*** Build Stochastic Functionality. ***/
     ROL::OptimizationProblem<RealT> opt(objReduced,zp,bnd);

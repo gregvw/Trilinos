@@ -90,50 +90,50 @@ namespace HS {
 template<class Real> 
 class ProblemFactory {
 public:
-  Teuchos::RCP<ROL::NonlinearProgram<Real> > getProblem(int n) {
-    Teuchos::RCP<ROL::NonlinearProgram<Real> > np;
+  std::shared_ptr<ROL::NonlinearProgram<Real> > getProblem(int n) {
+    std::shared_ptr<ROL::NonlinearProgram<Real> > np;
     switch(n) {
-      case   1: np = Teuchos::rcp( new Problem_001<Real>() ); break;
-      case   2: np = Teuchos::rcp( new Problem_002<Real>() ); break;
-      case   3: np = Teuchos::rcp( new Problem_003<Real>() ); break;
-      case   4: np = Teuchos::rcp( new Problem_004<Real>() ); break;
-      case   5: np = Teuchos::rcp( new Problem_005<Real>() ); break;
-      case   6: np = Teuchos::rcp( new Problem_006<Real>() ); break;
-      case   7: np = Teuchos::rcp( new Problem_007<Real>() ); break;
-      case   8: np = Teuchos::rcp( new Problem_008<Real>() ); break;
-      case   9: np = Teuchos::rcp( new Problem_009<Real>() ); break;
-      case  10: np = Teuchos::rcp( new Problem_010<Real>() ); break;
-      case  11: np = Teuchos::rcp( new Problem_011<Real>() ); break;
-      case  12: np = Teuchos::rcp( new Problem_012<Real>() ); break;
-      case  13: np = Teuchos::rcp( new Problem_013<Real>() ); break;
-      case  14: np = Teuchos::rcp( new Problem_014<Real>() ); break;
-      case  15: np = Teuchos::rcp( new Problem_015<Real>() ); break;
-      case  16: np = Teuchos::rcp( new Problem_016<Real>() ); break;
-      case  17: np = Teuchos::rcp( new Problem_017<Real>() ); break;
-      case  18: np = Teuchos::rcp( new Problem_018<Real>() ); break;
-      case  19: np = Teuchos::rcp( new Problem_019<Real>() ); break;
-      case  20: np = Teuchos::rcp( new Problem_020<Real>() ); break;
-      case  21: np = Teuchos::rcp( new Problem_021<Real>() ); break;
-      case  22: np = Teuchos::rcp( new Problem_022<Real>() ); break;
-      case  23: np = Teuchos::rcp( new Problem_023<Real>() ); break;
-      case  24: np = Teuchos::rcp( new Problem_024<Real>() ); break;
-      case  25: np = Teuchos::rcp( new Problem_025<Real>() ); break;
-      case  26: np = Teuchos::rcp( new Problem_026<Real>() ); break;
-      case  27: np = Teuchos::rcp( new Problem_027<Real>() ); break;
-      case  28: np = Teuchos::rcp( new Problem_028<Real>() ); break;
-      case  29: np = Teuchos::rcp( new Problem_029<Real>() ); break;
-      case  30: np = Teuchos::rcp( new Problem_030<Real>() ); break;
-      case  31: np = Teuchos::rcp( new Problem_031<Real>() ); break;
-      case  32: np = Teuchos::rcp( new Problem_032<Real>() ); break;
-      case  33: np = Teuchos::rcp( new Problem_033<Real>() ); break;
-      case  34: np = Teuchos::rcp( new Problem_034<Real>() ); break;
-      case  35: np = Teuchos::rcp( new Problem_035<Real>() ); break;
-      case  36: np = Teuchos::rcp( new Problem_036<Real>() ); break;
-      case  37: np = Teuchos::rcp( new Problem_037<Real>() ); break;
-      case  38: np = Teuchos::rcp( new Problem_038<Real>() ); break;
-      case  39: np = Teuchos::rcp( new Problem_039<Real>() ); break;
-      case  40: np = Teuchos::rcp( new Problem_040<Real>() ); break;
-      case  41: np = Teuchos::rcp( new Problem_041<Real>() ); break;
+      case   1: np = std::make_shared<Problem_001<Real>>(); break;
+      case   2: np = std::make_shared<Problem_002<Real>>(); break;
+      case   3: np = std::make_shared<Problem_003<Real>>(); break;
+      case   4: np = std::make_shared<Problem_004<Real>>(); break;
+      case   5: np = std::make_shared<Problem_005<Real>>(); break;
+      case   6: np = std::make_shared<Problem_006<Real>>(); break;
+      case   7: np = std::make_shared<Problem_007<Real>>(); break;
+      case   8: np = std::make_shared<Problem_008<Real>>(); break;
+      case   9: np = std::make_shared<Problem_009<Real>>(); break;
+      case  10: np = std::make_shared<Problem_010<Real>>(); break;
+      case  11: np = std::make_shared<Problem_011<Real>>(); break;
+      case  12: np = std::make_shared<Problem_012<Real>>(); break;
+      case  13: np = std::make_shared<Problem_013<Real>>(); break;
+      case  14: np = std::make_shared<Problem_014<Real>>(); break;
+      case  15: np = std::make_shared<Problem_015<Real>>(); break;
+      case  16: np = std::make_shared<Problem_016<Real>>(); break;
+      case  17: np = std::make_shared<Problem_017<Real>>(); break;
+      case  18: np = std::make_shared<Problem_018<Real>>(); break;
+      case  19: np = std::make_shared<Problem_019<Real>>(); break;
+      case  20: np = std::make_shared<Problem_020<Real>>(); break;
+      case  21: np = std::make_shared<Problem_021<Real>>(); break;
+      case  22: np = std::make_shared<Problem_022<Real>>(); break;
+      case  23: np = std::make_shared<Problem_023<Real>>(); break;
+      case  24: np = std::make_shared<Problem_024<Real>>(); break;
+      case  25: np = std::make_shared<Problem_025<Real>>(); break;
+      case  26: np = std::make_shared<Problem_026<Real>>(); break;
+      case  27: np = std::make_shared<Problem_027<Real>>(); break;
+      case  28: np = std::make_shared<Problem_028<Real>>(); break;
+      case  29: np = std::make_shared<Problem_029<Real>>(); break;
+      case  30: np = std::make_shared<Problem_030<Real>>(); break;
+      case  31: np = std::make_shared<Problem_031<Real>>(); break;
+      case  32: np = std::make_shared<Problem_032<Real>>(); break;
+      case  33: np = std::make_shared<Problem_033<Real>>(); break;
+      case  34: np = std::make_shared<Problem_034<Real>>(); break;
+      case  35: np = std::make_shared<Problem_035<Real>>(); break;
+      case  36: np = std::make_shared<Problem_036<Real>>(); break;
+      case  37: np = std::make_shared<Problem_037<Real>>(); break;
+      case  38: np = std::make_shared<Problem_038<Real>>(); break;
+      case  39: np = std::make_shared<Problem_039<Real>>(); break;
+      case  40: np = std::make_shared<Problem_040<Real>>(); break;
+      case  41: np = std::make_shared<Problem_041<Real>>(); break;
 
 
       default:

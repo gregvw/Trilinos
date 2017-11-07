@@ -61,9 +61,9 @@ class FE_CURL {
 
 private:
 
-  const Teuchos::RCP<Intrepid::FieldContainer<Real> > cellNodes_;                            // coordinates of the cell nodes
-  Teuchos::RCP<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > basis_;              // Intrepid basis
-  const Teuchos::RCP<Intrepid::Cubature<Real, Intrepid::FieldContainer<Real> > > cubature_;  // Intrepid cubature (quadrature, integration) rule
+  const std::shared_ptr<Intrepid::FieldContainer<Real> > cellNodes_;                            // coordinates of the cell nodes
+  std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > basis_;              // Intrepid basis
+  const std::shared_ptr<Intrepid::Cubature<Real, Intrepid::FieldContainer<Real> > > cubature_;  // Intrepid cubature (quadrature, integration) rule
   const int sideId_;                                                                         // local side id for boundary integration
 
   int c_;    // number of cells in the FE object
@@ -72,40 +72,40 @@ private:
   int d_;    // space dimension of the (parent) cells
   int sd_;   // space dimension of the side cells
 
-  Teuchos::RCP<shards::CellTopology> cellTopo_;   // base (parent) cell topology
-  Teuchos::RCP<shards::CellTopology> sideTopo_;   // side (subcell) topology; assumed uniform
+  std::shared_ptr<shards::CellTopology> cellTopo_;   // base (parent) cell topology
+  std::shared_ptr<shards::CellTopology> sideTopo_;   // side (subcell) topology; assumed uniform
 
   std::vector<std::vector<int> > sideDofs_;       // local dofs on cell sides; 1st index: side number; 2nd index: dof number
 
   // Containers for local finite element data.
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cubPoints_;             // points of the cubature rule on the reference cell
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cubWeights_;            // weights of the cubature rule on the reference cell
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cubPointsSubcell_;      // cubature points on the side reference cell
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cubWeightsSubcell_;     // cubature weights on the side reference cell
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cellJac_;               // cell Jacobian matrices
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cellJacInv_;            // inverses of cell Jacobians
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cellJacDet_;            // determinants of cell Jacobians
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cellWeightedMeasure_;   // cell measure (Jacobian determinant) multiplied by the cubature weights
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > valReference_;          // value of FE basis in reference space
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > curlReference_;         // curl of FE basis in reference space
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > valPhysical_;           // value of FE basis in physical space
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > curlPhysical_;          // curl of FE basis in physical space
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > valPhysicalWeighted_;   // value of FE basis in physical space multiplied by weighted cell measure
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > curlPhysicalWeighted_;  // curl of FE basis in physical space multiplied by weighted cell measure
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > curlcurlMats_;          // cell curl-curl matrices
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > valvalMats_;            // cell val-val matrices
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > cubPointsPhysical_;     // cubature points on the physical cells
-  Teuchos::RCP<Intrepid::FieldContainer<Real> > dofPoints_;             // degree of freedom points on the reference cell
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cubPoints_;             // points of the cubature rule on the reference cell
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cubWeights_;            // weights of the cubature rule on the reference cell
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cubPointsSubcell_;      // cubature points on the side reference cell
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cubWeightsSubcell_;     // cubature weights on the side reference cell
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cellJac_;               // cell Jacobian matrices
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cellJacInv_;            // inverses of cell Jacobians
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cellJacDet_;            // determinants of cell Jacobians
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cellWeightedMeasure_;   // cell measure (Jacobian determinant) multiplied by the cubature weights
+  std::shared_ptr<Intrepid::FieldContainer<Real> > valReference_;          // value of FE basis in reference space
+  std::shared_ptr<Intrepid::FieldContainer<Real> > curlReference_;         // curl of FE basis in reference space
+  std::shared_ptr<Intrepid::FieldContainer<Real> > valPhysical_;           // value of FE basis in physical space
+  std::shared_ptr<Intrepid::FieldContainer<Real> > curlPhysical_;          // curl of FE basis in physical space
+  std::shared_ptr<Intrepid::FieldContainer<Real> > valPhysicalWeighted_;   // value of FE basis in physical space multiplied by weighted cell measure
+  std::shared_ptr<Intrepid::FieldContainer<Real> > curlPhysicalWeighted_;  // curl of FE basis in physical space multiplied by weighted cell measure
+  std::shared_ptr<Intrepid::FieldContainer<Real> > curlcurlMats_;          // cell curl-curl matrices
+  std::shared_ptr<Intrepid::FieldContainer<Real> > valvalMats_;            // cell val-val matrices
+  std::shared_ptr<Intrepid::FieldContainer<Real> > cubPointsPhysical_;     // cubature points on the physical cells
+  std::shared_ptr<Intrepid::FieldContainer<Real> > dofPoints_;             // degree of freedom points on the reference cell
 
 public:
 
-  FE_CURL(const Teuchos::RCP<Intrepid::FieldContainer<Real> >                            & cellNodes,
-          const Teuchos::RCP<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > >    & basis,
-          const Teuchos::RCP<Intrepid::Cubature<Real, Intrepid::FieldContainer<Real> > > & cubature) :
+  FE_CURL(const std::shared_ptr<Intrepid::FieldContainer<Real> >                            & cellNodes,
+          const std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > >    & basis,
+          const std::shared_ptr<Intrepid::Cubature<Real, Intrepid::FieldContainer<Real> > > & cubature) :
     cellNodes_(cellNodes), basis_(basis), cubature_(cubature), sideId_(-1) {
 
     // Get base cell topology from basis.
-    cellTopo_ = Teuchos::rcp(new shards::CellTopology(basis_->getBaseCellTopology()));
+    cellTopo_ = std::make_shared<shards::CellTopology(basis_->getBaseCellTopology>());
 
     // Compute dimensions of multidimensional array members.
     c_  = cellNodes_->dimension(0);
@@ -115,25 +115,25 @@ public:
     sd_ = d_ - 1;
 
     // Get side subcell topology.
-    sideTopo_ = Teuchos::null;
+    sideTopo_ = nullptr;
 
     // Allocate multidimensional arrays.
-    cubPoints_               = Teuchos::rcp(new Intrepid::FieldContainer<Real>(p_, d_));
-    cubWeights_              = Teuchos::rcp(new Intrepid::FieldContainer<Real>(p_));
-    cellJac_                 = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, p_, d_, d_));
-    cellJacInv_              = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, p_, d_, d_));
-    cellJacDet_              = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, p_));
-    cellWeightedMeasure_     = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, p_));
-    valReference_            = Teuchos::rcp(new Intrepid::FieldContainer<Real>(f_, p_, d_));
-    curlReference_           = Teuchos::rcp(new Intrepid::FieldContainer<Real>(f_, p_, d_));
-    valPhysical_             = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, f_, p_, d_));
-    curlPhysical_            = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, f_, p_, d_));
-    valPhysicalWeighted_     = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, f_, p_, d_));
-    curlPhysicalWeighted_    = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, f_, p_, d_));
-    curlcurlMats_            = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, f_, f_));
-    valvalMats_              = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, f_, f_));
-    cubPointsPhysical_       = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c_, p_, d_));
-    dofPoints_               = Teuchos::rcp(new Intrepid::FieldContainer<Real>(f_, d_));
+    cubPoints_               = std::make_shared<Intrepid::FieldContainer<Real>>(p_, d_);
+    cubWeights_              = std::make_shared<Intrepid::FieldContainer<Real>>(p_);
+    cellJac_                 = std::make_shared<Intrepid::FieldContainer<Real>>(c_, p_, d_, d_);
+    cellJacInv_              = std::make_shared<Intrepid::FieldContainer<Real>>(c_, p_, d_, d_);
+    cellJacDet_              = std::make_shared<Intrepid::FieldContainer<Real>>(c_, p_);
+    cellWeightedMeasure_     = std::make_shared<Intrepid::FieldContainer<Real>>(c_, p_);
+    valReference_            = std::make_shared<Intrepid::FieldContainer<Real>>(f_, p_, d_);
+    curlReference_           = std::make_shared<Intrepid::FieldContainer<Real>>(f_, p_, d_);
+    valPhysical_             = std::make_shared<Intrepid::FieldContainer<Real>>(c_, f_, p_, d_);
+    curlPhysical_            = std::make_shared<Intrepid::FieldContainer<Real>>(c_, f_, p_, d_);
+    valPhysicalWeighted_     = std::make_shared<Intrepid::FieldContainer<Real>>(c_, f_, p_, d_);
+    curlPhysicalWeighted_    = std::make_shared<Intrepid::FieldContainer<Real>>(c_, f_, p_, d_);
+    curlcurlMats_            = std::make_shared<Intrepid::FieldContainer<Real>>(c_, f_, f_);
+    valvalMats_              = std::make_shared<Intrepid::FieldContainer<Real>>(c_, f_, f_);
+    cubPointsPhysical_       = std::make_shared<Intrepid::FieldContainer<Real>>(c_, p_, d_);
+    dofPoints_               = std::make_shared<Intrepid::FieldContainer<Real>>(f_, d_);
 
     /*** START: Fill multidimensional arrays. ***/
 
@@ -208,8 +208,8 @@ public:
     }
 
     // Get coordinates of DOFs in reference cell.
-    Teuchos::RCP<Intrepid::DofCoordsInterface<Intrepid::FieldContainer<Real> > > coord_iface =
-      Teuchos::rcp_dynamic_cast<Intrepid::DofCoordsInterface<Intrepid::FieldContainer<Real> > >(basis_);
+    std::shared_ptr<Intrepid::DofCoordsInterface<Intrepid::FieldContainer<Real> > > coord_iface =
+      std::dynamic_pointer_cast<Intrepid::DofCoordsInterface<Intrepid::FieldContainer<Real> > >(basis_);
     if (d_ > 1) {
       coord_iface->getDofCoords(*dofPoints_);
     }
@@ -220,75 +220,75 @@ public:
 
   /** \brief  Returns cell Jacobian matrices at cubature points.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > J() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > J() const {
     return cellJac_;
   }
 
   /** \brief  Returns inverses of cell Jacobians at cubature points.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > invJ() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > invJ() const {
     return cellJacInv_;
   }
 
   /** \brief  Returns determinants of cell Jacobians at cubature points.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > detJ() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > detJ() const {
     return cellJacDet_;
   }
 
   /** \brief  Returns values of FE basis at cubature points in reference space.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > Nref() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > Nref() const {
     return valReference_;
   }
 
   /** \brief  Returns curls of FE basis at cubature points in reference space.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > curlNref() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > curlNref() const {
     return curlReference_;
   }
 
   /** \brief  Returns value of FE basis at cubature points in physical space.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > N() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > N() const {
     return valPhysical_;
   }
 
   /** \brief  Returns value of FE basis at cubature points in physical space,
               multiplied by weighted cell measures.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > NdetJ() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > NdetJ() const {
     return valPhysicalWeighted_;
   }
 
   /** \brief  Returns curl of FE basis at cubature points in physical space.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > curlN() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > curlN() const {
     return curlPhysical_;
   }
 
   /** \brief  Returns curl of FE basis at cubature points in physical space,
               multiplied by weighted cell measures.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > curlNdetJ() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > curlNdetJ() const {
     return curlPhysicalWeighted_;
   }
 
   /** \brief  Returns curl-curl matrices on cells.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > curlcurlMat() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > curlcurlMat() const {
     return curlcurlMats_;
   }
 
   /** \brief  Returns val-val matrices on cells.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > valvalMat() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > valvalMat() const {
     return valvalMats_;
   }
 
   /** \brief Returns cubature points on cells in physical space.
   */
-  Teuchos::RCP<const Intrepid::FieldContainer<Real> > cubPts() const {
+  std::shared_ptr<const Intrepid::FieldContainer<Real> > cubPts() const {
     return cubPointsPhysical_;
   }
 
@@ -298,8 +298,8 @@ public:
              coefficient depending on the alignment with the reference
              edge direction).
   */
-  void evaluateValue(const Teuchos::RCP<Intrepid::FieldContainer<Real> > & fVals,
-                     const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & inCoeffs) const {
+  void evaluateValue(const std::shared_ptr<Intrepid::FieldContainer<Real> > & fVals,
+                     const std::shared_ptr<const Intrepid::FieldContainer<Real> > & inCoeffs) const {
     Intrepid::FunctionSpaceTools::evaluate<Real>(*fVals, *inCoeffs, *valPhysical_);
   }
 
@@ -309,9 +309,9 @@ public:
              coefficient depending on the alignment with the reference
              edge direction).
   */
-  void evaluateValue(const Teuchos::RCP<Intrepid::FieldContainer<Real> > & fVals,
-                     const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & inCoeffs,
-                     const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & inSigns) const {
+  void evaluateValue(const std::shared_ptr<Intrepid::FieldContainer<Real> > & fVals,
+                     const std::shared_ptr<const Intrepid::FieldContainer<Real> > & inCoeffs,
+                     const std::shared_ptr<const Intrepid::FieldContainer<Real> > & inSigns) const {
     Intrepid::FieldContainer<Real> coeffsSigned(*inCoeffs);
     Intrepid::FunctionSpaceTools::applyFieldSigns<Real>(coeffsSigned, *inSigns);
     Intrepid::FunctionSpaceTools::evaluate<Real>(*fVals, coeffsSigned, *valPhysical_);
@@ -323,8 +323,8 @@ public:
              coefficient depending on the alignment with the reference
              edge direction).
   */
-  void evaluateCurl(const Teuchos::RCP<Intrepid::FieldContainer<Real> > & fCurls,
-                    const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & inCoeffs) const {
+  void evaluateCurl(const std::shared_ptr<Intrepid::FieldContainer<Real> > & fCurls,
+                    const std::shared_ptr<const Intrepid::FieldContainer<Real> > & inCoeffs) const {
     Intrepid::FunctionSpaceTools::evaluate<Real>(*fCurls, *inCoeffs, *curlPhysical_);
   }
 
@@ -334,9 +334,9 @@ public:
              coefficient depending on the alignment with the reference
              edge direction).
   */
-  void evaluateCurl(const Teuchos::RCP<Intrepid::FieldContainer<Real> > & fCurls,
-                    const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & inCoeffs,
-                    const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & inSigns) const {
+  void evaluateCurl(const std::shared_ptr<Intrepid::FieldContainer<Real> > & fCurls,
+                    const std::shared_ptr<const Intrepid::FieldContainer<Real> > & inCoeffs,
+                    const std::shared_ptr<const Intrepid::FieldContainer<Real> > & inSigns) const {
     Intrepid::FieldContainer<Real> coeffsSigned(*inCoeffs);
     Intrepid::FunctionSpaceTools::applyFieldSigns<Real>(coeffsSigned, *inSigns);
     Intrepid::FunctionSpaceTools::evaluate<Real>(*fCurls, coeffsSigned, *curlPhysical_);
@@ -345,9 +345,9 @@ public:
   /** \brief Computes integral of the dot product of values or curls of interpolated
              FE fields f1 and f2, indexed by (C,P,D).
   */
-  void computeIntegral(const Teuchos::RCP<Intrepid::FieldContainer<Real> > & integral,
-                       const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & f1,
-                       const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & f2,
+  void computeIntegral(const std::shared_ptr<Intrepid::FieldContainer<Real> > & integral,
+                       const std::shared_ptr<const Intrepid::FieldContainer<Real> > & f1,
+                       const std::shared_ptr<const Intrepid::FieldContainer<Real> > & f2,
                        const bool sumInto = false) const {
     Intrepid::FieldContainer<Real> f2Weighted(*f2);
     Intrepid::FunctionSpaceTools::scalarMultiplyDataData<Real>(f2Weighted,              // multiply with weighted measure
@@ -475,8 +475,8 @@ public:
 
   /** \brief Computes coordinates of degrees of freedom on cells.
   */
-  void computeDofCoords(const Teuchos::RCP<Intrepid::FieldContainer<Real> > & dofCoords,
-                        const Teuchos::RCP<const Intrepid::FieldContainer<Real> > & cellNodes) const {
+  void computeDofCoords(const std::shared_ptr<Intrepid::FieldContainer<Real> > & dofCoords,
+                        const std::shared_ptr<const Intrepid::FieldContainer<Real> > & cellNodes) const {
     // Map reference DOF locations to physical space.
     Intrepid::CellTools<Real>::mapToPhysicalFrame(*dofCoords,
                                                   *dofPoints_,
@@ -484,8 +484,8 @@ public:
                                                   *cellTopo_);
   }
 
-  void mapRefPointsToPhysical(const Teuchos::RCP<Intrepid::FieldContainer<Real> > &px,
-                              const Teuchos::RCP<const Intrepid::FieldContainer<Real> > &rx) const {
+  void mapRefPointsToPhysical(const std::shared_ptr<Intrepid::FieldContainer<Real> > &px,
+                              const std::shared_ptr<const Intrepid::FieldContainer<Real> > &rx) const {
     // Map input reference cell points to cells in physical space.
     Intrepid::CellTools<Real>::mapToPhysicalFrame(*px,
                                                   *rx,

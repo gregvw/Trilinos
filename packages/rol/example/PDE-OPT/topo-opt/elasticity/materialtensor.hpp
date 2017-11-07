@@ -53,7 +53,7 @@
 template <class Real>
 class MaterialTensor {
 private:
-  Teuchos::RCP<FE<Real> > fe_;
+  std::shared_ptr<FE<Real> > fe_;
 
   // Problem parameters.
   Real youngsModulus_;
@@ -65,11 +65,11 @@ private:
   std::vector<std::vector<Real> > materialMat_;
 
   // Precomputed quantities.
-  std::vector<Teuchos::RCP<Intrepid::FieldContainer<Real> > > BMat_;
-  std::vector<Teuchos::RCP<Intrepid::FieldContainer<Real> > > BdetJMat_;
-  std::vector<Teuchos::RCP<Intrepid::FieldContainer<Real> > > NMat_;
-  std::vector<Teuchos::RCP<Intrepid::FieldContainer<Real> > > NdetJMat_;
-  std::vector<Teuchos::RCP<Intrepid::FieldContainer<Real> > > CBdetJMat_;
+  std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > BMat_;
+  std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > BdetJMat_;
+  std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > NMat_;
+  std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > NdetJMat_;
+  std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > CBdetJMat_;
 
   void computeMaterialTensor(const int d) {
     int matd = (d*(d+1))/2;
@@ -120,11 +120,11 @@ private:
     int matd = materialMat_.size();
 
     for (int i=0; i<d; ++i) {
-      BMat_.push_back(Teuchos::rcp(new Intrepid::FieldContainer<Real>(c,f,p,matd)));
-      BdetJMat_.push_back(Teuchos::rcp(new Intrepid::FieldContainer<Real>(c,f,p,matd)));
-      CBdetJMat_.push_back(Teuchos::rcp(new Intrepid::FieldContainer<Real>(c,f,p,matd)));
-      NMat_.push_back(Teuchos::rcp(new Intrepid::FieldContainer<Real>(c,f,p,d)));
-      NdetJMat_.push_back(Teuchos::rcp(new Intrepid::FieldContainer<Real>(c,f,p,d)));
+      BMat_.push_back(std::make_shared<Intrepid::FieldContainer<Real>>(c,f,p,matd));
+      BdetJMat_.push_back(std::make_shared<Intrepid::FieldContainer<Real>>(c,f,p,matd));
+      CBdetJMat_.push_back(std::make_shared<Intrepid::FieldContainer<Real>>(c,f,p,matd));
+      NMat_.push_back(std::make_shared<Intrepid::FieldContainer<Real>>(c,f,p,d));
+      NdetJMat_.push_back(std::make_shared<Intrepid::FieldContainer<Real>>(c,f,p,d));
     }
 
     if (d==2) {
@@ -212,14 +212,14 @@ public:
     powerSIMP_      = parlist.get("SIMP Power",          3.0);
   }
 
-  void setFE(Teuchos::RCP<FE<Real> > &fe) {
+  void setFE(std::shared_ptr<FE<Real> > &fe) {
     fe_ = fe;
     int d = fe_->gradN()->dimension(3);
     computeMaterialTensor(d);
     computeNBmats();
   }
 
-  void applyTensor(Teuchos::RCP<Intrepid::FieldContainer<Real> > & out, const Teuchos::RCP<Intrepid::FieldContainer<Real> > & inData) const {
+  void applyTensor(std::shared_ptr<Intrepid::FieldContainer<Real> > & out, const std::shared_ptr<Intrepid::FieldContainer<Real> > & inData) const {
     int c = fe_->gradN()->dimension(0);
     int p = fe_->gradN()->dimension(2);
     int matd = materialMat_.size();
@@ -235,13 +235,13 @@ public:
     }
   }
 
-  void computeUmat(Teuchos::RCP<Intrepid::FieldContainer<Real> > & UMat, std::vector<Teuchos::RCP<Intrepid::FieldContainer<Real> > > & gradU) const {
+  void computeUmat(std::shared_ptr<Intrepid::FieldContainer<Real> > & UMat, std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & gradU) const {
     int c = fe_->gradN()->dimension(0);
     int p = fe_->gradN()->dimension(2);
     int d = fe_->gradN()->dimension(3);
     int matd = materialMat_.size();
 
-    UMat = Teuchos::rcp(new Intrepid::FieldContainer<Real>(c,p,matd));
+    UMat = std::make_shared<Intrepid::FieldContainer<Real>>(c,p,matd);
 
     if (d==2) {
       for (int i=0; i<c; ++i) {
@@ -268,8 +268,8 @@ public:
 
   }
 
-  void computeDensity(Teuchos::RCP<Intrepid::FieldContainer<Real> > & rho,
-                      const Teuchos::RCP<Intrepid::FieldContainer<Real> > & Z,
+  void computeDensity(std::shared_ptr<Intrepid::FieldContainer<Real> > & rho,
+                      const std::shared_ptr<Intrepid::FieldContainer<Real> > & Z,
                       const int deriv = 0) const {
     // Retrieve dimensions.
     int c = fe_->gradN()->dimension(0);
@@ -291,23 +291,23 @@ public:
     
   }
 
-  const Teuchos::RCP<Intrepid::FieldContainer<Real> > B(const int i) const {
+  const std::shared_ptr<Intrepid::FieldContainer<Real> > B(const int i) const {
     return BMat_[i];
   }
 
-  const Teuchos::RCP<Intrepid::FieldContainer<Real> > BdetJ(const int i) const {
+  const std::shared_ptr<Intrepid::FieldContainer<Real> > BdetJ(const int i) const {
     return BdetJMat_[i];
   }
 
-  const Teuchos::RCP<Intrepid::FieldContainer<Real> > N(const int i) const {
+  const std::shared_ptr<Intrepid::FieldContainer<Real> > N(const int i) const {
     return NMat_[i];
   }
 
-  const Teuchos::RCP<Intrepid::FieldContainer<Real> > NdetJ(const int i) const{
+  const std::shared_ptr<Intrepid::FieldContainer<Real> > NdetJ(const int i) const{
     return NdetJMat_[i];
   }
 
-  const Teuchos::RCP<Intrepid::FieldContainer<Real> > CBdetJ(const int i) const {
+  const std::shared_ptr<Intrepid::FieldContainer<Real> > CBdetJ(const int i) const {
     return CBdetJMat_[i];
   }
 

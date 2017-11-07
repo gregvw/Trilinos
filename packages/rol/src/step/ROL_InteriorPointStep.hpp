@@ -63,7 +63,7 @@ typedef Constraint_Partitioned<Real>            IPCON;
 private:
 
   std::shared_ptr<StatusTest<Real> >       status_;
-  std::shared_ptr<Step<Real> >             step_;  
+  std::shared_ptr<Step<Real> >             step_;
   std::shared_ptr<IPOBJ>                   ipobj_;
   std::shared_ptr<IPCON>                   ipcon_;
   std::shared_ptr<Algorithm<Real> >        algo_;
@@ -78,7 +78,7 @@ private:
 
   Real mu_;      // Barrier parameter
   Real mumin_;   // Minimal value of barrier parameter
-  Real mumax_;   // Maximal value of barrier parameter 
+  Real mumax_;   // Maximal value of barrier parameter
   Real rho_;     // Barrier parameter reduction factor
   int  maxit_;   // Maximum number of interior point subproblem solves
 
@@ -93,7 +93,7 @@ private:
   bool hasEquality_;
 
 public:
- 
+
   using Step<Real>::initialize;
   using Step<Real>::compute;
   using Step<Real>::update;
@@ -101,12 +101,12 @@ public:
   ~InteriorPointStep() {}
 
   InteriorPointStep(Teuchos::ParameterList &parlist) :
-    Step<Real>(), 
-    status_(nullptr), 
+    Step<Real>(),
+    status_(nullptr),
     step_(nullptr),
     ipobj_(nullptr),
     ipcon_(nullptr),
-    algo_(nullptr), 
+    algo_(nullptr),
     x_(nullptr),
     g_(nullptr),
     l_(nullptr),
@@ -114,7 +114,7 @@ public:
     hasEquality_(false) {
 
     using Teuchos::ParameterList;
-    
+
     verbosity_ = parlist.sublist("General").get("Print Verbosity",0);
 
     // List of general Interior Point parameters
@@ -134,15 +134,15 @@ public:
     ctol_  = stlist.get("Constraint Tolerance", 1.e-8);
     stol_  = stlist.get("Step Tolerance", 1.e-8);
     maxit_ = stlist.get("Iteration Limit", 100);
- 
-    parlist_ = &parlist, false;
+
+    parlist_.reset(&parlist);
   }
 
-  /** \brief Initialize step with equality constraint 
+  /** \brief Initialize step with equality constraint
    */
-  void initialize( Vector<Real> &x, const Vector<Real> &g, 
+  void initialize( Vector<Real> &x, const Vector<Real> &g,
                    Vector<Real> &l, const Vector<Real> &c,
-                   Objective<Real> &obj, Constraint<Real> &con, 
+                   Objective<Real> &obj, Constraint<Real> &con,
                    AlgorithmState<Real> &algo_state ) {
     hasEquality_ = true;
 
@@ -159,8 +159,8 @@ public:
 
     x_->set(x);
 
-    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
-    ipcon_ = &dynamic_cast<IPCON&>(con),false;
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
+    ipcon_.reset(&dynamic_cast<IPCON&>(con));
 
     // Set initial penalty
     ipobj_->updatePenalty(mu_);
@@ -181,23 +181,23 @@ public:
 
     algo_state.nfval += ipobj_->getNumberFunctionEvaluations();
     algo_state.ngrad += ipobj_->getNumberGradientEvaluations();
-    algo_state.ncval += ipcon_->getNumberConstraintEvaluations(); 
+    algo_state.ncval += ipcon_->getNumberConstraintEvaluations();
 
   }
 
 
-  
+
   void initialize( Vector<Real> &x, const Vector<Real> &g, Vector<Real> &l, const Vector<Real> &c,
-                   Objective<Real> &obj, Constraint<Real> &con, BoundConstraint<Real> &bnd, 
+                   Objective<Real> &obj, Constraint<Real> &con, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state ) {
     bnd.projectInterior(x);
     initialize(x,g,l,c,obj,con,algo_state);
   }
 
 
-  /** \brief Initialize step with no equality constraint 
+  /** \brief Initialize step with no equality constraint
    */
-  void initialize( Vector<Real> &x, const Vector<Real> &g, 
+  void initialize( Vector<Real> &x, const Vector<Real> &g,
                    Objective<Real> &obj, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state ) {
     bnd.projectInterior(x);
@@ -211,7 +211,7 @@ public:
     g_ = g.clone();
 
     // Set initial penalty
-    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
     ipobj_->updatePenalty(mu_);
 
     algo_state.nfval = 0;
@@ -242,13 +242,13 @@ public:
                 const Vector<Real>   &x,
                 const Vector<Real>   &l,
                 Objective<Real>      &obj,
-                Constraint<Real>     &con, 
+                Constraint<Real>     &con,
                 AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
-    ipcon_ = &dynamic_cast<IPCON&>(con),false;
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
+    ipcon_.reset(&dynamic_cast<IPCON&>(con));
 
-    // Create the algorithm 
+    // Create the algorithm
     algo_ = std::make_shared<Algorithm<Real>>("Composite Step",*parlist_,false);
 
     //  Run the algorithm
@@ -264,10 +264,10 @@ public:
                 const Vector<Real>    &x,
                 const Vector<Real>    &l,
                 Objective<Real>       &obj,
-                Constraint<Real>      &con, 
+                Constraint<Real>      &con,
                 BoundConstraint<Real> &bnd,
                 AlgorithmState<Real>  &algo_state ) {
-    compute(s,x,l,obj,con,algo_state); 
+    compute(s,x,l,obj,con,algo_state);
   }
 
   // Bound constrained
@@ -277,9 +277,9 @@ public:
                 BoundConstraint<Real> &bnd,
                 AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
 
-    // Create the algorithm 
+    // Create the algorithm
     algo_ = std::make_shared<Algorithm<Real>>("Trust Region",*parlist_,false);
 
     //  Run the algorithm
@@ -298,12 +298,12 @@ public:
   void update( Vector<Real>         &x,
                Vector<Real>         &l,
                const Vector<Real>   &s,
-               Objective<Real>      &obj, 
+               Objective<Real>      &obj,
                Constraint<Real>     &con,
                AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
-    ipcon_ = &dynamic_cast<IPCON&>(con),false;
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
+    ipcon_.reset(&dynamic_cast<IPCON&>(con));
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {
@@ -312,7 +312,7 @@ public:
     }
 
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
- 
+
     // Update optimization vector
     x.plus(s);
 
@@ -333,7 +333,7 @@ public:
     state->gradientVec->set(*g_);
 
     ipcon_->applyAdjointJacobian(*g_,*l_,x,zerotol);
-    state->gradientVec->plus(*g_);    
+    state->gradientVec->plus(*g_);
 
     algo_state.gnorm = g_->norm();
     algo_state.cnorm = state->constraintVec->norm();
@@ -342,7 +342,7 @@ public:
     algo_state.nfval += ipobj_->getNumberFunctionEvaluations();
     algo_state.ngrad += ipobj_->getNumberGradientEvaluations();
     algo_state.ncval += ipcon_->getNumberConstraintEvaluations();
-    
+
   }
 
   void update( Vector<Real>          &x,
@@ -352,7 +352,7 @@ public:
                Constraint<Real>      &con,
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real>  &algo_state ) {
-    update(x,l,s,obj,con,algo_state); 
+    update(x,l,s,obj,con,algo_state);
 
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
     x_->set(x);
@@ -364,11 +364,11 @@ public:
 
   void update( Vector<Real>          &x,
                const Vector<Real>    &s,
-               Objective<Real>       &obj, 
+               Objective<Real>       &obj,
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective
-    ipobj_ = &dynamic_cast<IPOBJ&>(obj),false;
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {
@@ -377,7 +377,7 @@ public:
     }
 
     std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
- 
+
     // Update optimization vector
     x.plus(s);
 
@@ -415,7 +415,7 @@ public:
 
       hist << std::string(116,'-') << "\n";
       hist << "Interior Point status output definitions\n\n";
-   
+
       hist << "  IPiter  - Number of interior point steps taken\n";
       hist << "  SPiter  - Number of subproblem solver iterations\n";
       hist << "  penalty - Penalty parameter multiplying the barrier objective\n";
@@ -431,7 +431,7 @@ public:
       hist << "  #fval   - Number of objective function evaluations\n";
       hist << "  #grad   - Number of gradient evaluations\n";
       if (hasEquality_) {
-        hist << "  #cval   - Number of composite constraint evaluations\n"; 
+        hist << "  #cval   - Number of composite constraint evaluations\n";
       }
       hist << std::string(116,'-') << "\n";
     }
@@ -509,7 +509,7 @@ public:
       }
       hist << "\n";
     }
-    return hist.str(); 
+    return hist.str();
   }
 
 }; // class InteriorPointStep

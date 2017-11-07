@@ -71,12 +71,12 @@ int main(int argc, char **argv)
 
     // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
     int iprint     = argc - 1;
-    Teuchos::RCP<std::ostream> outStream;
+    std::shared_ptr<std::ostream> outStream;
     Teuchos::oblackholestream bhs; // outputs nothing
     if (iprint > 0)
-        outStream = Teuchos::rcp(&std::cout, false);
+        outStream = &std::cout, false;
     else
-        outStream = Teuchos::rcp(&bhs, false);
+        outStream = &bhs, false;
 
     int errorFlag  = 0;
 
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
         int dim = 10; // Set problem dimension. 
 
         // Load optimizer parameters form XML file
-        Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp(new Teuchos::ParameterList());
+        std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
         std::string paramfile = "parameters.xml";
         Teuchos::updateParametersFromXmlFile(paramfile,parlist.ptr());
 
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
         Algorithm<RealT> algo("Line Search",*parlist);
 
         // Iteration Vector
-        Teuchos::RCP<std::vector<RealT> > x_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
+        std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
         // Set Initial Guess
         for (int i=0; i<dim; i++) {
             (*x_rcp)[i]   = 2;
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
         algo.run(x, obj, true, *outStream);
 
         // Get True Solution
-        Teuchos::RCP<std::vector<RealT> > xtrue_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
+        std::shared_ptr<std::vector<RealT> > xtrue_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
         StdVector<RealT> xtrue(xtrue_rcp);
 
         

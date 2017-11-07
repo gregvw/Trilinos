@@ -63,12 +63,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -80,12 +80,12 @@ int main(int argc, char *argv[]) {
 
     int dim = 100; 
 
-    RCP<Thyra::VectorSpaceBase<RealT> > euclidean = Thyra::defaultSpmdVectorSpace<RealT>(dim);   
+    std::shared_ptr<Thyra::VectorSpaceBase<RealT> > euclidean = Thyra::defaultSpmdVectorSpace<RealT>(dim);   
 
-    // Create RCPs to Thyra::Vectors
-    RCP<Thyra::VectorBase<RealT> > x_rcp = Thyra::createMember<RealT>(euclidean);
-    RCP<Thyra::VectorBase<RealT> > y_rcp = Thyra::createMember<RealT>(euclidean);
-    RCP<Thyra::VectorBase<RealT> > z_rcp = Thyra::createMember<RealT>(euclidean);
+    // Create std::shared_ptrs to Thyra::Vectors
+    std::shared_ptr<Thyra::VectorBase<RealT> > x_rcp = Thyra::createMember<RealT>(euclidean);
+    std::shared_ptr<Thyra::VectorBase<RealT> > y_rcp = Thyra::createMember<RealT>(euclidean);
+    std::shared_ptr<Thyra::VectorBase<RealT> > z_rcp = Thyra::createMember<RealT>(euclidean);
 
     // Create ROL::ThyraVectors
   
@@ -102,14 +102,14 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT, ElementT> checkvec(Teuchos::rcp(&consistency, false));
+    ROL::StdVector<RealT, ElementT> checkvec(&consistency, false);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }      
 
     // Basis tests.
     // set x to first basis vector
-    Teuchos::RCP<ROL::Vector<RealT> > zp = x.clone();
+    std::shared_ptr<ROL::Vector<RealT> > zp = x.clone();
     zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";

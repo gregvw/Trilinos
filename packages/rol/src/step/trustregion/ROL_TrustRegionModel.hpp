@@ -80,9 +80,9 @@ public:
 
   TrustRegionModel(Objective<Real> &obj, const Vector<Real> &x, const Vector<Real> &g, const bool init = true)
     : secant_(nullptr), useSecantPrecond_(false), useSecantHessVec_(false) {
-    obj_  = Teuchos::rcpFromRef(obj);
-    x_    = Teuchos::rcpFromRef(x);
-    g_    = Teuchos::rcpFromRef(g);
+    obj_.reset(&obj);
+    x_.reset(&x);
+    g_.reset(&g);
     if ( init ) {
       dual_ = g.clone();
     }
@@ -92,9 +92,9 @@ public:
                    const std::shared_ptr<Secant<Real> > &secant,
                    const bool useSecantPrecond, const bool useSecantHessVec)
     : secant_(secant), useSecantPrecond_(useSecantPrecond), useSecantHessVec_(useSecantHessVec) {
-    obj_  = Teuchos::rcpFromRef(obj);
-    x_    = Teuchos::rcpFromRef(x);
-    g_    = Teuchos::rcpFromRef(g);
+    obj_.reset(&obj);
+    x_.reset(&x);
+    g_.reset(&g);
     dual_ = g.clone();
   }
 
@@ -147,11 +147,11 @@ public:
     }
   }
 
-  virtual void dualTransform( Vector<Real> &tv, const Vector<Real> &v ) { 
+  virtual void dualTransform( Vector<Real> &tv, const Vector<Real> &v ) {
     tv.set(v);
   }
 
-  virtual void primalTransform( Vector<Real> &tv, const Vector<Real> &v ) { 
+  virtual void primalTransform( Vector<Real> &tv, const Vector<Real> &v ) {
     tv.set(v);
   }
 

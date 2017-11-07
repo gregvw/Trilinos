@@ -57,36 +57,36 @@ template<class Real>
 class Objective_PDEOPT_Poisson : public ROL::Objective_SimOpt<Real> {
 private:
 
-  const Teuchos::RCP<PoissonData<Real> > data_;
+  const std::shared_ptr<PoissonData<Real> > data_;
   Real cost_control_;
   Real cost_state_;
 
 public:
 
-  Objective_PDEOPT_Poisson(const Teuchos::RCP<PoissonData<Real> > &data,
-                           const Teuchos::RCP<Teuchos::ParameterList> &parlist)
+  Objective_PDEOPT_Poisson(const std::shared_ptr<PoissonData<Real> > &data,
+                           const std::shared_ptr<Teuchos::ParameterList> &parlist)
       : data_(data) {
     cost_control_ = parlist->sublist("Problem").get("Control Cost", 1e0);
     cost_state_   = parlist->sublist("Problem").get("State Cost", 1e5);
   }
 
   Real value(const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    Teuchos::RCP<const Tpetra::MultiVector<> > up =
-      (Teuchos::dyn_cast<const ROL::TpetraMultiVector<Real> >(u)).getVector();
-    //Teuchos::RCP<const Tpetra::MultiVector<> > zp =
-    //  (Teuchos::dyn_cast<const ROL::TpetraMultiVector<Real> >(z)).getVector();
-    Teuchos::RCP<const std::vector<Real> > zp =
-      (Teuchos::dyn_cast<const ROL::StdVector<Real> >(z)).getVector();
+    std::shared_ptr<const Tpetra::MultiVector<> > up =
+      (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(u)).getVector();
+    //std::shared_ptr<const Tpetra::MultiVector<> > zp =
+    //  (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
+    std::shared_ptr<const std::vector<Real> > zp =
+      (dynamic_cast<const ROL::StdVector<Real>&>(z)).getVector();
 
     Teuchos::Array<Real> dotvalU(1, 0);
     //Teuchos::Array<Real> dotvalZ(1, 0);
 
     // Set difference vector diffp to up.
-    Teuchos::RCP<Tpetra::MultiVector<> > diffp =
-      Teuchos::rcp(new Tpetra::MultiVector<>(*up, Teuchos::Copy));
+    std::shared_ptr<Tpetra::MultiVector<> > diffp =
+      std::make_shared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
     // Temporary matvec vector.
-    Teuchos::RCP<Tpetra::MultiVector<> > matvecp =
-      Teuchos::rcp(new Tpetra::MultiVector<>(*up, Teuchos::Copy));
+    std::shared_ptr<Tpetra::MultiVector<> > matvecp =
+      std::make_shared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
 
     // (u-ud)
     Real one(1);
@@ -113,14 +113,14 @@ public:
   }
 
   void gradient_1(ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    Teuchos::RCP<Tpetra::MultiVector<> > gp =
-      (Teuchos::dyn_cast<ROL::TpetraMultiVector<Real> >(g)).getVector();
-    Teuchos::RCP<const Tpetra::MultiVector<> > up =
-      (Teuchos::dyn_cast<const ROL::TpetraMultiVector<Real> >(u)).getVector();
+    std::shared_ptr<Tpetra::MultiVector<> > gp =
+      (dynamic_cast<ROL::TpetraMultiVector<Real>&>(g)).getVector();
+    std::shared_ptr<const Tpetra::MultiVector<> > up =
+      (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(u)).getVector();
 
     // Set difference vector diffp to up.
-    Teuchos::RCP<Tpetra::MultiVector<> > diffp =
-      Teuchos::rcp(new Tpetra::MultiVector<>(*up, Teuchos::Copy));
+    std::shared_ptr<Tpetra::MultiVector<> > diffp =
+      std::make_shared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
     // (u-ud)
     Real one(1);
     diffp->update(-one, *(data_->getVecUd()), one);
@@ -130,13 +130,13 @@ public:
   }
 
   void gradient_2(ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    Teuchos::RCP<std::vector<Real> > gp =
-      (Teuchos::dyn_cast<ROL::StdVector<Real> >(g)).getVector();
+    std::shared_ptr<std::vector<Real> > gp =
+      (dynamic_cast<ROL::StdVector<Real>&>(g)).getVector();
     gp->assign(gp->size(),cost_control_);
-//    Teuchos::RCP<Tpetra::MultiVector<> > gp =
-//      (Teuchos::dyn_cast<ROL::TpetraMultiVector<Real> >(g)).getVector();
-//    Teuchos::RCP<const Tpetra::MultiVector<> > zp =
-//      (Teuchos::dyn_cast<const ROL::TpetraMultiVector<Real> >(z)).getVector();
+//    std::shared_ptr<Tpetra::MultiVector<> > gp =
+//      (dynamic_cast<ROL::TpetraMultiVector<Real>&>(g)).getVector();
+//    std::shared_ptr<const Tpetra::MultiVector<> > zp =
+//      (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
 //
 //    // alpha * R*z
 //    data_->getMatR()->apply(*zp, *gp);
@@ -145,10 +145,10 @@ public:
 
   void hessVec_11(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                   const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    Teuchos::RCP<Tpetra::MultiVector<> > hvp =
-      (Teuchos::dyn_cast<ROL::TpetraMultiVector<Real> >(hv)).getVector();
-    Teuchos::RCP<const Tpetra::MultiVector<> > vp =
-      (Teuchos::dyn_cast<const ROL::TpetraMultiVector<Real> >(v)).getVector();
+    std::shared_ptr<Tpetra::MultiVector<> > hvp =
+      (dynamic_cast<ROL::TpetraMultiVector<Real>&>(hv)).getVector();
+    std::shared_ptr<const Tpetra::MultiVector<> > vp =
+      (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
 
     // M*v
     data_->getMatM()->apply(*vp, *hvp); // mass matrix product
@@ -168,10 +168,10 @@ public:
   void hessVec_22(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                   const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
     hv.zero();
-//    Teuchos::RCP<Tpetra::MultiVector<> > hvp =
-//      (Teuchos::dyn_cast<ROL::TpetraMultiVector<Real> >(hv)).getVector();
-//    Teuchos::RCP<const Tpetra::MultiVector<> > vp =
-//      (Teuchos::dyn_cast<const ROL::TpetraMultiVector<Real> >(v)).getVector();
+//    std::shared_ptr<Tpetra::MultiVector<> > hvp =
+//      (dynamic_cast<ROL::TpetraMultiVector<Real>&>(hv)).getVector();
+//    std::shared_ptr<const Tpetra::MultiVector<> > vp =
+//      (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
 //
 //    // alpha * R*v
 //    data_->getMatR()->apply(*vp, *hvp);

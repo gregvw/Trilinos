@@ -73,12 +73,12 @@ private:
   ESecant esec_;
 
   std::shared_ptr<Vector<Real> > gp_;
- 
+
   int iterKrylov_; ///< Number of Krylov iterations (used for inexact Newton)
   int flagKrylov_; ///< Termination flag for Krylov method (used for inexact Newton)
   int verbosity_;  ///< Verbosity level
   const bool computeObj_;
- 
+
   bool useSecantPrecond_; ///< Whether or not a secant approximation is used for preconditioning inexact Newton
 
   std::string krylovName_;
@@ -94,7 +94,7 @@ private:
               const std::shared_ptr<Vector<Real> > &x) : obj_(obj), x_(x) {}
     void apply(Vector<Real> &Hv, const Vector<Real> &v, Real &tol) const {
       obj_->hessVec(Hv,v,*x_,tol);
-    } 
+    }
   };
 
   class PrecondNK : public LinearOperator<Real> {
@@ -109,7 +109,7 @@ private:
     }
     void applyInverse(Vector<Real> &Hv, const Vector<Real> &v, Real &tol) const {
       obj_->precond(Hv,v,*x_,tol);
-    } 
+    }
   };
 
 public:
@@ -120,7 +120,7 @@ public:
 
   /** \brief Constructor.
 
-      Standard constructor to build a NewtonKrylovStep object.  Algorithmic 
+      Standard constructor to build a NewtonKrylovStep object.  Algorithmic
       specifications are passed in through a Teuchos::ParameterList.
 
       @param[in]     parlist    is a parameter list containing algorithmic specifications
@@ -147,8 +147,8 @@ public:
 
   /** \brief Constructor.
 
-      Constructor to build a NewtonKrylovStep object with user-defined 
-      secant and Krylov objects.  Algorithmic specifications are passed in through 
+      Constructor to build a NewtonKrylovStep object with user-defined
+      secant and Krylov objects.  Algorithmic specifications are passed in through
       a Teuchos::ParameterList.
 
       @param[in]     parlist    is a parameter list containing algorithmic specifications
@@ -176,7 +176,7 @@ public:
       }
       else {
       secantName_ = Glist.sublist("Secant").get("User Defined Secant Name",
-                                                "Unspecified User Defined Secant Method");         
+                                                "Unspecified User Defined Secant Method");
       }
     }
     // Initialize Krylov object
@@ -207,7 +207,7 @@ public:
     std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
 
     // Build Hessian and Preconditioner object
-    std::shared_ptr<Objective<Real> > obj_ptr = Teuchos::rcpFromRef(obj);
+    std::shared_ptr<Objective<Real> > obj_ptr(&obj);
     std::shared_ptr<LinearOperator<Real> > hessian
       = std::make_shared<HessianNK>(obj_ptr,algo_state.iterateVec);
     std::shared_ptr<LinearOperator<Real> > precond;
@@ -297,9 +297,9 @@ public:
     std::stringstream hist;
     hist << "\n" << EDescentToString(DESCENT_NEWTONKRYLOV);
     hist << " using " << krylovName_;
-    if ( useSecantPrecond_ ) { 
+    if ( useSecantPrecond_ ) {
       hist << " with " << ESecantToString(esec_) << " preconditioning";
-    } 
+    }
     hist << "\n";
     return hist.str();
   }

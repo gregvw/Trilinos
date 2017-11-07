@@ -65,7 +65,7 @@
 namespace ROL {
   namespace PDEOPT {
 
-    Teuchos::RCP<Teuchos::Time> AssembleBlockSystem = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble Block System");
+    std::shared_ptr<Teuchos::Time> AssembleBlockSystem = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble Block System");
 
   }
 }
@@ -95,17 +95,17 @@ public:
   SysBuilder() {}   
 
   // Builds a KKT system matrix from individual matrices. 
-  void buildMatrix(Teuchos::RCP<Tpetra::CrsMatrix<> > &sysMat,
-                   const Teuchos::RCP<const Tpetra::CrsMatrix<> > &A,
-                   const Teuchos::RCP<const Tpetra::CrsMatrix<> > &B,
-                   const Teuchos::RCP<const Tpetra::CrsMatrix<> > &H11,
-                   const Teuchos::RCP<const Tpetra::CrsMatrix<> > &H12,
-                   const Teuchos::RCP<const Tpetra::CrsMatrix<> > &H21,
-                   const Teuchos::RCP<const Tpetra::CrsMatrix<> > &H22) {
+  void buildMatrix(std::shared_ptr<Tpetra::CrsMatrix<> > &sysMat,
+                   const std::shared_ptr<const Tpetra::CrsMatrix<> > &A,
+                   const std::shared_ptr<const Tpetra::CrsMatrix<> > &B,
+                   const std::shared_ptr<const Tpetra::CrsMatrix<> > &H11,
+                   const std::shared_ptr<const Tpetra::CrsMatrix<> > &H12,
+                   const std::shared_ptr<const Tpetra::CrsMatrix<> > &H21,
+                   const std::shared_ptr<const Tpetra::CrsMatrix<> > &H22) {
     // Get individual maps.
-    Teuchos::RCP<const Tpetra::Map<> > mapSim = A->getDomainMap();
-    Teuchos::RCP<const Tpetra::Map<> > mapOpt = B->getDomainMap();
-    Teuchos::RCP<const Tpetra::Map<> > mapRes = A->getRangeMap();
+    std::shared_ptr<const Tpetra::Map<> > mapSim = A->getDomainMap();
+    std::shared_ptr<const Tpetra::Map<> > mapOpt = B->getDomainMap();
+    std::shared_ptr<const Tpetra::Map<> > mapRes = A->getRangeMap();
 
     // Get individual indices.
     Teuchos::ArrayView<const GO> idxSim = mapSim->getNodeElementList(); 
@@ -113,7 +113,7 @@ public:
     Teuchos::ArrayView<const GO> idxRes = mapRes->getNodeElementList();
 
     // Get communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = mapSim->getComm();
+    std::shared_ptr<const Teuchos::Comm<int> > comm = mapSim->getComm();
 
     // Get an estimate of the number of entries per row.
     size_t totalNumEntries = A->getGlobalMaxNumRowEntries() + B->getGlobalMaxNumRowEntries();
@@ -133,10 +133,10 @@ public:
 
     // Create block-system map.
     GSZ numSysIds  = idxSim.size() + idxOpt.size() + idxRes.size();
-    Teuchos::RCP<Tpetra::Map<> > sysMap = Teuchos::rcp(new Tpetra::Map<>(numSysIds, idxSys, 0, comm));
+    std::shared_ptr<Tpetra::Map<> > sysMap = std::make_shared<Tpetra::Map<>>(numSysIds, idxSys, 0, comm);
 
     // Assemble global graph structure.
-    Teuchos::RCP<Tpetra::CrsGraph<> > sysGraph = Teuchos::rcp(new Tpetra::CrsGraph<>(sysMap, totalNumEntries));
+    std::shared_ptr<Tpetra::CrsGraph<> > sysGraph = std::make_shared<Tpetra::CrsGraph<>>(sysMap, totalNumEntries);
 
     // Prepare temporary data structures.
     GO gid = 0;
@@ -144,8 +144,8 @@ public:
     // Create transposes of matrices A and B.
     Tpetra::RowMatrixTransposer<> transposerA(A);
     Tpetra::RowMatrixTransposer<> transposerB(B);
-    Teuchos::RCP<Tpetra::CrsMatrix<> > A_trans = transposerA.createTranspose();
-    Teuchos::RCP<Tpetra::CrsMatrix<> > B_trans = transposerB.createTranspose();
+    std::shared_ptr<Tpetra::CrsMatrix<> > A_trans = transposerA.createTranspose();
+    std::shared_ptr<Tpetra::CrsMatrix<> > B_trans = transposerB.createTranspose();
 
     // Insert indices of matrix H12 (Hessian_11), matrix H12 (Hessian_12) and matrix A (Jacobian_1) transposed.
     LO nRows = idxSim.size();
@@ -154,7 +154,7 @@ public:
     Teuchos::Array<Real> values;
     for (LO i=0; i<nRows; ++i) {
       //
-      if (H11 != Teuchos::null) {
+      if (H11 != nullptr) {
         numEntries = H11->getNumEntriesInGlobalRow(idxSim[i]);
         indices.resize(numEntries);
         values.resize(numEntries);
@@ -162,7 +162,7 @@ public:
         sysGraph->insertGlobalIndices(i+offsetSim, indices);
       }
       //
-      if (H12 != Teuchos::null) {
+      if (H12 != nullptr) {
         numEntries = H12->getNumEntriesInGlobalRow(idxSim[i]);
         indices.resize(numEntries);
         values.resize(numEntries);
@@ -188,7 +188,7 @@ public:
     nRows = idxOpt.size();
     for (LO i=0; i<nRows; ++i) {
       //
-      if (H21 != Teuchos::null) {
+      if (H21 != nullptr) {
         numEntries = H21->getNumEntriesInGlobalRow(idxOpt[i]);
         indices.resize(numEntries);
         values.resize(numEntries);
@@ -196,7 +196,7 @@ public:
         sysGraph->insertGlobalIndices(i+offsetOpt, indices);
       }
       //
-      if (H22 != Teuchos::null) {
+      if (H22 != nullptr) {
         numEntries = H22->getNumEntriesInGlobalRow(idxOpt[i]);
         indices.resize(numEntries);
         values.resize(numEntries);
@@ -243,14 +243,14 @@ public:
     sysGraph->fillComplete();
 
     // Create block-system matrix and fill with values.
-    sysMat = Teuchos::rcp(new Tpetra::CrsMatrix<>(sysGraph));
+    sysMat = std::make_shared<Tpetra::CrsMatrix<>>(sysGraph);
     sysMat->resumeFill(); sysMat->setAllToScalar(static_cast<Real>(0));
 
     // Insert values of matrix H12 (Hessian_11), matrix H12 (Hessian_12) and matrix A (Jacobian_1) transposed.
     nRows = idxSim.size();
     for (LO i=0; i<nRows; ++i) {
       //
-      if (H11 != Teuchos::null) {
+      if (H11 != nullptr) {
         numEntries = H11->getNumEntriesInGlobalRow(idxSim[i]);
         indices.resize(numEntries);
         values.resize(numEntries);
@@ -258,7 +258,7 @@ public:
         sysMat->replaceGlobalValues(i+offsetSim, indices, values);
       }
       //
-      if (H12 != Teuchos::null) {
+      if (H12 != nullptr) {
         numEntries = H12->getNumEntriesInGlobalRow(idxSim[i]);
         indices.resize(numEntries);
         values.resize(numEntries);
@@ -284,7 +284,7 @@ public:
     nRows = idxOpt.size();
     for (LO i=0; i<nRows; ++i) {
       //
-      if (H21 != Teuchos::null) {
+      if (H21 != nullptr) {
         numEntries = H21->getNumEntriesInGlobalRow(idxOpt[i]);
         indices.resize(numEntries);
         values.resize(numEntries);
@@ -292,7 +292,7 @@ public:
         sysMat->replaceGlobalValues(i+offsetOpt, indices, values);
       }
       //
-      if (H22 != Teuchos::null) {
+      if (H22 != nullptr) {
         numEntries = H22->getNumEntriesInGlobalRow(idxOpt[i]);
         indices.resize(numEntries);
         values.resize(numEntries);
@@ -341,14 +341,14 @@ public:
   }
 
   // Builds a block-system vector from individual vectors. 
-  void buildVector(Teuchos::RCP<MV> &sysVec,
-                   const Teuchos::RCP<const MV > &vecSim,
-                   const Teuchos::RCP<const MV > &vecOpt,
-                   const Teuchos::RCP<const MV > &vecRes) {
+  void buildVector(std::shared_ptr<MV> &sysVec,
+                   const std::shared_ptr<const MV > &vecSim,
+                   const std::shared_ptr<const MV > &vecOpt,
+                   const std::shared_ptr<const MV > &vecRes) {
     // Get individual maps.
-    Teuchos::RCP<const Tpetra::Map<> > mapSim = vecSim->getMap();
-    Teuchos::RCP<const Tpetra::Map<> > mapOpt = vecOpt->getMap();
-    Teuchos::RCP<const Tpetra::Map<> > mapRes = vecRes->getMap();
+    std::shared_ptr<const Tpetra::Map<> > mapSim = vecSim->getMap();
+    std::shared_ptr<const Tpetra::Map<> > mapOpt = vecOpt->getMap();
+    std::shared_ptr<const Tpetra::Map<> > mapRes = vecRes->getMap();
 
     // Get individual indices.
     Teuchos::ArrayView<const GO> idxSim = mapSim->getNodeElementList(); 
@@ -356,7 +356,7 @@ public:
     Teuchos::ArrayView<const GO> idxRes = mapRes->getNodeElementList();
 
     // Get communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = mapSim->getComm();
+    std::shared_ptr<const Teuchos::Comm<int> > comm = mapSim->getComm();
     
     // Glue indices.
     Teuchos::Array<GO> idxSys;
@@ -374,24 +374,24 @@ public:
     // Create block-system vector.
     size_t numVecs = vecSim->getNumVectors();
     GSZ numSysIds  = idxSim.size() + idxOpt.size() + idxRes.size();
-    Teuchos::RCP<Tpetra::Map<> > sysMap = Teuchos::rcp(new Tpetra::Map<>(numSysIds, idxSys, 0, comm));
-    sysVec = Teuchos::rcp(new MV(sysMap, numVecs, true));
+    std::shared_ptr<Tpetra::Map<> > sysMap = std::make_shared<Tpetra::Map<>>(numSysIds, idxSys, 0, comm);
+    sysVec = std::make_shared<MV>(sysMap, numVecs, true);
 
     // Fill block-system vector.
     for (size_t colId=0; colId<numVecs; ++colId) {
-      Teuchos::ArrayRCP<const Real> dataSim = vecSim->getData(colId);
+      Teuchos::Arraystd::shared_ptr<const Real> dataSim = vecSim->getData(colId);
       for (size_t j=0; j<vecSim->getLocalLength(); ++j) {
         sysVec->replaceGlobalValue(idxSim[j]+offsetSim, colId, dataSim[j]);
       }
     }    
     for (size_t colId=0; colId<numVecs; ++colId) {
-      Teuchos::ArrayRCP<const Real> dataOpt = vecOpt->getData(colId);
+      Teuchos::Arraystd::shared_ptr<const Real> dataOpt = vecOpt->getData(colId);
       for (size_t j=0; j<vecOpt->getLocalLength(); ++j) {
         sysVec->replaceGlobalValue(idxOpt[j]+offsetOpt, colId, dataOpt[j]);
       }
     }    
     for (size_t colId=0; colId<numVecs; ++colId) {
-      Teuchos::ArrayRCP<const Real> dataRes = vecRes->getData(colId);
+      Teuchos::Arraystd::shared_ptr<const Real> dataRes = vecRes->getData(colId);
       for (size_t j=0; j<vecRes->getLocalLength(); ++j) {
         sysVec->replaceGlobalValue(idxRes[j]+offsetRes, colId, dataRes[j]);
       }

@@ -53,12 +53,12 @@
 #include "ROL_RiskVector.hpp"
 #include "ROL_RiskBoundConstraint.hpp"
 // Objective includes
-#include "ROL_RiskNeutralObjective.hpp" 
+#include "ROL_RiskNeutralObjective.hpp"
 #include "ROL_RiskAverseObjective.hpp"
 #include "ROL_RiskLessObjective.hpp"
 // Constraint includes
-#include "ROL_RiskNeutralConstraint.hpp" 
-#include "ROL_RiskAverseConstraint.hpp" 
+#include "ROL_RiskNeutralConstraint.hpp"
+#include "ROL_RiskAverseConstraint.hpp"
 #include "ROL_RiskLessConstraint.hpp"
 // Almost sure constraint includes
 #include "ROL_AlmostSureConstraint.hpp"
@@ -67,7 +67,7 @@
 
 namespace ROL {
 
-/* Represents optimization problems in Type-EB form 
+/* Represents optimization problems in Type-EB form
  */
 
 template<class Real>
@@ -157,7 +157,7 @@ private:
           bvec.push_back(ibnd[i]);
         }
       }
- 
+
       conManager_ = std::make_shared<ConstraintManager<Real>>(cvec,lvec,bvec,x,bnd);
       con_        = conManager_->getConstraint();
       mul_        = conManager_->getMultiplier();
@@ -179,18 +179,18 @@ private:
 
       if ( conManager_->isNull() ) {
         if( bnd_ == nullptr || !bnd_->isActivated() ) {  // Type-U
-          problemType_ = TYPE_U;        
+          problemType_ = TYPE_U;
         }
         else { // Type-B
-          problemType_ = TYPE_B; 
+          problemType_ = TYPE_B;
         }
       }
       else {
         if( bnd_ == nullptr || !bnd_->isActivated() ) { // Type-E
-          problemType_ = TYPE_E;     
+          problemType_ = TYPE_E;
         }
         else { // Type-EB
-          problemType_ = TYPE_EB; 
+          problemType_ = TYPE_EB;
         }
       }
       isInitialized_ = true;
@@ -478,7 +478,7 @@ public:
   // Unconstrained problem [8]
   OptimizationProblem( const std::shared_ptr<Objective<Real> > &obj,
                        const std::shared_ptr<Vector<Real> >    &x ) :
-     OptimizationProblem( obj, x, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr ) {} 
+     OptimizationProblem( obj, x, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr ) {}
 
   /* Get methods */
 
@@ -734,7 +734,7 @@ public:
         emul[j]->set(*INPUT_emul_[index]);
       }
       INTERMEDIATE_emul_[index]
-        = std::make_shared<DualSimulatedVector<Real>(emul, sampler->getBatchManager>(), sampler);
+        = std::make_shared<DualSimulatedVector<Real>>(emul, sampler->getBatchManager(), sampler);
     }
     else {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::SetAlmostSureEquality: Either SampleGenerator or Constraint is NULL!");
@@ -875,7 +875,7 @@ public:
         imul[j]->set(*INPUT_imul_[index]);
       }
       INTERMEDIATE_imul_[index]
-        = std::make_shared<DualSimulatedVector<Real>(imul, sampler->getBatchManager>(), sampler);
+        = std::make_shared<DualSimulatedVector<Real>>(imul, sampler->getBatchManager(), sampler);
       INTERMEDIATE_ibnd_[index]
         = std::make_shared<SimulatedBoundConstraint<Real>>(sampler, INPUT_ibnd_[index]);
     }
@@ -1007,7 +1007,7 @@ public:
     return 0;
   }
 
-  // Check derivatives, and consistency 
+  // Check derivatives, and consistency
   void checkSolutionVector( Vector<Real> &x, // Optimization space
                             Vector<Real> &y, // Optimization space
                             Vector<Real> &u, // Optimization space
@@ -1074,11 +1074,11 @@ public:
       outStream << "Checking equality constraint." << std::endl;
       con_->checkApplyJacobian(x,v,c,true,outStream,numSteps,order);         outStream << std::endl;
       con_->checkAdjointConsistencyJacobian(l,u,x,true,outStream);           outStream << std::endl;
-      con_->checkApplyAdjointHessian(x,l,v,u,true,outStream,numSteps,order); outStream << std::endl;  
+      con_->checkApplyAdjointHessian(x,l,v,u,true,outStream,numSteps,order); outStream << std::endl;
     }
   }
 
-  // Check derivatives, and consistency 
+  // Check derivatives, and consistency
   void check( std::ostream &outStream = std::cout,
               const int numSteps = ROL_NUM_CHECKDERIV_STEPS,
               const int order = 1 ) {
@@ -1106,7 +1106,7 @@ public:
         c = mul_->dual().clone(); RandomizeVector(*c);
         l = mul_->clone();        RandomizeVector(*l);
         w = mul_->clone();        RandomizeVector(*w);
-        q = mul_->clone();        RandomizeVector(*q);   
+        q = mul_->clone();        RandomizeVector(*q);
 
         checkMultiplierVector(*w,*q,*l,outStream);
         checkConstraint(*x,*u,*v,*c,*l,outStream,numSteps,order);

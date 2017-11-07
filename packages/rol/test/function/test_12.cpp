@@ -56,8 +56,8 @@
 template<class Real> 
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
-  Teuchos::RCP<const std::vector<Real> > xp = 
-    Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
+  std::shared_ptr<const std::vector<Real> > xp = 
+    dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
   outStream << "Standard Vector" << std::endl;
   for( size_t i=0; i<xp->size(); ++i ) {
@@ -74,18 +74,18 @@ int main(int argc, char *argv[]) {
   typedef ROL::Vector<RealT>    V;
   typedef ROL::StdVector<RealT> SV;
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   int errorFlag = 0;
 
@@ -96,11 +96,11 @@ int main(int argc, char *argv[]) {
     RealT tol = std::sqrt(ROL::ROL_EPSILON<RealT>());  
 
 
-    RCP<V> v   = rcp( new SV( rcp( new std::vector<RealT>(dim) ) ) );
-    RCP<V> Hv  = v->clone();
-    RCP<V> HHv = v->clone();
+    std::shared_ptr<V> v   = std::make_shared<SV( rcp( new std::vector<RealT>>(dim) ) );
+    std::shared_ptr<V> Hv  = v->clone();
+    std::shared_ptr<V> HHv = v->clone();
 
-    RCP<V> e0 = v->basis(0);
+    std::shared_ptr<V> e0 = v->basis(0);
 
     RandomizeVector(*v);
 

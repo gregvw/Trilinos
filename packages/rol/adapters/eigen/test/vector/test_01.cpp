@@ -10,8 +10,8 @@
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp;
+  
+  
 
   using RealT = double; 
   using E3V = ROL::Eigen3Vector<RealT>;
@@ -21,12 +21,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
 
     int dim = 10;
 
-    auto x_rcp = rcp( new EigenVector(dim) );   
-    auto y_rcp = rcp( new EigenVector(dim) );   
-    auto z_rcp = rcp( new EigenVector(dim) );   
+    auto x_rcp = std::make_shared<EigenVector>(dim);   
+    auto y_rcp = std::make_shared<EigenVector>(dim);   
+    auto z_rcp = std::make_shared<EigenVector>(dim);   
 
     E3V x(x_rcp);
     E3V y(y_rcp);
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     auto consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    ROL::StdVector<RealT> checkvec(&consistency, false);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }

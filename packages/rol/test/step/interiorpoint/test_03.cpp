@@ -70,8 +70,8 @@ template<class Real>
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
   try {
-    Teuchos::RCP<const std::vector<Real> > xp = 
-      Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
+    std::shared_ptr<const std::vector<Real> > xp = 
+      dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
     outStream << "Standard Vector" << std::endl;
     for( size_t i=0; i<xp->size(); ++i ) {
@@ -84,7 +84,7 @@ void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
     typedef ROL::PartitionedVector<Real>    PV;
     typedef typename PV::size_type          size_type;
 
-    const PV &xpv = Teuchos::dyn_cast<const PV>(x);
+    const PV &xpv = dynamic_cast<const PV&>(x);
 
     for( size_type i=0; i<xpv.numVectors(); ++i ) {
       outStream << "--------------------" << std::endl;
@@ -95,8 +95,8 @@ void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 }
 
 template<class Real> 
-void printMatrix( const std::vector<Teuchos::RCP<ROL::Vector<Real> > > &A,
-                  const std::vector<Teuchos::RCP<ROL::Vector<Real> > > &I,
+void printMatrix( const std::vector<std::shared_ptr<ROL::Vector<Real> > > &A,
+                  const std::vector<std::shared_ptr<ROL::Vector<Real> > > &I,
                   std::ostream &outStream ) {
   typedef typename std::vector<Real>::size_type uint;
   uint dim = A.size();
@@ -142,17 +142,17 @@ int main(int argc, char *argv[]) {
   typedef ROL::InteriorPointPenalty<RealT>                 PENALTY;
   typedef ROL::PrimalDualInteriorPointResidual<RealT>      RESIDUAL;
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs;
   if( iprint > 0 ) 
-    outStream = rcp(&std::cout,false);
+    outStream = &std::cout,false;
   else
-    outStream = rcp(&bhs,false);
+    outStream = &bhs,false;
 
   int errorFlag = 0;
    
@@ -179,59 +179,59 @@ int main(int argc, char *argv[]) {
 
     // Create a Conjugate Gradients solver 
     krylist.set("Type","Conjugate Gradients"); 
-    RCP<KRYLOV> cg = ROL::KrylovFactory<RealT>(parlist);
+    std::shared_ptr<KRYLOV> cg = ROL::KrylovFactory<RealT>(parlist);
     HS::ProblemFactory<RealT> problemFactory;
 
     // Choose an example problem with inequality constraints and
     // a mixture of finite and infinite bounds
-    RCP<NLP> nlp = problemFactory.getProblem(16);
-    RCP<OPT> opt = nlp->getOptimizationProblem();
+    std::shared_ptr<NLP> nlp = problemFactory.getProblem(16);
+    std::shared_ptr<OPT> opt = nlp->getOptimizationProblem();
  
-    RCP<V>   x   = opt->getSolutionVector();
-    RCP<V>   l   = opt->getMultiplierVector();
-    RCP<V>   zl  = x->clone(); zl->zero();
-    RCP<V>   zu  = x->clone(); zu->zero();
+    std::shared_ptr<V>   x   = opt->getSolutionVector();
+    std::shared_ptr<V>   l   = opt->getMultiplierVector();
+    std::shared_ptr<V>   zl  = x->clone(); zl->zero();
+    std::shared_ptr<V>   zu  = x->clone(); zu->zero();
 
-    RCP<V>   scratch = x->clone();
+    std::shared_ptr<V>   scratch = x->clone();
 
-    RCP<PV>  x_pv = Teuchos::rcp_dynamic_cast<PV>(x);
+    std::shared_ptr<PV>  x_pv = std::dynamic_pointer_cast<PV>(x);
     // New slack variable initialization does not guarantee strict feasibility.
     // This ensures that the slack variables are the same as the previous
     // implementation.
-    (*Teuchos::rcp_dynamic_cast<ROL::StdVector<RealT> >(x_pv->get(1))->getVector())[0] = 1.0;
+    (*std::dynamic_pointer_cast<ROL::StdVector<RealT> >(x_pv->get(1))->getVector())[0] = 1.0;
 
-    RCP<V>   sol = CreatePartitionedVector(x,l,zl,zu);   
+    std::shared_ptr<V>   sol = CreatePartitionedVector(x,l,zl,zu);   
 
-    std::vector<RCP<V> > I;
-    std::vector<RCP<V> > J;
+    std::vector<std::shared_ptr<V> > I;
+    std::vector<std::shared_ptr<V> > J;
 
     for( int k=0; k<sol->dimension(); ++k ) {
       I.push_back(sol->basis(k));
       J.push_back(sol->clone());
     }
 
-    RCP<V>   u = sol->clone();
-    RCP<V>   v = sol->clone();
+    std::shared_ptr<V>   u = sol->clone();
+    std::shared_ptr<V>   v = sol->clone();
 
-    RCP<V>   rhs = sol->clone();
-    RCP<V>   symrhs = sol->clone();
+    std::shared_ptr<V>   rhs = sol->clone();
+    std::shared_ptr<V>   symrhs = sol->clone();
 
-    RCP<V>   gmres_sol = sol->clone();   gmres_sol->set(*sol);
-    RCP<V>   cg_sol = sol->clone();      cg_sol->set(*sol);
+    std::shared_ptr<V>   gmres_sol = sol->clone();   gmres_sol->set(*sol);
+    std::shared_ptr<V>   cg_sol = sol->clone();      cg_sol->set(*sol);
  
     IdentityOperator<RealT> identity;
 
     RandomizeVector(*u,-1.0,1.0);
     RandomizeVector(*v,-1.0,1.0);
 
-    RCP<OBJ> obj = opt->getObjective();
-    RCP<CON> con = opt->getConstraint();
-    RCP<BND> bnd = opt->getBoundConstraint();
+    std::shared_ptr<OBJ> obj = opt->getObjective();
+    std::shared_ptr<CON> con = opt->getConstraint();
+    std::shared_ptr<BND> bnd = opt->getBoundConstraint();
 
     PENALTY penalty(obj,bnd,parlist);
  
-    RCP<const V> maskL = penalty.getLowerMask();
-    RCP<const V> maskU = penalty.getUpperMask();
+    std::shared_ptr<const V> maskL = penalty.getLowerMask();
+    std::shared_ptr<const V> maskU = penalty.getUpperMask();
 
     zl->set(*maskL);
     zu->set(*maskU);
@@ -244,15 +244,15 @@ int main(int argc, char *argv[]) {
     int gmres_flag = 0;
 
     // Form the residual's Jacobian operator
-    RCP<CON> res = rcp( new RESIDUAL(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false) );
-    RCP<LOP> lop = rcp( new LOPEC( sol, res ) );
+    std::shared_ptr<CON> res = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false);
+    std::shared_ptr<LOP> lop = std::make_shared<LOPEC>( sol, res );
 
     // Evaluate the right-hand-side
     res->value(*rhs,*sol,tol);
 
     // Create a GMRES solver
     krylist.set("Type","GMRES");
-    RCP<KRYLOV> gmres = ROL::KrylovFactory<RealT>(parlist);
+    std::shared_ptr<KRYLOV> gmres = ROL::KrylovFactory<RealT>(parlist);
 
      for( int k=0; k<sol->dimension(); ++k ) {
       res->applyJacobian(*(J[k]),*(I[k]),*sol,tol);
@@ -277,12 +277,12 @@ int main(int argc, char *argv[]) {
     int cg_iter = 0;
     int cg_flag = 0;
 
-    RCP<V> jv = v->clone();
-    RCP<V> ju = u->clone();
+    std::shared_ptr<V> jv = v->clone();
+    std::shared_ptr<V> ju = u->clone();
 
     iplist.set("Symmetrize Primal Dual System",true);
-    RCP<CON> symres = rcp( new RESIDUAL(obj,con,bnd,*sol,maskL,maskU,scratch,mu,true) );
-    RCP<LOP> symlop = rcp( new LOPEC( sol, res ) );
+    std::shared_ptr<CON> symres = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,true);
+    std::shared_ptr<LOP> symlop = std::make_shared<LOPEC>( sol, res );
     symres->value(*symrhs,*sol,tol);
 
     symres->applyJacobian(*jv,*v,*sol,tol);

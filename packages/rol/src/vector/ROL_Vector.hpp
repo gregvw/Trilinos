@@ -48,6 +48,7 @@
 #define ROL_UNUSED(x) (void) x
 
 #include <ostream>
+#include <memory>
 
 #include "ROL_Elementwise_Function.hpp"
 
@@ -69,7 +70,7 @@
     a duality pairing (in general Banach space).
 
     There are additional virtual member functions that can be
-    overloaded for computational efficiency. 
+    overloaded for computational efficiency.
 */
 
 namespace ROL {
@@ -128,7 +129,7 @@ public:
 
              Provides the means of allocating temporary memory in ROL.
 
-             ---             
+             ---
   */
   virtual std::shared_ptr<Vector> clone() const = 0;
 
@@ -224,20 +225,20 @@ public:
   virtual void applyUnary( const Elementwise::UnaryFunction<Real> &f ) {
     ROL_UNUSED(f);
     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
-      "The method applyUnary wass called, but not implemented" << std::endl); 
+      "The method applyUnary wass called, but not implemented" << std::endl);
   }
 
   virtual void applyBinary( const Elementwise::BinaryFunction<Real> &f, const Vector &x ) {
     ROL_UNUSED(f);
     ROL_UNUSED(x);
     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
-      "The method applyBinary wass called, but not implemented" << std::endl); 
+      "The method applyBinary wass called, but not implemented" << std::endl);
   }
 
   virtual Real reduce( const Elementwise::ReductionOp<Real> &r ) const {
     ROL_UNUSED(r);
     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
-      "The method reduce was called, but not implemented" << std::endl); 
+      "The method reduce was called, but not implemented" << std::endl);
   }
 
   virtual void print( std::ostream &outStream ) const {
@@ -287,9 +288,9 @@ public:
 
     std::shared_ptr<std::ostream> pStream;
     if (printToStream) {
-      pStream = &outStream, false;
+      pStream.reset(&outStream);
     } else {
-      pStream = &bhs, false;
+      pStream.reset(&bhs);
     }
 
     // Save the format state of the original pStream.
@@ -369,8 +370,8 @@ public:
 
     // Reflexivity.
     v->set(*this);
-    xtmp = std::const_pointer_cast<Vector>(Teuchos::rcpFromRef(this->dual()));
-    ytmp = std::const_pointer_cast<Vector>(Teuchos::rcpFromRef(xtmp->dual()));
+    xtmp = this->dual().clone(); // std::const_pointer_cast<Vector>(Teuchos::rcpFromRef(this->dual()));
+    ytmp = xtmp->dual().clone(); // std::const_pointer_cast<Vector>(Teuchos::rcpFromRef(xtmp->dual()));
     v->axpy(-one, *ytmp); vCheck.push_back(v->norm());
     *pStream << std::setw(width) << std::left << "Reflexivity. Consistency error: " << " " << vCheck.back() << "\n\n";
 

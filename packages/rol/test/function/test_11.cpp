@@ -62,18 +62,18 @@ int main(int argc, char *argv[]) {
   typedef ROL::Vector<RealT>          V;
   typedef ROL::Objective<RealT>       OBJ;
   typedef ROL::BoundConstraint<RealT> CON; 
-  using Teuchos::RCP;
+  
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -81,12 +81,12 @@ int main(int argc, char *argv[]) {
 
   RealT zero(0);
 
-  RCP<V>   x0;
-  RCP<V>   x;
-  RCP<V>   g;
-  RCP<OBJ> obj;
-  RCP<CON> con;
-  RCP<OBJ> model;  
+  std::shared_ptr<V>   x0;
+  std::shared_ptr<V>   x;
+  std::shared_ptr<V>   g;
+  std::shared_ptr<OBJ> obj;
+  std::shared_ptr<CON> con;
+  std::shared_ptr<OBJ> model;  
 
   ROL::ZOO::getHS2(obj,con,x0,x);
 
@@ -95,11 +95,11 @@ int main(int argc, char *argv[]) {
   // Need to evaluate the gradient to construct the model
   obj->gradient(*g,*x,zero);
 
-  model = Teuchos::rcp(new ROL::ColemanLiModel<RealT>(*obj,*con,*x,*g));
+  model = std::make_shared<ROL::ColemanLiModel<RealT>>(*obj,*con,*x,*g);
 
-  RCP<V> s = x->clone();
-  RCP<V> v = x->clone();
-  RCP<V> u = x->clone();
+  std::shared_ptr<V> s = x->clone();
+  std::shared_ptr<V> v = x->clone();
+  std::shared_ptr<V> u = x->clone();
 
   ROL::RandomizeVector(*s,-1.0,1.0);
   ROL::RandomizeVector(*u,-1.0,1.0);

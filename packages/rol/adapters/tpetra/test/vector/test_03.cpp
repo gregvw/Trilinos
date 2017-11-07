@@ -63,15 +63,15 @@ typedef Tpetra::Map<>::node_type Node;
 typedef Tpetra::Map<LO, GO, Node> Map;
 typedef Tpetra::MultiVector<RealT, LO, GO, Node> MV;
 typedef Tpetra::Vector<RealT, LO, GO, Node> V;
-typedef Teuchos::RCP<MV> MVP;
-typedef Teuchos::RCP<V> VP;
+typedef std::shared_ptr<MV> MVP;
+typedef std::shared_ptr<V> VP;
 typedef Tpetra::DefaultPlatform::DefaultPlatformType Platform;
 
 int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
   Platform &platform = Tpetra::DefaultPlatform::getDefaultPlatform();
-  Teuchos::RCP<const Teuchos::Comm<int> > comm = platform.getComm();
+  std::shared_ptr<const Teuchos::Comm<int> > comm = platform.getComm();
 
   int iprint = argc - 1;
   Teuchos::oblackholestream bhs; // outputs nothing
@@ -86,12 +86,12 @@ int main(int argc, char *argv[]) {
 
     int dim = 10; 
   
-    Teuchos::RCP<Map> map = Teuchos::rcp( new Map(dim,0,comm) );
+    std::shared_ptr<Map> map = std::make_shared<Map>(dim,0,comm);
 
     // Create Tpetra::MultiVectors (single vectors) 
-    MVP x_rcp = Teuchos::rcp( new MV(map,1,true) ); 
-    MVP y_rcp = Teuchos::rcp( new MV(map,1,true) ); 
-    VP W_rcp = Teuchos::rcp( new V(map,true) );
+    MVP x_rcp = std::make_shared<MV>(map,1,true); 
+    MVP y_rcp = std::make_shared<MV>(map,1,true); 
+    VP W_rcp = std::make_shared<V>(map,true);
 
     // Random elements
     //x_rcp->randomize();
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clone z from x, deep copy x into z, norm of z
-    Teuchos::RCP<ROL::Vector<RealT> > z = x.clone();
+    std::shared_ptr<ROL::Vector<RealT> > z = x.clone();
     z->set(x);
     RealT znorm = z->norm();
     outStream << "\nNorm of ROL::Vector z (clone of x): " << znorm << "\n";
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
       outStream << "---> POSSIBLE ERROR ABOVE!\n";
       errorFlag++;
     }
-    Teuchos::RCP<ROL::Vector<RealT> > w = y.clone();
+    std::shared_ptr<ROL::Vector<RealT> > w = y.clone();
     w = y.clone();
     w->set(y);
     RealT wnorm = w->norm();
@@ -165,9 +165,9 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     // Create Tpetra::MultiVectors (single vectors) 
-    MVP x1_rcp = Teuchos::rcp( new MV(map,1,true) ); 
-    MVP y1_rcp = Teuchos::rcp( new MV(map,1,true) ); 
-    MVP z1_rcp = Teuchos::rcp( new MV(map,1,true) ); 
+    MVP x1_rcp = std::make_shared<MV>(map,1,true); 
+    MVP y1_rcp = std::make_shared<MV>(map,1,true); 
+    MVP z1_rcp = std::make_shared<MV>(map,1,true); 
     ROL::PrimalScaledTpetraMultiVector<RealT,LO,GO,Node> x1(x1_rcp,W_rcp);
     ROL::PrimalScaledTpetraMultiVector<RealT,LO,GO,Node> y1(y1_rcp,W_rcp);
     ROL::PrimalScaledTpetraMultiVector<RealT,LO,GO,Node> z1(z1_rcp,W_rcp);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
     z1_rcp->randomize();
 
     std::vector<RealT> consistency = x1.checkVector(y1, z1, true, outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    ROL::StdVector<RealT> checkvec(&consistency, false);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }

@@ -55,7 +55,7 @@
 template<class Real>
 Real Reciprocal( const Real &val ) {
   return 1.0/val;
-}     
+}
 
 // Binary function
 template<class Real>
@@ -93,7 +93,7 @@ typedef double RealT;
 int main(int argc, char *argv[]) {
 
   using namespace Teuchos;
- 
+
   typedef std::vector<RealT>     vec;
   typedef ROL::StdVector<RealT>  V;
 
@@ -101,12 +101,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   int errorFlag  = 0;
 
@@ -120,13 +120,13 @@ int main(int argc, char *argv[]) {
     int dim = k*k;
     RealT threshValue = 4.0;
 
-    RCP<vec> w_rcp        = rcp( new vec(dim, 0.0) );
-    RCP<vec> w2_rcp       = rcp( new vec(dim, 0.0) );
-    RCP<vec> x_rcp        = rcp( new vec(dim, 0.0) );
-    RCP<vec> x_recip_rcp  = rcp( new vec(dim, 0.0) );
-    RCP<vec> y_rcp        = rcp( new vec(dim, 0.0) );
-    RCP<vec> z_rcp        = rcp( new vec(dim, 0.0) );
-    RCP<vec> z_thresh_rcp = rcp( new vec(dim, 0.0) );
+    std::shared_ptr<vec> w_rcp        = std::make_shared<vec>(dim, 0.0);
+    std::shared_ptr<vec> w2_rcp       = std::make_shared<vec>(dim, 0.0);
+    std::shared_ptr<vec> x_rcp        = std::make_shared<vec>(dim, 0.0);
+    std::shared_ptr<vec> x_recip_rcp  = std::make_shared<vec>(dim, 0.0);
+    std::shared_ptr<vec> y_rcp        = std::make_shared<vec>(dim, 0.0);
+    std::shared_ptr<vec> z_rcp        = std::make_shared<vec>(dim, 0.0);
+    std::shared_ptr<vec> z_thresh_rcp = std::make_shared<vec>(dim, 0.0);
 
     V w(w_rcp);
     V w2(w2_rcp);
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     for(int i=0; i<dim; ++i) {
       (*w_rcp)[i] = 1.0+i;
 
-      (*w2_rcp)[i] = std::pow(1.0+i,2);   
+      (*w2_rcp)[i] = std::pow(1.0+i,2);
       (*x_recip_rcp)[i]  = 1.0/(1.0+i);
       (*z_thresh_rcp)[i] = std::min(1.0+i,threshValue);
     }
@@ -158,15 +158,15 @@ int main(int argc, char *argv[]) {
 
     // Test Unary Function with wrapper
     ROL::Elementwise::applyUnaryInPlace(x,Reciprocal<RealT>);
- 
+
     x.axpy(-1.0,x_recip);
 
     errorFlag += ( x.norm() > errtol ) ? 1 : 0;
 
     // Test Binary Function with wrapper
-    ROL::Elementwise::applyBinaryInPlace(y,x_recip,Product<RealT>);    
-    
-    errorFlag += ( std::abs(y.norm()-static_cast<RealT>(k)) > errtol ) ? 1 : 0; 
+    ROL::Elementwise::applyBinaryInPlace(y,x_recip,Product<RealT>);
+
+    errorFlag += ( std::abs(y.norm()-static_cast<RealT>(k)) > errtol ) ? 1 : 0;
 
     // Test Unary Functor with wrapper
     Threshold<RealT> threshold(threshValue);
@@ -175,8 +175,8 @@ int main(int argc, char *argv[]) {
     z.axpy(-1.0,z_thresh);
 
     errorFlag += ( z.norm() > errtol ) ? 1 : 0;
-   
-    // Test reduce 
+
+    // Test reduce
     ROL::Elementwise::ReductionMax<RealT> maximum;
 
     errorFlag += std::abs(w2.reduce(maximum)-pow(dim,2)) > errtol ? 1 : 0;
@@ -195,4 +195,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

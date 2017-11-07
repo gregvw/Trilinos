@@ -72,12 +72,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -90,8 +90,8 @@ int main(int argc, char *argv[]) {
     int dim = 100;
     Epetra_Map Map(dim, 0, Comm);
 
-    Teuchos::RCP<Epetra_MultiVector> x_rcp = Teuchos::rcp( new Epetra_MultiVector(Map, 1) );
-    Teuchos::RCP<Epetra_MultiVector> y_rcp = Teuchos::rcp( new Epetra_MultiVector(Map, 1) );
+    std::shared_ptr<Epetra_MultiVector> x_rcp = std::make_shared<Epetra_MultiVector>(Map, 1);
+    std::shared_ptr<Epetra_MultiVector> y_rcp = std::make_shared<Epetra_MultiVector>(Map, 1);
     ROL::EpetraMultiVector<RealT> x(x_rcp);
     ROL::EpetraMultiVector<RealT> y(y_rcp);
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
     };
 
     // clone z from x, deep copy x into z, norm of z
-    Teuchos::RCP<ROL::Vector<RealT> > z = x.clone();
+    std::shared_ptr<ROL::Vector<RealT> > z = x.clone();
     z->set(x);
     RealT znorm = z->norm();
     *outStream << "\nNorm of ROL::Vector z (clone of x): " << znorm << "\n";

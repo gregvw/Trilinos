@@ -68,8 +68,8 @@ template<class Real>
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
   try {
-    Teuchos::RCP<const std::vector<Real> > xp = 
-      Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
+    std::shared_ptr<const std::vector<Real> > xp = 
+      dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
     outStream << "Standard Vector" << std::endl;
     for( size_t i=0; i<xp->size(); ++i ) {
@@ -82,7 +82,7 @@ void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
     typedef ROL::PartitionedVector<Real>    PV;
     typedef typename PV::size_type          size_type;
 
-    const PV &xpv = Teuchos::dyn_cast<const PV>(x);
+    const PV &xpv = dynamic_cast<const PV&>(x);
 
     for( size_type i=0; i<xpv.numVectors(); ++i ) {
       outStream << "--------------------" << std::endl;
@@ -104,22 +104,22 @@ void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu )
 
   typedef typename PV::size_type size_type;
 
-  using Teuchos::RCP;
-  using Teuchos::dyn_cast;
-  using Teuchos::rcp_dynamic_cast;
+  
+  
+  using std::dynamic_pointer_cast;
 
   const size_type OPT   = 0;
   const size_type EQUAL = 1;
   const size_type LOWER = 2;
   const size_type UPPER = 3;
 
-  const PV &sol_pv = dyn_cast<const PV>(sol);
+  const PV &sol_pv = dynamic_cast<const PV&>(sol);
   const vector &x  = *(rcp_dynamic_cast<const SV>(sol_pv.get(OPT))->getVector());
   const vector &l  = *(rcp_dynamic_cast<const SV>(sol_pv.get(EQUAL))->getVector());
   const vector &zl = *(rcp_dynamic_cast<const SV>(sol_pv.get(LOWER))->getVector());
   const vector &zu = *(rcp_dynamic_cast<const SV>(sol_pv.get(UPPER))->getVector());
 
-  PV &c_pv = dyn_cast<PV>(c);
+  PV &c_pv = dynamic_cast<PV&>(c);
   vector &cx  = *(rcp_dynamic_cast<SV>(c_pv.get(OPT))->getVector());
   vector &cl  = *(rcp_dynamic_cast<SV>(c_pv.get(EQUAL))->getVector());
   vector &czl = *(rcp_dynamic_cast<SV>(c_pv.get(LOWER))->getVector());
@@ -155,28 +155,28 @@ void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL
 
   typedef typename PV::size_type size_type;
 
-  using Teuchos::RCP;
-  using Teuchos::dyn_cast;
-  using Teuchos::rcp_dynamic_cast;
+  
+  
+  using std::dynamic_pointer_cast;
 
   const size_type OPT   = 0;
   const size_type EQUAL = 1;
   const size_type LOWER = 2;
   const size_type UPPER = 3;
 
-  const PV &sol_pv = dyn_cast<const PV>(sol);
+  const PV &sol_pv = dynamic_cast<const PV&>(sol);
   const vector &x  = *(rcp_dynamic_cast<const SV>(sol_pv.get(OPT))->getVector());
 //const vector &l  = *(rcp_dynamic_cast<const SV>(sol_pv.get(EQUAL))->getVector());
   const vector &zl = *(rcp_dynamic_cast<const SV>(sol_pv.get(LOWER))->getVector());
   const vector &zu = *(rcp_dynamic_cast<const SV>(sol_pv.get(UPPER))->getVector());
 
-  const PV &v_pv = dyn_cast<const PV>(v);
+  const PV &v_pv = dynamic_cast<const PV&>(v);
   const vector &vx  = *(rcp_dynamic_cast<const SV>(v_pv.get(OPT))->getVector());
   const vector &vl  = *(rcp_dynamic_cast<const SV>(v_pv.get(EQUAL))->getVector());
   const vector &vzl = *(rcp_dynamic_cast<const SV>(v_pv.get(LOWER))->getVector());
   const vector &vzu = *(rcp_dynamic_cast<const SV>(v_pv.get(UPPER))->getVector());
 
-  PV &jv_pv = dyn_cast<PV>(jv);
+  PV &jv_pv = dynamic_cast<PV&>(jv);
   vector &jvx  = *(rcp_dynamic_cast<SV>(jv_pv.get(OPT))->getVector());
   vector &jvl  = *(rcp_dynamic_cast<SV>(jv_pv.get(EQUAL))->getVector());
   vector &jvzl = *(rcp_dynamic_cast<SV>(jv_pv.get(LOWER))->getVector());
@@ -221,17 +221,17 @@ int main(int argc, char *argv[]) {
   typedef ROL::InteriorPointPenalty<RealT>            PENALTY;
   typedef ROL::PrimalDualInteriorPointResidual<RealT> RESIDUAL;
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs;
   if( iprint > 0 ) 
-    outStream = rcp(&std::cout,false);
+    outStream = &std::cout,false;
   else
-    outStream = rcp(&bhs,false);
+    outStream = &bhs,false;
 
   int errorFlag = 0;
    
@@ -256,44 +256,44 @@ int main(int argc, char *argv[]) {
     // 1) Has an equality constraint 
     // 2) Has a bound constraint where all variables have finite upper and lower bounds
 
-    RCP<NLP> nlp = rcp( new HS::Problem_041<RealT>() ); 
-    RCP<OPT> opt = nlp->getOptimizationProblem();
+    std::shared_ptr<NLP> nlp = std::make_shared<HS::Problem_041<RealT>>(); 
+    std::shared_ptr<OPT> opt = nlp->getOptimizationProblem();
  
-    RCP<V>   x   = opt->getSolutionVector();
-    RCP<V>   l   = opt->getMultiplierVector();
-    RCP<V>   zl  = x->clone();
-    RCP<V>   zu  = x->clone();
+    std::shared_ptr<V>   x   = opt->getSolutionVector();
+    std::shared_ptr<V>   l   = opt->getMultiplierVector();
+    std::shared_ptr<V>   zl  = x->clone();
+    std::shared_ptr<V>   zu  = x->clone();
 
-    RCP<V>   scratch = x->clone();
+    std::shared_ptr<V>   scratch = x->clone();
 
-    RCP<PV>  x_pv = Teuchos::rcp_dynamic_cast<PV>(x);
+    std::shared_ptr<PV>  x_pv = std::dynamic_pointer_cast<PV>(x);
 
-    RCP<V>   sol = CreatePartitionedVector(x,l,zl,zu);
+    std::shared_ptr<V>   sol = CreatePartitionedVector(x,l,zl,zu);
 
-    RCP<V>   c = sol->clone();
-    RCP<V>   v = sol->clone();
-    RCP<V>  jv = sol->clone();
+    std::shared_ptr<V>   c = sol->clone();
+    std::shared_ptr<V>   v = sol->clone();
+    std::shared_ptr<V>  jv = sol->clone();
 
-    RCP<V>   c_exact = c->clone();
-    RCP<V>  jv_exact = jv->clone();
+    std::shared_ptr<V>   c_exact = c->clone();
+    std::shared_ptr<V>  jv_exact = jv->clone();
 
     ROL::RandomizeVector(*l, -1.0, 1.0);
     ROL::RandomizeVector(*v,  0.0, 1.0);
 
 
-    RCP<OBJ> obj = opt->getObjective();
-    RCP<CON> con = opt->getConstraint();
-    RCP<BND> bnd = opt->getBoundConstraint();
+    std::shared_ptr<OBJ> obj = opt->getObjective();
+    std::shared_ptr<CON> con = opt->getConstraint();
+    std::shared_ptr<BND> bnd = opt->getBoundConstraint();
 
     PENALTY penalty(obj,bnd,parlist);
  
-    RCP<const V> maskL = penalty.getLowerMask();
-    RCP<const V> maskU = penalty.getUpperMask();
+    std::shared_ptr<const V> maskL = penalty.getLowerMask();
+    std::shared_ptr<const V> maskU = penalty.getUpperMask();
 
     zl->set(*maskL);
     zu->set(*maskU);
 
-    RCP<CON> res = rcp( new RESIDUAL(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false)  );
+    std::shared_ptr<CON> res = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false);
 
 
     *outStream << "\n[x|lambda|zl|zu]" << std::endl;

@@ -54,12 +54,12 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp; 
+  
+   
 
   typedef std::vector<RealT>            vec;
   typedef ROL::StdVector<RealT>         SV;
-  typedef RCP<ROL::Vector<RealT> >      RCPV;
+  typedef std::shared_ptr<ROL::Vector<RealT> >      std::shared_ptrV;
 
 //  typedef ROL::PartitionedVector<RealT> PV;
 
@@ -67,12 +67,12 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream.reset(&std::cout);
   else
-    outStream = rcp(&bhs, false);
+    outStream.reset(&bhs);
 
   int errorFlag = 0;
 
@@ -83,32 +83,32 @@ int main(int argc, char *argv[]) {
     int ci_dim = 4;    // Dimension of inequality constraint
 
     // Exact solution
-    RCP<vec> x_exact_rcp = rcp( new vec(xopt_dim,0.0) );
+    std::shared_ptr<vec> x_exact_rcp = std::make_shared<vec>(xopt_dim,0.0);
     (*x_exact_rcp)[xopt_dim-1] = 1.0;
 
-    RCP<vec> xopt_rcp = rcp( new vec(xopt_dim,0.0) ); // Optimization variables
+    std::shared_ptr<vec> xopt_rcp = std::make_shared<vec>(xopt_dim,0.0); // Optimization variables
 
-    RCP<vec> le_rcp  = rcp( new vec(ce_dim,0.0) );    // Equality multiplier
-    RCP<vec> li_rcp  = rcp( new vec(ci_dim,0.0) );    // Inequality multiplier
+    std::shared_ptr<vec> le_rcp  = std::make_shared<vec>(ce_dim,0.0);    // Equality multiplier
+    std::shared_ptr<vec> li_rcp  = std::make_shared<vec>(ci_dim,0.0);    // Inequality multiplier
      
     // Feasible initial guess
     (*xopt_rcp)[0] = 0.1;
     (*xopt_rcp)[1] = 0.7;
     (*xopt_rcp)[2] = 0.2;
 
-    RCPV xopt = rcp( new SV(xopt_rcp) );
-    RCPV le  = rcp( new SV(le_rcp) );
-    RCPV li  = rcp( new SV(li_rcp) );
+    std::shared_ptrV xopt = std::make_shared<SV>(xopt_rcp);
+    std::shared_ptrV le  = std::make_shared<SV>(le_rcp);
+    std::shared_ptrV li  = std::make_shared<SV>(li_rcp);
 
     using ROL::ZOO::Objective_HS32;
     using ROL::ZOO::EqualityConstraint_HS32;
     using ROL::ZOO::InequalityConstraint_HS32;    
 
-    RCP<ROL::Objective<RealT> > obj_hs32 = rcp( new Objective_HS32<RealT> ); 
-    RCP<ROL::EqualityConstraint<RealT> > eqcon_hs32 = rcp( new EqualityConstraint_HS32<RealT> );
-    RCP<ROL::InequalityConstraint<RealT> > incon_hs32 = rcp( new  InequalityConstraint_HS32<RealT> );
+    std::shared_ptr<ROL::Objective<RealT> > obj_hs32 = std::make_shared<Objective_HS32<RealT>>(); 
+    std::shared_ptr<ROL::EqualityConstraint<RealT> > eqcon_hs32 = std::make_shared<EqualityConstraint_HS32<RealT>>();
+    std::shared_ptr<ROL::InequalityConstraint<RealT> > incon_hs32 = std::make_shared<InequalityConstraint_HS32<RealT>>();
     
-    RCP<Teuchos::ParameterList> parlist = rcp(new Teuchos::ParameterList);
+    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
     std::string stepname = "Interior Point";
 
     RealT mu = 0.1;            // Initial penalty parameter
@@ -134,8 +134,8 @@ int main(int argc, char *argv[]) {
     ROL::OptimizationProblem<RealT> problem( obj_hs32, xopt, eqcon_hs32, le, incon_hs32, li, parlist);  
 
     // Define algorithm.
-    RCP<ROL::Algorithm<RealT> > algo;    
-    algo = rcp( new ROL::Algorithm<RealT>(stepname,*parlist) );
+    std::shared_ptr<ROL::Algorithm<RealT> > algo;    
+    algo = std::make_shared<ROL::Algorithm<RealT>>(stepname,*parlist);
 
     algo->run(problem,true,*outStream);   
   

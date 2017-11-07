@@ -69,14 +69,14 @@ void print_vector( const ROL::Vector<Real> &x ) {
   typedef ROL::PartitionedVector<Real> PV;
   typedef typename PV::size_type       size_type;
 
-  const PV eb = Teuchos::dyn_cast<const PV>(x);
+  const PV eb = dynamic_cast<const PV&>(x);
   size_type n = eb.numVectors();
     
   for(size_type k=0; k<n; ++k) {
     std::cout << "[subvector " << k << "]" << std::endl;
-    Teuchos::RCP<const V> vec = eb.get(k);
-    Teuchos::RCP<const std::vector<Real> > vp = 
-      Teuchos::dyn_cast<SV>(const_cast<V&>(*vec)).getVector();  
+    std::shared_ptr<const V> vec = eb.get(k);
+    std::shared_ptr<const std::vector<Real> > vp = 
+      dynamic_cast<SV>(const_cast<V&&>(*vec)).getVector();  
    for(size_type i=0;i<vp->size();++i) {
       std::cout << (*vp)[i] << std::endl;
     }  
@@ -106,13 +106,13 @@ int main(int argc, char *argv[]) {
 
   int iprint = argc - 1;
 
-  RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   oblackholestream bhs; // no output
  
   if( iprint>0 ) 
-    outStream = rcp(&std::cout,false);
+    outStream = &std::cout,false;
   else
-    outStream = rcp(&bhs,false);
+    outStream = &bhs,false;
 
   int errorFlag = 0;
 
@@ -122,35 +122,35 @@ int main(int argc, char *argv[]) {
 
     uint dim   = 3;  // Number of elements in each subvector (could be different)
  
-    RCP<vector> x1_rcp = rcp( new vector(dim,1.0) );
-    RCP<vector> x2_rcp = rcp( new vector(dim,2.0) );
+    std::shared_ptr<vector> x1_rcp = std::make_shared<vector>(dim,1.0);
+    std::shared_ptr<vector> x2_rcp = std::make_shared<vector>(dim,2.0);
  
-    RCP<vector> y1_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector> y2_rcp = rcp( new vector(dim,0.0) );
+    std::shared_ptr<vector> y1_rcp = std::make_shared<vector>(dim,0.0);
+    std::shared_ptr<vector> y2_rcp = std::make_shared<vector>(dim,0.0);
 
-    RCP<vector> z1_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector> z2_rcp = rcp( new vector(dim,0.0) );
+    std::shared_ptr<vector> z1_rcp = std::make_shared<vector>(dim,0.0);
+    std::shared_ptr<vector> z2_rcp = std::make_shared<vector>(dim,0.0);
 
-    RCP<V> x1 = rcp( new SV( x1_rcp) );
-    RCP<V> x2 = rcp( new SV( x2_rcp) );
+    std::shared_ptr<V> x1 = std::make_shared<SV>( x1_rcp);
+    std::shared_ptr<V> x2 = std::make_shared<SV>( x2_rcp);
 
-    RCP<V> y1 = rcp( new SV( y1_rcp) );
-    RCP<V> y2 = rcp( new SV( y2_rcp) );
+    std::shared_ptr<V> y1 = std::make_shared<SV>( y1_rcp);
+    std::shared_ptr<V> y2 = std::make_shared<SV>( y2_rcp);
 
-    RCP<V> z1 = rcp( new SV( z1_rcp) );
-    RCP<V> z2 = rcp( new SV( z2_rcp) ); 
+    std::shared_ptr<V> z1 = std::make_shared<SV>( z1_rcp);
+    std::shared_ptr<V> z2 = std::make_shared<SV>( z2_rcp); 
 
-    RCP<V> x = ROL::CreatePartitionedVector( x1, x2 );
-    RCP<V> y = ROL::CreatePartitionedVector( y1, y2 );
-    RCP<V> z = ROL::CreatePartitionedVector( z1, z2 );
+    std::shared_ptr<V> x = ROL::CreatePartitionedVector( x1, x2 );
+    std::shared_ptr<V> y = ROL::CreatePartitionedVector( y1, y2 );
+    std::shared_ptr<V> z = ROL::CreatePartitionedVector( z1, z2 );
 
     // Operator diagonals
-    RCP<vector> d1_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector> d2_rcp = rcp( new vector(dim,0.0) );
+    std::shared_ptr<vector> d1_rcp = std::make_shared<vector>(dim,0.0);
+    std::shared_ptr<vector> d2_rcp = std::make_shared<vector>(dim,0.0);
 
     // Dyadic components
-    RCP<vector> u_rcp = rcp( new vector(dim,0.0) );
-    RCP<vector> v_rcp = rcp( new vector(dim,1.0) );
+    std::shared_ptr<vector> u_rcp = std::make_shared<vector>(dim,0.0);
+    std::shared_ptr<vector> v_rcp = std::make_shared<vector>(dim,1.0);
 
     (*d1_rcp)[0] = 6.0;   (*d2_rcp)[0] = 3.0;
     (*d1_rcp)[1] = 5.0;   (*d2_rcp)[1] = 2.0;
@@ -162,15 +162,15 @@ int main(int argc, char *argv[]) {
 
     (*u_rcp)[1] = 1.0;    
 
-    RCP<V> d1 = rcp( new SV(d1_rcp) );
-    RCP<V> d2 = rcp( new SV(d2_rcp) );
-    RCP<V> u  = rcp( new SV(u_rcp) );
-    RCP<V> v  = rcp( new SV(v_rcp) );
+    std::shared_ptr<V> d1 = std::make_shared<SV>(d1_rcp);
+    std::shared_ptr<V> d2 = std::make_shared<SV>(d2_rcp);
+    std::shared_ptr<V> u  = std::make_shared<SV>(u_rcp);
+    std::shared_ptr<V> v  = std::make_shared<SV>(v_rcp);
     
-    RCP<LinOp> D1 = rcp( new DiagOp(*d1) );
-    RCP<LinOp> NO = rcp( new NullOp() );
-    RCP<LinOp> UV = rcp( new DyadOp(u,v) );
-    RCP<LinOp> D2 = rcp( new DiagOp(*d2) );
+    std::shared_ptr<LinOp> D1 = std::make_shared<DiagOp>(*d1);
+    std::shared_ptr<LinOp> NO = std::make_shared<NullOp>();
+    std::shared_ptr<LinOp> UV = std::make_shared<DyadOp>(u,v);
+    std::shared_ptr<LinOp> D2 = std::make_shared<DiagOp>(*d2);
 
    
     RealT tol = 0.0;

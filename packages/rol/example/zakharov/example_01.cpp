@@ -74,12 +74,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::shared_ptr<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
     int dim = 10; // Set problem dimension. 
 
-    RCP<ParameterList> parlist = rcp(new ParameterList());
+    std::shared_ptr<ParameterList> parlist = std::make_shared<ParameterList>();
     std::string paramfile = "parameters.xml";
     updateParametersFromXmlFile(paramfile,parlist.ptr());
 
@@ -97,17 +97,17 @@ int main(int argc, char *argv[]) {
     ROL::Algorithm<RealT> algo("Trust-Region",*parlist);
 
     // Iteration vector.
-    RCP<vector> x_rcp = rcp( new vector(dim, 0.0) );
+    std::shared_ptr<vector> x_rcp = std::make_shared<vector>(dim, 0.0);
 
     // Vector of natural numbers.
-    RCP<vector> k_rcp = rcp( new vector(dim, 0.0) );
+    std::shared_ptr<vector> k_rcp = std::make_shared<vector>(dim, 0.0);
 
     // For gradient and Hessian checks. 
-    RCP<vector> xtest_rcp = rcp( new vector(dim, 0.0) );
-    RCP<vector> d_rcp     = rcp( new vector(dim, 0.0) );
-    RCP<vector> v_rcp     = rcp( new vector(dim, 0.0) );
-    RCP<vector> hv_rcp    = rcp( new vector(dim, 0.0) );
-    RCP<vector> ihhv_rcp  = rcp( new vector(dim, 0.0) );
+    std::shared_ptr<vector> xtest_rcp = std::make_shared<vector>(dim, 0.0);
+    std::shared_ptr<vector> d_rcp     = std::make_shared<vector>(dim, 0.0);
+    std::shared_ptr<vector> v_rcp     = std::make_shared<vector>(dim, 0.0);
+    std::shared_ptr<vector> hv_rcp    = std::make_shared<vector>(dim, 0.0);
+    std::shared_ptr<vector> ihhv_rcp  = std::make_shared<vector>(dim, 0.0);
   
 
     RealT left = -1e0, right = 1e0; 
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
       (*k_rcp)[i]   = i+1.0;
     }
 
-    RCP<V> k = rcp(new SV(k_rcp) );
+    std::shared_ptr<V> k = std::make_shared<SV>(k_rcp);
     SV x(x_rcp);
 
     // Check gradient and Hessian.
@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
     algo.run(x, obj, true, *outStream);
 
     // Get True Solution
-    RCP<vector> xtrue_rcp = rcp( new vector(dim, 0.0) );
+    std::shared_ptr<vector> xtrue_rcp = std::make_shared<vector>(dim, 0.0);
     SV xtrue(xtrue_rcp);
 
         

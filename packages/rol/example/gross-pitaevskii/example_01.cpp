@@ -78,12 +78,12 @@ int main(int argc, char **argv) {
 
     // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
     int iprint     = argc - 1;
-    Teuchos::RCP<std::ostream> outStream;
+    std::shared_ptr<std::ostream> outStream;
     Teuchos::oblackholestream bhs; // outputs nothing
     if (iprint > 0)
-        outStream = Teuchos::rcp(&std::cout, false);
+        outStream = &std::cout, false;
     else
-        outStream = Teuchos::rcp(&bhs, false);
+        outStream = &bhs, false;
 
     int errorFlag = 0;
 
@@ -100,14 +100,14 @@ int main(int argc, char **argv) {
     RealT dx = 1.0/(nx+1);
 
     // Pointer to linspace type vector \f$x_i = \frac{i+1}{n_x+1}\f$ where \f$i=0,\hdots,n_x\f$
-    Teuchos::RCP<std::vector<RealT> > xi_rcp = Teuchos::rcp( new std::vector<RealT> (nx, 0.0) );
+    std::shared_ptr<std::vector<RealT> > xi_rcp = std::make_shared<std::vector<RealT>>(nx, 0.0);
     
     for(int i=0; i<nx; ++i) {
         (*xi_rcp)[i] = RealT(i+1)/(nx+1);
     }
     
     // Pointer to potential vector (quadratic centered at x=0.5)
-    Teuchos::RCP<std::vector<RealT> > V_rcp = Teuchos::rcp( new std::vector<RealT> (nx, 0.0) );
+    std::shared_ptr<std::vector<RealT> > V_rcp = std::make_shared<std::vector<RealT>>(nx, 0.0);
     for(int i=0; i<nx; ++i) {
        (*V_rcp)[i] = 100.0*pow((*xi_rcp)[i]-0.5,2);
     }
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     StdVector<RealT> V(V_rcp);
         
     // Iteration Vector (pointer to optimzation vector)
-    Teuchos::RCP<std::vector<RealT> > psi_rcp = Teuchos::rcp( new std::vector<RealT> (nx, 0.0) );
+    std::shared_ptr<std::vector<RealT> > psi_rcp = std::make_shared<std::vector<RealT>>(nx, 0.0);
 
        
     // Set Initial Guess (normalized)
@@ -128,15 +128,15 @@ int main(int argc, char **argv) {
     StdVector<RealT> psi(psi_rcp);
 
     // Constraint value (scalar)  
-    Teuchos::RCP<std::vector<RealT> > c_rcp = Teuchos::rcp( new std::vector<RealT> (1, 0.0) );
+    std::shared_ptr<std::vector<RealT> > c_rcp = std::make_shared<std::vector<RealT>>(1, 0.0);
     StdVector<RealT> c(c_rcp);
 
     // Lagrange multiplier value (scalar)   
-    Teuchos::RCP<std::vector<RealT> > lam_rcp = Teuchos::rcp( new std::vector<RealT> (1, 0.0) );
+    std::shared_ptr<std::vector<RealT> > lam_rcp = std::make_shared<std::vector<RealT>>(1, 0.0);
     StdVector<RealT> lam(lam_rcp);
 
     // Gradient   
-    Teuchos::RCP<std::vector<RealT> > g_rcp = Teuchos::rcp( new std::vector<RealT> (nx, 0.0) );
+    std::shared_ptr<std::vector<RealT> > g_rcp = std::make_shared<std::vector<RealT>>(nx, 0.0);
     StdVector<RealT> g(g_rcp);
 
     // Instantiate objective function  

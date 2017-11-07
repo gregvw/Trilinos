@@ -57,9 +57,9 @@ private:
 
 public:
 
-  ElasticitySIMPOperators(const Teuchos::RCP<const Teuchos::Comm<int> > &comm,
-                          const Teuchos::RCP<Teuchos::ParameterList> &parlist,
-                          const Teuchos::RCP<std::ostream> &outStream) {
+  ElasticitySIMPOperators(const std::shared_ptr<const Teuchos::Comm<int> > &comm,
+                          const std::shared_ptr<Teuchos::ParameterList> &parlist,
+                          const std::shared_ptr<std::ostream> &outStream) {
     ElasticitySIMPOperators_Initialize(comm, parlist, outStream);
     this->SetSIMPParallelStructure();
     this->SetUpLocalIntrepidArrays();
@@ -78,9 +78,9 @@ public:
     this->ConstructSolvers();
   }
 
-  void ElasticitySIMPOperators_Initialize(const Teuchos::RCP<const Teuchos::Comm<int> > &comm,
-                                          const Teuchos::RCP<Teuchos::ParameterList> &parlist,
-                                          const Teuchos::RCP<std::ostream> &outStream) {
+  void ElasticitySIMPOperators_Initialize(const std::shared_ptr<const Teuchos::Comm<int> > &comm,
+                                          const std::shared_ptr<Teuchos::ParameterList> &parlist,
+                                          const std::shared_ptr<std::ostream> &outStream) {
     ElasticitySIMP<Real>::ElasticitySIMP_Initialize(comm, parlist, outStream);
     volFrac_           = parlist->sublist("ElasticityTopoOpt").get<Real>("Volume Fraction");
     this->initDensity_ = volFrac_;
@@ -101,17 +101,17 @@ public:
   }
   //
 
-  Teuchos::RCP<Intrepid::FieldContainer<int> > getPosCell(void) const {
+  std::shared_ptr<Intrepid::FieldContainer<int> > getPosCell(void) const {
     return this->meshMgr_->getPosCell();
   }
 
-  void ApplyMatAToVec(Teuchos::RCP<Tpetra::MultiVector<> > &Ju,
-                const Teuchos::RCP<const Tpetra::MultiVector<> > &u) {
+  void ApplyMatAToVec(std::shared_ptr<Tpetra::MultiVector<> > &Ju,
+                const std::shared_ptr<const Tpetra::MultiVector<> > &u) {
     this->matA_dirichlet_->apply(*u, *Ju);
   }
 
-  void ApplyJacobian1ToVec(Teuchos::RCP<Tpetra::MultiVector<> > &Ju,
-                     const Teuchos::RCP<const Tpetra::MultiVector<> > &u) {
+  void ApplyJacobian1ToVec(std::shared_ptr<Tpetra::MultiVector<> > &Ju,
+                     const std::shared_ptr<const Tpetra::MultiVector<> > &u) {
     #ifdef ROL_TIMERS
     Teuchos::TimeMonitor LocalTimer(*ConstraintDerivativeTime_example_PDEOPT_TOOLS_PDEFEM_GLOB);
     #endif
@@ -121,13 +121,13 @@ public:
     // v should be myCellMap_
     //
     /*
-    Teuchos::RCP<Tpetra::MultiVector<> > Ju_overlap = Teuchos::rcp(new Tpetra::MultiVector<>(this->myOverlapMap_, 1, true));
-    Teuchos::RCP<Tpetra::MultiVector<> > u_overlap = Teuchos::rcp(new Tpetra::MultiVector<>(this->myOverlapMap_, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > Ju_overlap = std::make_shared<Tpetra::MultiVector<>>(this->myOverlapMap_, 1, true);
+    std::shared_ptr<Tpetra::MultiVector<> > u_overlap = std::make_shared<Tpetra::MultiVector<>>(this->myOverlapMap_, 1, true);
     Tpetra::Import<> importer(u->getMap(), u_overlap->getMap());
     u_overlap->doImport(*u, importer, Tpetra::REPLACE);
     //simply apply matrix to a vector, no need to apply EBC to the vec
     //this-> ApplyBCToVec (u_overlap);
-    Teuchos::ArrayRCP<const Real> uData = u_overlap->get1dView();
+    Teuchos::Arraystd::shared_ptr<const Real> uData = u_overlap->get1dView();
     
     Real SIMPScale(0), sum(0), zero(0);
     Intrepid::FieldContainer<Real> localDisp(this->numLocalDofs_);
@@ -160,8 +160,8 @@ public:
     */
   }
 
-  void ApplyInverseJacobian1ToVec(Teuchos::RCP<Tpetra::MultiVector<> > &InvJu,
-                            const Teuchos::RCP<const Tpetra::MultiVector<> > &u,
+  void ApplyInverseJacobian1ToVec(std::shared_ptr<Tpetra::MultiVector<> > &InvJu,
+                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
                             const bool ifTrans) {
     //Ju is matA->getDomainMap();
     #ifdef ROL_TIMERS
@@ -172,9 +172,9 @@ public:
     this->getSolver(ifTrans)->solve();
   }
 
-  void ApplyJacobian2ToVec(Teuchos::RCP<Tpetra::MultiVector<> > &Jv,
-                     const Teuchos::RCP<const Tpetra::MultiVector<> > &u,
-                     const Teuchos::RCP<const Tpetra::MultiVector<> > &v) {
+  void ApplyJacobian2ToVec(std::shared_ptr<Tpetra::MultiVector<> > &Jv,
+                     const std::shared_ptr<const Tpetra::MultiVector<> > &u,
+                     const std::shared_ptr<const Tpetra::MultiVector<> > &v) {
     // Jv is myUniqueMap_
     // u is myUniqueMap_
     // v should be myCellMap_
@@ -182,18 +182,18 @@ public:
     #ifdef ROL_TIMERS
     Teuchos::TimeMonitor LocalTimer(*ConstraintDerivativeTime_example_PDEOPT_TOOLS_PDEFEM_GLOB);
     #endif
-    Teuchos::RCP<Tpetra::MultiVector<> > Jv_overlap = Teuchos::rcp(new Tpetra::MultiVector<>(this->myOverlapMap_, 1, true));
-    Teuchos::RCP<Tpetra::MultiVector<> > u_overlap = Teuchos::rcp(new Tpetra::MultiVector<>(this->myOverlapMap_, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > Jv_overlap = std::make_shared<Tpetra::MultiVector<>>(this->myOverlapMap_, 1, true);
+    std::shared_ptr<Tpetra::MultiVector<> > u_overlap = std::make_shared<Tpetra::MultiVector<>>(this->myOverlapMap_, 1, true);
     Tpetra::Import<> importer(u->getMap(), u_overlap->getMap());
     u_overlap->doImport(*u, importer, Tpetra::REPLACE);
     //apply BC here, KU
     this->ApplyBCToVec (u_overlap);
-    Teuchos::ArrayRCP<const Real> uData = u_overlap->get1dView();
+    Teuchos::Arraystd::shared_ptr<const Real> uData = u_overlap->get1dView();
 
-    Teuchos::RCP<Tpetra::MultiVector<> > v_local = Teuchos::rcp(new Tpetra::MultiVector<>(this->myCellMap_, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > v_local = std::make_shared<Tpetra::MultiVector<>>(this->myCellMap_, 1, true);
     Tpetra::Export<> exporter1(v->getMap(), this->myCellMap_);
     v_local->doExport(*v, exporter1, Tpetra::REPLACE);
-    Teuchos::ArrayRCP<const Real> vData = v_local->get1dView();
+    Teuchos::Arraystd::shared_ptr<const Real> vData = v_local->get1dView();
 
     Real SIMPDScale(0), localV(0), sum(0), zero(0);
     Intrepid::FieldContainer<Real> localDisp(this->numLocalDofs_);
@@ -227,9 +227,9 @@ public:
     Jv->doExport(*Jv_overlap, exporter2, Tpetra::ADD);
   }
 
-  void ApplyAdjointJacobian2ToVec (Teuchos::RCP<Tpetra::MultiVector<> > &Jv,
-                             const Teuchos::RCP<const Tpetra::MultiVector<> > &u,
-                             const Teuchos::RCP<const Tpetra::MultiVector<> > &v) {
+  void ApplyAdjointJacobian2ToVec (std::shared_ptr<Tpetra::MultiVector<> > &Jv,
+                             const std::shared_ptr<const Tpetra::MultiVector<> > &u,
+                             const std::shared_ptr<const Tpetra::MultiVector<> > &v) {
     // Jv is myCellMap_
     // u should be myUniqueMap_
     // v should be myUniqueMap_
@@ -237,18 +237,18 @@ public:
     #ifdef ROL_TIMERS
     Teuchos::TimeMonitor LocalTimer(*ConstraintDerivativeTime_example_PDEOPT_TOOLS_PDEFEM_GLOB);
     #endif
-    Teuchos::RCP<Tpetra::MultiVector<> > u_overlap = Teuchos::rcp(new Tpetra::MultiVector<>(this->myOverlapMap_, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > u_overlap = std::make_shared<Tpetra::MultiVector<>>(this->myOverlapMap_, 1, true);
     Tpetra::Import<> importer1(u->getMap(), u_overlap->getMap());
     u_overlap->doImport(*u, importer1, Tpetra::REPLACE);
     //only apply BC to u
     this->ApplyBCToVec (u_overlap);
-    Teuchos::ArrayRCP<const Real> uData = u_overlap->get1dView();
+    Teuchos::Arraystd::shared_ptr<const Real> uData = u_overlap->get1dView();
 
-    Teuchos::RCP<Tpetra::MultiVector<> > v_overlap = Teuchos::rcp(new Tpetra::MultiVector<>(this->myOverlapMap_, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > v_overlap = std::make_shared<Tpetra::MultiVector<>>(this->myOverlapMap_, 1, true);
     Tpetra::Import<> importer2(v->getMap(), v_overlap->getMap());
     v_overlap->doImport(*v, importer2, Tpetra::REPLACE);
     //ApplyBCToVec (v_overlap);
-    Teuchos::ArrayRCP<const Real> vData = v_overlap->get1dView();
+    Teuchos::Arraystd::shared_ptr<const Real> vData = v_overlap->get1dView();
 
     Intrepid::FieldContainer<Real> u_local(this->numLocalDofs_);
     Intrepid::FieldContainer<Real> v_local(this->numLocalDofs_);
@@ -282,10 +282,10 @@ public:
     }
   }
 
-  void ApplyAdjointHessian22ToVec(Teuchos::RCP<Tpetra::MultiVector<> > &Hvw,
-                            const Teuchos::RCP<const Tpetra::MultiVector<> > &u,
-                            const Teuchos::RCP<const Tpetra::MultiVector<> > &v,
-                            const Teuchos::RCP<const Tpetra::MultiVector<> > &w) {
+  void ApplyAdjointHessian22ToVec(std::shared_ptr<Tpetra::MultiVector<> > &Hvw,
+                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
+                            const std::shared_ptr<const Tpetra::MultiVector<> > &v,
+                            const std::shared_ptr<const Tpetra::MultiVector<> > &w) {
     // Hvw is myCellMap_
     // u should be myUniqueMap_
     // v should be myCellMap_
@@ -294,23 +294,23 @@ public:
     #ifdef ROL_TIMERS
     Teuchos::TimeMonitor LocalTimer(*ConstraintDerivativeTime_example_PDEOPT_TOOLS_PDEFEM_GLOB);
     #endif
-    Teuchos::RCP<Tpetra::MultiVector<> > u_overlap = Teuchos::rcp(new Tpetra::MultiVector<>(this->myOverlapMap_, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > u_overlap = std::make_shared<Tpetra::MultiVector<>>(this->myOverlapMap_, 1, true);
     Tpetra::Import<> importer1(u->getMap(), u_overlap->getMap());
     u_overlap->doImport(*u, importer1, Tpetra::REPLACE);
     //only apply BC to U
     this->ApplyBCToVec (u_overlap);
-    Teuchos::ArrayRCP<const Real> uData = u_overlap->get1dView();
+    Teuchos::Arraystd::shared_ptr<const Real> uData = u_overlap->get1dView();
 
     Tpetra::Export<> exporter(v->getMap(), this->myCellMap_);
-    Teuchos::RCP<Tpetra::MultiVector<> > v_local = Teuchos::rcp(new Tpetra::MultiVector<>(this->myCellMap_, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > v_local = std::make_shared<Tpetra::MultiVector<>>(this->myCellMap_, 1, true);
     v_local->doExport(*v, exporter, Tpetra::REPLACE);
-    Teuchos::ArrayRCP<const Real> vData = v_local->get1dView();
+    Teuchos::Arraystd::shared_ptr<const Real> vData = v_local->get1dView();
 
-    Teuchos::RCP<Tpetra::MultiVector<> > w_overlap = Teuchos::rcp(new Tpetra::MultiVector<>(this->myOverlapMap_, 1, true));
+    std::shared_ptr<Tpetra::MultiVector<> > w_overlap = std::make_shared<Tpetra::MultiVector<>>(this->myOverlapMap_, 1, true);
     Tpetra::Import<> importer2(w->getMap(), w_overlap->getMap());
     w_overlap->doImport(*w, importer2, Tpetra::REPLACE);
     //ApplyBCToVec (w_overlap);
-    Teuchos::ArrayRCP<const Real> wData = w_overlap->get1dView();
+    Teuchos::Arraystd::shared_ptr<const Real> wData = w_overlap->get1dView();
 
     Intrepid::FieldContainer<Real> u_local(this->numLocalDofs_);
     Intrepid::FieldContainer<Real> w_local(this->numLocalDofs_);

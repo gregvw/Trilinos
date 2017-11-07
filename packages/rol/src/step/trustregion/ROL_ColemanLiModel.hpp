@@ -107,7 +107,7 @@ private:
     // Set Cmat_ to be the sign of the gradient
     Cmat_->set(gc->dual());
     Cmat_->applyUnary(Elementwise::Sign<Real>());
-    // If g < 0 and u = INF then set Cmat_ to zero 
+    // If g < 0 and u = INF then set Cmat_ to zero
     class NegGradInfU : public Elementwise::BinaryFunction<Real> {
     public:
       NegGradInfU(void) {}
@@ -144,7 +144,7 @@ private:
     const int LESS_THAN    = 0;
     const int EQUAL_TO     = 1;
     const int GREATER_THAN = 2;
-    
+
     Dmat_->zero();
     // CASE (i)
     // Mask for negative gradient (m1 is 1 if g is negative and 0 otherwise)
@@ -167,7 +167,7 @@ private:
     reflectScal_->applyBinary(mult_,*reflectStep_);
     // prim_i = { -1 if g_i < 0 and u_i = inf
     //          { 0  otherwise
-    prim_->applyUnary(Elementwise::Fill<Real>(-one)); 
+    prim_->applyUnary(Elementwise::Fill<Real>(-one));
     prim_->applyBinary(mult_,*reflectScal_);
     // Add to D
     Dmat_->plus(*prim_);
@@ -198,11 +198,11 @@ private:
     prim_->applyBinary(mult_,*reflectScal_);
     // Add to D
     Dmat_->plus(*prim_);
-  
+
     // d_i = { u_i-x_i if g_i <  0, u_i<inf
     //       { -1      if g_i <  0, u_i=inf
     //       { x_i-l_i if g_i >= 0, l_i>-inf
-    //       { 1       if g_i >= 0, l_i=-inf 
+    //       { 1       if g_i >= 0, l_i=-inf
     Dmat_->applyUnary(Elementwise::AbsoluteValue<Real>());
     Dmat_->applyUnary(Elementwise::SquareRoot<Real>());
   }
@@ -210,7 +210,7 @@ private:
   // Build diagonal D and C matrices
   void initialize(Objective<Real> &obj, BoundConstraint<Real> &bnd,
                   const Vector<Real> &x, const Vector<Real> &g) {
-    bnd_ = Teuchos::rcpFromRef(bnd);
+    bnd_.reset(&bnd);
 
     prim_ = x.clone();
     dual_ = g.clone();
@@ -262,7 +262,7 @@ private:
       singleReflect_(singleReflect), sCs_(0), pred_(0) {
     initialize(obj,bnd,x,g);
   }
- 
+
   // Note that s is the \f$\hat{s}\f$ and \f$\psi\f$ is the $\hat\psi$ from the paper
   Real value( const Vector<Real> &s, Real &tol ) {
     const std::shared_ptr<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
@@ -273,14 +273,14 @@ private:
     applyInverseD(*prim_, gc->dual());
     // Add scaled gradient to Hessian in direction s
     hv_->plus(prim_->dual());
-    return hv_->dot(s.dual());    
+    return hv_->dot(s.dual());
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &s, Real &tol ) {
     const std::shared_ptr<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
     hessVec(g, s, s, tol);
     applyInverseD(*prim_, gc->dual());
-    g.plus(prim_->dual());    
+    g.plus(prim_->dual());
   }
 
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &s, Real &tol ) {
@@ -292,19 +292,19 @@ private:
     }
     else {
       const std::shared_ptr<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
-      TrustRegionModel<Real>::getObjective()->hessVec(*dual_, *prim_, *xc, tol);   
+      TrustRegionModel<Real>::getObjective()->hessVec(*dual_, *prim_, *xc, tol);
     }
     applyInverseD(hv, *dual_);
     // Build C = diag(g) J
     applyC(*prim_, v);
-    hv.plus(prim_->dual()); 
+    hv.plus(prim_->dual());
   }
-  
+
   void dualTransform( Vector<Real> &tv, const Vector<Real> &v ) {
     applyInverseD(tv, v);
   }
 
-  void primalTransform( Vector<Real> &tiv, const Vector<Real> &v ) { 
+  void primalTransform( Vector<Real> &tiv, const Vector<Real> &v ) {
     Real tol = std::sqrt(ROL_EPSILON<Real>());
 
     /**************************************************************************/
