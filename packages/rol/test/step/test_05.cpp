@@ -77,8 +77,7 @@ int main(int argc, char *argv[]) {
   try {
 
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile( filename);
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",true);
 #if USE_HESSVEC
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",false);
@@ -90,7 +89,7 @@ int main(int argc, char *argv[]) {
     parlist->sublist("General").sublist("Krylov").set("Relative Tolerance", 1.e-4);
     parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 50);
 
-    for ( ROL::ETestOptProblem prob = ROL::TESTOPTPROBLEM_HS1; prob < ROL::TESTOPTPROBLEM_LAST; prob++ ) { 
+    for ( ROL::ETestOptProblem prob = ROL::TESTOPTPROBLEM_HS1; prob < ROL::TESTOPTPROBLEM_LAST; prob++ ) {
       if ( prob != ROL::TESTOPTPROBLEM_HS5 ) {
         // PDAS parameters.
         switch (prob) {
@@ -131,34 +130,34 @@ int main(int argc, char *argv[]) {
           case ROL::TESTOPTPROBLEM_LAST: break;
         }
         *outStream << std::endl << std::endl << ROL:: ETestOptProblemToString(prob)  << std::endl << std::endl;
-  
+
         // Get Objective Function
         std::shared_ptr<ROL::Vector<RealT> > x0, z;
         std::shared_ptr<ROL::Objective<RealT> > obj;
         std::shared_ptr<ROL::BoundConstraint<RealT> > con;
         ROL::getTestObjectives<RealT>(obj,con,x0,z,prob);
         std::shared_ptr<ROL::Vector<RealT> > x = x0->clone();
-  
+
         // Get Dimension of Problem
-        int dim = x0->dimension(); 
+        int dim = x0->dimension();
         parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 2*dim);
-  
+
         // Error Vector
         std::shared_ptr<ROL::Vector<RealT> > e = x0->clone();
         e->zero();
-        
+
         // Define Algorithm
         ROL::Algorithm<RealT> algo("Primal Dual Active Set",*parlist,false);
-  
+
         // Run Algorithm
         x->set(*x0);
         algo.run(*x, *obj, *con, true, *outStream);
-  
+
         // Compute Error
         e->set(*x);
         e->axpy(-1.0,*z);
         *outStream << std::endl << "Norm of Error: " << e->norm() << std::endl;
-  
+
         // Update error flag
         std::shared_ptr<const ROL::AlgorithmState<RealT> > state = algo.getState();
         errorFlag += ((e->norm() < std::max(1.e-6*z->norm(),1.e-8) || (state->gnorm < 1.e-6)) ? 0 : 1);
@@ -178,4 +177,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

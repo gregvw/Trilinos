@@ -153,9 +153,8 @@ int main(int argc, char* argv[]) {
     /************************* CONSTRUCT ROL ALGORITHM ********************************************/
     /**********************************************************************************************/
     // Get ROL parameterlist
-    std::string filename = "input_01.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    const std::string filename = "input_01.xml";
+    auto parlist = Teuchos::getParametersFromXmlFile(filename);
     Teuchos::ParameterList list = *parlist;
     /**********************************************************************************************/
     /************************* CONSTRUCT SOL COMPONENTS *******************************************/

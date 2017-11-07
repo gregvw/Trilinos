@@ -79,14 +79,13 @@ int main(int argc, char *argv[]) {
   try {
 
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile( filename);
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",true);
 #if USE_HESSVEC
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",false);
 #endif
 
-    for ( ROL::ETestOptProblem prob = ROL::TESTOPTPROBLEM_HS1; prob < ROL::TESTOPTPROBLEM_LAST; prob++ ) { 
+    for ( ROL::ETestOptProblem prob = ROL::TESTOPTPROBLEM_HS1; prob < ROL::TESTOPTPROBLEM_LAST; prob++ ) {
       if ( prob == ROL::TESTOPTPROBLEM_HS2 || prob == ROL::TESTOPTPROBLEM_BVP ) {
         parlist->sublist("Step").sublist("Line Search").set("Initial Step Size",1.e-4);
         parlist->sublist("Step").sublist("Trust Region").set("Initial Radius",-1.e1);
@@ -126,13 +125,13 @@ int main(int argc, char *argv[]) {
       std::shared_ptr<ROL::Vector<RealT> > e = x0->clone();;
       e->zero();
 
-      //ROL::ETrustRegion tr = ROL::TRUSTREGION_CAUCHYPOINT; 
-      //ROL::ETrustRegion tr = ROL::TRUSTREGION_DOGLEG; 
-      //ROL::ETrustRegion tr = ROL::TRUSTREGION_DOUBLEDOGLEG; 
-      ROL::ETrustRegion tr = ROL::TRUSTREGION_TRUNCATEDCG; 
+      //ROL::ETrustRegion tr = ROL::TRUSTREGION_CAUCHYPOINT;
+      //ROL::ETrustRegion tr = ROL::TRUSTREGION_DOGLEG;
+      //ROL::ETrustRegion tr = ROL::TRUSTREGION_DOUBLEDOGLEG;
+      ROL::ETrustRegion tr = ROL::TRUSTREGION_TRUNCATEDCG;
       parlist->sublist("Step").sublist("Trust Region").set("Subproblem Solver", ROL::ETrustRegionToString(tr));
       *outStream << std::endl << std::endl << ROL::ETrustRegionToString(tr) << std::endl << std::endl;
-      
+
       // Define Algorithm
       ROL::Algorithm<RealT> algo("Trust Region",*parlist,false);
 
@@ -159,4 +158,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

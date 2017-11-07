@@ -74,8 +74,7 @@ int main(int argc, char *argv[]) {
 
   try {
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile( filename);
 
     // Setup optimization problem
     std::shared_ptr<ROL::Vector<RealT> > x0, z;
@@ -86,7 +85,7 @@ int main(int argc, char *argv[]) {
     ROL::OptimizationProblem<RealT> optProblem(obj,x,bnd);
 
     // Get Dimension of Problem
-    int dim = x0->dimension(); 
+    int dim = x0->dimension();
     parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 2*dim);
 
     // Check Derivatives
@@ -124,4 +123,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

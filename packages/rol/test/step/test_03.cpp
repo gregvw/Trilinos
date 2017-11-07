@@ -77,14 +77,13 @@ int main(int argc, char *argv[]) {
   try {
 
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile( filename);
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",true);
 #if USE_HESSVEC
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",false);
 #endif
 
-    for ( ROL::ETestOptProblem prob = ROL::TESTOPTPROBLEM_HS1; prob < ROL::TESTOPTPROBLEM_LAST; prob++ ) { 
+    for ( ROL::ETestOptProblem prob = ROL::TESTOPTPROBLEM_HS1; prob < ROL::TESTOPTPROBLEM_LAST; prob++ ) {
       *outStream << "\n\n" << ROL:: ETestOptProblemToString(prob)  << "\n\n";
 
       // Get Objective Function
@@ -95,7 +94,7 @@ int main(int argc, char *argv[]) {
       std::shared_ptr<ROL::Vector<RealT> > x = x0->clone();
 
       // Get Dimension of Problem
-      int dim = x0->dimension(); 
+      int dim = x0->dimension();
       parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 2*dim);
 
       // Check Derivatives
@@ -106,11 +105,11 @@ int main(int argc, char *argv[]) {
       std::shared_ptr<ROL::Vector<RealT> > e = x0->clone();
       e->zero();
 
-      //ROL::EDescent desc = ROL::DESCENT_STEEPEST; 
-      ROL::EDescent desc = ROL::DESCENT_NEWTONKRYLOV; 
+      //ROL::EDescent desc = ROL::DESCENT_STEEPEST;
+      ROL::EDescent desc = ROL::DESCENT_NEWTONKRYLOV;
       parlist->sublist("Step").sublist("Line Search").sublist("Descent Method").set("Type", ROL::EDescentToString(desc));
       *outStream << std::endl << std::endl << ROL::EDescentToString(desc) << std::endl << std::endl;
-      
+
       // Define Algorithm
       ROL::Algorithm<RealT> algo("Line Search",*parlist,false);
 
@@ -137,4 +136,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

@@ -77,8 +77,7 @@ int main(int argc, char *argv[]) {
   try {
 
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile(filename);
 
     // Loop Through Test Objectives
     for ( ROL::ETestObjectives objFunc = ROL::TESTOBJECTIVES_ROSENBROCK; objFunc < ROL::TESTOBJECTIVES_LAST; objFunc++ ) {
@@ -109,7 +108,7 @@ int main(int argc, char *argv[]) {
         x->set(*x0);
         algo.run(*x, *obj, true, *outStream);
 
-        // Compute Error 
+        // Compute Error
         e->set(*x);
         e->axpy(-1.0,*z);
         *outStream << std::endl << "Norm of Error: " << e->norm() << std::endl;
@@ -129,4 +128,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

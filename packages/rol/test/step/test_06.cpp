@@ -77,8 +77,7 @@ int main(int argc, char *argv[]) {
   try {
 
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile( filename);
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",true);
 #if USE_HESSVEC
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",false);
@@ -117,7 +116,7 @@ int main(int argc, char *argv[]) {
         e->set(*x);
         e->axpy(-1.0,*z);
         *outStream << std::endl << "Norm of Error: " << e->norm() << std::endl;
-        //errorFlag += (int)(e.norm() < std::sqrt(ROL::ROL_EPSILON<RealT>())); 
+        //errorFlag += (int)(e.norm() < std::sqrt(ROL::ROL_EPSILON<RealT>()));
       }
     }
   }
@@ -134,4 +133,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

@@ -262,7 +262,7 @@ public:
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
     (dynamic_cast<RiskVector<Real>&>(g)).setStatistic(var,comp,index);
-    (dynamic_cast<RiskVector<Real> >(g)).setVector(*(RiskMeasure<Real&>::dualVector_));
+    (dynamic_cast<RiskVector<Real>&>(g)).setVector(*(RiskMeasure<Real>::dualVector_));
   }
 
   void update(const Real val, const Vector<Real> &g, const Real gv, const Vector<Real> &hv,
@@ -327,7 +327,7 @@ public:
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
     (dynamic_cast<RiskVector<Real>&>(hv)).setStatistic(var,comp,index);
-    (dynamic_cast<RiskVector<Real> >(hv)).setVector(*(RiskMeasure<Real&>::dualVector_));
+    (dynamic_cast<RiskVector<Real>&>(hv)).setVector(*(RiskMeasure<Real>::dualVector_));
   }
 };
 
