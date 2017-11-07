@@ -60,8 +60,7 @@ typedef double RealT;
 int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  std::shared_ptr<const Teuchos::Comm<int> > commptr =
-    Teuchos::DefaultComm<int>::getComm();
+  auto commptr = Teuchos::DefaultComm<int>::getComm();
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
@@ -100,9 +99,8 @@ int main(int argc, char* argv[]) {
     }
 
     // Get ROL parameterlist
-    std::string filename = "input_04.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    const std::string filename = "input_04.xml";
+    auto parlist = Teuchos::getParametersFromXmlFile(filename);
 
     Teuchos::ParameterList &list = parlist->sublist("SOL").sublist("Sample Generator").sublist("SROM");
     Teuchos::Array<int> moments = Teuchos::getArrayFromStringParameter<int>(list,"Moments");
@@ -146,7 +144,7 @@ int main(int argc, char* argv[]) {
 //    std::ofstream file;
 //    std::stringstream name;
 //    name << "samples." << commptr->getRank() << ".txt";
-//    file.open(name.str().c_str()); 
+//    file.open(name.str().c_str());
 //    for (size_t k = 0; k < (size_t)sampler->numMySamples(); k++) {
 //      for (size_t d = 0; d < dimension; d++) {
 //        file << std::setprecision(std::numeric_limits<RealT>::digits10)

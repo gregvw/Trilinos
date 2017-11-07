@@ -43,7 +43,7 @@
 
 /*! \file  test_02.cpp
     \brief Test ScalarLinearConstraint
-           
+
 */
 
 #include "ROL_ScalarLinearConstraint.hpp"
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 
   using V = ROL::Vector<RealT>;
 
-   
+
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
@@ -84,9 +84,9 @@ int main(int argc, char *argv[]) {
   try {
 
     int xdim = 5;
-    
+
     // Optimization vector
-    std::shared_ptr<V> a  = std::make_shared<ROL::StdVector<RealT>( rcp( new std::vector<RealT>>(xdim) ) );
+    std::shared_ptr<V> a  = std::make_shared<ROL::StdVector<RealT>>(std::make_shared<std::vector<RealT>>(xdim));
     std::shared_ptr<V> c  = std::make_shared<ROL::SingletonVector<RealT>>( 0.0 );
 
     std::shared_ptr<V> x = a->clone();
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<V> v = c->clone();
 
     RealT b = 0.5;
- 
+
     ROL::RandomizeVector(*a);
     ROL::RandomizeVector(*x);
     ROL::RandomizeVector(*d);
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
     con.checkAdjointConsistencyJacobian(*v,*d,*x,true,*outStream);
     con.checkApplyAdjointHessian(*x,*v,*d,*x,true,*outStream);
 
-    
+
 
   }
   catch (std::logic_error err) {
@@ -130,4 +130,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

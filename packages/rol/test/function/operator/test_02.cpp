@@ -42,7 +42,7 @@
 // @HEADER
 
 /*! \file  test_02.cpp
-    \brief Test of StdTridiagonalOperator 
+    \brief Test of StdTridiagonalOperator
 */
 
 #include "ROL_StdTridiagonalOperator.hpp"
@@ -53,14 +53,14 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-   
+
 
   using SV  = ROL::StdVector<RealT>;
   using MAT = ROL::StdLinearOperator<RealT>;
-  using TRI = ROL::StdTridiagonalOperator<RealT>; 
+  using TRI = ROL::StdTridiagonalOperator<RealT>;
 
   using vector = std::vector<RealT>;
-  
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
@@ -80,34 +80,35 @@ int main(int argc, char *argv[]) {
   int errorFlag  = 0;
 
   RealT tol = ROL::ROL_EPSILON<RealT>();
- 
+
   // *** Test body.
 
   try {
-   
-    int dim = 3;    
 
-    std::shared_ptr<vector> m_rcp = std::make_shared<vector>({  3.0, 1.0, 0.0, -2.0, 6.0, 2.0, 0.0, -1.0, 3.0 });
-    std::shared_ptr<vector> a_rcp = std::make_shared<vector>({  3.0, 6.0, 3.0} );
-    std::shared_ptr<vector> b_rcp = std::make_shared<vector>({ -2.0,-1.0 } );
-    std::shared_ptr<vector> c_rcp = std::make_shared<vector>({  1.0, 2.0 } );
+    int dim = 3;
+
+    auto m_rcp = std::make_shared<vector, std::initializer_list<RealT>>
+      ({  3.0, 1.0, 0.0, -2.0, 6.0, 2.0, 0.0, -1.0, 3.0 });
+    auto a_rcp = std::make_shared<vector, std::initializer_list<RealT>>({  3.0, 6.0, 3.0});
+    auto b_rcp = std::make_shared<vector, std::initializer_list<RealT>>({ -2.0,-1.0 });
+    auto c_rcp = std::make_shared<vector, std::initializer_list<RealT>>({  1.0, 2.0 });
 
     MAT M(m_rcp);
-    TRI T(a_rcp,b_rcp,c_rcp);   
+    TRI T(a_rcp,b_rcp,c_rcp);
 
-    SV xm( std::make_shared<vector>( {1.0, 2.0,-1.0} ) );
+    SV xm( std::make_shared<vector, std::initializer_list<RealT>>({1.0, 2.0,-1.0}));
     SV ym( std::make_shared<vector>( dim ) );
     SV zm( std::make_shared<vector>( dim ) );
-    
+
     SV xt( std::make_shared<vector>( dim ) );
     SV yt( std::make_shared<vector>( dim ) );
     SV zt( std::make_shared<vector>( dim ) );
-  
+
     SV error( std::make_shared<vector>(dim) );
     RealT nerr = 0;
- 
+
     xt.set(xm);
- 
+
     M.apply(ym,xm,tol);
     M.applyInverse(zm,ym,tol);
 
@@ -115,13 +116,13 @@ int main(int argc, char *argv[]) {
     *outStream << "x = "; xm.print(*outStream);
     *outStream << "y = Ax = "; ym.print(*outStream);
     *outStream << "z = inv(A)y = "; zm.print(*outStream);
-     
+
     *outStream << "\nUsing StdTridiagonalOperator - T is tridiagonal representation" << std::endl;
     T.apply(yt,xt,tol);
     *outStream << "y = Tx = "; yt.print(*outStream);
     error.set(yt);
     error.axpy(-1.0,ym);
-    nerr = error.norm();  
+    nerr = error.norm();
     errorFlag += static_cast<int>(nerr>tol);
     *outStream << "apply() error = " << nerr <<std::endl;
 
@@ -132,20 +133,20 @@ int main(int argc, char *argv[]) {
     nerr = error.norm();
     errorFlag += static_cast<int>(nerr>tol);
     *outStream << "applyInverse() error = " << nerr <<std::endl;
-         
+
     M.applyAdjoint(ym,xm,tol);
     M.applyAdjointInverse(zm,ym,tol);
     *outStream << "\nUsing StdLinearOperator - A is full matrix representation" << std::endl;
     *outStream << "x = "; xm.print(*outStream);
     *outStream << "y = A'x = "; ym.print(*outStream);
     *outStream << "z = inv(A')y = "; zm.print(*outStream);
-        
+
     *outStream << "\nUsing StdTridiagonalOperator - T is tridiagonal representation" << std::endl;
     T.applyAdjoint(yt,xt,tol);
     *outStream << "y = T'x = "; yt.print(*outStream);
     error.set(yt);
     error.axpy(-1.0,ym);
-    nerr = error.norm();  
+    nerr = error.norm();
     errorFlag += static_cast<int>(nerr>tol);
     *outStream << "applyAdjoint() error = " << nerr <<std::endl;
 
@@ -156,9 +157,9 @@ int main(int argc, char *argv[]) {
     nerr = error.norm();
     errorFlag += static_cast<int>(nerr>tol);
     *outStream << "applyAdjointInverse() error = " << nerr <<std::endl;
- 
 
-    
+
+
 
   }
   catch (std::logic_error err) {
@@ -177,4 +178,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

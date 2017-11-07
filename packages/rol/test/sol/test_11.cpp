@@ -215,8 +215,7 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Get ROL parameterlist
     std::string filename = "input_11.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile(filename);
     Teuchos::ParameterList list = *parlist;
     /**********************************************************************************************/
     /************************* CONSTRUCT SOL COMPONENTS *******************************************/

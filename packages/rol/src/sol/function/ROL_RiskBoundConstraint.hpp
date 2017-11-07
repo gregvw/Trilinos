@@ -383,8 +383,8 @@ public:
       for (int i = 0; i < size; ++i) {
         lowerCon[i] = std::make_shared<std::vector<Real>>(lowerCon_[i]);
       }
-      lo_ = std::make_shared<RiskVector<Real>>(std::const_pointer_cast<Vector<Real>>(vlo(),
-                                               lowerObj,lowerCon));
+      lo_ = std::make_shared<RiskVector<Real>>(std::const_pointer_cast<Vector<Real>>(vlo),
+                                               lowerObj,lowerCon);
       isLOinitialized_ = true;
     }
     return lo_;
@@ -399,8 +399,8 @@ public:
       for (int i = 0; i < size; ++i) {
         upperCon[i] = std::make_shared<std::vector<Real>>(upperCon_[i]);
       }
-      hi_ = std::make_shared<RiskVector<Real>>(std::const_pointer_cast<Vector<Real> >(vhi(),
-                                              upperObj,upperCon));
+      hi_ = std::make_shared<RiskVector<Real>>(std::const_pointer_cast<Vector<Real> >(vhi),
+                                               upperObj,upperCon);
       isHIinitialized_ = true;
     }
     return hi_;

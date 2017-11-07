@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
-   
+
 
   using Obj     = ROL::Objective<RealT>;
   using Con     = ROL::Constraint<RealT>;
@@ -97,21 +97,21 @@ int main(int argc, char *argv[]) {
 
     int xdim = 5;
     int cdim = 3;
-    
+
     // Optimization vector
-    std::shared_ptr<V> x  = std::make_shared<StdV( rcp( new std::vector<RealT>>(xdim) ) );
-    std::shared_ptr<V> c  = std::make_shared<StdV( rcp( new std::vector<RealT>>(cdim) ) );
+    std::shared_ptr<V> x  = std::make_shared<StdV>(std::make_shared<std::vector<RealT>>(xdim));
+    std::shared_ptr<V> c  = std::make_shared<StdV>(std::make_shared<std::vector<RealT>>(cdim));
     std::shared_ptr<V> e0 = c->basis(0);
     std::shared_ptr<V> e1 = c->basis(1);
     std::shared_ptr<V> e2 = c->basis(2);
- 
+
     // Exact solution
-    std::shared_ptr<V> sol   = x->clone();   
+    std::shared_ptr<V> sol   = x->clone();
     std::shared_ptr<V> error = x->clone();
 
-    std::shared_ptr<Obj> obj = nullptr; 
+    std::shared_ptr<Obj> obj = nullptr;
     std::shared_ptr<Con> con = nullptr;
-    
+
     ROL::ZOO::getSimpleEqConstrained<RealT,StdV,StdV,StdV,StdV>( obj, con, *x, *sol );
 
     error->set(*sol);
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<Con> con_0 = std::make_shared<ROL::ConstraintFromObjective<RealT>>( obj_0 );
     std::shared_ptr<Con> con_1 = std::make_shared<ROL::ConstraintFromObjective<RealT>>( obj_1 );
     std::shared_ptr<Con> con_2 = std::make_shared<ROL::ConstraintFromObjective<RealT>>( obj_2 );
-    
+
     std::vector<std::shared_ptr<Con> > con_array;
     con_array.push_back(con_0);
     con_array.push_back(con_1);
@@ -135,18 +135,18 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<V> l0 = std::make_shared<ScalarV>(0);
     std::shared_ptr<V> l1 = std::make_shared<ScalarV>(0);
     std::shared_ptr<V> l2 = std::make_shared<ScalarV>(0);
-  
+
     std::vector<std::shared_ptr<V> > l_array;
     l_array.push_back(l0);
     l_array.push_back(l1);
     l_array.push_back(l2);
-   
+
     ROL::OptimizationProblem<RealT> opt( obj,             // Objective
                                          x,               // Optimization vector
                                          nullptr,   // No bound constraint
                                          con_array,       // Array of scalar equality constraints
                                          l_array);        // Array of scalar lagrange multipliers
- 
+
     opt.check(*outStream);
 
     // Define algorithm.
@@ -168,10 +168,10 @@ int main(int argc, char *argv[]) {
 
     error->axpy(-1.0,*x);
     RealT error_norm = error->norm();
-    
+
     *outStream << "\n\n Relative norm of final optimization vector error: " << error_norm << std::endl;
-    
-    if(error_norm>tol) 
+
+    if(error_norm>tol)
       ++errorFlag;
 
   }
@@ -191,4 +191,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

@@ -44,14 +44,14 @@
 /*! \file  test_01.cpp
     \brief Test of StdLinearOperator, its inverse and transpose
 
-    \f$ A=\begin{pmatrix} 4 & 1 \\ 2 & 3 \end{pmatrix},\quad 
+    \f$ A=\begin{pmatrix} 4 & 1 \\ 2 & 3 \end{pmatrix},\quad
         A^{-1}=\frac{1}{10}\begin{pmatrix} 4 & -1 \\ -2 & 3 \end{pmatrix} \f$
 
     1) Compute \f$b\f$ in \f$Ax = b\f$, when \f$ x=\begin{pmatrix} 1 \\ -1 \end{pmatrix}\f$
- 
+
     2) Solve for \f$x\f$ in the above when \f$b=\begin{pmatrix} 3 \\ -1 \end{pmatrix}\f$
 
-    3) Compute \f$c\f$ in \f$A^\top y=c\f$ when \f$y=\begin{pmatrix} -2 \\ 1 \end{pmatrix}\f$ 
+    3) Compute \f$c\f$ in \f$A^\top y=c\f$ when \f$y=\begin{pmatrix} -2 \\ 1 \end{pmatrix}\f$
 
     4) Solve for \f$y\f$ in the above when \f$c=\begin{pmatrix} -6 \\ 1 \end{pmatrix}\f$
 
@@ -66,7 +66,7 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-   
+
 
   typedef std::vector<RealT>            vector;
 
@@ -96,20 +96,20 @@ int main(int argc, char *argv[]) {
 
   try {
 
-    std::shared_ptr<vector> a_rcp  = std::make_shared<vector {4.0,2.0,1.0,3.0}>();
-    std::shared_ptr<vector> ai_rcp = std::make_shared<vector {3.0/10.0, -2.0/10.0, -1.0/10.0, 4.0/10.0}>();
+    auto a_rcp = std::make_shared<vector, std::initializer_list<RealT>>({4.0,2.0,1.0,3.0});
+    auto ai_rcp = std::make_shared<vector, std::initializer_list<RealT>>({3.0/10.0, -2.0/10.0, -1.0/10.0, 4.0/10.0});
 
-    std::shared_ptr<vector> x1_rcp  = std::make_shared<vector {1.0,-1.0}>();
-    std::shared_ptr<vector> b1_rcp = std::make_shared<vector>(2);
+    auto x1_rcp  = std::make_shared<vector, std::initializer_list<RealT>>({1.0,-1.0});
+    auto b1_rcp = std::make_shared<vector>(2);
 
-    std::shared_ptr<vector> x2_rcp = std::make_shared<vector>(2);
-    std::shared_ptr<vector> b2_rcp  = std::make_shared<vector {3.0,-1.0}>();
-    
-    std::shared_ptr<vector> y3_rcp = std::make_shared<vector {-2.0,1.0}>();
-    std::shared_ptr<vector> c3_rcp = std::make_shared<vector>(2);
+    auto x2_rcp = std::make_shared<vector>(2);
+    auto b2_rcp  = std::make_shared<vector, std::initializer_list<RealT>>({3.0,-1.0});
 
-    std::shared_ptr<vector> y4_rcp = std::make_shared<vector>(2);
-    std::shared_ptr<vector> c4_rcp = std::make_shared<vector {-6.0,1.0}>();
+    auto y3_rcp = std::make_shared<vector, std::initializer_list<RealT>>({-2.0,1.0});
+    auto c3_rcp = std::make_shared<vector>(2);
+
+    auto y4_rcp = std::make_shared<vector>(2);
+    auto c4_rcp = std::make_shared<vector, std::initializer_list<RealT>>({-6.0,1.0});
 
     StdLinearOperator A(a_rcp);
     StdLinearOperator Ai(ai_rcp);
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
     errorFlag += error1 > tol;
     *outStream << "Error = " << error1 << std::endl;
 
-    // Test 2    
+    // Test 2
     *outStream << "\nTest 2: Linear solve" << std::endl;
     A.applyInverse(*x2_rcp,*b2_rcp,tol);
     *outStream << "x = [" << (*x2_rcp)[0] << "," << (*x2_rcp)[1] << "]" << std::endl;
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
     errorFlag += error4 > tol;
     *outStream << "Error = " << error4 << std::endl;
 
-    *outStream << "x1 = ";  x1.print(*outStream); 
+    *outStream << "x1 = ";  x1.print(*outStream);
     Ai.applyInverse(b1,x1,tol);
     *outStream << "b1 = ";  b1.print(*outStream);
     A.apply(b1,x1,tol);
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
     *outStream << "x1 = ";  x1.print(*outStream);
     Ai.apply(x1,b1,tol);
     *outStream << "x1 = ";  x1.print(*outStream);
-    
+
 
   }
   catch (std::logic_error err) {
@@ -191,4 +191,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

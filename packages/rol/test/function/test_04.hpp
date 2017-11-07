@@ -579,7 +579,7 @@ public:
   }
 
   std::shared_ptr<ROL::Vector<Real> > clone() const {
-    return std::make_shared<L2VectorPrimal>(std::make_shared<std::vector<Real>>(vec_->size(),0.0));
+    return std::make_shared<L2VectorPrimal>(std::make_shared<std::vector<Real>>(vec_->size(),0.0), fem_);
   }
 
   std::shared_ptr<const std::vector<Real> > getVector() const {
@@ -592,7 +592,7 @@ public:
 
   std::shared_ptr<ROL::Vector<Real> > basis( const int i ) const {
     std::shared_ptr<L2VectorPrimal> e
-      = std::make_shared<L2VectorPrimal>(std::make_shared<std::vector<Real>>(vec_->size(),0.0));
+      = std::make_shared<L2VectorPrimal>(std::make_shared<std::vector<Real>>(vec_->size(),0.0), fem_);
     (*e->getVector())[i] = 1.0;
     return e;
   }
@@ -667,7 +667,7 @@ public:
   }
 
   std::shared_ptr<ROL::Vector<Real> > clone() const {
-    return std::make_shared<L2VectorDual>(std::make_shared<std::vector<Real>>(vec_->size(),0.0));
+    return std::make_shared<L2VectorDual>(std::make_shared<std::vector<Real>>(vec_->size(),0.0), fem_);
   }
 
   std::shared_ptr<const std::vector<Real> > getVector() const {
@@ -680,7 +680,7 @@ public:
 
   std::shared_ptr<ROL::Vector<Real> > basis( const int i ) const {
     std::shared_ptr<L2VectorDual> e
-      = std::make_shared<L2VectorDual>(std::make_shared<std::vector<Real>>(vec_->size(),0.0));
+      = std::make_shared<L2VectorDual>(std::make_shared<std::vector<Real>>(vec_->size(),0.0), fem_);
     (*e->getVector())[i] = 1.0;
     return e;
   }
@@ -760,7 +760,7 @@ public:
 
   std::shared_ptr<ROL::Vector<Real> > basis( const int i ) const {
     std::shared_ptr<H1VectorPrimal> e
-      = std::make_shared<H1VectorPrimal>(std::make_shared<std::vector<Real>>(vec_->size(),0.0));
+      = std::make_shared<H1VectorPrimal>(std::make_shared<std::vector<Real>>(vec_->size(),0.0), fem_);
     (*e->getVector())[i] = 1.0;
     return e;
   }
@@ -834,7 +834,7 @@ public:
   }
 
   std::shared_ptr<ROL::Vector<Real> > clone() const {
-    return std::make_shared<H1VectorDual>(std::make_shared<std::vector<Real>>(vec_->size(),0.0));
+    return std::make_shared<H1VectorDual>(std::make_shared<std::vector<Real>>(vec_->size(),0.0), fem_);
   }
 
   std::shared_ptr<const std::vector<Real> > getVector() const {
@@ -847,7 +847,7 @@ public:
 
   std::shared_ptr<ROL::Vector<Real> > basis( const int i ) const {
     std::shared_ptr<H1VectorDual> e
-      = std::make_shared<H1VectorDual>(std::make_shared<std::vector<Real>>(vec_->size(),0.0));
+      = std::make_shared<H1VectorDual>(std::make_shared<std::vector<Real>>(vec_->size(),0.0), fem_);
     (*e->getVector())[i] = 1.0;
     return e;
   }

@@ -42,10 +42,10 @@
 // @HEADER
 
 /*! \file  test_03.cpp
-    \brief Test action of a BlockOperator on a PartitionedVector 
-    \details Apply a \f$ 2\times 2\f$ block operator \f$H\$ to a partitioned vector 
+    \brief Test action of a BlockOperator on a PartitionedVector
+    \details Apply a \f$ 2\times 2\f$ block operator \f$H\$ to a partitioned vector
              \f$ x = \begin{pmatrix} x_1 & x_2 \end{pmatrix} \f$ where
-             \f[ H=\begin{pmatrix} A & B \\ 0 & C \f] 
+             \f[ H=\begin{pmatrix} A & B \\ 0 & C \f]
 
 */
 
@@ -71,15 +71,15 @@ void print_vector( const ROL::Vector<Real> &x ) {
 
   const PV eb = dynamic_cast<const PV&>(x);
   size_type n = eb.numVectors();
-    
+
   for(size_type k=0; k<n; ++k) {
     std::cout << "[subvector " << k << "]" << std::endl;
     std::shared_ptr<const V> vec = eb.get(k);
-    std::shared_ptr<const std::vector<Real> > vp = 
-      dynamic_cast<SV>(const_cast<V&&>(*vec)).getVector();  
+    std::shared_ptr<const std::vector<Real> > vp =
+      dynamic_cast<SV>(const_cast<V&&>(*vec)).getVector();
    for(size_type i=0;i<vp->size();++i) {
       std::cout << (*vp)[i] << std::endl;
-    }  
+    }
   }
 }
 
@@ -108,11 +108,11 @@ int main(int argc, char *argv[]) {
 
   std::shared_ptr<std::ostream> outStream;
   oblackholestream bhs; // no output
- 
-  if( iprint>0 ) 
-    outStream = &std::cout,false;
+
+  if( iprint>0 )
+    outStream.reset(&std::cout);
   else
-    outStream = &bhs,false;
+    outStream.reset(&bhs);
 
   int errorFlag = 0;
 
@@ -121,10 +121,10 @@ int main(int argc, char *argv[]) {
   try {
 
     uint dim   = 3;  // Number of elements in each subvector (could be different)
- 
+
     std::shared_ptr<vector> x1_rcp = std::make_shared<vector>(dim,1.0);
     std::shared_ptr<vector> x2_rcp = std::make_shared<vector>(dim,2.0);
- 
+
     std::shared_ptr<vector> y1_rcp = std::make_shared<vector>(dim,0.0);
     std::shared_ptr<vector> y2_rcp = std::make_shared<vector>(dim,0.0);
 
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<V> y2 = std::make_shared<SV>( y2_rcp);
 
     std::shared_ptr<V> z1 = std::make_shared<SV>( z1_rcp);
-    std::shared_ptr<V> z2 = std::make_shared<SV>( z2_rcp); 
+    std::shared_ptr<V> z2 = std::make_shared<SV>( z2_rcp);
 
     std::shared_ptr<V> x = ROL::CreatePartitionedVector( x1, x2 );
     std::shared_ptr<V> y = ROL::CreatePartitionedVector( y1, y2 );
@@ -156,23 +156,23 @@ int main(int argc, char *argv[]) {
     (*d1_rcp)[1] = 5.0;   (*d2_rcp)[1] = 2.0;
     (*d1_rcp)[2] = 4.0;   (*d2_rcp)[2] = 1.0;
 
-    (*z1_rcp)[0] = 6.0;   (*z2_rcp)[0] = 6.0;    
+    (*z1_rcp)[0] = 6.0;   (*z2_rcp)[0] = 6.0;
     (*z1_rcp)[1] = 11.0;  (*z2_rcp)[1] = 4.0;
     (*z1_rcp)[2] = 4.0;   (*z2_rcp)[2] = 2.0;
 
-    (*u_rcp)[1] = 1.0;    
+    (*u_rcp)[1] = 1.0;
 
     std::shared_ptr<V> d1 = std::make_shared<SV>(d1_rcp);
     std::shared_ptr<V> d2 = std::make_shared<SV>(d2_rcp);
     std::shared_ptr<V> u  = std::make_shared<SV>(u_rcp);
     std::shared_ptr<V> v  = std::make_shared<SV>(v_rcp);
-    
+
     std::shared_ptr<LinOp> D1 = std::make_shared<DiagOp>(*d1);
     std::shared_ptr<LinOp> NO = std::make_shared<NullOp>();
     std::shared_ptr<LinOp> UV = std::make_shared<DyadOp>(u,v);
     std::shared_ptr<LinOp> D2 = std::make_shared<DiagOp>(*d2);
 
-   
+
     RealT tol = 0.0;
 
     D1->apply(*x1,*x1,tol);
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
     ROL::BlockOperator2<RealT> bkop(D1,NO,UV,D2);
 
 
-    bkop.apply(*y,*x,tol);  
+    bkop.apply(*y,*x,tol);
 
     z->axpy(-1.0,*y);
 
@@ -198,7 +198,6 @@ int main(int argc, char *argv[]) {
     std::cout << "End Result: TEST FAILED\n";
   else
     std::cout << "End Result: TEST PASSED\n";
-  
-  return 0; 
-}
 
+  return 0;
+}

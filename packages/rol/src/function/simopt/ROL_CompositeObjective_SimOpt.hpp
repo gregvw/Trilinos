@@ -183,13 +183,13 @@ public:
     : obj_vec_(obj_vec), std_obj_(std_obj),
       isInitialized_(false), isValueComputed_(false),
       isGradientComputed_(false), isGradient1Computed_(false), isGradient2Computed_(false) {
-    obj_value_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_value_ = std::make_shared<std::vector<Real>>(obj_vec_.size(),0);
     obj_value_vec_ = std::make_shared<StdVector<Real>>(obj_value_);
-    obj_grad_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_grad_ = std::make_shared<std::vector<Real>>(obj_vec_.size(),0);
     obj_grad_vec_ = std::make_shared<StdVector<Real>>(obj_grad_);
-    obj_gv_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_gv_ = std::make_shared<std::vector<Real>>(obj_vec_.size(),0);
     obj_gv_vec_ = std::make_shared<StdVector<Real>>(obj_gv_);
-    obj_hess_ = std::make_shared<std::vector<Real>(obj_vec_.size>(),0);
+    obj_hess_ = std::make_shared<std::vector<Real>>(obj_vec_.size(),0);
     obj_hess_vec_ = std::make_shared<StdVector<Real>>(obj_hess_);
   }
 
@@ -228,7 +228,7 @@ public:
     }
   }
 
-  void hessVec_11( Vector<Real> &hv, const Vector<Real> &v, 
+  void hessVec_11( Vector<Real> &hv, const Vector<Real> &v,
              const Vector<Real> &u,  const Vector<Real> &z, Real &tol ) {
     hv.zero();
     computeHessVec11(v,u,z,tol);
@@ -239,7 +239,7 @@ public:
     }
   }
 
-  void hessVec_12( Vector<Real> &hv, const Vector<Real> &v, 
+  void hessVec_12( Vector<Real> &hv, const Vector<Real> &v,
              const Vector<Real> &u, const Vector<Real> &z, Real &tol ) {
     hv.zero();
     computeHessVec12(v,u,z,tol);
@@ -250,7 +250,7 @@ public:
     }
   }
 
-  void hessVec_21( Vector<Real> &hv, const Vector<Real> &v, 
+  void hessVec_21( Vector<Real> &hv, const Vector<Real> &v,
              const Vector<Real> &u, const Vector<Real> &z, Real &tol ) {
     hv.zero();
     computeHessVec21(v,u,z,tol);
@@ -261,7 +261,7 @@ public:
     }
   }
 
-  void hessVec_22( Vector<Real> &hv, const Vector<Real> &v, 
+  void hessVec_22( Vector<Real> &hv, const Vector<Real> &v,
              const Vector<Real> &u,  const Vector<Real> &z, Real &tol ) {
     hv.zero();
     computeHessVec22(v,u,z,tol);
