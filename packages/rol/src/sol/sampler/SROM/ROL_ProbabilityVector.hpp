@@ -121,17 +121,17 @@ public:
 
   std::shared_ptr<Vector<Real> > clone(void) const {
     uint numMySamples = static_cast<uint>(StdVector<Real>::getVector()->size());
-    return Teuchos::rcp(new PrimalProbabilityVector(
+    return std::make_shared<PrimalProbabilityVector>(
            std::make_shared<std::vector<Real>>(numMySamples),
-           BatchStdVector<Real>::getBatchManager(),scale_));
+           BatchStdVector<Real>::getBatchManager(),scale_);
   }
 
   const Vector<Real> & dual(void) const {
     uint numMySamples = static_cast<uint>(StdVector<Real>::getVector()->size());
     if ( !isDualInitialized_ ) {
-      dual_vec_ = Teuchos::rcp(new DualProbabilityVector<Real>(
+      dual_vec_ = std::make_shared<DualProbabilityVector<Real>>(
                   std::make_shared<std::vector<Real>>(numMySamples),
-                  BatchStdVector<Real>::getBatchManager(),scale_));
+                  BatchStdVector<Real>::getBatchManager(),scale_);
       isDualInitialized_ = true;
     }
     for (uint i = 0; i < numMySamples; ++i) {
@@ -174,17 +174,17 @@ public:
 
   std::shared_ptr<Vector<Real> > clone(void) const {
     uint numMySamples = static_cast<uint>(StdVector<Real>::getVector()->size());
-    return Teuchos::rcp(new DualProbabilityVector(
+    return std::make_shared<DualProbabilityVector>(
            std::make_shared<std::vector<Real>>(numMySamples),
-           BatchStdVector<Real>::getBatchManager(),scale_));
+           BatchStdVector<Real>::getBatchManager(),scale_);
   }
 
   const Vector<Real> & dual(void) const {
     uint numMySamples = static_cast<uint>(StdVector<Real>::getVector()->size());
     if ( !isDualInitialized_ ) {
-      primal_vec_ = Teuchos::rcp(new PrimalProbabilityVector<Real>(
+      primal_vec_ = std::make_shared<PrimalProbabilityVector<Real>>(
                     std::make_shared<std::vector<Real>>(numMySamples),
-                    BatchStdVector<Real>::getBatchManager(),scale_));
+                    BatchStdVector<Real>::getBatchManager(),scale_);
       isDualInitialized_ = true;
     }
     for (uint i = 0; i < numMySamples; i++) {

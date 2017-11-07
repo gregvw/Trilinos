@@ -69,7 +69,7 @@ public:
   BatchStdVector(const std::shared_ptr<std::vector<Real> > &vec,
                  const std::shared_ptr<BatchManager<Real> > &bman)
    : StdVector<Real>(vec), bman_(bman) {}
-   
+
   virtual Real dot(const Vector<Real> &x) const {
     const std::vector<Real> &xval = *(dynamic_cast<const StdVector<Real>&>(x).getVector());
     const std::vector<Real> &yval = *(StdVector<Real>::getVector());
@@ -88,8 +88,7 @@ public:
   virtual std::shared_ptr<Vector<Real> > clone(void) const {
     const std::vector<Real> &yval = *(StdVector<Real>::getVector());
     uint numMySamples = yval.size();
-    return Teuchos::rcp(new BatchStdVector(
-           std::make_shared<std::vector<Real>>(numMySamples)),bman_);
+    return std::make_shared<BatchStdVector>(std::make_shared<std::vector<Real>>(numMySamples),bman_);
   }
 
   int dimension(void) const {

@@ -252,38 +252,38 @@ private:
         pt_hi[i*dimension_ + j] = hi;
       }
     }
-    // Build probability, atom, and SROM vectors 
-    prob = Teuchos::rcp(new PrimalProbabilityVector<Real>(
+    // Build probability, atom, and SROM vectors
+    prob = std::make_shared<PrimalProbabilityVector<Real>>(
            std::make_shared<std::vector<Real>>(wt),bman,
-           std::make_shared<std::vector<Real>>(typw)));
-    atom = Teuchos::rcp(new PrimalAtomVector<Real>(
+           std::make_shared<std::vector<Real>>(typw));
+    atom = std::make_shared<PrimalAtomVector<Real>>(
            std::make_shared<std::vector<Real>>(pt),bman,numMySamples_,dimension_,
-           std::make_shared<std::vector<Real>>(typx)));
+           std::make_shared<std::vector<Real>>(typx));
     vec  = std::make_shared<SROMVector<Real>>(prob,atom);
     // Lower and upper bounds on Probability Vector
-    prob_lo = Teuchos::rcp(new PrimalProbabilityVector<Real>(
+    prob_lo = std::make_shared<PrimalProbabilityVector<Real>>(
               std::make_shared<std::vector<Real>>(wt_lo),bman,
-              std::make_shared<std::vector<Real>>(typw)));
-    prob_hi = Teuchos::rcp(new PrimalProbabilityVector<Real>(
+              std::make_shared<std::vector<Real>>(typw));
+    prob_hi = std::make_shared<PrimalProbabilityVector<Real>>(
               std::make_shared<std::vector<Real>>(wt_hi),bman,
-              std::make_shared<std::vector<Real>>(typw)));
+              std::make_shared<std::vector<Real>>(typw));
     // Lower and upper bounds on Atom Vector
-    atom_lo = Teuchos::rcp(new PrimalAtomVector<Real>(
+    atom_lo = std::make_shared<PrimalAtomVector<Real>>(
               std::make_shared<std::vector<Real>>(pt_lo),bman,numMySamples_,dimension_,
-              std::make_shared<std::vector<Real>>(typx)));
-    atom_hi = Teuchos::rcp(new PrimalAtomVector<Real>(
+              std::make_shared<std::vector<Real>>(typx));
+    atom_hi = std::make_shared<PrimalAtomVector<Real>>(
               std::make_shared<std::vector<Real>>(pt_hi),bman,numMySamples_,dimension_,
-              std::make_shared<std::vector<Real>>(typx)));
+              std::make_shared<std::vector<Real>>(typx));
     // Lower and upper bounds on SROM Vector
     vec_lo = std::make_shared<SROMVector<Real>>(prob_lo,atom_lo);
     vec_hi = std::make_shared<SROMVector<Real>>(prob_hi,atom_hi);
     // Constraint vectors
-    prob_eq = Teuchos::rcp(new DualProbabilityVector<Real>(
+    prob_eq = std::make_shared<DualProbabilityVector<Real>>(
               std::make_shared<std::vector<Real>>(wt_eq),bman,
-              std::make_shared<std::vector<Real>>(typw)));
-    atom_eq = Teuchos::rcp(new DualAtomVector<Real>(
+              std::make_shared<std::vector<Real>>(typw));
+    atom_eq = std::make_shared<DualAtomVector<Real>>(
               std::make_shared<std::vector<Real>>(pt_eq),bman,numMySamples_,dimension_,
-              std::make_shared<std::vector<Real>>(typx)));
+              std::make_shared<std::vector<Real>>(typx));
     vec_eq  = std::make_shared<SROMVector<Real>>(prob_eq,atom_eq);
   }
 
@@ -348,13 +348,13 @@ private:
       }
     }
     std::shared_ptr<ProbabilityVector<Real> > dprob
-      = Teuchos::rcp(new PrimalProbabilityVector<Real>(
+      = std::make_shared<PrimalProbabilityVector<Real>>(
         std::make_shared<std::vector<Real>>(wt),bman,
-        std::make_shared<std::vector<Real>>(typw)));
+        std::make_shared<std::vector<Real>>(typw));
     std::shared_ptr<AtomVector<Real> > datom
-      = Teuchos::rcp(new PrimalAtomVector<Real>(
+      = std::make_shared<PrimalAtomVector<Real>>(
         std::make_shared<std::vector<Real>>(pt),bman,numMySamples_,dimension_,
-        std::make_shared<std::vector<Real>>(typx)));
+        std::make_shared<std::vector<Real>>(typx));
     SROMVector<Real> d = SROMVector<Real>(dprob,datom);
     // Check derivatives
     obj->checkGradient(x,d,print_);
@@ -379,13 +379,13 @@ private:
         }
       }
       std::shared_ptr<ProbabilityVector<Real> > dprob
-        = Teuchos::rcp(new PrimalProbabilityVector<Real>(
+        = std::make_shared<PrimalProbabilityVector<Real>>(
           std::make_shared<std::vector<Real>>(wt),bman,
-          std::make_shared<std::vector<Real>>(typw)));
+          std::make_shared<std::vector<Real>>(typw));
       std::shared_ptr<AtomVector<Real> > datom
-        = Teuchos::rcp(new PrimalAtomVector<Real>(
+        = std::make_shared<PrimalAtomVector<Real>>(
           std::make_shared<std::vector<Real>>(pt),bman,numMySamples_,dimension_,
-          std::make_shared<std::vector<Real>>(typx)));
+          std::make_shared<std::vector<Real>>(typx));
       SROMVector<Real> d = SROMVector<Real>(dprob,datom);
       // Check derivatives
       con->checkApplyJacobian(x,d,c,print_);

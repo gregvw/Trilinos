@@ -58,25 +58,25 @@
 
 typedef double RealT;
 
-template<class Real> 
+template<class Real>
 class ParametrizedObjectiveEx8 : public ROL::Objective<Real> {
 public:
   Real value( const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex = 
-      (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(x))).getVector();
+    std::shared_ptr<const std::vector<Real> > ex =
+      (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
     Real quad = 0.0, lin = 0.0;
     std::vector<Real> p = this->getParameter();
     unsigned size = ex->size();
     for ( unsigned i = 0; i < size; i++ ) {
-      quad += (*ex)[i]*(*ex)[i]; 
+      quad += (*ex)[i]*(*ex)[i];
       lin  += (*ex)[i]*p[i+1];
     }
     return std::exp(p[0])*quad + lin + p[size+1];
   }
 
   void gradient( ROL::Vector<Real> &g, const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex = 
-      (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(x))).getVector();
+    std::shared_ptr<const std::vector<Real> > ex =
+      (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
     std::shared_ptr<std::vector<Real> > eg =
       std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(g)).getVector());
     std::vector<Real> p = this->getParameter();
@@ -87,17 +87,17 @@ public:
   }
 
   void hessVec( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex = 
-      (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(x))).getVector();
-    std::shared_ptr<const std::vector<Real> > ev = 
-      (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
+    std::shared_ptr<const std::vector<Real> > ex =
+      (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
+    std::shared_ptr<const std::vector<Real> > ev =
+      (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(v))).getVector();
     std::shared_ptr<std::vector<Real> > ehv =
       std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(hv)).getVector());
     std::vector<Real> p = this->getParameter();
     unsigned size = ex->size();
     for ( unsigned i = 0; i < size; i++ ) {
-      (*ehv)[i] = 2.0*std::exp(p[0])*(*ev)[i]; 
-    } 
+      (*ehv)[i] = 2.0*std::exp(p[0])*(*ev)[i];
+    }
   }
 };
 
@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<ROL::Vector<RealT> > d = std::make_shared<ROL::StdVector<RealT>>(d_rcp);
     setRandomVector(*d_rcp);
     // Build samplers
-    int nSamp = 1000;  
+    int nSamp = 1000;
     unsigned sdim = dim + 2;
     std::vector<RealT> tmp(2,0.); tmp[0] = -1.; tmp[1] = 1.;
     std::vector<std::vector<RealT> > bounds(sdim,tmp);
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
     // Build bound constraints
     std::vector<RealT> l(dim,0.0);
     std::vector<RealT> u(dim,1.0);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd = 
+    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd =
       std::make_shared<ROL::StdBoundConstraint<RealT>>(l,u);
     bnd->deactivate();
     // Test parametrized objective functions
@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
     int nQuadLo = 0, nQuadUp = 21, order = 0;
     std::vector<RealT> norm(nQuadUp-nQuadLo), obj(nQuadUp-nQuadLo);
     *outStream << "\nSPECTRAL RISK MEASURE\n";
-    list.sublist("SOL").set("Stochastic Component Type","Risk Averse"); 
+    list.sublist("SOL").set("Stochastic Component Type","Risk Averse");
     list.sublist("SOL").sublist("Risk Measure").set("Name","Spectral Risk");
     std::vector<std::shared_ptr<std::vector<RealT> > > hist(nQuadUp-nQuadLo,nullptr);
     std::vector<std::shared_ptr<ROL::StdVector<RealT> > > hvec(nQuadUp-nQuadLo,nullptr);

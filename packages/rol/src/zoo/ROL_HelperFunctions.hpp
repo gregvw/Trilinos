@@ -174,7 +174,7 @@ namespace ROL {
 
     int info = 0;
 
-    lapack.GGEV(jobvl, jobvr, n, &myA(0,0), n, &myB(0,0), n, &real[0], &imag[0], &beta[0], 
+    lapack.GGEV(jobvl, jobvr, n, &myA(0,0), n, &myB(0,0), n, &real[0], &imag[0], &beta[0],
                 vl, ldvl, vr, ldvr, &work[0], lwork, &info);
 
     for (int i=0; i<n; i++) {
@@ -239,8 +239,8 @@ namespace ROL {
                         Real eps = 0.0 )
       : isInitialized_(false), useSecantPrecond_(useSecantPrecond),
         useSecantHessVec_(useSecantHessVec), eps_(eps) {
-      obj_    = Teuchos::rcpFromRef(obj);
-      con_    = Teuchos::rcpFromRef(con);
+      obj_.reset(&obj);
+      con_.reset(&con);
       secant_ = secant;
     }
 
@@ -328,7 +328,7 @@ namespace ROL {
         hessVec(Hv,v,x,tol);
       }
     }
- 
+
     /** \brief Apply the reduced Hessian to a vector, v.
                The reduced Hessian first removes elements of v
                corresponding to the feasible indices from
@@ -369,18 +369,18 @@ namespace ROL {
       }
     }
 
-    /** \brief Apply the reduced inverse Hessian to a vector, v.  
-               The reduced inverse Hessian first removes elements 
-               of v corresponding to the feasible indices from 
+    /** \brief Apply the reduced inverse Hessian to a vector, v.
+               The reduced inverse Hessian first removes elements
+               of v corresponding to the feasible indices from
                the point p in the direction -d.
                    Hv   the inverse Hessian times a vector
-                   v    input vector 
+                   v    input vector
                    p    starting point for tangent cone
                    d    negative of search direction
                    x    current iteration vector
                    tol  objective function tolerance
     */
-    void reducedInvHessVec( Vector<Real> &Hv, const Vector<Real> &v, const Vector<Real> &p, 
+    void reducedInvHessVec( Vector<Real> &Hv, const Vector<Real> &v, const Vector<Real> &p,
                             const Vector<Real> &d, const Vector<Real> &x, Real &tol ) {
       if ( con_->isActivated() ) {
         if (!isInitialized_) {
@@ -410,17 +410,17 @@ namespace ROL {
       }
     }
 
-    /** \brief Apply the reduced inverse Hessian to a vector, v.  
-               The reduced inverse Hessian first removes elements 
-               of v corresponding to the feasible indices from 
+    /** \brief Apply the reduced inverse Hessian to a vector, v.
+               The reduced inverse Hessian first removes elements
+               of v corresponding to the feasible indices from
                the point p.
                    Hv   the inverse Hessian times a vector
-                   v    input vector 
+                   v    input vector
                    p    starting point for tangent cone
                    x    current iteration vector
                    tol  objective function tolerance
     */
-    void reducedInvHessVec( Vector<Real> &Hv, const Vector<Real> &v, const Vector<Real> &p, 
+    void reducedInvHessVec( Vector<Real> &Hv, const Vector<Real> &v, const Vector<Real> &p,
                             const Vector<Real> &x, Real &tol ) {
       if ( con_->isActivated() ) {
         if (!isInitialized_) {
@@ -450,18 +450,18 @@ namespace ROL {
       }
     }
 
-    /** \brief Apply the reduced preconditioner to a vector, v.  
-               The reduced preconditioner first removes elements 
-               of v corresponding to the feasible indices from 
+    /** \brief Apply the reduced preconditioner to a vector, v.
+               The reduced preconditioner first removes elements
+               of v corresponding to the feasible indices from
                the point p in the direction -d.
                    Hv   the preconditioner times a vector
-                   v    input vector 
+                   v    input vector
                    p    starting point for tangent cone
                    d    negative of search direction
                    x    current iteration vector
                    tol  objective function tolerance
     */
-    void reducedPrecond( Vector<Real> &Mv, const Vector<Real> &v, const Vector<Real> &p, 
+    void reducedPrecond( Vector<Real> &Mv, const Vector<Real> &v, const Vector<Real> &p,
                          const Vector<Real> &d, const Vector<Real> &x, Real &tol ) {
       if ( con_->isActivated() ) {
         if (!isInitialized_) {
@@ -491,17 +491,17 @@ namespace ROL {
       }
     }
 
-    /** \brief Apply the reduced preconditioner to a vector, v.  
-               The reduced preconditioner first removes elements 
-               of v corresponding to the feasible indices from 
+    /** \brief Apply the reduced preconditioner to a vector, v.
+               The reduced preconditioner first removes elements
+               of v corresponding to the feasible indices from
                the point p.
                    Hv   the preconditioner times a vector
-                   v    input vector 
+                   v    input vector
                    p    starting point for tangent cone
                    x    current iteration vector
                    tol  objective function tolerance
     */
-    void reducedPrecond( Vector<Real> &Mv, const Vector<Real> &v, const Vector<Real> &p, 
+    void reducedPrecond( Vector<Real> &Mv, const Vector<Real> &v, const Vector<Real> &p,
                          const Vector<Real> &x, Real &tol ) {
       if ( con_->isActivated() ) {
         if (!isInitialized_) {
@@ -533,7 +533,7 @@ namespace ROL {
 
     void project( Vector<Real> &x ) {
       con_->project(x);
-    } 
+    }
 
     void pruneActive( Vector<Real> &v, const Vector<Real> &g, const Vector<Real> &x ) {
       con_->pruneActive(v,g,x,eps_);
@@ -561,9 +561,9 @@ namespace ROL {
 
     void computeProjectedStep( Vector<Real> &v, const Vector<Real> &x ) {
       con_->computeProjectedStep(v,x);
-    } 
-  }; 
+    }
+  };
 
 } // namespace ROL
 
-#endif 
+#endif

@@ -144,20 +144,20 @@ public:
   std::shared_ptr<Vector<Real> > clone(void) const {
     uint numMySamples = static_cast<uint>(AtomVector<Real>::getNumMyAtoms());
     uint dimension    = static_cast<uint>(AtomVector<Real>::getDimension());
-    return Teuchos::rcp(new PrimalAtomVector(
+    return std::make_shared<PrimalAtomVector>(
            std::make_shared<std::vector<Real>>(numMySamples*dimension),
                         BatchStdVector<Real>::getBatchManager(),
-                        numMySamples,dimension,scale_));
+                        numMySamples,dimension,scale_);
   }
 
   const Vector<Real> & dual(void) const {
     uint numMySamples = static_cast<uint>(AtomVector<Real>::getNumMyAtoms());
     uint dimension    = static_cast<uint>(AtomVector<Real>::getDimension());
     if ( !isDualInitialized_ ) {
-      dual_vec_ = Teuchos::rcp(new DualAtomVector<Real>(
+      dual_vec_ = std::make_shared<DualAtomVector<Real>>(
                   std::make_shared<std::vector<Real>>(numMySamples*dimension),
                                BatchStdVector<Real>::getBatchManager(),
-                               numMySamples,dimension,scale_));
+                               numMySamples,dimension,scale_);
       isDualInitialized_ = true;
     }
     uint index = 0;
@@ -212,20 +212,20 @@ public:
   std::shared_ptr<Vector<Real> > clone(void) const {
     uint numMySamples = static_cast<uint>(AtomVector<Real>::getNumMyAtoms());
     uint dimension    = static_cast<uint>(AtomVector<Real>::getDimension());
-    return Teuchos::rcp(new DualAtomVector(
+    return std::make_shared<DualAtomVector>(
            std::make_shared<std::vector<Real>>(numMySamples*dimension),
                         BatchStdVector<Real>::getBatchManager(),
-                        numMySamples,dimension,scale_));
+                        numMySamples,dimension,scale_);
   }
 
   const Vector<Real> & dual(void) const {
     uint numMySamples = static_cast<uint>(AtomVector<Real>::getNumMyAtoms());
     uint dimension    = static_cast<uint>(AtomVector<Real>::getDimension());
     if ( !isDualInitialized_ ) {
-      primal_vec_ = Teuchos::rcp(new PrimalAtomVector<Real>(
+      primal_vec_ = std::make_shared<PrimalAtomVector<Real>>(
                     std::make_shared<std::vector<Real>>(numMySamples*dimension),
                                BatchStdVector<Real>::getBatchManager(),
-                               numMySamples,dimension,scale_));
+                               numMySamples,dimension,scale_);
       isDualInitialized_ = true;
     }
     uint index = 0;

@@ -115,16 +115,16 @@ public:
   }
 
   std::shared_ptr<Vector<Real> > clone(void) const {
-    return Teuchos::rcp( new SROMVector(
-           Teuchos::rcp_static_cast<ProbabilityVector<Real> >(pvec_->clone()),
-           Teuchos::rcp_static_cast<AtomVector<Real> >(avec_->clone())) );
+    return std::make_shared<SROMVector>(
+           std::static_pointer_cast<ProbabilityVector<Real> >(pvec_->clone()),
+           std::static_pointer_cast<AtomVector<Real> >(avec_->clone()));
   }
 
   const Vector<Real> & dual(void) const {
     if ( !isDualInitialized_ ) {
-      dual_vec_ = Teuchos::rcp(new SROMVector(
-                  Teuchos::rcp_static_cast<ProbabilityVector<Real> >(dual_pvec_),
-                  Teuchos::rcp_static_cast<AtomVector<Real> >(dual_avec_)) );
+      dual_vec_ = std::make_shared<SROMVector>(
+                  std::static_pointer_cast<ProbabilityVector<Real> >(dual_pvec_),
+                  std::static_pointer_cast<AtomVector<Real> >(dual_avec_));
       isDualInitialized_ = true;
     }
     dual_pvec_->set(pvec_->dual());
@@ -159,7 +159,7 @@ public:
   const std::shared_ptr<const AtomVector<Real> > getAtomVector(void) const {
     return avec_;
   }
-  
+
   const std::shared_ptr<const ProbabilityVector<Real> > getProbabilityVector(void) const {
     return pvec_;
   }
@@ -167,7 +167,7 @@ public:
   std::shared_ptr<AtomVector<Real> > getAtomVector(void) {
     return avec_;
   }
-  
+
   std::shared_ptr<ProbabilityVector<Real> > getProbabilityVector(void) {
     return pvec_;
   }
@@ -179,7 +179,7 @@ public:
   void setProbabilityVector(const ProbabilityVector<Real> &vec) {
     pvec_->set(vec);
   }
-  
+
 }; // class SROMVector
 
 } // namespace ROL

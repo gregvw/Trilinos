@@ -117,14 +117,14 @@ public:
                                      Teuchos::ParameterList &parlist) : state_(state),
                                      ngval_(0) {
 
-    augLagSimOpt_ = Teuchos::rcp(new AugmentedLagrangian_SimOpt<Real>(obj,
+    augLagSimOpt_ = std::make_shared<AugmentedLagrangian_SimOpt<Real>>(obj,
                                                                       augCon,
                                                                       *multiplier,
                                                                       penaltyParameter,
                                                                       *state,
                                                                       *control,
                                                                       *augConVec,
-                                                                      parlist));
+                                                                      parlist);
     rAugLagSimOpt_ = std::make_shared<Reduced_Objective_SimOpt<Real>>(augLagSimOpt_,redCon,state,control,adjoint);
     rAugLagSimOpt_->update(*control);
     Real tol = 1e-8;

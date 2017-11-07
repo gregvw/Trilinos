@@ -51,7 +51,7 @@
 /** @ingroup step_group
     \class ROL::PrimalDualSystemStep
     \brief Provides the interface to compute approximate
-           solutions to 2x2 block systems arising from primal-dual 
+           solutions to 2x2 block systems arising from primal-dual
            interior point methods
 
            Note that as we do not need an additional Lagrange multiplier
@@ -59,9 +59,9 @@
            in its place is the primal-dual residual
  */
 
-namespace ROL { 
+namespace ROL {
 
-template<class Real> 
+template<class Real>
 class PrimalDualSystemStep : public Step<Real> {
 
   typedef Vector<Real>             V;
@@ -79,12 +79,12 @@ class PrimalDualSystemStep : public Step<Real> {
 
 
 private:
-  
+
   // Block indices
   static const size_type OPT   = 0;
   static const size_type EQUAL = 1;
   static const size_type LOWER = 2;
-  static const size_type UPPER = 3;  
+  static const size_type UPPER = 3;
 
   // Super block indices
   static const size_type OPTMULT = 0;  // Optimization and equality multiplier components
@@ -92,8 +92,8 @@ private:
 
   std::shared_ptr<Secant<Real> > secant_;
   std::shared_ptr<Krylov<Real> > krylov_;
-  std::shared_ptr<V> scratch1_;           // scratch vector 
-  std::shared_ptr<V> scratch_; 
+  std::shared_ptr<V> scratch1_;           // scratch vector
+  std::shared_ptr<V> scratch_;
 
   std::shared_ptr<OP11> A_;
   std::shared_ptr<OP12> B_;
@@ -110,15 +110,15 @@ private:
   bool useSecantPrecond_;
   bool useSchurComplement_;
 
-  
+
 
   // Repartition (x,lambda,zl,zu) as (xlambda,z) = ((x,lambda),(zl,zu))
   std::shared_ptr<PV> repartition( V &x ) {
-     
+
     PV &x_pv = dynamic_cast<PV&>(x);
-    std::shared_ptr<V> xlambda = CreatePartitionedVector(x_pv.get(OPT),x_pv.get(EQUAL));  
-    std::shared_ptr<V> z = CreatePartitionedVector(x_pv.get(LOWER),x_pv.get(UPPER));  
- 
+    std::shared_ptr<V> xlambda = CreatePartitionedVector(x_pv.get(OPT),x_pv.get(EQUAL));
+    std::shared_ptr<V> z = CreatePartitionedVector(x_pv.get(LOWER),x_pv.get(UPPER));
+
     std::shared_ptr<V> temp[] = {xlambda,z};
 
     return std::make_shared<PV( std::vector<std::shared_ptr<V> >>(temp,temp+2) );
@@ -128,13 +128,13 @@ private:
   // Repartition (x,lambda,zl,zu) as (xlambda,z) = ((x,lambda),(zl,zu))
   std::shared_ptr<const PV> repartition( const V &x ) {
     const PV &x_pv = dynamic_cast<const PV&>(x);
-    std::shared_ptr<const V> xlambda = CreatePartitionedVector(x_pv.get(OPT),x_pv.get(EQUAL));  
-    std::shared_ptr<const V> z = CreatePartitionedVector(x_pv.get(LOWER),x_pv.get(UPPER));  
+    std::shared_ptr<const V> xlambda = CreatePartitionedVector(x_pv.get(OPT),x_pv.get(EQUAL));
+    std::shared_ptr<const V> z = CreatePartitionedVector(x_pv.get(LOWER),x_pv.get(UPPER));
 
     std::shared_ptr<const V> temp[] = {xlambda,z};
 
     return std::make_shared<PV( std::vector<std::shared_ptr<const V> >>(temp,temp+2) );
-         
+
   }
 
 public:
@@ -144,7 +144,7 @@ public:
   using Step<Real>::update;
 
 
-  PrimalDualSystemStep( Teuchos::ParameterList &parlist, 
+  PrimalDualSystemStep( Teuchos::ParameterList &parlist,
                         const std::shared_ptr<Krylov<Real> > &krylov,
                         const std::shared_ptr<Secant<Real> > &secant,
                         std::shared_ptr<V> &scratch1 ) : Step<Real>(),
@@ -154,33 +154,29 @@ public:
     PL &iplist = parlist.sublist("Step").sublist("Primal Dual Interior Point");
     PL &syslist = iplist.sublist("System Solver");
 
-    useSchurComplement_ = syslist.get("Use Schur Complement",false);    
-     
+    useSchurComplement_ = syslist.get("Use Schur Complement",false);
+
   }
- 
+
   PrimalDualSystemStep( Teuchos::ParameterList &parlist,
                         std::shared_ptr<V> &scratch1_ ) : Step<Real>() {
-    PrimalDualSystemStep(parlist,nullptr,nullptr,scratch1); 
+    PrimalDualSystemStep(parlist,nullptr,nullptr,scratch1);
   }
 
   void initialize( V &x, const V &g, V &res, const V &c,
                    OBJ &obj, CON &con, BND &bnd, AS &algo_state ) {
 
     Step<Real>::initialize(x,g,res,c,obj,con,bnd,algo_state);
- 
-     
-     
-    using Teuchos::rcpFromRef;
 
-    std::shared_ptr<OBJ> pObj = rcpFromRef(obj);
-    std::shared_ptr<CON> pCon = rcpFromRef(con);
-    std::shared_ptr<BND> pBnd = rcpFromRef(bnd);
- 
+    std::shared_ptr<OBJ> pObj(&obj);
+    std::shared_ptr<CON> pCon(&con);
+    std::shared_ptr<BND> pBnd(&bnd);
+
     std::shared_ptr<PV> x_pv = repartition(x);
 
     std::shared_ptr<V> xlambda = x_pv->get(OPTMULT);
     std::shared_ptr<V> z = x_pv->get(BNDMULT);
- 
+
     A_ = std::make_shared<OP11>( pObj, pCon, *xlambda, scratch1_ );
     B_ = std::make_shared<OP12>( );
     C_ = std::make_shared<OP21>( *z );
@@ -188,20 +184,20 @@ public:
 
     if( useSchurComplement_ ) {
       schur_ = std::make_shared<SCHUR>(A_,B_,C_,D_,scratch1_);
-    } 
+    }
     else {
       op_ = BlockOperator2<Real>(A_,B_,C_,D_);
     }
   }
 
-  void compute( V &s, const V &x, const V &res, OBJ &obj, CON &con, 
+  void compute( V &s, const V &x, const V &res, OBJ &obj, CON &con,
                 BND &bnd, AS &algo_state ) {
 
     std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
 
 
     if( useSchurComplement_ ) {
-      
+
       std::shared_ptr<const PV> x_pv = repartition(x);
       std::shared_ptr<const PV> res_pv = repartition(res);
       std::shared_ptr<PV> s_pv = repartition(s);
@@ -211,8 +207,8 @@ public:
 
       std::shared_ptr<V> sxl   = s_pv->get(OPTMULT);
       std::shared_ptr<V> sz    = s_pv->get(BNDMULT);
- 
-      
+
+
 
     }
     else {
@@ -221,14 +217,14 @@ public:
 
   }
 
-  void update( V &x, V &res, const V &s, OBJ &obj, CON &con, 
+  void update( V &x, V &res, const V &s, OBJ &obj, CON &con,
                BND &bnd, AS &algo_state ) {
 
     std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
 
-    
+
   }
-  
+
 
 };
 

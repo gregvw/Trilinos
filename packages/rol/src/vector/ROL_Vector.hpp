@@ -370,8 +370,8 @@ public:
 
     // Reflexivity.
     v->set(*this);
-    xtmp = this->dual().clone(); // std::const_pointer_cast<Vector>(Teuchos::rcpFromRef(this->dual()));
-    ytmp = xtmp->dual().clone(); // std::const_pointer_cast<Vector>(Teuchos::rcpFromRef(xtmp->dual()));
+    xtmp = this->dual().clone();
+    ytmp = xtmp->dual().clone();
     v->axpy(-one, *ytmp); vCheck.push_back(v->norm());
     *pStream << std::setw(width) << std::left << "Reflexivity. Consistency error: " << " " << vCheck.back() << "\n\n";
 

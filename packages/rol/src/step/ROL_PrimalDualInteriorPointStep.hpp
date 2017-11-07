@@ -53,24 +53,24 @@
 
 
 /** @ingroup step_group
-  
+
     Given the Type-EB problem
-    
+
     \f[ \min_x f(x)\quad \text{s.t.}\quad c(x) = \f]
- 
+
     with the bound constraint \f[ l \leq x \leq u \f]
 
     We introduce a barrier penalty to formuate a Type-E problem
 
     \f[ \min_x \varphi_\mu(x) = f(x) - \mu\sum\limits_i xscratch_i^l \ln(x_i-l_i) + xscratch_i^l \ln(u_i-x_i) \f]
 
-    Where the weights are 
- 
+    Where the weights are
+
     \f[ l_i = \begin{cases} 0 & l_i=-\infty \\ 1 & l_i > -\infty\end{cases} ,\quad
         u_i = \begin{cases} 0 & u_i=\infty \\ 1 & u_i < \infty \end{cases} \f]
 
 
-    Algorithm: 
+    Algorithm:
 
     1) initialize parameters, counter, filter
 
@@ -90,10 +90,10 @@
       5.4) Check sufficient decrease. If accept go to 5.6, 5.5
       5.5) Initialize second-order correction
       5.6) Compute 2nd-order correction
-      5.7) Check acceptability to filter. If reject, go to 5.10     
+      5.7) Check acceptability to filter. If reject, go to 5.10
       5.8) Check sufficient decrease w.r.t current iterate. If accept, go to 5.6, else 5.9
       5.9) 2nd-order correction. If \f$p=p^\text{max}\f$, go to 5.6, else go to 5.10
-      5.10) Choose new trial step size. If too small go to feasibility restoration phase 9, 
+      5.10) Choose new trial step size. If too small go to feasibility restoration phase 9,
             else go to 5.6
 
    6) Accept trial point, set alpha, update muliplier estimates
@@ -102,16 +102,16 @@
 
    8) Continue with next iteration, increase iteration counter and go to 2
 
-   9) Feasibility restoration phase. Augmet filter and compute new iterate by 
-      decreasing feasibility measure. Go to 8. 
+   9) Feasibility restoration phase. Augmet filter and compute new iterate by
+      decreasing feasibility measure. Go to 8.
 
-   Jump to 5.10 if we encounter a NaN or Inf at a trial point  
+   Jump to 5.10 if we encounter a NaN or Inf at a trial point
 
 */
 
 namespace ROL {
 namespace InteriorPoint {
-template <class Real> 
+template <class Real>
 class PrimalDualInteriorPointStep : public Step<Real> {
 
   typedef Vector<Real>                                V;
@@ -128,7 +128,7 @@ class PrimalDualInteriorPointStep : public Step<Real> {
 
 private:
 
-  std::shared_ptr<KRYLOV> krylov_;      // Krylov solver for the Primal Dual system 
+  std::shared_ptr<KRYLOV> krylov_;      // Krylov solver for the Primal Dual system
   std::shared_ptr<LINOP>  precond_;     // Preconditioner for the Primal Dual system
 
   std::shared_ptr<BND> pbnd_;           // bound constraint for projecting x sufficiently away from the given bounds
@@ -153,24 +153,24 @@ private:
   std::shared_ptr<V> maskU_;            // Elements are 1 when xu< INF, zero for xu =  INF
 
   int iterKrylov_;
-  int flagKrylov_;       
+  int flagKrylov_;
 
   bool symmetrize_;        // Symmetrize the Primal Dual system if true
 
-  Elementwise::Multiply<Real> mult_; 
+  Elementwise::Multiply<Real> mult_;
 
   // Parameters used by the Primal-Dual Interior Point Method
 
   Real mu_;                // Barrier penalty parameter
- 
-  Real eps_tol_;           // Error function tolerance   
+
+  Real eps_tol_;           // Error function tolerance
   Real tau_;               // Current fraction-to-the-boundary parameter
   Real tau_min_;           // Minimum fraction-to-the-boundary parameter
   Real kappa_eps_;
   Real kappa_mu_;
   Real kappa1_;            // Feasibility projection parameter
   Real kappa2_;            // Feasibility projection parameter
-  Real kappa_eps_;         // 
+  Real kappa_eps_;         //
   Real lambda_max_;        //  multiplier maximum value
   Real theta_mu_;
   Real gamma_theta_;
@@ -185,9 +185,9 @@ private:
 
 
 
-  void updateState( const V& x, const V &l, OBJ &obj, 
+  void updateState( const V& x, const V &l, OBJ &obj,
                     EQCON &con, BND &bnd, ALGO &algo_state ) {
-  
+
     Real tol = std::sqrt(ROL_EPSILON<Real>());
     std::shared_ptr<STATE> state = Step<Real>::getState();
 
@@ -197,47 +197,47 @@ private:
     algo_state.value = obj.value(tol);
     con.value(*(state->constraintVec),x,tol);
 
-    obj.gradient(*(state->gradientVec),x,tol);   
+    obj.gradient(*(state->gradientVec),x,tol);
     con.applyAdjointJacobian(*g_,l,x,tol);
 
     state->gradientVec->plus(*g_); // \f$ \nabla f(x)-\nabla c(x)\lambda \f$
 
-    state->gradientVec->axpy(-1.0,*zl_); 
+    state->gradientVec->axpy(-1.0,*zl_);
     state->gradientVec->axpy(-1.0,*zu_);
 
     // Scaled Lagrangian gradient sup norm
     algo_state.gnorm = normLinf(*(state->gradientVec))/sd_;
 
-    // Constraint sup norm 
+    // Constraint sup norm
     algo_state.cnorm = normLinf(*(state->constraintVec));
 
     Elementwise::Multiply<Real> mult;
 
     Real lowerViolation;
     Real upperViolation;
-     
+
     // Deviation from complementarity
     xscratch_->set(x);
     xscratch_->applyBinary(mult,*zl_);
-    
+
     exactLowerViolation = normLinf(*xscratch_)/scl_;
- 
+
     xscratch_->set(x);
     xscratch_->applyBunary(mult,*zu_);
-    
+
     exactUpperBound = normLinf(*xscratch_)/scu_;
 
-    // Measure ||xz||  
+    // Measure ||xz||
     algo_state.aggregateModelError = std::max(exactLowerViolation,
                                               exactUpperViolation);
 
   }
 
-  /* When the constraint Jacobians are ill-conditioned, we can compute 
-     multiplier vectors with very large norms, making it difficult to 
-     satisfy the primal-dual equations to a small tolerance. These 
+  /* When the constraint Jacobians are ill-conditioned, we can compute
+     multiplier vectors with very large norms, making it difficult to
+     satisfy the primal-dual equations to a small tolerance. These
      parameters allow us to rescale the constraint qualification component
-     of the convergence criteria 
+     of the convergence criteria
   */
   void updateScalingParameters(void) {
 
@@ -265,9 +265,9 @@ public:
   using Step<Real>::compute;
   using Step<Real>::update;
 
-  PrimalDualInteriorPointStep( Teuchos::ParameterList &parlist, 
+  PrimalDualInteriorPointStep( Teuchos::ParameterList &parlist,
                                const std::shared_ptr<Krylov<Real> > &krylov = nullptr,
-                               const std::shared_ptr<LinearOperator<Real> > &precond = nullptr ) : 
+                               const std::shared_ptr<LinearOperator<Real> > &precond = nullptr ) :
     Step<Real>(), krylov_(krylov), precond_(precond), iterKrylov_(0), flagKrylov_(0) {
 
     typedef Teuchos::ParameterList PL;
@@ -276,7 +276,7 @@ public:
 
     kappa1_     = iplist.get("Bound Perturbation Coefficient 1",        1.e-2);
     kappa2_     = iplist.get("Bound Perturbation Coefficient 2",        1.e-2);
-    lambda_max_ = iplist.get(" Multiplier Maximum Value",       1.e3 ); 
+    lambda_max_ = iplist.get(" Multiplier Maximum Value",       1.e3 );
     smax_       = iplist.get("Maximum Scaling Parameter",               1.e2 );
     tau_min_    = iplist.get("Minimum Fraction-to-Boundary Parameter",  0.99 );
     kappa_mu_   = iplist.get("Multiplicative Penalty Reduction Factor", 0.2  );
@@ -292,7 +292,7 @@ public:
 
     if( precond_ == nullptr) {
       class IdentityOperator : public LINOP {
-      public: 
+      public:
         apply( V& Hv, const V &v, Real tol ) const {
           Hv.set(v);
         }
@@ -301,7 +301,7 @@ public:
       precond_ = std::make_shared<IdentityOperator<Real>>();
     }
 
-  } 
+  }
 
 
 
@@ -312,13 +312,13 @@ public:
                    Objective<Real> &obj, Constraint<Real> &con, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state ) {
 
-     
-    using Elementwise::ValueSet;   
+
+    using Elementwise::ValueSet;
 
     std::shared_ptr<PENALTY> &ipPen = dynamic_cast<PENALTY&>(obj);
 
     // Initialize step state
-    std::shared_ptr<STATE> state = Step<Real>::getState();    
+    std::shared_ptr<STATE> state = Step<Real>::getState();
     state->descentVec   = x.clone();
     state->gradientVec  = g.clone();
     state->constaintVec = c.clone();
@@ -326,7 +326,7 @@ public:
     diml_ = l.dimension();
     dimx_ = x.dimension();
 
-    Real one(1.0); 
+    Real one(1.0);
     Real zero(0.0);
     Real tol = std::sqrt(ROL_EPSILON<Real>());
 
@@ -335,26 +335,26 @@ public:
     l_ = l.clone();
     c_ = c.clone();
 
-    xscratch_ = x.clone(); 
-    lscratch_ = l.clone(); 
+    xscratch_ = x.clone();
+    lscratch_ = l.clone();
 
-    zlscratch_ = x.clone(); 
-    zuscratch_ = x.clone(); 
+    zlscratch_ = x.clone();
+    zuscratch_ = x.clone();
 
-    // Multipliers for lower and upper bounds 
+    // Multipliers for lower and upper bounds
     zl_ = x.clone();
     zu_ = x.clone();
 
     /*******************************************************************************************/
     /* Identify (implicitly) the index sets of upper and lower bounds by creating mask vectors */
     /*******************************************************************************************/
-  
+
     xl_ = bnd.getLowerBound();
     xu_ = bnd.getUpperBound();
 
     maskl_ = ipPen.getLowerMask();
     masku_ = ipPen.getUpperMask();
-    
+
     // Initialize bound constraint multipliers to 1 one where the corresponding bounds are finite
     zl_->set(maskl_);
     zu_->set(masku_);
@@ -362,11 +362,11 @@ public:
     /*******************************************************************************************/
     /* Create a new bound constraint with perturbed bounds                                     */
     /*******************************************************************************************/
-    
+
     std::shared_ptr<V> xdiff = xu_->clone();
-    xdiff->set(*xu_); 
+    xdiff->set(*xu_);
     xdiff->axpy(-1.0,*xl_);
-    xdiff->scale(kappa2_);    
+    xdiff->scale(kappa2_);
 
     class Max1X : public Elementwise::UnaryFunction<Real> {
     public:
@@ -390,7 +390,7 @@ public:
     std::shared_ptr<V> pu = xu_->clone();
     pu->applyUnary(absval);
     pu->applyUnary(max1x);              // pu_i = max(1,|xu_i|)
-    pu->scale(kappa_1); 
+    pu->scale(kappa_1);
     pu->applyBinary(min,xdiff);         // pu_u = min(kappa1*max(1,|xu_i|,kappa2*(xu_i-xl_i)))
 
     // Modified lower and upper bounds so that x in [xl+pl,xu-pu] using the above perturbation vectors
@@ -407,7 +407,7 @@ public:
     /*******************************************************************************************/
     /* Solve least-squares problem for initial equality multiplier                             */
     /*******************************************************************************************/
-   
+
     // \f$-(\nabla f-z_l+z_u) \f$
     g_->set(*zl_);
     g_->axpy(-1.0,g);
@@ -418,12 +418,12 @@ public:
     con.solveAugmentedSystem(*xscratch_,*l_,*g_,*lscratch_,x,tol);
 
     // If the multiplier supremum is too large, zero the vector as this appears to avoid poor
-    // initial guesses of the multiplier in the case where the constraint Jacobian is 
-    // ill-conditioned 
+    // initial guesses of the multiplier in the case where the constraint Jacobian is
+    // ill-conditioned
     if( normInf(l_) > lambda_max_ ) {
       l_->zero();
     }
- 
+
     // Initialize the algorithm state
     algo_state.nfval = 0;
     algo_state.ncval = 0;
@@ -434,60 +434,60 @@ public:
   } // initialize()
 
 
-  void compute( Vector<Real> &s, const Vector<Real> &x, const Vector<Real> &l, 
-                Objective<Real> &obj, Constraint<Real> &con, 
+  void compute( Vector<Real> &s, const Vector<Real> &x, const Vector<Real> &l,
+                Objective<Real> &obj, Constraint<Real> &con,
                 BoundConstraint<Real> &bnd, AlgorithmState<Real> &algo_state ) {
 
 
-      
 
-    Elementwise::Fill<Real>     minus_mu(-mu_); 
+
+    Elementwise::Fill<Real>     minus_mu(-mu_);
     Elementwise::Divide<Real>   div;
     Elementwise::Multiply<Real> mult;
 
-    std::shared_ptr<STATE> state = Step<Real>::getState();    
+    std::shared_ptr<STATE> state = Step<Real>::getState();
 
-    std::shared_ptr<OBJ>   obj_ptr = Teuchos::rcpFromRef(obj);
-    std::shared_ptr<EQCON> con_ptr = Teuchos::rcpFromRef(con); 
-    std::shared_ptr<BND>   bnd_ptr = Teuchos::rcpFromRef(bnd);
+    std::shared_ptr<OBJ>   obj_ptr(&obj);
+    std::shared_ptr<EQCON> con_ptr(&con);
+    std::shared_ptr<BND>   bnd_ptr(&bnd);
 
 
     /*******************************************************************************************/
     /* Form Primal-Dual system residual and operator then solve for direction vector           */
     /*******************************************************************************************/
-    
-          
+
+
     std::shared_ptr<V> rhs = CreatePartitionedVector(state->gradientVec,
                                          state->constraintVec,
                                          resL_,
                                          resU_);
-    
+
     std::shared_ptr<V> sysvec = CreatePartitionedVector( x_, l_, zl_, zu_ );
 
 
-    std::shared_ptr<RESIDUAL> residual = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL_,maskU_,w_,mu_,symmetrize_); 
+    std::shared_ptr<RESIDUAL> residual = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL_,maskU_,w_,mu_,symmetrize_);
 
     residual->value(*rhs,*sysvec,tol);
 
     std::shared_ptr<V> sol = CreatePartitionedVector( xscratch_, lscratch_, zlscratch_, zuscratch_ );
 
-    LOPEC jacobian( sysvec, residual ); 
+    LOPEC jacobian( sysvec, residual );
 
-    
-    krylov_->run(*sol,jacobian,*residual,*precond_,iterKrylov_,flagKrylov_); 
-    
+
+    krylov_->run(*sol,jacobian,*residual,*precond_,iterKrylov_,flagKrylov_);
+
     /*******************************************************************************************/
     /* Perform line search                                                                     */
     /*******************************************************************************************/
 
 
 
-  } // compute() 
-  
+  } // compute()
+
 
 
   void update( Vector<Real> &x, Vector<Real> &l, const Vector<Real> &s,
-               Objective<Real> &obj, Constraint<Real> &con, 
+               Objective<Real> &obj, Constraint<Real> &con,
                BoundConstraint<Real> &bnd, AlgorithmState<Real> &algo_state ) {
 
     // Check deviation from shifted complementarity
@@ -498,11 +498,11 @@ public:
     xscratch_->applyUnary(minus_mu);
 
     lowerViolation = normLinf(*xscratch_)/scl_; // \f$ \max_i xz_l^i - \mu \f$
- 
+
     xscratch_->set(x);
     xscratch_->applyBinary(mult,*zu_);
-    xscratch_->applyUnary(minus_mu);            
-    
+    xscratch_->applyUnary(minus_mu);
+
     upperBound = normLinf(*xscratch_)/scu_;
 
     // Evaluate \f$E_\mu(x,\lambda,z_l,z_u)\f$
@@ -514,21 +514,21 @@ public:
     // If sufficiently converged for the current mu, update it
     if(Emu < (kappa_epsilon_*mu_) ) {
       Real mu_old = mu_;
- 
+
       /* \mu_{j+1} = \max\left{ \frac{\epsilon_\text{tol}}{10},
-                                \min\{ \kappa_{\mu} \mu_j, 
+                                \min\{ \kappa_{\mu} \mu_j,
                                        \mu_j^{\theta_\mu}\} \right\} */
       mu_ = std::min(kappa_mu_*mu_old,std::pow(mu_old,theta_mu_));
       mu_ = std::max(eps_tol_/10.0,mu_);
- 
+
      // Update fraction-to-boundary parameter
-     tau_ = std::max(tau_min_,1.0-mu_);     
+     tau_ = std::max(tau_min_,1.0-mu_);
 
-          
- 
-    } 
 
-  } // update() 
+
+    }
+
+  } // update()
 
 
 
