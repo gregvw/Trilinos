@@ -58,8 +58,7 @@ typedef double RealT;
 int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
-    = Teuchos::DefaultComm<int>::getComm();
+  std::shared_ptr<const Teuchos::Comm<int> > comm(&*Teuchos::DefaultComm<int>::getComm());
 
   int iprint = argc - 1;
   Teuchos::oblackholestream bhs; // outputs nothing
@@ -78,7 +77,7 @@ int main(int argc, char *argv[]) {
     int dimension = 5, numMyAtoms = 10;
     int size = dimension*numMyAtoms;
 
-    // Create batch std vectors 
+    // Create batch std vectors
     std::shared_ptr<std::vector<RealT> > b1_rcp = std::make_shared<std::vector<RealT>>(size);
     std::shared_ptr<std::vector<RealT> > b2_rcp = std::make_shared<std::vector<RealT>>(size);
     std::shared_ptr<std::vector<RealT> > b3_rcp = std::make_shared<std::vector<RealT>>(size);
@@ -94,7 +93,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<ROL::BatchStdVector<RealT> > b3
       = std::make_shared<ROL::BatchStdVector<RealT>>(b3_rcp,bman);
 
-    // Create atom vectors 
+    // Create atom vectors
     std::shared_ptr<std::vector<RealT> > a1_rcp = std::make_shared<std::vector<RealT>>(size);
     std::shared_ptr<std::vector<RealT> > a2_rcp = std::make_shared<std::vector<RealT>>(size);
     std::shared_ptr<std::vector<RealT> > a3_rcp = std::make_shared<std::vector<RealT>>(size);
@@ -137,22 +136,26 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistencyBMAN = b1->checkVector(*b2, *b3, true, outStream);
-    ROL::StdVector<RealT> checkvecBMAN(&consistencyBMAN, false);
+    auto q =std::shared_ptr<std::vector<RealT>>(&consistencyBMAN);
+    ROL::StdVector<RealT> checkvecBMAN(q);
     if (checkvecBMAN.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
     std::vector<RealT> consistencyAtom = a1->checkVector(*a2, *a3, true, outStream);
-    ROL::StdVector<RealT> checkvecAtom(&consistencyAtom, false);
+    q = std::shared_ptr<std::vector<RealT>>(&consistencyAtom);
+    ROL::StdVector<RealT> checkvecAtom(q);
     if (checkvecAtom.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
     std::vector<RealT> consistencyProb = p1->checkVector(*p2, *p3, true, outStream);
-    ROL::StdVector<RealT> checkvecProb(&consistencyProb, false);
+    q = std::shared_ptr<std::vector<RealT>>(&consistencyProb);
+    ROL::StdVector<RealT> checkvecProb(q);
     if (checkvecProb.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
     std::vector<RealT> consistencySROM = x1.checkVector(x2, x3, true, outStream);
-    ROL::StdVector<RealT> checkvecSROM(&consistencySROM, false);
+    q =std::shared_ptr<std::vector<RealT>>(&consistencySROM);
+    ROL::StdVector<RealT> checkvecSROM(q);
     if (checkvecSROM.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
@@ -162,7 +165,7 @@ int main(int argc, char *argv[]) {
     RealT norm = std::sqrt(anorm*anorm + pnorm*pnorm);
     RealT sqrt2 = static_cast<RealT>(std::sqrt(2.));
 
-    // Create batch std vectors 
+    // Create batch std vectors
     std::shared_ptr<std::vector<RealT> > b_rcp = std::make_shared<std::vector<RealT>>(size,1);
     std::shared_ptr<ROL::BatchStdVector<RealT> > b
       = std::make_shared<ROL::BatchStdVector<RealT>>(b_rcp,bman);
@@ -173,7 +176,7 @@ int main(int argc, char *argv[]) {
       errorFlag++;
     }
 
-    // Create atom vectors 
+    // Create atom vectors
     std::shared_ptr<std::vector<RealT> > ap_rcp = std::make_shared<std::vector<RealT>>(size,1);
     std::shared_ptr<ROL::PrimalAtomVector<RealT> > ap
       = std::make_shared<ROL::PrimalAtomVector<RealT>>(ap_rcp,bman,numMyAtoms,dimension,aW_rcp);
@@ -212,7 +215,7 @@ int main(int argc, char *argv[]) {
     if ( std::abs(pdnorm - pnorm/sqrt2) > std::sqrt(errtol) ) {
       errorFlag++;
     }
-    
+
     // Create SROM vectors
     ROL::SROMVector<RealT> xp(pp,ap);
     RealT xpnorm = xp.norm();

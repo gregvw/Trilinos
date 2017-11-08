@@ -73,8 +73,7 @@ typedef H1VectorPrimal<RealT> DualConstraintVector;
 int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
-    = Teuchos::DefaultComm<int>::getComm();
+  std::shared_ptr<const Teuchos::Comm<int> > comm(&*Teuchos::DefaultComm<int>::getComm());
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
@@ -135,8 +134,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<ROL::BatchManager<RealT> > bman
       = std::make_shared<L2VectorBatchManager<RealT,int>>(comm);
     std::shared_ptr<ROL::SampleGenerator<RealT> > sampler
-      = Teuchos::rcp(new ROL::MonteCarloGenerator<RealT>(
-          nSamp,bounds,bman,false,false,100));
+      = std::make_shared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman,false,false,100);
     /*************************************************************************/
     /************* CHECK DERIVATIVES AND CONSISTENCY *************************/
     /*************************************************************************/

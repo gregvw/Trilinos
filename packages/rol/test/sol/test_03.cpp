@@ -153,8 +153,7 @@ void printSolution(const std::vector<RealT> &x,
 int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  std::shared_ptr<const Teuchos::Comm<int> > commptr =
-    Teuchos::DefaultComm<int>::getComm();
+  std::shared_ptr<const Teuchos::Comm<int> > commptr(&*Teuchos::DefaultComm<int>::getComm());
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;

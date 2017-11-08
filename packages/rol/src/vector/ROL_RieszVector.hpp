@@ -53,12 +53,12 @@
 /*
    \class ROL::RieszPrimalVector
    \brief Abstract implementation of a primal vector corresponding to
-          an inner-product that involves the application of a linear 
+          an inner-product that involves the application of a linear
           operator
 
    \class ROL::RieszDualVector
    \brief Abstract implementation of a dual vector corresponding to
-          an inner-product that involves the application of a linear 
+          an inner-product that involves the application of a linear
           operator inverse
 
 */
@@ -76,8 +76,6 @@ class RieszDualVector;
 template <class Real>
 class RieszPrimalVector : public ElementwiseVector<Real> {
 
-  template<typename T> using std::shared_ptr = std::shared_ptr<T>;
- 
   using V = Vector<Real>;
   using DualVector = RieszDualVector<Real>;
   using OP = LinearOperator<Real>;
@@ -93,32 +91,32 @@ private:
 
   void initialize_dual( void ) const {
 
-    dual_ = std::make_shared<DualVector(v_->clone>(),op_,tol_);   
+    dual_ = std::make_shared<DualVector>(v_->clone(),op_,tol_);
     op_->apply(*(dual_->getVector()),*v_,tol_);
     isDualInitialized_ = true;
   }
 
 public:
 
-  RieszPrimalVector( const std::shared_ptr<V>  &v, 
+  RieszPrimalVector( const std::shared_ptr<V>  &v,
                      const std::shared_ptr<OP> &op,
-                     Real tol=std::sqrt(ROL_EPSILON<Real>()) ) : 
-    v_(v), op_(op), tol_(tol), isDualInitialized_(false) {  
-  }   
+                     Real tol=std::sqrt(ROL_EPSILON<Real>()) ) :
+    v_(v), op_(op), tol_(tol), isDualInitialized_(false) {
+  }
 
   virtual ~RieszPrimalVector() {}
- 
+
   virtual Real dot( const V &x ) const {
     if( !isDualInitialized_ ) {
       initialize_dual();
     }
 
     const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector&>(x);
-    return dual_->getVector()->dot(*(ex.getVector()));    
+    return dual_->getVector()->dot(*(ex.getVector()));
   }
 
   virtual std::shared_ptr<V> clone() const {
-    return std::make_shared<RieszPrimalVector( v_->clone>(), op_, tol_ );   
+    return std::make_shared<RieszPrimalVector>( v_->clone(), op_, tol_ );
   }
 
   virtual const V & dual() const {
@@ -135,29 +133,27 @@ public:
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
     const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector&>(x);
     v_->applyBinary(f,*(ex.getVector()));
-  } 
+  }
 
   Real reduce( const Elementwise::ReductionOp<Real> &r ) const {
-    return v_->reduce(r); 
+    return v_->reduce(r);
   }
 
 
-  std::shared_ptr<V> getVector( void ) { 
+  std::shared_ptr<V> getVector( void ) {
     return v_;
   }
 
   std::shared_ptr<const V> getVector( void ) const {
     return v_;
   }
-  
+
 }; // class RieszPrimalVector
 
 
 
 template<class Real>
 class RieszDualVector : public ElementwiseVector<Real> {
-
-  template<typename T> using std::shared_ptr = std::shared_ptr<T>;
 
   using V = Vector<Real>;
   using PrimalVector = RieszPrimalVector<Real>;
@@ -174,32 +170,32 @@ private:
 
   void initialize_primal( void ) const {
 
-    primal_ = std::make_shared<PrimalVector(v_->clone>(),op_,tol_);   
+    primal_ = std::make_shared<PrimalVector>(v_->clone(),op_,tol_);
     op_->applyInverse(*(primal_->getVector()),*v_,tol_);
     isPrimalInitialized_ = true;
   }
 
 public:
 
-  RieszDualVector( const std::shared_ptr<V>  &v, 
+  RieszDualVector( const std::shared_ptr<V>  &v,
                    const std::shared_ptr<OP> &op,
-                   Real tol=std::sqrt(ROL_EPSILON<Real>()) ) : 
-    v_(v), op_(op), tol_(tol), isPrimalInitialized_(false) {  
-  }   
+                   Real tol=std::sqrt(ROL_EPSILON<Real>()) ) :
+    v_(v), op_(op), tol_(tol), isPrimalInitialized_(false) {
+  }
 
   virtual ~RieszDualVector() {}
- 
+
   virtual Real dot( const V &x ) const {
     if( !isPrimalInitialized_ ) {
       initialize_primal();
     }
-   
+
  const RieszDualVector &ex = dynamic_cast<const RieszDualVector&>(x);
-    return primal_->getVector()->dot(*(ex.getVector()));    
+    return primal_->getVector()->dot(*(ex.getVector()));
   }
 
   virtual std::shared_ptr<V> clone() const {
-    return std::make_shared<RieszDualVector( v_->clone>(), op_, tol_ );   
+    return std::make_shared<RieszDualVector>( v_->clone(), op_, tol_ );
   }
 
   virtual const V & dual() const {
@@ -216,21 +212,21 @@ public:
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
     const RieszDualVector &ex = dynamic_cast<const RieszDualVector&>(x);
     v_->applyBinary(f,*(ex.getVector()));
-  } 
+  }
 
   Real reduce( const Elementwise::ReductionOp<Real> &r ) const {
-    return v_->reduce(r); 
+    return v_->reduce(r);
   }
 
 
-  std::shared_ptr<V> getVector( void ) { 
+  std::shared_ptr<V> getVector( void ) {
     return v_;
   }
 
   std::shared_ptr<const V> getVector( void ) const {
     return v_;
   }
-  
+
 }; // class RieszDualVector
 
 

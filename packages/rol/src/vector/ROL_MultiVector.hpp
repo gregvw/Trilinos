@@ -54,7 +54,7 @@
 #include <vector>
 
 #include "ROL_Vector.hpp"
-#include "Teuchos_Arraystd::shared_ptr.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
 namespace ROL {
@@ -62,23 +62,23 @@ namespace ROL {
 template<class Real>
 class MultiVector {
 
-    typedef Vector<Real>          V;       // Single vector 
+    typedef Vector<Real>          V;       // Single vector
     typedef std::shared_ptr<V>       PV;      // Pointer to a vector
-    typedef Teuchos::Arraystd::shared_ptr<PV> APV;     // Array of pointers to vectors
+    typedef Teuchos::ArrayRCP<PV> APV;     // Array of pointers to vectors
     typedef MultiVector<Real>     MV;      // Instance of the base class
-    typedef std::shared_ptr<MV>      PMV;     // Pointer to an instance of the class 
+    typedef std::shared_ptr<MV>      PMV;     // Pointer to an instance of the class
 
     public:
 
         virtual ~MultiVector() {}
 
-        /** \brief Make a new MultiVector of the same dimensions 
+        /** \brief Make a new MultiVector of the same dimensions
 
              @return A reference-counted pointer to the cloned MultiVector
         */
         virtual PMV clone() const = 0;
 
-        /** \brief Make a new MultiVector of specified "width" 
+        /** \brief Make a new MultiVector of specified "width"
 
              @return A reference-counted pointer to the cloned MultiVector
         */
@@ -87,7 +87,7 @@ class MultiVector {
         /** \brief Make a deep copy of this MultiVector
 
              @return A reference-counted pointer to a new MultiVector containing
-                     deep copied values             
+                     deep copied values
         */
         virtual PMV deepCopy() const  = 0;
 
@@ -95,14 +95,14 @@ class MultiVector {
         /** \brief Make a deep copy of this MultiVector
              @param[in] Array of indices of the vectors to copy
              @return A reference-counted pointer to a new MultiVector containing
-                     deep copied values             
+                     deep copied values
         */
-        virtual PMV deepCopy(const std::vector<int> &index) const = 0; 
+        virtual PMV deepCopy(const std::vector<int> &index) const = 0;
 
 
         /** \brief Make a shallow copy of this MultiVector
              @param[in] Array of indices of the vectors to copy
-             @return A reference-counted pointer to a new MultiVector where the 
+             @return A reference-counted pointer to a new MultiVector where the
                      elements point to the data in *this
         */
         virtual PMV shallowCopy(const std::vector<int> &index) = 0;
@@ -110,7 +110,7 @@ class MultiVector {
 
         /** \brief Make a shallow copy of this MultiVector
              @param[in] Array of indices of the vectors to copy
-             @return A reference-counted pointer to a new MultiVector where the 
+             @return A reference-counted pointer to a new MultiVector where the
                      elements point to the data in *this
         */
         virtual const PMV shallowCopyConst(const std::vector<int> &index) const = 0;
@@ -124,13 +124,13 @@ class MultiVector {
 
 
         /** \brief Get the number of vectors in the MultiVector
- 
+
              @return Number of vectors in the MultiVector
         */
         virtual int getNumberOfVectors() const = 0;
 
         /** \brief Generic BLAS level 3 matrix multiplication
-            \f$\text{this}\leftarrow \alpha A B+\beta\text{*this}\f$   
+            \f$\text{this}\leftarrow \alpha A B+\beta\text{*this}\f$
             @param[in] alpha is a multiplicative factor of @b A
             @param[in] @b A is a MultiVector
             @param[in] @b B is a SerialDenseMatrix applied to A from the right
@@ -144,12 +144,12 @@ class MultiVector {
         /** \brief Perform the axpy operation columnwise on the MultiVector
             \f$ y_i\leftarrow y_i+\alpha x_i\f$ where \f$y\f$ is this MultiVector
             @param[in] alpha is the scaling factor
-            @param[in] mv is the 
+            @param[in] mv is the
         */
         virtual void axpy(const Real alpha, const MV& x) = 0;
 
 
-        /** \brief Scale the MultiVector by a single scalar alpha 
+        /** \brief Scale the MultiVector by a single scalar alpha
             \f$\text{this}\leftarrow\alpha\text{this}\f$
             @param[in] alpha is a scalar multiplicative factor
         */
@@ -163,24 +163,24 @@ class MultiVector {
         virtual void scale(const std::vector<Real> &alpha) = 0;
 
 
-        /** \brief Set the MultiVector equal to another MultiVector 
+        /** \brief Set the MultiVector equal to another MultiVector
             @param[in] @b A is a MultiVector
         */
         virtual void set(const MV &A) = 0;
 
-        
-        /** \brief Set some of the vectors in this MultiVector equal to corresponding 
+
+        /** \brief Set some of the vectors in this MultiVector equal to corresponding
                    vectors in another MultiVector
             @param[in] @b A is a MultiVector
         */
         virtual void set(const MV &A, const std::vector<int> &index) = 0;
 
 
-        /** \brief Compute \f$\alpha A^\top \text{*this}\f$ 
+        /** \brief Compute \f$\alpha A^\top \text{*this}\f$
             @param[in] alpha is a multiplicative factor
             @param[in] @b A is a MultiVector
             @param[out] @b B is a SerialDenseMartrix in which to store the alpha-scaled
-                        dot products of this MultiVector's vectors with those of @b A 
+                        dot products of this MultiVector's vectors with those of @b A
         */
         virtual void innerProducts(const Real alpha,
                                    const MV &A,
@@ -189,7 +189,7 @@ class MultiVector {
 
         /** \brief Compute dot products of pairs of vectors
             @param[in] @b A is a MultiVector
-            @param[out] &b b is a vector containing the dot products between 
+            @param[out] &b b is a vector containing the dot products between
                            vectors contained in @b A and this MultiVector
         */
         virtual void dots(const MV &A,
@@ -197,18 +197,18 @@ class MultiVector {
 
 
         /** \brief Compute the norm of each vector in the MultiVector
-             @param[out] &b b is a vector containing the norms of the vectors 
+             @param[out] &b b is a vector containing the norms of the vectors
               contained in this MultiVector
         */
         virtual void norms(std::vector<Real> &normvec) const = 0;
 
 
-        /** \brief Zero each of the vectors in the MultiVector 
+        /** \brief Zero each of the vectors in the MultiVector
         */
-        virtual void zero() = 0; 
-        
+        virtual void zero() = 0;
 
-        /** \brief Return a pointer to the ith vector 
+
+        /** \brief Return a pointer to the ith vector
             @param[in] i is the index of the desired vector
             @return A reference-counted pointer to the desired vector
         */

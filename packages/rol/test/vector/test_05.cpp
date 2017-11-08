@@ -69,15 +69,15 @@ int main(int argc, char *argv[]) {
   try {
     // Dimension of the optimization vector
 
-    int dim = 10; 
+    int dim = 10;
 
-    // Create Tpetra::MultiVectors (single vectors) 
+    // Create Tpetra::MultiVectors (single vectors)
     std::shared_ptr<std::vector<ElementT> > x_rcp
-      = std::make_shared<std::vector<ElementT>>(dim); 
+      = std::make_shared<std::vector<ElementT>>(dim);
     std::shared_ptr<std::vector<ElementT> > y_rcp
-      = std::make_shared<std::vector<ElementT>>(dim); 
+      = std::make_shared<std::vector<ElementT>>(dim);
     std::shared_ptr<std::vector<ElementT> > W_rcp
-      = std::make_shared<std::vector<ElementT>(dim,static_cast<ElementT>>(2)); 
+      = std::make_shared<std::vector<ElementT>>(dim,static_cast<ElementT>(2));
 
     // Random elements
     for (int i = 0; i < dim; i++) {
@@ -162,7 +162,8 @@ int main(int argc, char *argv[]) {
     ROL::PrimalScaledStdVector<RealT,ElementT> z1(z1_rcp,W_rcp);
 
     std::vector<RealT> consistency = x1.checkVector(y1, z1, true, outStream);
-    ROL::StdVector<RealT> checkvec(&consistency, false);
+    auto q = std::shared_ptr<std::vector<RealT>>(&consistency);
+    ROL::StdVector<RealT> checkvec(q);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }

@@ -81,10 +81,10 @@ int main(int argc, char *argv[]) {
 
     int dim = 100;
 
-    // Instantiate from raw pointer, Teuchos::Arraystd::shared_ptr, and int (length) constructor
+    // Instantiate from raw pointer, Teuchos::ArrayRCP, and int (length) constructor
     ElementT* x_rawp = new ElementT[dim];
 
-    Teuchos::Arraystd::shared_ptr<ElementT> y_adim,0;
+    Teuchos::ArrayRCP<ElementT> y_arcp(dim,0);
 
     ROL::CArrayVector<RealT, ElementT> x(x_rawp,dim);
     ROL::CArrayVector<RealT, ElementT> y(y_arcp);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT, ElementT> checkvec(&consistency, false);
+    ROL::StdVector<RealT, ElementT> checkvec(std::make_shared<std::vector<RealT>>(&consistency));
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
@@ -155,4 +155,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

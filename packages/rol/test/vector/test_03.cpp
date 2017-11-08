@@ -62,7 +62,7 @@ typedef double RealT;
 using namespace ROL;
 
 
-using Teuchos::Arraystd::shared_ptr;
+using Teuchos::ArrayRCP;
 
 
 template<class Real>
@@ -72,7 +72,7 @@ Real norm_sum(const MultiVector<Real> &A) {
     A.norms(norms);
     Real sum = 0;
     for(int i=0;i<numVectors;++i) {
-        sum += norms[i]; 
+        sum += norms[i];
     }
     return sum;
 }
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 
     int errorFlag = 0;
 
-    try { 
+    try {
 
 	Teuchos::SerialDenseMatrix<int,RealT> M(2,2,true);
 	M(0,0) = 2.0;
@@ -117,24 +117,24 @@ int main(int argc, char *argv[]) {
 
 	(*z_rcp)[0] = -1.0;
 	(*z_rcp)[1] =  1.0;
-       
-	std::shared_ptr<Vector<RealT> > w = std::make_shared<StdVector<RealT>>(w_rcp); 
-	std::shared_ptr<Vector<RealT> > x = std::make_shared<StdVector<RealT>>(x_rcp); 
-	std::shared_ptr<Vector<RealT> > y = std::make_shared<StdVector<RealT>>(y_rcp); 
-	std::shared_ptr<Vector<RealT> > z = std::make_shared<StdVector<RealT>>(z_rcp); 
 
-	Arraystd::shared_ptr<std::shared_ptr<Vector<RealT> > > A_2;
-	Arraystd::shared_ptr<std::shared_ptr<Vector<RealT> > > B_2;
+	std::shared_ptr<Vector<RealT> > w = std::make_shared<StdVector<RealT>>(w_rcp);
+	std::shared_ptr<Vector<RealT> > x = std::make_shared<StdVector<RealT>>(x_rcp);
+	std::shared_ptr<Vector<RealT> > y = std::make_shared<StdVector<RealT>>(y_rcp);
+	std::shared_ptr<Vector<RealT> > z = std::make_shared<StdVector<RealT>>(z_rcp);
 
-	A_rcp[0] = x;     
-	A_rcp[1] = y;     
+	ArrayRCP<std::shared_ptr<Vector<RealT> > > A_rcp(2);
+	ArrayRCP<std::shared_ptr<Vector<RealT> > > B_rcp(2);
 
-	B_rcp[0] = w;     
-	B_rcp[1] = z;     
+	A_rcp[0] = x;
+	A_rcp[1] = y;
+
+	B_rcp[0] = w;
+	B_rcp[1] = z;
 
 	std::shared_ptr<MultiVector<RealT> > A = std::make_shared<MultiVectorDefault<RealT>>(A_rcp);
 	std::shared_ptr<MultiVector<RealT> > B = std::make_shared<MultiVectorDefault<RealT>>(B_rcp);
-       
+
 	// Test norm
 	if(static_cast<int>(norm_sum(*A)) != 6) {
             *outStream << "Norm test failed!\n";
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Test clone
-	std::shared_ptr<MultiVector<RealT> > C = A->clone();    
+	std::shared_ptr<MultiVector<RealT> > C = A->clone();
 	if(norm_sum(*C) != 0) {
             *outStream << "Clone test failed!\n";
 	    ++errorFlag;
@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
             *outStream << "Deep copy test failed!\n";
 	    ++errorFlag;
 	}
-        
+
         // Test shallow copy
 	std::vector<int> index(1);
 	index[0] = 0;
@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
 	    ++errorFlag;
 	}
 
-	// Test matrix multiplication 
+	// Test matrix multiplication
 	A->gemm(2.0,*B,M,1.0);
 	if(static_cast<int>(norm_sum(*A)) != 53) {
             *outStream << "Matmat multiply test failed!  The norm_sum is " << static_cast<int>(norm_sum(*A)) << ", not equal to 49.\n";
@@ -193,19 +193,19 @@ int main(int argc, char *argv[]) {
         Teuchos::SerialDenseMatrix<int,RealT> P(2,2,true);
         B->innerProducts(1.0,*B,P);
         Teuchos::SerialDenseMatrix<int,RealT> Check(2,2,true);
-        Check(0,0) = 1.0;   
-        Check(0,1) = 1.0;   
-        Check(1,0) = 1.0;   
-        Check(1,1) = 2.0;   
+        Check(0,0) = 1.0;
+        Check(0,1) = 1.0;
+        Check(1,0) = 1.0;
+        Check(1,1) = 2.0;
         if( P != Check ) {
             *outStream << "Inner product test failed!\n";
 	    ++errorFlag;
         }
 
 	// Test dot products
-        std::vector<RealT> dots(2); 
+        std::vector<RealT> dots(2);
         D->dots(*D,dots);
-        if(static_cast<int>(dots[0]) != 1 || 
+        if(static_cast<int>(dots[0]) != 1 ||
            static_cast<int>(dots[1]) != 25 ) {
             *outStream << "Dot product test failed!\n";
             ++errorFlag;
@@ -234,4 +234,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-

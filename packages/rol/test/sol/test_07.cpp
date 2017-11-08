@@ -62,7 +62,7 @@
 
 typedef double RealT;
 
-template<class Real> 
+template<class Real>
 class ParametrizedObjectiveEx7 : public ROL::Objective<Real> {
 public:
   Real value( const ROL::Vector<Real> &x, Real &tol ) {
@@ -72,7 +72,7 @@ public:
     std::vector<Real> p = ROL::Objective<Real>::getParameter();
     unsigned size = static_cast<unsigned>(ex->size());
     for ( unsigned i = 0; i < size; i++ ) {
-      quad += (*ex)[i]*(*ex)[i]; 
+      quad += (*ex)[i]*(*ex)[i];
       lin  += (*ex)[i]*p[i+1];
     }
     return std::exp(p[0])*quad + lin + p[size+1];
@@ -101,8 +101,8 @@ public:
     unsigned size = static_cast<unsigned>(ev->size());
     const Real two(2);
     for ( unsigned i = 0; i < size; i++ ) {
-      (*ehv)[i] = two*std::exp(p[0])*(*ev)[i]; 
-    } 
+      (*ehv)[i] = two*std::exp(p[0])*(*ev)[i];
+    }
   }
 };
 
@@ -154,8 +154,7 @@ void printSolution(const std::vector<RealT> &x,
 int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  std::shared_ptr<const Teuchos::Comm<int> > commptr =
-    Teuchos::DefaultComm<int>::getComm();
+  std::shared_ptr<const Teuchos::Comm<int> > commptr(&*Teuchos::DefaultComm<int>::getComm());
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
@@ -173,9 +172,8 @@ int main(int argc, char* argv[]) {
     /************************* CONSTRUCT ROL ALGORITHM ********************************************/
     /**********************************************************************************************/
     // Get ROL parameterlist
-    std::string filename = "input_07.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    const std::string filename = "input_07.xml";
+    auto parlist = Teuchos::getParametersFromXmlFile(filename);
     Teuchos::ParameterList list = *parlist;
     // Build ROL algorithm
     std::shared_ptr<ROL::Algorithm<RealT> > algo;
@@ -206,7 +204,7 @@ int main(int argc, char* argv[]) {
     // Build bound constraints
     std::vector<RealT> l(dim,zero);
     std::vector<RealT> u(dim,one);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd = 
+    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd =
       std::make_shared<ROL::StdBoundConstraint<RealT>>(l,u);
     bnd->deactivate();
     // Test parametrized objective functions

@@ -59,19 +59,19 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-   
+
 
   typedef std::vector<RealT>    vector;
   typedef ROL::Vector<RealT>    V;
   typedef ROL::StdVector<RealT> SV;
-  
+
   typedef ROL::LinearOperator<RealT>     LinearOperator;
-  typedef ROL::DiagonalOperator<RealT>   DiagonalOperator;  
+  typedef ROL::DiagonalOperator<RealT>   DiagonalOperator;
 
   typedef ROL::RieszPrimalVector<RealT>  PrimalVector;
   typedef ROL::RieszDualVector<RealT>    DualVector;
 
-  
+
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
 
   int iprint = argc - 1;
@@ -85,25 +85,25 @@ int main(int argc, char *argv[]) {
   try {
     // Dimension of the optimization vector
 
-    int dim = 10; 
+    int dim = 10;
 
-    // Create Tpetra::MultiVectors (single vectors) 
+    // Create Tpetra::MultiVectors (single vectors)
     std::shared_ptr<vector> x_rcp = std::make_shared<vector>(dim);
     std::shared_ptr<vector> y_rcp = std::make_shared<vector>(dim);
     std::shared_ptr<vector> w_rcp = std::make_shared<vector>(dim,2.0);
 
     std::shared_ptr<V> xs = std::make_shared<SV>( x_rcp );
     std::shared_ptr<V> ys = std::make_shared<SV>( y_rcp );
-    
+
     SV ws( w_rcp );
 
     ROL::RandomizeVector(*xs);
     ROL::RandomizeVector(*ys);
 
     std::shared_ptr<LinearOperator> W = std::make_shared<DiagonalOperator>(ws);
- 
+
     PrimalVector x(xs,W);
-    DualVector   y(ys,W);    
+    DualVector   y(ys,W);
 
     RealT xy = x.dot(y.dual());
     RealT yx = y.dot(x.dual());
@@ -176,7 +176,8 @@ int main(int argc, char *argv[]) {
     PrimalVector z1(z1s,W);
 
     std::vector<RealT> consistency = x1.checkVector(y1, z1, true, outStream);
-    ROL::StdVector<RealT> checkvec(&consistency, false);
+    auto q = std::shared_ptr<std::vector<RealT>>(&consistency);
+    ROL::StdVector<RealT> checkvec(q);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }

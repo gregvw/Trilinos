@@ -60,7 +60,7 @@ typedef double RealT;
 int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  auto commptr = Teuchos::DefaultComm<int>::getComm();
+  auto commptr = std::shared_ptr<const Teuchos::Comm<int>>(&*Teuchos::DefaultComm<int>::getComm());
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;

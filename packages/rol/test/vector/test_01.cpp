@@ -1,4 +1,4 @@
-// @HEADER
+// @Header
 // ************************************************************************
 //
 //               Rapid Optimization Library (ROL) Package
@@ -96,7 +96,8 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT, ElementT> checkvec(&consistency, false);
+    auto q = std::shared_ptr<std::vector<RealT>>(&consistency);
+    ROL::StdVector<RealT, ElementT> checkvec(q);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
@@ -149,4 +150,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-
