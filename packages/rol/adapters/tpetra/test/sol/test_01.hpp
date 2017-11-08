@@ -200,31 +200,31 @@ public:
 
   void value(ROL::Vector<Real> &c, const ROL::Vector<Real> &u, 
                   const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > cp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(c)).getVector());
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<std::vector<Real> > cp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(c)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     compute_residual(*cp,*up,*zp);
   }
 
   void solve(ROL::Vector<Real> &c, ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > up =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(u)).getVector());
+    ROL::SharedPointer<std::vector<Real> > up =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(u)).getVector());
     up->assign(up->size(),1.0);
     ROL::Constraint_SimOpt<Real>::solve(c,u,z,tol);
   }
 
   void applyJacobian_1(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u, 
                        const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > jvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(jv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp =
+    ROL::SharedPointer<std::vector<Real> > jvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(jv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     const std::vector<Real> param =
       ROL::Constraint_SimOpt<Real>::getParameter();
@@ -251,13 +251,13 @@ public:
 
   void applyJacobian_2(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                        const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > jvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(jv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp =
+    ROL::SharedPointer<std::vector<Real> > jvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(jv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     for (int i=0; i<nx_; i++) {
       // Contribution from control
@@ -267,13 +267,13 @@ public:
 
   void applyInverseJacobian_1(ROL::Vector<Real> &ijv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                               const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > ijvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(ijv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp =
+    ROL::SharedPointer<std::vector<Real> > ijvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(ijv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     // Get PDE Jacobian
     std::vector<Real> d(nx_,0.0);
@@ -286,13 +286,13 @@ public:
 
   void applyAdjointJacobian_1(ROL::Vector<Real> &ajv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u, 
                               const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > jvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(ajv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp =
+    ROL::SharedPointer<std::vector<Real> > jvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(ajv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     const std::vector<Real> param =
       ROL::Constraint_SimOpt<Real>::getParameter();
@@ -319,13 +319,13 @@ public:
 
   void applyAdjointJacobian_2(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                               const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > jvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(jv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp =
+    ROL::SharedPointer<std::vector<Real> > jvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(jv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     for (int i=0; i<nx_+2; i++) {
       if ( i == 0 ) {
@@ -348,11 +348,11 @@ public:
 
   void applyInverseAdjointJacobian_1(ROL::Vector<Real> &iajv, const ROL::Vector<Real> &v,
                                      const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > iajvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(iajv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp =
+    ROL::SharedPointer<std::vector<Real> > iajvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(iajv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
     // Get PDE Jacobian
     std::vector<Real> d(nx_,0.0);
@@ -365,15 +365,15 @@ public:
 
   void applyAdjointHessian_11(ROL::Vector<Real> &ahwv, const ROL::Vector<Real> &w, const ROL::Vector<Real> &v,
                               const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<std::vector<Real> > ahwvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(ahwv)).getVector());
-    std::shared_ptr<const std::vector<Real> > wp =
+    ROL::SharedPointer<std::vector<Real> > ahwvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(ahwv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > wp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(w))).getVector();
-    std::shared_ptr<const std::vector<Real> > vp =
+    ROL::SharedPointer<const std::vector<Real> > vp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     for (int i=0; i<nx_; i++) {
       // Contribution from nonlinear term
@@ -469,9 +469,9 @@ public:
   using ROL::Objective_SimOpt<Real>::value;
 
   Real value( const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     // COMPUTE RESIDUAL
     Real res1 = 0.0, res2 = 0.0, res3 = 0.0;
@@ -499,12 +499,12 @@ public:
 
   void gradient_1( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
     // Unwrap g
-    std::shared_ptr<std::vector<Real> > gup = std::const_pointer_cast<std::vector<Real> >(
+    ROL::SharedPointer<std::vector<Real> > gup = ROL::constPointerCast<std::vector<Real> >(
       (dynamic_cast<const ROL::StdVector<Real>&>(g)).getVector());
     // Unwrap x
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     // COMPUTE GRADIENT WRT U
     std::vector<Real> diff(nx_,0.0);
@@ -516,12 +516,12 @@ public:
 
   void gradient_2( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
     // Unwrap g
-    std::shared_ptr<std::vector<Real> > gzp = std::const_pointer_cast<std::vector<Real> >(
+    ROL::SharedPointer<std::vector<Real> > gzp = ROL::constPointerCast<std::vector<Real> >(
       (dynamic_cast<const ROL::StdVector<Real>&>(g)).getVector());
     // Unwrap x
-    std::shared_ptr<const std::vector<Real> > up =
+    ROL::SharedPointer<const std::vector<Real> > up =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(u))).getVector();
-    std::shared_ptr<const std::vector<Real> > zp =
+    ROL::SharedPointer<const std::vector<Real> > zp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(z))).getVector();
     // COMPUTE GRADIENT WRT Z
     for (int i=0; i<nx_+2; i++) {
@@ -539,10 +539,10 @@ public:
 
   void hessVec_11( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, 
                    const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > hvup = std::const_pointer_cast<std::vector<Real> >(
+    ROL::SharedPointer<std::vector<Real> > hvup = ROL::constPointerCast<std::vector<Real> >(
       (dynamic_cast<const ROL::StdVector<Real>&>(hv)).getVector());
     // Unwrap v
-    std::shared_ptr<const std::vector<Real> > vup =
+    ROL::SharedPointer<const std::vector<Real> > vup =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
     // COMPUTE GRADIENT WRT U
     apply_mass(*hvup,*vup);
@@ -560,10 +560,10 @@ public:
 
   void hessVec_22( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, 
                    const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > hvzp = std::const_pointer_cast<std::vector<Real> >(
+    ROL::SharedPointer<std::vector<Real> > hvzp = ROL::constPointerCast<std::vector<Real> >(
       (dynamic_cast<const ROL::StdVector<Real>&>(hv)).getVector());
     // Unwrap v
-    std::shared_ptr<const std::vector<Real> > vzp =
+    ROL::SharedPointer<const std::vector<Real> > vzp =
       (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
     // COMPUTE GRADIENT WRT Z
     for (int i=0; i<nx_+2; i++) {

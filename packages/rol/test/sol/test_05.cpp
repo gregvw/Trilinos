@@ -73,12 +73,12 @@ typedef H1VectorPrimal<RealT> DualConstraintVector;
 int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  std::shared_ptr<const Teuchos::Comm<int> > comm(&*Teuchos::DefaultComm<int>::getComm());
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm(&*Teuchos::DefaultComm<int>::getComm());
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
   bool print = (iprint>0);
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (print)
     outStream.reset(&std::cout);
@@ -97,44 +97,44 @@ int main(int argc, char *argv[]) {
     RealT nl    = 1.0;   // Nonlinearity parameter (1 = Burgers, 0 = linear).
     RealT cH1   = 1.0;   // Scale for derivative term in H1 norm.
     RealT cL2   = 0.0;   // Scale for mass term in H1 norm.
-    std::shared_ptr<BurgersFEM<RealT> > fem
-      = std::make_shared<BurgersFEM<RealT>>(nx,nl,cH1,cL2);
+    ROL::SharedPointer<BurgersFEM<RealT> > fem
+      = ROL::makeShared<BurgersFEM<RealT>>(nx,nl,cH1,cL2);
     fem->test_inverse_mass(*outStream);
     fem->test_inverse_H1(*outStream);
     /*************************************************************************/
     /************* INITIALIZE SIMOPT EQUALITY CONSTRAINT *********************/
     /*************************************************************************/
     bool hess = true;
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > pcon
-      = std::make_shared<Constraint_BurgersControl<RealT>>(fem,hess);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > pcon
+      = ROL::makeShared<Constraint_BurgersControl<RealT>>(fem,hess);
     /*************************************************************************/
     /************* INITIALIZE VECTOR STORAGE *********************************/
     /*************************************************************************/
     // INITIALIZE CONTROL VECTORS
-    std::shared_ptr<std::vector<RealT> > z_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 0.0);
-    std::shared_ptr<ROL::Vector<RealT> > zp
-      = std::make_shared<PrimalControlVector>(z_rcp,fem);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > zp
+      = ROL::makeShared<PrimalControlVector>(z_rcp,fem);
     // INITIALIZE STATE VECTORS
-    std::shared_ptr<std::vector<RealT> > u_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<ROL::Vector<RealT> > up
-      = std::make_shared<PrimalStateVector>(u_rcp,fem);
+    ROL::SharedPointer<std::vector<RealT> > u_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > up
+      = ROL::makeShared<PrimalStateVector>(u_rcp,fem);
     // INITIALIZE CONSTRAINT VECTORS
-    std::shared_ptr<std::vector<RealT> > c_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<ROL::Vector<RealT> > cp
-      = std::make_shared<PrimalConstraintVector>(c_rcp,fem);
+    ROL::SharedPointer<std::vector<RealT> > c_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > cp
+      = ROL::makeShared<PrimalConstraintVector>(c_rcp,fem);
     /*************************************************************************/
     /************* INITIALIZE SAMPLE GENERATOR *******************************/
     /*************************************************************************/
     int dim = 4, nSamp = 10000;
     std::vector<RealT> tmp(2,0.0); tmp[0] = -1.0; tmp[1] = 1.0;
     std::vector<std::vector<RealT> > bounds(dim,tmp);
-    std::shared_ptr<ROL::BatchManager<RealT> > bman
-      = std::make_shared<L2VectorBatchManager<RealT,int>>(comm);
-    std::shared_ptr<ROL::SampleGenerator<RealT> > sampler
-      = std::make_shared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman,false,false,100);
+    ROL::SharedPointer<ROL::BatchManager<RealT> > bman
+      = ROL::makeShared<L2VectorBatchManager<RealT,int>>(comm);
+    ROL::SharedPointer<ROL::SampleGenerator<RealT> > sampler
+      = ROL::makeShared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman,false,false,100);
     /*************************************************************************/
     /************* CHECK DERIVATIVES AND CONSISTENCY *************************/
     /*************************************************************************/

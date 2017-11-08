@@ -67,8 +67,8 @@ void print_vector( const ROL::Vector<Real> &x ) {
 
   for(size_type k=0; k<n; ++k) {
     std::cout << "[subvector " << k << "]" << std::endl;
-    std::shared_ptr<const V> vec = eb.get(k);
-    std::shared_ptr<const std::vector<Real> > vp =
+    ROL::SharedPointer<const V> vec = eb.get(k);
+    ROL::SharedPointer<const std::vector<Real> > vp =
       dynamic_cast<const SV&>(*vec).getVector();
    for(size_type i=0;i<vp->size();++i) {
       std::cout << (*vp)[i] << std::endl;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
   int iprint = argc - 1;
 
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   oblackholestream bhs; // no output
 
   if( iprint>0 )
@@ -114,14 +114,14 @@ int main(int argc, char *argv[]) {
 
     RealT left = -1e0, right = 1e0;
 
-    std::vector<std::shared_ptr<V> > x_rcp;
-    std::vector<std::shared_ptr<V> > y_rcp;
-    std::vector<std::shared_ptr<V> > z_rcp;
+    std::vector<ROL::SharedPointer<V> > x_rcp;
+    std::vector<ROL::SharedPointer<V> > y_rcp;
+    std::vector<ROL::SharedPointer<V> > z_rcp;
 
     for( PV::size_type k=0; k<nvec; ++k ) {
-      std::shared_ptr<std::vector<RealT> > xk_rcp = std::make_shared<std::vector<RealT>>(dim[k]);
-      std::shared_ptr<std::vector<RealT> > yk_rcp = std::make_shared<std::vector<RealT>>(dim[k]);
-      std::shared_ptr<std::vector<RealT> > zk_rcp = std::make_shared<std::vector<RealT>>(dim[k]);
+      ROL::SharedPointer<std::vector<RealT> > xk_rcp = ROL::makeShared<std::vector<RealT>>(dim[k]);
+      ROL::SharedPointer<std::vector<RealT> > yk_rcp = ROL::makeShared<std::vector<RealT>>(dim[k]);
+      ROL::SharedPointer<std::vector<RealT> > zk_rcp = ROL::makeShared<std::vector<RealT>>(dim[k]);
 
       for( int i=0; i<dim[k]; ++i ) {
         (*xk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
@@ -129,9 +129,9 @@ int main(int argc, char *argv[]) {
         (*zk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
       }
 
-      std::shared_ptr<V> xk = std::make_shared<SV>( xk_rcp );
-      std::shared_ptr<V> yk = std::make_shared<SV>( yk_rcp );
-      std::shared_ptr<V> zk = std::make_shared<SV>( zk_rcp );
+      ROL::SharedPointer<V> xk = ROL::makeShared<SV>( xk_rcp );
+      ROL::SharedPointer<V> yk = ROL::makeShared<SV>( yk_rcp );
+      ROL::SharedPointer<V> zk = ROL::makeShared<SV>( zk_rcp );
 
       x_rcp.push_back(xk);
       y_rcp.push_back(yk);
@@ -141,19 +141,19 @@ int main(int argc, char *argv[]) {
     }
 
     PV x(x_rcp);
-    std::shared_ptr<V> y = ROL::CreatePartitionedVector<RealT>(y_rcp[0],y_rcp[1],y_rcp[2]);
+    ROL::SharedPointer<V> y = ROL::CreatePartitionedVector<RealT>(y_rcp[0],y_rcp[1],y_rcp[2]);
     PV z(z_rcp);
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(*y, z, true, *outStream);
-    ROL::StdVector<RealT> checkvec((std::shared_ptr<std::vector<RealT>>(&consistency)));
+    ROL::StdVector<RealT> checkvec((ROL::SharedPointer<std::vector<RealT>>(&consistency)));
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
 
     // Basis tests.
     // set x to first basis vector
-    std::shared_ptr<ROL::Vector<RealT> > zp = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > zp = x.clone();
     zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";

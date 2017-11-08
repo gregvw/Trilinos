@@ -57,8 +57,8 @@ template<class Real>
 class GoldenSection : public LineSearch<Real> {
 private:
   Real tol_;
-  std::shared_ptr<Vector<Real> > xnew_; 
-  std::shared_ptr<LineSearch<Real> > btls_;
+  ROL::SharedPointer<Vector<Real> > xnew_; 
+  ROL::SharedPointer<LineSearch<Real> > btls_;
 
 public:
 
@@ -68,7 +68,7 @@ public:
   GoldenSection( Teuchos::ParameterList &parlist ) : LineSearch<Real>(parlist) {
     Real oem8(1.e-8);
     tol_ = parlist.sublist("Step").sublist("Line Search").sublist("Line-Search Method").get("Bracketing Tolerance",oem8);
-    btls_ = std::make_shared<BackTracking<Real>>(parlist);
+    btls_ = ROL::makeShared<BackTracking<Real>>(parlist);
   }
 
   void initialize( const Vector<Real> &x, const Vector<Real> &s, const Vector<Real> &g,

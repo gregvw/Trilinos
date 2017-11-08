@@ -105,14 +105,14 @@ private:
   Real dx_;     
         
   /*! \var ptr Vp_ Pointer to potential vector  */ 
-  std::shared_ptr<const vector> Vp_;    
+  ROL::SharedPointer<const vector> Vp_;    
 
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
     
     return dynamic_cast<const SV&>(x).getVector();
   }
 
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     
     return dynamic_cast<SV&>(x).getVector();
   }
@@ -127,10 +127,10 @@ private:
     using namespace Teuchos;
 
     // Pointer to direction vector 
-    std::shared_ptr<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> vp = getVector(v);
 
     // Pointer to action of Hessian on direction vector 
-    std::shared_ptr<vector> kvp = getVector(kv);
+    ROL::SharedPointer<vector> kvp = getVector(kv);
 
     Real dx2 = dx_*dx_;
 
@@ -161,11 +161,11 @@ private:
         
     
     // Pointer to opt vector 
-    std::shared_ptr<const vector> psip = getVector(psi);
+    ROL::SharedPointer<const vector> psip = getVector(psi);
 
     // Pointer to K applied to opt vector 
-    std::shared_ptr<V> kpsi = psi.clone();
-    std::shared_ptr<vector> kpsip = getVector(*kpsi);
+    ROL::SharedPointer<V> kpsi = psi.clone();
+    ROL::SharedPointer<vector> kpsip = getVector(*kpsi);
 
     Real J = 0;
 
@@ -188,14 +188,14 @@ private:
     
 
     // Pointer to opt vector 
-    std::shared_ptr<const vector> psip = getVector(psi);
+    ROL::SharedPointer<const vector> psip = getVector(psi);
 
     // Pointer to gradient vector 
-    std::shared_ptr<vector> gp = getVector(g);
+    ROL::SharedPointer<vector> gp = getVector(g);
 
     // Pointer to K applied to opt vector 
-    std::shared_ptr<V> kpsi = psi.clone();
-    std::shared_ptr<vector> kpsip = getVector(*kpsi);
+    ROL::SharedPointer<V> kpsi = psi.clone();
+    ROL::SharedPointer<vector> kpsip = getVector(*kpsi);
 
     applyK(psi,*kpsi);
 
@@ -214,13 +214,13 @@ private:
     
 
     // Pointer to opt vector 
-    std::shared_ptr<const vector> psip = getVector(psi);
+    ROL::SharedPointer<const vector> psip = getVector(psi);
 
     // Pointer to direction vector 
-    std::shared_ptr<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> vp = getVector(v);
 
     // Pointer to action of Hessian on direction vector 
-    std::shared_ptr<vector> hvp = getVector(hv);
+    ROL::SharedPointer<vector> hvp = getVector(hv);
 
     applyK(v,hv);
  
@@ -247,12 +247,12 @@ private:
   uint nx_;
   Real dx_;
 
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
     
     return dynamic_cast<const SV&>(x).getVector();
   }
 
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     
     return dynamic_cast<SV&>(x).getVector();
   }
@@ -270,10 +270,10 @@ public:
     
 
     // Pointer to constraint vector (only one element)
-    std::shared_ptr<vector> cp = getVector(c);
+    ROL::SharedPointer<vector> cp = getVector(c);
 
     // Pointer to optimization vector     
-    std::shared_ptr<const vector> psip = getVector(psi);
+    ROL::SharedPointer<const vector> psip = getVector(psi);
 
     (*cp)[0] = -1.0;
     for(uint i=0;i<nx_;++i) {
@@ -289,13 +289,13 @@ public:
     
 
     // Pointer to action of Jacobian of constraint on direction vector (yields scalar)
-    std::shared_ptr<vector> jvp = getVector(jv);
+    ROL::SharedPointer<vector> jvp = getVector(jv);
 
     // Pointer to direction vector     
-    std::shared_ptr<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> vp = getVector(v);
 
     // Pointer to optimization vector     
-    std::shared_ptr<const vector> psip = getVector(psi);
+    ROL::SharedPointer<const vector> psip = getVector(psi);
       
         (*jvp)[0] = 0;
         for(uint i=0;i<nx_;++i) {
@@ -311,13 +311,13 @@ public:
      
 
     // Pointer to action of adjoint of Jacobian of constraint on direction vector (yields vector)
-    std::shared_ptr<vector> ajvp = getVector(ajv);
+    ROL::SharedPointer<vector> ajvp = getVector(ajv);
 
     // Pointer to direction vector     
-    std::shared_ptr<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> vp = getVector(v);
 
     // Pointer to optimization vector     
-    std::shared_ptr<const vector> psip = getVector(psi);
+    ROL::SharedPointer<const vector> psip = getVector(psi);
 
     for(uint i=0;i<nx_;++i) {
       (*ajvp)[i] = 2.0*dx_*(*psip)[i]*(*vp)[0];
@@ -334,16 +334,16 @@ public:
     
 
     // The pointer to action of constraint Hessian in u,v inner product
-    std::shared_ptr<vector> ahuvp = getVector(ahuv);
+    ROL::SharedPointer<vector> ahuvp = getVector(ahuv);
 
     // Pointer to direction vector u     
-    std::shared_ptr<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> up = getVector(u);
 
     // Pointer to direction vector v     
-    std::shared_ptr<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> vp = getVector(v);
 
     // Pointer to optimization vector     
-    std::shared_ptr<const vector> psip = getVector(psi);
+    ROL::SharedPointer<const vector> psip = getVector(psi);
 
     for(uint i=0;i<nx_;++i) {
       (*ahuvp)[i] = 2.0*dx_*(*vp)[i]*(*up)[0];        

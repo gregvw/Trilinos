@@ -57,7 +57,7 @@ namespace ROL {
 template<class Real>
 class Eigen3Vector : public ElementwiseVector<Real> {
 
-  template <typename T> using std::shared_ptr = std::shared_ptr<T>;
+  template <typename T> using ROL::SharedPointer = ROL::SharedPointer<T>;
   
   using V = Vector<Real>;
 
@@ -69,21 +69,21 @@ class Eigen3Vector : public ElementwiseVector<Real> {
 
 private:
 
-  std::shared_ptr<EV> vec_;
+  ROL::SharedPointer<EV> vec_;
 
   int dim_;
 
 public:
 
-  Eigen3Vector( const std::shared_ptr<EV> &vec ) : vec_(vec), dim_(vec->size()) {
+  Eigen3Vector( const ROL::SharedPointer<EV> &vec ) : vec_(vec), dim_(vec->size()) {
   }
  
   Eigen3Vector( int dim, bool zeroOut=false ) : dim_(dim) {
     if( zeroOut ) {
-      vec_ = std::make_shared<EV(EV::Zero>(dim_));
+      vec_ = ROL::makeShared<EV(EV::Zero>(dim_));
     }
     else {
-      vec_ = std::make_shared<EV>(dim_);
+      vec_ = ROL::makeShared<EV>(dim_);
     }
   }
 
@@ -109,21 +109,21 @@ public:
     return dim_;
   }
 
-  std::shared_ptr<V> basis( const int i ) const {
-    auto data = std::make_shared<EV>(dim_,true);
+  ROL::SharedPointer<V> basis( const int i ) const {
+    auto data = ROL::makeShared<EV>(dim_,true);
     (*data)(i) = static_cast<Real>(1.0);
-    return std::make_shared<Eigen3Vector>(data);
+    return ROL::makeShared<Eigen3Vector>(data);
   }
 
-  std::shared_ptr<V> clone() const {
-    return std::make_shared<Eigen3Vector>(dim_); 
+  ROL::SharedPointer<V> clone() const {
+    return ROL::makeShared<Eigen3Vector>(dim_); 
   }
 
-  std::shared_ptr<EV> getVector() {
+  ROL::SharedPointer<EV> getVector() {
     return vec_;
   }
 
-  std::shared_ptr<const EV> getVector() const {
+  ROL::SharedPointer<const EV> getVector() const {
     return vec_;
   }
 

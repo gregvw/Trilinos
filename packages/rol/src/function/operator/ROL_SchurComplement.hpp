@@ -79,27 +79,27 @@ class SchurComplement {
    
 private:
 
-  std::shared_ptr<OP> A_, B_, C_, D_;
+  ROL::SharedPointer<OP> A_, B_, C_, D_;
 
-  std::shared_ptr<OP> L_,U_;   
-  std::shared_ptr<V>  scratch1_;
+  ROL::SharedPointer<OP> L_,U_;   
+  ROL::SharedPointer<V>  scratch1_;
 
   
 
 public:
 
-  SchurComplement( std::shared_ptr<OP> &A, std::shared_ptr<OP> &B,  
-                   std::shared_ptr<OP> &C, std::shared_ptr<OP> &D, 
-                   std::shared_ptr<V> &scratch1 ) : 
+  SchurComplement( ROL::SharedPointer<OP> &A, ROL::SharedPointer<OP> &B,  
+                   ROL::SharedPointer<OP> &C, ROL::SharedPointer<OP> &D, 
+                   ROL::SharedPointer<V> &scratch1 ) : 
                      A_(A), B_(B), C_(C), D_(D), scratch1_(scratch1) {
 
-    U_ = std::make_shared<UPPER>(B_);
-    L_ = std::make_shared<LOWER>(C_);
+    U_ = ROL::makeShared<UPPER>(B_);
+    L_ = ROL::makeShared<LOWER>(C_);
 
   }
 
 
-  SchurComplement( BlockOperator2<Real> &op, std::shared_ptr<Vector<Real> > &scratch1 ) :
+  SchurComplement( BlockOperator2<Real> &op, ROL::SharedPointer<Vector<Real> > &scratch1 ) :
     scratch1_(scratch1) {}
 
   
@@ -109,8 +109,8 @@ public:
   C_ = op.getOperator(1,0);
   D_ = op.getOperator(1,1);
 
-  U_ = std::make_shared<UPPER>(B_);
-  L_ = std::make_shared<LOWER>(C_);
+  U_ = ROL::makeShared<UPPER>(B_);
+  L_ = ROL::makeShared<LOWER>(C_);
 
   void applyLower( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) { 
     L_->apply(Hv,v,tol);
@@ -128,8 +128,8 @@ public:
     U_->applyInverse(Hv,v,tol);
   }
 
-  std::shared_ptr<OP> getS11( void ) { 
-    return std::make_shared<BlockOperator2Determinant<Real>>(A_,B_,C_,D_,scratch1_);
+  ROL::SharedPointer<OP> getS11( void ) { 
+    return ROL::makeShared<BlockOperator2Determinant<Real>>(A_,B_,C_,D_,scratch1_);
   }
 
   void solve2( Vector<Real> &Hv2, const Vector<Real> &v2, Real &tol ) {

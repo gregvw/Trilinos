@@ -55,7 +55,7 @@ class EqualityConstraint_PDEOPT_ElasticitySIMP_Volume : public ROL::Constraint<R
 private:
   Real volFrac_;
   Real totalMeasure_;
-  std::shared_ptr<Tpetra::MultiVector<> > cellMeasures_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > cellMeasures_;
 
   ROL::Vector<Real> & castRiskVector(ROL::Vector<Real> &x) const {
     try {
@@ -78,8 +78,8 @@ private:
   }
 
 public:
-  EqualityConstraint_PDEOPT_ElasticitySIMP_Volume(const std::shared_ptr<ElasticitySIMPOperators<Real> > &data,
-                                                  const std::shared_ptr<Teuchos::ParameterList> &parlist) {
+  EqualityConstraint_PDEOPT_ElasticitySIMP_Volume(const ROL::SharedPointer<ElasticitySIMPOperators<Real> > &data,
+                                                  const ROL::SharedPointer<Teuchos::ParameterList> &parlist) {
     volFrac_ = parlist->sublist("ElasticityTopoOpt").get<Real>("Volume Fraction");
     cellMeasures_= data->getCellAreas();
     Teuchos::Array<Real> sumM(1, 0);
@@ -94,13 +94,13 @@ public:
   void value(ROL::Vector<Real> &c,
        const ROL::Vector<Real> &z,
              Real &tol) {
-    std::shared_ptr<std::vector<Real> > cp = (dynamic_cast<ROL::StdVector<Real>&>(c)).getVector();
+    ROL::SharedPointer<std::vector<Real> > cp = (dynamic_cast<ROL::StdVector<Real>&>(c)).getVector();
     const ROL::Vector<Real> & zr = castConstRiskVector(z);
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(zr)).getVector();
 
-//    std::shared_ptr<Tpetra::MultiVector<> > unit
-//      = std::make_shared<Tpetra::MultiVector<>(zp->getMap>(), 1, true);
+//    ROL::SharedPointer<Tpetra::MultiVector<> > unit
+//      = ROL::makeShared<Tpetra::MultiVector<>(zp->getMap>(), 1, true);
 //    unit->putScalar(1.0);
 //    Teuchos::Array<Real> sumZ(1, 0);
 //    zp->dot(*unit, sumZ);
@@ -118,13 +118,13 @@ public:
                const ROL::Vector<Real> &v,
                const ROL::Vector<Real> &z,
                      Real &tol) {
-    std::shared_ptr<std::vector<Real> > jvp = (dynamic_cast<ROL::StdVector<Real>&>(jv)).getVector();
+    ROL::SharedPointer<std::vector<Real> > jvp = (dynamic_cast<ROL::StdVector<Real>&>(jv)).getVector();
     const ROL::Vector<Real> & vr = castConstRiskVector(v);
-    std::shared_ptr<const Tpetra::MultiVector<> > vp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(vr)).getVector();
 
-//    std::shared_ptr<Tpetra::MultiVector<> > unit
-//      = std::make_shared<Tpetra::MultiVector<>(vp->getMap>(), 1, true);
+//    ROL::SharedPointer<Tpetra::MultiVector<> > unit
+//      = ROL::makeShared<Tpetra::MultiVector<>(vp->getMap>(), 1, true);
 //    unit->putScalar(1.0);
 //    Teuchos::Array<Real> sumV(1, 0);
 //    vp->dot(*unit, sumV);
@@ -140,9 +140,9 @@ public:
                       const ROL::Vector<Real> &z,
                             Real &tol) {
     ROL::Vector<Real> & ajvr = castRiskVector(ajv);
-    std::shared_ptr<Tpetra::MultiVector<> > ajvp
+    ROL::SharedPointer<Tpetra::MultiVector<> > ajvp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(ajvr)).getVector();
-    std::shared_ptr<const std::vector<Real> > vp
+    ROL::SharedPointer<const std::vector<Real> > vp
       = (dynamic_cast<const ROL::StdVector<Real>&>(v)).getVector();
 
 //    ajvp->putScalar(1.0);

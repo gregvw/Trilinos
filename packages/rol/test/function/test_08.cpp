@@ -55,9 +55,9 @@ template<class Real>
 class ObjectiveFunctionTest08_1 : public ROL::Objective_SimOpt<Real> {
 public:
   Real value( const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > up
+    ROL::SharedPointer<const std::vector<Real> > up
       = dynamic_cast<const ROL::StdVector<Real>&>(u).getVector();
-    std::shared_ptr<const std::vector<Real> > zp
+    ROL::SharedPointer<const std::vector<Real> > zp
       = dynamic_cast<const ROL::StdVector<Real>&>(z).getVector();
     Real half(0.5), quadu(0), quadz(0);
     unsigned usize = up->size();
@@ -72,26 +72,26 @@ public:
   }
 
   void gradient_1( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > gp
+    ROL::SharedPointer<std::vector<Real> > gp
       = dynamic_cast<ROL::StdVector<Real>&>(g).getVector();
-    std::shared_ptr<const std::vector<Real> > up
+    ROL::SharedPointer<const std::vector<Real> > up
       = dynamic_cast<const ROL::StdVector<Real>&>(u).getVector();
     gp->assign(up->begin(),up->end());
   }
 
   void gradient_2( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > gp
+    ROL::SharedPointer<std::vector<Real> > gp
       = dynamic_cast<ROL::StdVector<Real>&>(g).getVector();
-    std::shared_ptr<const std::vector<Real> > zp
+    ROL::SharedPointer<const std::vector<Real> > zp
       = dynamic_cast<const ROL::StdVector<Real>&>(z).getVector();
     gp->assign(zp->begin(),zp->end());
   }
 
   void hessVec_11( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                    const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > hvp
+    ROL::SharedPointer<std::vector<Real> > hvp
       = dynamic_cast<ROL::StdVector<Real>&>(hv).getVector();
-    std::shared_ptr<const std::vector<Real> > vp
+    ROL::SharedPointer<const std::vector<Real> > vp
       = dynamic_cast<const ROL::StdVector<Real>&>(v).getVector();
     hvp->assign(vp->begin(),vp->end());
   }
@@ -108,9 +108,9 @@ public:
 
   void hessVec_22( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                    const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > hvp
+    ROL::SharedPointer<std::vector<Real> > hvp
       = dynamic_cast<ROL::StdVector<Real>&>(hv).getVector();
-    std::shared_ptr<const std::vector<Real> > vp
+    ROL::SharedPointer<const std::vector<Real> > vp
       = dynamic_cast<const ROL::StdVector<Real>&>(v).getVector();
     hvp->assign(vp->begin(),vp->end());
   }
@@ -120,9 +120,9 @@ template<class Real>
 class ObjectiveFunctionTest08_2 : public ROL::Objective_SimOpt<Real> {
 public:
   Real value( const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > up
+    ROL::SharedPointer<const std::vector<Real> > up
       = dynamic_cast<const ROL::StdVector<Real>&>(u).getVector();
-    std::shared_ptr<const std::vector<Real> > zp
+    ROL::SharedPointer<const std::vector<Real> > zp
       = dynamic_cast<const ROL::StdVector<Real>&>(z).getVector();
     Real linu(0), linz(0);
     unsigned usize = up->size();
@@ -137,17 +137,17 @@ public:
   }
 
   void gradient_1( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > gp
+    ROL::SharedPointer<std::vector<Real> > gp
       = dynamic_cast<ROL::StdVector<Real>&>(g).getVector();
-    std::shared_ptr<const std::vector<Real> > up
+    ROL::SharedPointer<const std::vector<Real> > up
       = dynamic_cast<const ROL::StdVector<Real>&>(u).getVector();
     gp->assign(up->size(),1);
   }
 
   void gradient_2( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > gp
+    ROL::SharedPointer<std::vector<Real> > gp
       = dynamic_cast<ROL::StdVector<Real>&>(g).getVector();
-    std::shared_ptr<const std::vector<Real> > zp
+    ROL::SharedPointer<const std::vector<Real> > zp
       = dynamic_cast<const ROL::StdVector<Real>&>(z).getVector();
     gp->assign(zp->size(),1);
   }
@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -223,28 +223,28 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Build vectors
     unsigned dim = 2;
-    std::shared_ptr<std::vector<RealT> > u_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > u = std::make_shared<ROL::StdVector<RealT>>(u_rcp);
+    ROL::SharedPointer<std::vector<RealT> > u_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > u = ROL::makeShared<ROL::StdVector<RealT>>(u_rcp);
     setRandomVector(*u_rcp);
-    std::shared_ptr<std::vector<RealT> > z_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > z = std::make_shared<ROL::StdVector<RealT>>(z_rcp);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > z = ROL::makeShared<ROL::StdVector<RealT>>(z_rcp);
     setRandomVector(*z_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > x = std::make_shared<ROL::Vector_SimOpt<RealT>>(u,z);
-    std::shared_ptr<std::vector<RealT> > du_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > du = std::make_shared<ROL::StdVector<RealT>>(du_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > x = ROL::makeShared<ROL::Vector_SimOpt<RealT>>(u,z);
+    ROL::SharedPointer<std::vector<RealT> > du_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > du = ROL::makeShared<ROL::StdVector<RealT>>(du_rcp);
     setRandomVector(*du_rcp);
-    std::shared_ptr<std::vector<RealT> > dz_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > dz = std::make_shared<ROL::StdVector<RealT>>(dz_rcp);
+    ROL::SharedPointer<std::vector<RealT> > dz_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > dz = ROL::makeShared<ROL::StdVector<RealT>>(dz_rcp);
     setRandomVector(*dz_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > d = std::make_shared<ROL::Vector_SimOpt<RealT>>(du,dz);
+    ROL::SharedPointer<ROL::Vector<RealT> > d = ROL::makeShared<ROL::Vector_SimOpt<RealT>>(du,dz);
     // Build objective function
-    std::vector<std::shared_ptr<ROL::Objective_SimOpt<RealT> > > vec_obj(2,nullptr);
-    vec_obj[0] = std::make_shared<ObjectiveFunctionTest08_1<RealT>>();
-    vec_obj[1] = std::make_shared<ObjectiveFunctionTest08_2<RealT>>();
-    std::shared_ptr<ROL::StdObjective<RealT> > obj_scalarize
-      = std::make_shared<ObjectiveFunctionTest08_scalarize<RealT>>();
-    std::shared_ptr<ROL::CompositeObjective_SimOpt<RealT> > obj
-      = std::make_shared<ROL::CompositeObjective_SimOpt<RealT>>(vec_obj,obj_scalarize);
+    std::vector<ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > > vec_obj(2,ROL::nullPointer);
+    vec_obj[0] = ROL::makeShared<ObjectiveFunctionTest08_1<RealT>>();
+    vec_obj[1] = ROL::makeShared<ObjectiveFunctionTest08_2<RealT>>();
+    ROL::SharedPointer<ROL::StdObjective<RealT> > obj_scalarize
+      = ROL::makeShared<ObjectiveFunctionTest08_scalarize<RealT>>();
+    ROL::SharedPointer<ROL::CompositeObjective_SimOpt<RealT> > obj
+      = ROL::makeShared<ROL::CompositeObjective_SimOpt<RealT>>(vec_obj,obj_scalarize);
     // Test parametrized objective functions
     *outStream << "Check Derivatives of CompositeObjective_SimOpt\n";
     obj->checkGradient(*x,*d,true,*outStream);

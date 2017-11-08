@@ -56,14 +56,14 @@ namespace ROL {
 template<class Real>
 class Vector_SimOpt : public Vector<Real> {
 private:
-  std::shared_ptr<Vector<Real> > vec1_;
-  std::shared_ptr<Vector<Real> > vec2_;
-  mutable std::shared_ptr<Vector<Real> > dual_vec1_;
-  mutable std::shared_ptr<Vector<Real> > dual_vec2_;
-  mutable std::shared_ptr<Vector_SimOpt<Real> > dual_vec_;
+  ROL::SharedPointer<Vector<Real> > vec1_;
+  ROL::SharedPointer<Vector<Real> > vec2_;
+  mutable ROL::SharedPointer<Vector<Real> > dual_vec1_;
+  mutable ROL::SharedPointer<Vector<Real> > dual_vec2_;
+  mutable ROL::SharedPointer<Vector_SimOpt<Real> > dual_vec_;
 
 public:
-  Vector_SimOpt( const std::shared_ptr<Vector<Real> > &vec1, const std::shared_ptr<Vector<Real> > &vec2 )
+  Vector_SimOpt( const ROL::SharedPointer<Vector<Real> > &vec1, const ROL::SharedPointer<Vector<Real> > &vec2 )
     : vec1_(vec1), vec2_(vec2) {
     dual_vec1_ = (vec1_->dual()).clone();
     dual_vec2_ = (vec2_->dual()).clone();
@@ -100,29 +100,29 @@ public:
     return sqrt( norm1*norm1 + norm2*norm2 );
   }
 
-  std::shared_ptr<Vector<Real> > clone() const {
-    return std::make_shared<Vector_SimOpt>(vec1_->clone(),vec2_->clone());
+  ROL::SharedPointer<Vector<Real> > clone() const {
+    return ROL::makeShared<Vector_SimOpt>(vec1_->clone(),vec2_->clone());
   }
 
   const Vector<Real> & dual(void) const {
     dual_vec1_->set(vec1_->dual());
     dual_vec2_->set(vec2_->dual());
-    dual_vec_ = std::make_shared<Vector_SimOpt<Real>>(dual_vec1_,dual_vec2_);
+    dual_vec_ = ROL::makeShared<Vector_SimOpt<Real>>(dual_vec1_,dual_vec2_);
     return *dual_vec_;
   }
 
-  std::shared_ptr<Vector<Real> > basis( const int i )  const {
+  ROL::SharedPointer<Vector<Real> > basis( const int i )  const {
     int n1 = (vec1_)->dimension();
     if ( i < n1 ) {
-      std::shared_ptr<Vector<Real> > e1 = (vec1_)->basis(i);
-      std::shared_ptr<Vector<Real> > e2 = (vec2_)->clone(); e2->zero();
-      std::shared_ptr<Vector<Real> > e  = std::make_shared<Vector_SimOpt<Real>>(e1,e2);
+      ROL::SharedPointer<Vector<Real> > e1 = (vec1_)->basis(i);
+      ROL::SharedPointer<Vector<Real> > e2 = (vec2_)->clone(); e2->zero();
+      ROL::SharedPointer<Vector<Real> > e  = ROL::makeShared<Vector_SimOpt<Real>>(e1,e2);
       return e;
     }
     else {
-      std::shared_ptr<Vector<Real> > e1 = (vec1_)->clone(); e1->zero();
-      std::shared_ptr<Vector<Real> > e2 = (vec2_)->basis(i-n1);
-      std::shared_ptr<Vector<Real> > e  = std::make_shared<Vector_SimOpt<Real>>(e1,e2);
+      ROL::SharedPointer<Vector<Real> > e1 = (vec1_)->clone(); e1->zero();
+      ROL::SharedPointer<Vector<Real> > e2 = (vec2_)->basis(i-n1);
+      ROL::SharedPointer<Vector<Real> > e  = ROL::makeShared<Vector_SimOpt<Real>>(e1,e2);
       return e;
     }
   }
@@ -155,19 +155,19 @@ public:
     return (vec1_)->dimension() + (vec2_)->dimension();
   }
 
-  std::shared_ptr<const Vector<Real> > get_1() const {
+  ROL::SharedPointer<const Vector<Real> > get_1() const {
     return vec1_;
   }
 
-  std::shared_ptr<const Vector<Real> > get_2() const {
+  ROL::SharedPointer<const Vector<Real> > get_2() const {
     return vec2_;
   }
 
-  std::shared_ptr<Vector<Real> > get_1() {
+  ROL::SharedPointer<Vector<Real> > get_1() {
     return vec1_;
   }
 
-  std::shared_ptr<Vector<Real> > get_2() {
+  ROL::SharedPointer<Vector<Real> > get_2() {
     return vec2_;
   }
 

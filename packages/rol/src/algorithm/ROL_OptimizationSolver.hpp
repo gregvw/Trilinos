@@ -61,20 +61,20 @@ template<class Real>
 class OptimizationSolver {
 private:
 
-  std::shared_ptr<Algorithm<Real> >          algo_;
-  std::shared_ptr<Step<Real> >               step_;
-  std::shared_ptr<StatusTest<Real> >         status0_;
-  std::shared_ptr<CombinedStatusTest<Real> > status_;
-  std::shared_ptr<AlgorithmState<Real> >     state_;
+  ROL::SharedPointer<Algorithm<Real> >          algo_;
+  ROL::SharedPointer<Step<Real> >               step_;
+  ROL::SharedPointer<StatusTest<Real> >         status0_;
+  ROL::SharedPointer<CombinedStatusTest<Real> > status_;
+  ROL::SharedPointer<AlgorithmState<Real> >     state_;
 
-  std::shared_ptr<Vector<Real> > x_;
-  std::shared_ptr<Vector<Real> > g_;
-  std::shared_ptr<Vector<Real> > l_;
-  std::shared_ptr<Vector<Real> > c_;
+  ROL::SharedPointer<Vector<Real> > x_;
+  ROL::SharedPointer<Vector<Real> > g_;
+  ROL::SharedPointer<Vector<Real> > l_;
+  ROL::SharedPointer<Vector<Real> > c_;
 
-  std::shared_ptr<Objective<Real> >       obj_;
-  std::shared_ptr<BoundConstraint<Real> > bnd_;
-  std::shared_ptr<Constraint<Real> >      con_;
+  ROL::SharedPointer<Objective<Real> >       obj_;
+  ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+  ROL::SharedPointer<Constraint<Real> >      con_;
 
   std::vector<std::string>  output_;
 
@@ -114,8 +114,8 @@ public:
     StatusTestFactory<Real>  statusTestFactory;
     step_    = stepFactory.getStep(stepname,parlist);
     status0_ = statusTestFactory.getStatusTest(stepname,parlist);
-    status_  = std::make_shared<CombinedStatusTest<Real>>();
-    state_   = std::make_shared<AlgorithmState<Real>>();
+    status_  = ROL::makeShared<CombinedStatusTest<Real>>();
+    state_   = ROL::makeShared<AlgorithmState<Real>>();
 
     // Get optimization vector and a vector for the gradient
     x_ = opt.getSolutionVector();
@@ -128,25 +128,25 @@ public:
     }
     // Create modified objectives if needed
     if( stepType == STEP_AUGMENTEDLAGRANGIAN ) {
-      std::shared_ptr<Objective<Real> > raw_obj = opt.getObjective();
+      ROL::SharedPointer<Objective<Real> > raw_obj = opt.getObjective();
       con_ = opt.getConstraint();
       // TODO: Provide access to change initial penalty
-      obj_ = std::make_shared<AugmentedLagrangian<Real>>(raw_obj,con_,*l_,1.0,*x_,*c_,parlist);
+      obj_ = ROL::makeShared<AugmentedLagrangian<Real>>(raw_obj,con_,*l_,1.0,*x_,*c_,parlist);
       bnd_ = opt.getBoundConstraint();
     }
     else if( stepType == STEP_MOREAUYOSIDAPENALTY ) {
-      std::shared_ptr<Objective<Real> > raw_obj = opt.getObjective();
+      ROL::SharedPointer<Objective<Real> > raw_obj = opt.getObjective();
       bnd_ = opt.getBoundConstraint();
       con_ = opt.getConstraint();
       // TODO: Provide access to change initial penalty
-      obj_ = std::make_shared<MoreauYosidaPenalty<Real>>(raw_obj,bnd_,*x_,parlist);
+      obj_ = ROL::makeShared<MoreauYosidaPenalty<Real>>(raw_obj,bnd_,*x_,parlist);
     }
     else if( stepType == STEP_INTERIORPOINT ) {
-      std::shared_ptr<Objective<Real> > raw_obj = opt.getObjective();
+      ROL::SharedPointer<Objective<Real> > raw_obj = opt.getObjective();
       bnd_ = opt.getBoundConstraint();
       con_ = opt.getConstraint();
       // TODO: Provide access to change initial penalty
-      obj_ = std::make_shared<InteriorPoint::PenalizedObjective<Real>>(raw_obj,bnd_,*x_,parlist);
+      obj_ = ROL::makeShared<InteriorPoint::PenalizedObjective<Real>>(raw_obj,bnd_,*x_,parlist);
     }
     else {
       obj_   = opt.getObjective();
@@ -165,18 +165,18 @@ public:
   }
 
   int solve( std::ostream &outStream,
-       const std::shared_ptr<StatusTest<Real> > &status = nullptr,
+       const ROL::SharedPointer<StatusTest<Real> > &status = ROL::nullPointer,
        const bool combineStatus = true ) {
     // Build algorithm
     status_->reset();       // Clear previous status test
     status_->add(status0_); // Default StatusTest
-    if (status != nullptr) {
+    if (status != ROL::nullPointer) {
       if (!combineStatus) { // Use only user-defined StatusTest
         status_->reset();
       }
       status_->add(status); // Add user-defined StatusTest
     }
-    algo_ = std::make_shared<Algorithm<Real>>( step_, status_, state_ );
+    algo_ = ROL::makeShared<Algorithm<Real>>( step_, status_, state_ );
 
     switch(problemType_) {
       case TYPE_U:
@@ -204,12 +204,12 @@ public:
     return 0;
   }
 
-  std::shared_ptr<const AlgorithmState<Real> > getAlgorithmState(void) const {
+  ROL::SharedPointer<const AlgorithmState<Real> > getAlgorithmState(void) const {
     return state_;
   }
 
   void resetAlgorithmState(void) {
-    state_ = std::make_shared<AlgorithmState<Real>>();
+    state_ = ROL::makeShared<AlgorithmState<Real>>();
   }
 
 }; // class OptimizationSolver

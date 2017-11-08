@@ -47,7 +47,7 @@
 #include "ROL_Types.hpp"
 
 #include "Teuchos_ParameterList.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 
 #include "ROL_StatusTest.hpp"
 #include "ROL_BundleStatusTest.hpp"
@@ -59,19 +59,19 @@ namespace ROL {
     public:
     ~StatusTestFactory(void){}
 
-    std::shared_ptr<StatusTest<Real> > getStatusTest(const std::string step,
+    ROL::SharedPointer<StatusTest<Real> > getStatusTest(const std::string step,
                                                   Teuchos::ParameterList &parlist) {
       EStep els = StringToEStep(step);
       switch(els) {
-        case STEP_BUNDLE:              return std::make_shared<BundleStatusTest<Real>>(parlist);
-        case STEP_AUGMENTEDLAGRANGIAN: return std::make_shared<ConstraintStatusTest<Real>>(parlist);
-        case STEP_COMPOSITESTEP:       return std::make_shared<ConstraintStatusTest<Real>>(parlist);
-        case STEP_MOREAUYOSIDAPENALTY: return std::make_shared<ConstraintStatusTest<Real>>(parlist);
-        case STEP_INTERIORPOINT:       return std::make_shared<ConstraintStatusTest<Real>>(parlist);
-        case STEP_LINESEARCH:          return std::make_shared<StatusTest<Real>>(parlist);
-        case STEP_PRIMALDUALACTIVESET: return std::make_shared<StatusTest<Real>>(parlist);
-        case STEP_TRUSTREGION:         return std::make_shared<StatusTest<Real>>(parlist);
-        default:                       return nullptr;
+        case STEP_BUNDLE:              return ROL::makeShared<BundleStatusTest<Real>>(parlist);
+        case STEP_AUGMENTEDLAGRANGIAN: return ROL::makeShared<ConstraintStatusTest<Real>>(parlist);
+        case STEP_COMPOSITESTEP:       return ROL::makeShared<ConstraintStatusTest<Real>>(parlist);
+        case STEP_MOREAUYOSIDAPENALTY: return ROL::makeShared<ConstraintStatusTest<Real>>(parlist);
+        case STEP_INTERIORPOINT:       return ROL::makeShared<ConstraintStatusTest<Real>>(parlist);
+        case STEP_LINESEARCH:          return ROL::makeShared<StatusTest<Real>>(parlist);
+        case STEP_PRIMALDUALACTIVESET: return ROL::makeShared<StatusTest<Real>>(parlist);
+        case STEP_TRUSTREGION:         return ROL::makeShared<StatusTest<Real>>(parlist);
+        default:                       return ROL::nullPointer;
       } 
     }
   };

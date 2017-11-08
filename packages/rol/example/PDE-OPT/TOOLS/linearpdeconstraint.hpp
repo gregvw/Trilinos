@@ -61,16 +61,16 @@ extern template class Assembler<double>;
 #ifdef ROL_TIMERS
 namespace ROL {
   namespace PDEOPT {
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintSolverConstruct_Jacobian1        = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Solver Construction Time for Jacobian1");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintSolverConstruct_AdjointJacobian1 = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Solver Construction Time for Adjoint Jacobian1");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintSolverSolve_Jacobian1            = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Solver Solution Time for Jacobian1");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintSolverSolve_AdjointJacobian1     = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Solver Solution Time for Adjoint Jacobian1");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintApplyJacobian1                   = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Jacobian1");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintApplyJacobian2                   = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Jacobian2");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintApplyJacobian3                   = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Jacobian3");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintApplyAdjointJacobian1            = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Adjoint Jacobian1");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintApplyAdjointJacobian2            = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Adjoint Jacobian2");
-    std::shared_ptr<Teuchos::Time> LinearPDEConstraintApplyAdjointJacobian3            = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Adjoint Jacobian3");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintSolverConstruct_Jacobian1        = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Solver Construction Time for Jacobian1");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintSolverConstruct_AdjointJacobian1 = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Solver Construction Time for Adjoint Jacobian1");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintSolverSolve_Jacobian1            = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Solver Solution Time for Jacobian1");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintSolverSolve_AdjointJacobian1     = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Solver Solution Time for Adjoint Jacobian1");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintApplyJacobian1                   = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Jacobian1");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintApplyJacobian2                   = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Jacobian2");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintApplyJacobian3                   = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Jacobian3");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintApplyAdjointJacobian1            = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Adjoint Jacobian1");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintApplyAdjointJacobian2            = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Adjoint Jacobian2");
+    ROL::SharedPointer<Teuchos::Time> LinearPDEConstraintApplyAdjointJacobian3            = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Linear PDE Constraint Apply Adjoint Jacobian3");
   }
 }
 #endif
@@ -79,33 +79,33 @@ namespace ROL {
 template<class Real>
 class Linear_PDE_Constraint : public ROL::Constraint_SimOpt<Real> {
 private:
-  const std::shared_ptr<PDE<Real> > pde_;
-  std::shared_ptr<Assembler<Real> > assembler_;
-  std::shared_ptr<Solver<Real> >    solver_;
+  const ROL::SharedPointer<PDE<Real> > pde_;
+  ROL::SharedPointer<Assembler<Real> > assembler_;
+  ROL::SharedPointer<Solver<Real> >    solver_;
   bool initZvec_, initZpar_, isStochastic_;
   bool assembleRHS_, assembleJ1_, assembleJ2_, assembleJ3_, setSolver_;
 
-  std::shared_ptr<Tpetra::MultiVector<> > cvec_;
-  std::shared_ptr<Tpetra::MultiVector<> > uvec_;
-  std::shared_ptr<Tpetra::MultiVector<> > zvec_;
-  std::shared_ptr<std::vector<Real> >     zpar_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > cvec_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > uvec_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > zvec_;
+  ROL::SharedPointer<std::vector<Real> >     zpar_;
 
-  std::shared_ptr<Tpetra::MultiVector<> > vecR_;
-  std::shared_ptr<Tpetra::CrsMatrix<> >   matJ1_;
-  std::shared_ptr<Tpetra::CrsMatrix<> >   matJ2_;
-  std::shared_ptr<Tpetra::MultiVector<> > vecJ3_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > vecR_;
+  ROL::SharedPointer<Tpetra::CrsMatrix<> >   matJ1_;
+  ROL::SharedPointer<Tpetra::CrsMatrix<> >   matJ2_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > vecJ3_;
 
-  void assemble(const std::shared_ptr<const Tpetra::MultiVector<> > &zf,
-                const std::shared_ptr<const std::vector<Real> > &zp) {
+  void assemble(const ROL::SharedPointer<const Tpetra::MultiVector<> > &zf,
+                const ROL::SharedPointer<const std::vector<Real> > &zp) {
     // Initialize field component of z.
-    if (initZvec_ && zf != nullptr) {
+    if (initZvec_ && zf != ROL::nullPointer) {
       zvec_ = assembler_->createControlVector();
       zvec_->putScalar(static_cast<Real>(0));
     }
     initZvec_ = false;
     // Initialize parameter component of z.
-    if (initZpar_ && zp != nullptr) {
-      zpar_ = std::make_shared<std::vector<Real>(zp->size(),static_cast<Real>>(0));
+    if (initZpar_ && zp != ROL::nullPointer) {
+      zpar_ = ROL::makeShared<std::vector<Real>(zp->size(),static_cast<Real>>(0));
     }
     initZpar_ = false;
     // Assemble affine term.
@@ -119,12 +119,12 @@ private:
     }
     assembleJ1_ = false;
     // Assemble jacobian_2.
-    if (assembleJ2_ && zf != nullptr) {
+    if (assembleJ2_ && zf != ROL::nullPointer) {
       assembler_->assemblePDEJacobian2(matJ2_,pde_,uvec_,zvec_,zpar_);
     }
     assembleJ2_ = false;
     // Assemble jacobian_3.
-    if (assembleJ3_ && zp != nullptr) {
+    if (assembleJ3_ && zp != ROL::nullPointer) {
       assembler_->assemblePDEJacobian3(vecJ3_,pde_,uvec_,zvec_,zpar_);
     }
     assembleJ3_ = false;
@@ -135,8 +135,8 @@ private:
     setSolver_ = false;
   }
 
-  void solveForward(std::shared_ptr<Tpetra::MultiVector<> > &x,
-                    const std::shared_ptr<const Tpetra::MultiVector<> > &b) {
+  void solveForward(ROL::SharedPointer<Tpetra::MultiVector<> > &x,
+                    const ROL::SharedPointer<const Tpetra::MultiVector<> > &b) {
     if (setSolver_) {
       #ifdef ROL_TIMERS
         Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::LinearPDEConstraintSolverConstruct_Jacobian1);
@@ -150,8 +150,8 @@ private:
     solver_->solve(x,b,false);
   }
 
-  void solveAdjoint(std::shared_ptr<Tpetra::MultiVector<> > &x,
-                    const std::shared_ptr<const Tpetra::MultiVector<> > &b) {
+  void solveAdjoint(ROL::SharedPointer<Tpetra::MultiVector<> > &x,
+                    const ROL::SharedPointer<const Tpetra::MultiVector<> > &b) {
     if (setSolver_) {
       #ifdef ROL_TIMERS
         Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::LinearPDEConstraintSolverConstruct_AdjointJacobian1);
@@ -165,32 +165,32 @@ private:
     solver_->solve(x,b,true);
   }
 
-  void applyJacobian1(const std::shared_ptr<Tpetra::MultiVector<> > &Jv,
-                      const std::shared_ptr<const Tpetra::MultiVector<> > &v) {
+  void applyJacobian1(const ROL::SharedPointer<Tpetra::MultiVector<> > &Jv,
+                      const ROL::SharedPointer<const Tpetra::MultiVector<> > &v) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::LinearPDEConstraintApplyJacobian1);
     #endif
     matJ1_->apply(*v,*Jv);
   }
 
-  void applyAdjointJacobian1(const std::shared_ptr<Tpetra::MultiVector<> > &Jv,
-                             const std::shared_ptr<const Tpetra::MultiVector<> > &v) {
+  void applyAdjointJacobian1(const ROL::SharedPointer<Tpetra::MultiVector<> > &Jv,
+                             const ROL::SharedPointer<const Tpetra::MultiVector<> > &v) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::LinearPDEConstraintApplyAdjointJacobian1);
     #endif
     matJ1_->apply(*v,*Jv,Teuchos::TRANS);
   }
 
-  void applyJacobian2(const std::shared_ptr<Tpetra::MultiVector<> > &Jv,
-                      const std::shared_ptr<const Tpetra::MultiVector<> > &v) {
+  void applyJacobian2(const ROL::SharedPointer<Tpetra::MultiVector<> > &Jv,
+                      const ROL::SharedPointer<const Tpetra::MultiVector<> > &v) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::LinearPDEConstraintApplyJacobian2);
     #endif
     matJ2_->apply(*v,*Jv);
   }
 
-  void applyAdjointJacobian2(const std::shared_ptr<Tpetra::MultiVector<> > &Jv,
-                             const std::shared_ptr<const Tpetra::MultiVector<> > &v) {
+  void applyAdjointJacobian2(const ROL::SharedPointer<Tpetra::MultiVector<> > &Jv,
+                             const ROL::SharedPointer<const Tpetra::MultiVector<> > &v) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::LinearPDEConstraintApplyAdjointJacobian2);
     #endif
@@ -198,8 +198,8 @@ private:
   }
 
   // Application routines
-  void applyJacobian3(const std::shared_ptr<Tpetra::MultiVector<> > &Jv,
-                      const std::shared_ptr<const std::vector<Real> > &v,
+  void applyJacobian3(const ROL::SharedPointer<Tpetra::MultiVector<> > &Jv,
+                      const ROL::SharedPointer<const std::vector<Real> > &v,
                       const bool zeroOut = true) const {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::LinearPDEConstraintApplyJacobian3);
@@ -214,8 +214,8 @@ private:
     }
   }
 
-  void applyAdjointJacobian3(const std::shared_ptr<std::vector<Real> > &Jv,
-                             const std::shared_ptr<const Tpetra::MultiVector<> > &v) const {
+  void applyAdjointJacobian3(const ROL::SharedPointer<std::vector<Real> > &Jv,
+                             const ROL::SharedPointer<const Tpetra::MultiVector<> > &v) const {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::LinearPDEConstraintApplyAdjointJacobian3);
     #endif
@@ -231,9 +231,9 @@ private:
 public:
   virtual ~Linear_PDE_Constraint() {}
 
-  Linear_PDE_Constraint(const std::shared_ptr<PDE<Real> > &pde,
-                        const std::shared_ptr<MeshManager<Real> > &meshMgr,
-                        const std::shared_ptr<const Teuchos::Comm<int> > &comm,
+  Linear_PDE_Constraint(const ROL::SharedPointer<PDE<Real> > &pde,
+                        const ROL::SharedPointer<MeshManager<Real> > &meshMgr,
+                        const ROL::SharedPointer<const Teuchos::Comm<int> > &comm,
                         Teuchos::ParameterList &parlist,
                         std::ostream &outStream = std::cout,
                         const bool isStochastic = false)
@@ -241,10 +241,10 @@ public:
       initZvec_(true), initZpar_(true), isStochastic_(isStochastic),
       assembleRHS_(true), assembleJ1_(true), assembleJ2_(true), assembleJ3_(true), setSolver_(true) {
     // Construct assembler.
-    assembler_ = std::make_shared<Assembler<Real>(pde_->getFields>(),meshMgr,comm,parlist,outStream);
+    assembler_ = ROL::makeShared<Assembler<Real>(pde_->getFields>(),meshMgr,comm,parlist,outStream);
     assembler_->setCellNodes(*pde_);
     // Construct solver.
-    solver_ = std::make_shared<Solver<Real>(parlist.sublist>("Solver"));
+    solver_ = ROL::makeShared<Solver<Real>(parlist.sublist>("Solver"));
     // Initialize zero vectors.
     cvec_ = assembler_->createResidualVector();
     uvec_ = assembler_->createStateVector();
@@ -263,11 +263,11 @@ public:
     }
   }
 
-  const std::shared_ptr<Assembler<Real> > getAssembler(void) const {
+  const ROL::SharedPointer<Assembler<Real> > getAssembler(void) const {
     return assembler_;
   }
 
-  const std::shared_ptr<PDE<Real> > getPDE(void) const {
+  const ROL::SharedPointer<PDE<Real> > getPDE(void) const {
     return pde_;
   }
 
@@ -285,10 +285,10 @@ public:
 
   using ROL::Constraint_SimOpt<Real>::value;
   void value(ROL::Vector<Real> &c, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> >       cf = getField(c);
-    std::shared_ptr<const Tpetra::MultiVector<> > uf = getConstField(u);
-    std::shared_ptr<const Tpetra::MultiVector<> > zf = getConstField(z);
-    std::shared_ptr<const std::vector<Real> >     zp = getConstParameter(z);
+    ROL::SharedPointer<Tpetra::MultiVector<> >       cf = getField(c);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > uf = getConstField(u);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf = getConstField(z);
+    ROL::SharedPointer<const std::vector<Real> >     zp = getConstParameter(z);
 
     assemble(zf,zp);
 
@@ -297,31 +297,31 @@ public:
 
     matJ1_->apply(*uf,*cvec_);
     cf->update(one,*cvec_,one);
-    if (zf != nullptr) {
+    if (zf != ROL::nullPointer) {
       matJ2_->apply(*zf,*cvec_);
       cf->update(one,*cvec_,one);
     }
-    if (zp != nullptr) {
+    if (zp != ROL::nullPointer) {
       applyJacobian3(cvec_,zp,false);
       cf->update(one,*cvec_,one);
     }
   }
 
   void solve(ROL::Vector<Real> &c, ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> >       cf = getField(c);
-    std::shared_ptr<Tpetra::MultiVector<> >       uf = getField(u);
-    std::shared_ptr<const Tpetra::MultiVector<> > zf = getConstField(z);
-    std::shared_ptr<const std::vector<Real> >     zp = getConstParameter(z);
+    ROL::SharedPointer<Tpetra::MultiVector<> >       cf = getField(c);
+    ROL::SharedPointer<Tpetra::MultiVector<> >       uf = getField(u);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf = getConstField(z);
+    ROL::SharedPointer<const std::vector<Real> >     zp = getConstParameter(z);
 
     assemble(zf,zp);
 
     const Real one(1);
     cf->scale(one,*vecR_);
-    if (zf != nullptr) {
+    if (zf != ROL::nullPointer) {
       matJ2_->apply(*zf,*cvec_);
       cf->update(one,*cvec_,one);
     }
-    if (zp != nullptr) {
+    if (zp != ROL::nullPointer) {
       applyJacobian3(cvec_,zp,false);
       cf->update(one,*cvec_,one);
     }
@@ -337,10 +337,10 @@ public:
                  const ROL::Vector<Real> &v,
                  const ROL::Vector<Real> &u,
                  const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> >      jvf = getField(jv);
-    std::shared_ptr<const Tpetra::MultiVector<> > vf = getConstField(v);
-    std::shared_ptr<const Tpetra::MultiVector<> > zf = getConstField(z);
-    std::shared_ptr<const std::vector<Real> >     zp = getConstParameter(z);
+    ROL::SharedPointer<Tpetra::MultiVector<> >      jvf = getField(jv);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vf = getConstField(v);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf = getConstField(z);
+    ROL::SharedPointer<const std::vector<Real> >     zp = getConstParameter(z);
 
     assemble(zf,zp);
     applyJacobian1(jvf,vf);
@@ -352,21 +352,21 @@ public:
                  const ROL::Vector<Real> &u,
                  const ROL::Vector<Real> &z, Real &tol) {
     jv.zero();
-    std::shared_ptr<Tpetra::MultiVector<> >      jvf = getField(jv);
-    std::shared_ptr<const Tpetra::MultiVector<> > zf = getConstField(z);
-    std::shared_ptr<const std::vector<Real> >     zp = getConstParameter(z);
+    ROL::SharedPointer<Tpetra::MultiVector<> >      jvf = getField(jv);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf = getConstField(z);
+    ROL::SharedPointer<const std::vector<Real> >     zp = getConstParameter(z);
 
     assemble(zf,zp);
 
     const Real one(1);
-    std::shared_ptr<const Tpetra::MultiVector<> > vf = getConstField(v);
-    if (vf != nullptr) {
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vf = getConstField(v);
+    if (vf != ROL::nullPointer) {
       applyJacobian2(cvec_,vf);
       jvf->update(one,*cvec_,one);
     }
-    std::shared_ptr<const std::vector<Real> >     vp = getConstParameter(v);
-    bool zeroOut = (vf == nullptr);
-    if (vp != nullptr) {
+    ROL::SharedPointer<const std::vector<Real> >     vp = getConstParameter(v);
+    bool zeroOut = (vf == ROL::nullPointer);
+    if (vp != ROL::nullPointer) {
       applyJacobian3(cvec_,vp,zeroOut);
       jvf->update(one,*cvec_,one);
     }
@@ -377,10 +377,10 @@ public:
                         const ROL::Vector<Real> &v,
                         const ROL::Vector<Real> &u,
                         const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> >     ajvf = getField(ajv);
-    std::shared_ptr<const Tpetra::MultiVector<> > vf = getConstField(v);
-    std::shared_ptr<const Tpetra::MultiVector<> > zf = getConstField(z);
-    std::shared_ptr<const std::vector<Real> >     zp = getConstParameter(z);
+    ROL::SharedPointer<Tpetra::MultiVector<> >     ajvf = getField(ajv);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vf = getConstField(v);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf = getConstField(z);
+    ROL::SharedPointer<const std::vector<Real> >     zp = getConstParameter(z);
 
     assemble(zf,zp);
     applyAdjointJacobian1(ajvf,vf);
@@ -391,18 +391,18 @@ public:
                         const ROL::Vector<Real> &v,
                         const ROL::Vector<Real> &u,
                         const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> >     ajvf = getField(ajv);
-    std::shared_ptr<std::vector<Real> >         ajvp = getParameter(ajv);
-    std::shared_ptr<const Tpetra::MultiVector<> > vf = getConstField(v);
-    std::shared_ptr<const Tpetra::MultiVector<> > zf = getConstField(z);
-    std::shared_ptr<const std::vector<Real> >     zp = getConstParameter(z);
+    ROL::SharedPointer<Tpetra::MultiVector<> >     ajvf = getField(ajv);
+    ROL::SharedPointer<std::vector<Real> >         ajvp = getParameter(ajv);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vf = getConstField(v);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf = getConstField(z);
+    ROL::SharedPointer<const std::vector<Real> >     zp = getConstParameter(z);
 
     assemble(zf,zp);
 
-    if (zf != nullptr) {
+    if (zf != ROL::nullPointer) {
       applyAdjointJacobian2(ajvf,vf);
     }
-    if (zp != nullptr) {
+    if (zp != ROL::nullPointer) {
       applyAdjointJacobian3(ajvp,vf);
     }
   }
@@ -412,10 +412,10 @@ public:
                         const ROL::Vector<Real> &v,
                         const ROL::Vector<Real> &u,
                         const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> >     ijvf = getField(ijv);
-    std::shared_ptr<const Tpetra::MultiVector<> > vf = getConstField(v);
-    std::shared_ptr<const Tpetra::MultiVector<> > zf = getConstField(z);
-    std::shared_ptr<const std::vector<Real> >     zp = getConstParameter(z);
+    ROL::SharedPointer<Tpetra::MultiVector<> >     ijvf = getField(ijv);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vf = getConstField(v);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf = getConstField(z);
+    ROL::SharedPointer<const std::vector<Real> >     zp = getConstParameter(z);
 
     assemble(zf,zp);
     solveForward(ijvf,vf);
@@ -426,10 +426,10 @@ public:
                                const ROL::Vector<Real> &v,
                                const ROL::Vector<Real> &u,
                                const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> >    iajvf = getField(iajv);
-    std::shared_ptr<const Tpetra::MultiVector<> > vf = getConstField(v);
-    std::shared_ptr<const Tpetra::MultiVector<> > zf = getConstField(z);
-    std::shared_ptr<const std::vector<Real> >     zp = getConstParameter(z);
+    ROL::SharedPointer<Tpetra::MultiVector<> >    iajvf = getField(iajv);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vf = getConstField(v);
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf = getConstField(z);
+    ROL::SharedPointer<const std::vector<Real> >     zp = getConstParameter(z);
 
     assemble(zf,zp);
     solveAdjoint(iajvf,vf);
@@ -480,7 +480,7 @@ public:
 
   void outputTpetraData() const {
     Tpetra::MatrixMarket::Writer< Tpetra::CrsMatrix<> > matWriter;
-    if (matJ1_ != nullptr) {
+    if (matJ1_ != ROL::nullPointer) {
       matWriter.writeSparseFile("jacobian1.txt", matJ1_);
     }
     else {
@@ -488,7 +488,7 @@ public:
       emptyfile.open("jacobian1.txt");
       emptyfile.close();
     }
-    if (matJ2_ != nullptr) {
+    if (matJ2_ != ROL::nullPointer) {
       matWriter.writeSparseFile("jacobian2.txt", matJ2_);
     }
     else {
@@ -496,7 +496,7 @@ public:
       emptyfile.open("jacobian2.txt");
       emptyfile.close();
     }
-    if (vecR_ != nullptr) {
+    if (vecR_ != ROL::nullPointer) {
       matWriter.writeDenseFile("residual.txt", vecR_);
     }
     else {
@@ -506,7 +506,7 @@ public:
     }
   }
 
-  void outputTpetraVector(const std::shared_ptr<const Tpetra::MultiVector<> > &vec,
+  void outputTpetraVector(const ROL::SharedPointer<const Tpetra::MultiVector<> > &vec,
                           const std::string &filename) const {
     Tpetra::MatrixMarket::Writer< Tpetra::CrsMatrix<> > vecWriter;
     vecWriter.writeDenseFile(filename, vec);
@@ -517,16 +517,16 @@ public:
 
 private: // Vector accessor functions
 
-  std::shared_ptr<const Tpetra::MultiVector<> > getConstField(const ROL::Vector<Real> &x) const {
-    std::shared_ptr<const Tpetra::MultiVector<> > xp;
+  ROL::SharedPointer<const Tpetra::MultiVector<> > getConstField(const ROL::Vector<Real> &x) const {
+    ROL::SharedPointer<const Tpetra::MultiVector<> > xp;
     try {
       xp = dynamic_cast<const ROL::TpetraMultiVector<Real>&>(x).getVector();
     }
     catch (std::exception &e) {
-      std::shared_ptr<const ROL::TpetraMultiVector<Real> > xvec
+      ROL::SharedPointer<const ROL::TpetraMultiVector<Real> > xvec
         = dynamic_cast<const PDE_OptVector<Real>&>(x).getField();
-      if (xvec == nullptr) {
-        xp = nullptr;
+      if (xvec == ROL::nullPointer) {
+        xp = ROL::nullPointer;
       }
       else {
         xp = xvec->getVector();
@@ -535,16 +535,16 @@ private: // Vector accessor functions
     return xp;
   }
 
-  std::shared_ptr<Tpetra::MultiVector<> > getField(ROL::Vector<Real> &x) const {
-    std::shared_ptr<Tpetra::MultiVector<> > xp;
+  ROL::SharedPointer<Tpetra::MultiVector<> > getField(ROL::Vector<Real> &x) const {
+    ROL::SharedPointer<Tpetra::MultiVector<> > xp;
     try {
       xp = dynamic_cast<ROL::TpetraMultiVector<Real>&>(x).getVector();
     }
     catch (std::exception &e) {
-      std::shared_ptr<ROL::TpetraMultiVector<Real> > xvec
+      ROL::SharedPointer<ROL::TpetraMultiVector<Real> > xvec
         = dynamic_cast<PDE_OptVector<Real>&>(x).getField();
-      if ( xvec == nullptr ) {
-        xp = nullptr;
+      if ( xvec == ROL::nullPointer ) {
+        xp = ROL::nullPointer;
       }
       else {
         xp = xvec->getVector();
@@ -553,38 +553,38 @@ private: // Vector accessor functions
     return xp;
   }
 
-  std::shared_ptr<const std::vector<Real> > getConstParameter(const ROL::Vector<Real> &x) const {
-    std::shared_ptr<const std::vector<Real> > xp;
+  ROL::SharedPointer<const std::vector<Real> > getConstParameter(const ROL::Vector<Real> &x) const {
+    ROL::SharedPointer<const std::vector<Real> > xp;
     try {
-      std::shared_ptr<const ROL::StdVector<Real> > xvec
+      ROL::SharedPointer<const ROL::StdVector<Real> > xvec
         = dynamic_cast<const PDE_OptVector<Real>&>(x).getParameter();
-      if ( xvec == nullptr ) {
-        xp = nullptr;
+      if ( xvec == ROL::nullPointer ) {
+        xp = ROL::nullPointer;
       }
       else {
         xp = xvec->getVector();
       }
     }
     catch (std::exception &e) {
-      xp = nullptr;
+      xp = ROL::nullPointer;
     }
     return xp;
   }
 
-  std::shared_ptr<std::vector<Real> > getParameter(ROL::Vector<Real> &x) const {
-    std::shared_ptr<std::vector<Real> > xp;
+  ROL::SharedPointer<std::vector<Real> > getParameter(ROL::Vector<Real> &x) const {
+    ROL::SharedPointer<std::vector<Real> > xp;
     try {
-      std::shared_ptr<ROL::StdVector<Real> > xvec
+      ROL::SharedPointer<ROL::StdVector<Real> > xvec
         = dynamic_cast<PDE_OptVector<Real>&>(x).getParameter();
-      if ( xvec == nullptr ) {
-        xp = nullptr;
+      if ( xvec == ROL::nullPointer ) {
+        xp = ROL::nullPointer;
       }
       else {
         xp = xvec->getVector();
       }
     }
     catch (std::exception &e) {
-      xp = nullptr;
+      xp = ROL::nullPointer;
     }
     return xp;
   }

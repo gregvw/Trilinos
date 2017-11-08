@@ -78,8 +78,8 @@
 
 typedef double RealT;
 
-std::shared_ptr<Tpetra::MultiVector<> > createTpetraVector(const std::shared_ptr<const Tpetra::Map<> > &map) {
-  return std::make_shared<Tpetra::MultiVector<>>(map, 1, true);
+ROL::SharedPointer<Tpetra::MultiVector<> > createTpetraVector(const ROL::SharedPointer<const Tpetra::Map<> > &map) {
+  return ROL::makeShared<Tpetra::MultiVector<>>(map, 1, true);
 }
 
 int main(int argc, char *argv[]) {
@@ -87,12 +87,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
     outStream = &std::cout, false;
@@ -108,27 +108,27 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    std::shared_ptr<ElasticitySIMPOperators<RealT> > data
-      = std::make_shared<ElasticitySIMPOperators<RealT>>(comm, parlist, outStream);
+    ROL::SharedPointer<ElasticitySIMPOperators<RealT> > data
+      = ROL::makeShared<ElasticitySIMPOperators<RealT>>(comm, parlist, outStream);
     /*** Initialize density filter. ***/
-    std::shared_ptr<DensityFilter<RealT> > filter
-      = std::make_shared<DensityFilter<RealT>>(comm, parlist, outStream);
+    ROL::SharedPointer<DensityFilter<RealT> > filter
+      = ROL::makeShared<DensityFilter<RealT>>(comm, parlist, outStream);
     /*** Build vectors and dress them up as ROL vectors. ***/
-    std::shared_ptr<const Tpetra::Map<> > vecmap_u = data->getDomainMapA();
-    std::shared_ptr<const Tpetra::Map<> > vecmap_z = data->getCellMap();
-    std::shared_ptr<Tpetra::MultiVector<> > u_rcp      = createTpetraVector(vecmap_u);
-    std::shared_ptr<Tpetra::MultiVector<> > z_rcp      = createTpetraVector(vecmap_z);
-    std::shared_ptr<Tpetra::MultiVector<> > du_rcp     = createTpetraVector(vecmap_u);
-    std::shared_ptr<Tpetra::MultiVector<> > dw_rcp     = createTpetraVector(vecmap_u);
-    std::shared_ptr<Tpetra::MultiVector<> > dz_rcp     = createTpetraVector(vecmap_z);
-    std::shared_ptr<Tpetra::MultiVector<> > dz2_rcp    = createTpetraVector(vecmap_z);
-    std::shared_ptr<std::vector<RealT> >    vc_rcp     = std::make_shared<std::vector<RealT>>(1, 0);
-    std::shared_ptr<std::vector<RealT> >    vc_lam_rcp = std::make_shared<std::vector<RealT>>(1, 0);
-    std::shared_ptr<std::vector<RealT> >    vscale_rcp = std::make_shared<std::vector<RealT>>(1, 0);
+    ROL::SharedPointer<const Tpetra::Map<> > vecmap_u = data->getDomainMapA();
+    ROL::SharedPointer<const Tpetra::Map<> > vecmap_z = data->getCellMap();
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp      = createTpetraVector(vecmap_u);
+    ROL::SharedPointer<Tpetra::MultiVector<> > z_rcp      = createTpetraVector(vecmap_z);
+    ROL::SharedPointer<Tpetra::MultiVector<> > du_rcp     = createTpetraVector(vecmap_u);
+    ROL::SharedPointer<Tpetra::MultiVector<> > dw_rcp     = createTpetraVector(vecmap_u);
+    ROL::SharedPointer<Tpetra::MultiVector<> > dz_rcp     = createTpetraVector(vecmap_z);
+    ROL::SharedPointer<Tpetra::MultiVector<> > dz2_rcp    = createTpetraVector(vecmap_z);
+    ROL::SharedPointer<std::vector<RealT> >    vc_rcp     = ROL::makeShared<std::vector<RealT>>(1, 0);
+    ROL::SharedPointer<std::vector<RealT> >    vc_lam_rcp = ROL::makeShared<std::vector<RealT>>(1, 0);
+    ROL::SharedPointer<std::vector<RealT> >    vscale_rcp = ROL::makeShared<std::vector<RealT>>(1, 0);
     // Set all values to 1 in u, z.
     u_rcp->putScalar(1.0);
     // Set z to gray solution.
@@ -142,17 +142,17 @@ int main(int argc, char *argv[]) {
     // Set Scaling vector for density
     bool  useZscale = parlist->sublist("Problem").get<bool>("Use Scaled Density Vectors");
     RealT densityScaling = parlist->sublist("Problem").get<RealT>("Density Scaling");
-    std::shared_ptr<Tpetra::MultiVector<> > scaleVec = createTpetraVector(vecmap_z);
+    ROL::SharedPointer<Tpetra::MultiVector<> > scaleVec = createTpetraVector(vecmap_z);
     scaleVec->putScalar(densityScaling);
     if ( !useZscale ) {
       scaleVec->putScalar(one);
     }
-    std::shared_ptr<const Tpetra::Vector<> > zscale_rcp = scaleVec->getVector(0);
+    ROL::SharedPointer<const Tpetra::Vector<> > zscale_rcp = scaleVec->getVector(0);
 
    //test     
    /*data->updateMaterialDensity (z_rcp);
-    std::shared_ptr<Tpetra::MultiVector<RealT> > rhs
-      = std::make_shared<Tpetra::MultiVector<> (data->getVecF()->getMap>(), 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<RealT> > rhs
+      = ROL::makeShared<Tpetra::MultiVector<> (data->getVecF()->getMap>(), 1, true);
     data->ApplyMatAToVec(rhs, u_rcp);
     data->outputTpetraVector(rhs, "KU0.txt");
     data->ApplyInverseJacobian1ToVec(u_rcp, rhs, false);
@@ -171,43 +171,43 @@ int main(int argc, char *argv[]) {
     dz_rcp->randomize(); //dz_rcp->scale(0);
     dz2_rcp->randomize();
     // Create ROL::TpetraMultiVectors.
-    std::shared_ptr<ROL::Vector<RealT> > up   = std::make_shared<ROL::TpetraMultiVector<RealT>>(u_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > dup  = std::make_shared<ROL::TpetraMultiVector<RealT>>(du_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > dwp  = std::make_shared<ROL::TpetraMultiVector<RealT>>(dw_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > zp 
-      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(z_rcp,zscale_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > dzp
-      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(dz_rcp,zscale_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > dz2p
-      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(dz2_rcp,zscale_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > vcp
-      = std::make_shared<ROL::PrimalScaledStdVector<RealT>>(vc_rcp,vscale_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > vc_lamp
-      = std::make_shared<ROL::DualScaledStdVector<RealT>>(vc_lam_rcp,vscale_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > up   = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(u_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > dup  = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(du_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > dwp  = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(dw_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > zp 
+      = ROL::makeShared<ROL::PrimalScaledTpetraMultiVector<RealT>>(z_rcp,zscale_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > dzp
+      = ROL::makeShared<ROL::PrimalScaledTpetraMultiVector<RealT>>(dz_rcp,zscale_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > dz2p
+      = ROL::makeShared<ROL::PrimalScaledTpetraMultiVector<RealT>>(dz2_rcp,zscale_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > vcp
+      = ROL::makeShared<ROL::PrimalScaledStdVector<RealT>>(vc_rcp,vscale_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > vc_lamp
+      = ROL::makeShared<ROL::DualScaledStdVector<RealT>>(vc_lam_rcp,vscale_rcp);
     // Create ROL SimOpt vectors.
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> d(dup,dzp);
     ROL::Vector_SimOpt<RealT> d2(dwp,dz2p);
 
     /*** Build objective function, constraint and reduced objective function. ***/
-    std::shared_ptr<ROL::Objective_SimOpt<RealT> > obj
-       = std::make_shared<Objective_PDEOPT_ElasticitySIMP<RealT>>(data, filter, parlist);
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
-       = std::make_shared<EqualityConstraint_PDEOPT_ElasticitySIMP<RealT>>(data, filter, parlist);
-    std::shared_ptr<ROL::Reduced_Objective_SimOpt<RealT> > objReduced
-       = std::make_shared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, dwp);
-    std::shared_ptr<ROL::Constraint<RealT> > volcon
-       = std::make_shared<EqualityConstraint_PDEOPT_ElasticitySIMP_Volume<RealT>>(data, parlist);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > obj
+       = ROL::makeShared<Objective_PDEOPT_ElasticitySIMP<RealT>>(data, filter, parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con
+       = ROL::makeShared<EqualityConstraint_PDEOPT_ElasticitySIMP<RealT>>(data, filter, parlist);
+    ROL::SharedPointer<ROL::Reduced_Objective_SimOpt<RealT> > objReduced
+       = ROL::makeShared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, dwp);
+    ROL::SharedPointer<ROL::Constraint<RealT> > volcon
+       = ROL::makeShared<EqualityConstraint_PDEOPT_ElasticitySIMP_Volume<RealT>>(data, parlist);
 
     /*** Build bound constraint ***/
-    std::shared_ptr<Tpetra::MultiVector<> > lo_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > hi_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > lo_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > hi_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
     lo_rcp->putScalar(0.0); hi_rcp->putScalar(1.0);
-    std::shared_ptr<ROL::Vector<RealT> > lop
-      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(lo_rcp, zscale_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > hip
-      = std::make_shared<ROL::PrimalScaledTpetraMultiVector<RealT>>(hi_rcp, zscale_rcp);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd = std::make_shared<ROL::Bounds<RealT>>(lop,hip);
+    ROL::SharedPointer<ROL::Vector<RealT> > lop
+      = ROL::makeShared<ROL::PrimalScaledTpetraMultiVector<RealT>>(lo_rcp, zscale_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > hip
+      = ROL::makeShared<ROL::PrimalScaledTpetraMultiVector<RealT>>(hi_rcp, zscale_rcp);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd = ROL::makeShared<ROL::Bounds<RealT>>(lop,hip);
 
     /*** Check functional interface. ***/
     *outStream << "Checking Objective:" << "\n";
@@ -240,13 +240,13 @@ int main(int argc, char *argv[]) {
 
     // new filter, for testing
     /*parlist->sublist("Density Filter").set("Enable", true);
-    std::shared_ptr<DensityFilter<RealT> > testfilter
-      = std::make_shared<DensityFilter<RealT>>(comm, parlist, outStream);
-    std::shared_ptr<Tpetra::MultiVector<> > z_filtered_rcp = std::make_shared<Tpetra::MultiVector<>>(*z_rcp, Teuchos::Copy);
+    ROL::SharedPointer<DensityFilter<RealT> > testfilter
+      = ROL::makeShared<DensityFilter<RealT>>(comm, parlist, outStream);
+    ROL::SharedPointer<Tpetra::MultiVector<> > z_filtered_rcp = ROL::makeShared<Tpetra::MultiVector<>>(*z_rcp, Teuchos::Copy);
     testfilter->apply(z_filtered_rcp, z_rcp);
-    std::shared_ptr<Tpetra::MultiVector<> > cm_rcp = data->getCellAreas();
-    std::shared_ptr<Tpetra::MultiVector<> > icm_rcp = std::make_shared<Tpetra::MultiVector<>>(*cm_rcp, Teuchos::Copy);
-    std::shared_ptr<Tpetra::MultiVector<> > zf_scaled_rcp = std::make_shared<Tpetra::MultiVector<>>(*z_rcp, Teuchos::Copy);
+    ROL::SharedPointer<Tpetra::MultiVector<> > cm_rcp = data->getCellAreas();
+    ROL::SharedPointer<Tpetra::MultiVector<> > icm_rcp = ROL::makeShared<Tpetra::MultiVector<>>(*cm_rcp, Teuchos::Copy);
+    ROL::SharedPointer<Tpetra::MultiVector<> > zf_scaled_rcp = ROL::makeShared<Tpetra::MultiVector<>>(*z_rcp, Teuchos::Copy);
     icm_rcp->reciprocal(*cm_rcp);
     zf_scaled_rcp->elementWiseMultiply(1.0, *(icm_rcp->getVector(0)), *z_filtered_rcp, 0.0);
     data->outputTpetraVector(zf_scaled_rcp, "density_filtered_scaled.txt");

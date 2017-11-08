@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -89,17 +89,17 @@ int main(int argc, char *argv[]) {
       *outStream << std::endl << std::endl << ROL::ETestObjectivesToString(objFunc) << std::endl << std::endl;
 
       // Set up optimization problem
-      std::shared_ptr<ROL::Vector<RealT> > x0, z;
-      std::shared_ptr<ROL::Objective<RealT> > obj;
+      ROL::SharedPointer<ROL::Vector<RealT> > x0, z;
+      ROL::SharedPointer<ROL::Objective<RealT> > obj;
       ROL::getTestObjectives<RealT>(obj,x0,z,objFunc);
-      std::shared_ptr<ROL::Vector<RealT> > x = x0->clone();
+      ROL::SharedPointer<ROL::Vector<RealT> > x = x0->clone();
 
       // Get Dimension of Problem
       int dim = x0->dimension();
       parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 2*dim);
 
       // Error Vector
-      std::shared_ptr<ROL::Vector<RealT> > e = x0->clone();
+      ROL::SharedPointer<ROL::Vector<RealT> > e = x0->clone();
       e->zero();
 
       for ( ROL::EDescent desc = ROL::DESCENT_STEEPEST; desc < ROL::DESCENT_LAST; desc++ ) {

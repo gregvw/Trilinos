@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -68,9 +68,9 @@ int main(int argc, char *argv[]) {
     outStream.reset(&bhs);
 
   int errorFlag  = 0;
-  std::shared_ptr<ROL::Vector<RealT> > x0, x;
-  std::shared_ptr<ROL::Objective<RealT> > obj;
-  std::shared_ptr<ROL::BoundConstraint<RealT> > bnd;
+  ROL::SharedPointer<ROL::Vector<RealT> > x0, x;
+  ROL::SharedPointer<ROL::Objective<RealT> > obj;
+  ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd;
   ROL::getTestObjectives<RealT>(obj,bnd,x0,x,ROL::TESTOPTPROBLEM_HS1);
   ROL::AlgorithmState<RealT> algo_state;
 

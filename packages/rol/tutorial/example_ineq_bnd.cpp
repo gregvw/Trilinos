@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 
   typedef double RealT;
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -151,31 +151,31 @@ int main(int argc, char *argv[]) {
     parlist.sublist("Step").set("Type","Augmented Lagrangian");
     
 
-    std::shared_ptr<std::vector<RealT> > l_rcp = std::make_shared<std::vector<RealT>>(5,-100.0);
-    std::shared_ptr<std::vector<RealT> > u_rcp = std::make_shared<std::vector<RealT>>(5, 100.0);
+    ROL::SharedPointer<std::vector<RealT> > l_rcp = ROL::makeShared<std::vector<RealT>>(5,-100.0);
+    ROL::SharedPointer<std::vector<RealT> > u_rcp = ROL::makeShared<std::vector<RealT>>(5, 100.0);
 
-    std::shared_ptr<ROL::Vector<RealT> > lower = std::make_shared<ROL::StdVector<RealT>>( l_rcp );
-    std::shared_ptr<ROL::Vector<RealT> > upper = std::make_shared<ROL::StdVector<RealT>>( u_rcp ); 
+    ROL::SharedPointer<ROL::Vector<RealT> > lower = ROL::makeShared<ROL::StdVector<RealT>>( l_rcp );
+    ROL::SharedPointer<ROL::Vector<RealT> > upper = ROL::makeShared<ROL::StdVector<RealT>>( u_rcp ); 
 
-    std::shared_ptr<std::vector<RealT> > x_rcp  = std::make_shared<std::vector<RealT>>(5,1.0);
-    std::shared_ptr<std::vector<RealT> > li_rcp = std::make_shared<std::vector<RealT>>(1,0.0);
-    std::shared_ptr<std::vector<RealT> > ll_rcp = std::make_shared<std::vector<RealT>>(1,0.0);
-    std::shared_ptr<std::vector<RealT> > lu_rcp = std::make_shared<std::vector<RealT>(1,ROL::ROL_INF<RealT>>());
+    ROL::SharedPointer<std::vector<RealT> > x_rcp  = ROL::makeShared<std::vector<RealT>>(5,1.0);
+    ROL::SharedPointer<std::vector<RealT> > li_rcp = ROL::makeShared<std::vector<RealT>>(1,0.0);
+    ROL::SharedPointer<std::vector<RealT> > ll_rcp = ROL::makeShared<std::vector<RealT>>(1,0.0);
+    ROL::SharedPointer<std::vector<RealT> > lu_rcp = ROL::makeShared<std::vector<RealT>(1,ROL::ROL_INF<RealT>>());
 
-    std::shared_ptr<ROL::Vector<RealT> > x  = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > li = std::make_shared<ROL::StdVector<RealT>>(li_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > ll = std::make_shared<ROL::StdVector<RealT>>(ll_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > lu = std::make_shared<ROL::StdVector<RealT>>(lu_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > x  = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > li = ROL::makeShared<ROL::StdVector<RealT>>(li_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > ll = ROL::makeShared<ROL::StdVector<RealT>>(ll_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > lu = ROL::makeShared<ROL::StdVector<RealT>>(lu_rcp);
 
-    std::shared_ptr<ROL::Objective<RealT> >             obj  = std::make_shared<ObjectiveQL<RealT>>();
-    std::shared_ptr<ROL::BoundConstraint<RealT> >       bnd  = std::make_shared<ROL::Bounds<RealT>>(lower,upper);
-    std::shared_ptr<ROL::Constraint<RealT> >            ineq = std::make_shared<InequalityQL<RealT>>();
-    std::shared_ptr<ROL::BoundConstraint<RealT> >       ibnd = std::make_shared<ROL::Bounds<RealT>>(ll,lu);
+    ROL::SharedPointer<ROL::Objective<RealT> >             obj  = ROL::makeShared<ObjectiveQL<RealT>>();
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> >       bnd  = ROL::makeShared<ROL::Bounds<RealT>>(lower,upper);
+    ROL::SharedPointer<ROL::Constraint<RealT> >            ineq = ROL::makeShared<InequalityQL<RealT>>();
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> >       ibnd = ROL::makeShared<ROL::Bounds<RealT>>(ll,lu);
 
     ROL::OptimizationProblem<RealT> problem( obj, x, bnd, ineq, li, ibnd);    
 
     /* checkAdjointJacobianConsistency fails for the OptimizationProblem if we don't do this first... why? */
-    std::shared_ptr<ROL::Vector<RealT> > u = x->clone(); 
+    ROL::SharedPointer<ROL::Vector<RealT> > u = x->clone(); 
     RandomizeVector(*u);
     ineq->checkAdjointConsistencyJacobian(*li,*x,*u,true,*outStream);
     /*******************************************************************************************************/

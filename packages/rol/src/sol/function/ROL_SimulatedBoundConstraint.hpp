@@ -58,10 +58,10 @@ namespace ROL {
 template <class Real>
 class SimulatedBoundConstraint : public BoundConstraint<Real> {
 private:
-  const std::shared_ptr<SampleGenerator<Real> > sampler_;
-  const std::shared_ptr<BoundConstraint<Real> > bnd_;
-  std::shared_ptr<Vector<Real> > l_;
-  std::shared_ptr<Vector<Real> > u_;
+  const ROL::SharedPointer<SampleGenerator<Real> > sampler_;
+  const ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+  ROL::SharedPointer<Vector<Real> > l_;
+  ROL::SharedPointer<Vector<Real> > u_;
 
   const Vector<Real>& getVector(const Vector<Real> &x, int k) const {
     try {
@@ -84,19 +84,19 @@ private:
 public:
   ~SimulatedBoundConstraint() {}
 
-  SimulatedBoundConstraint(const std::shared_ptr<SampleGenerator<Real> > &sampler,
-                           const std::shared_ptr<BoundConstraint<Real> > &bnd )
+  SimulatedBoundConstraint(const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
+                           const ROL::SharedPointer<BoundConstraint<Real> > &bnd )
     : sampler_(sampler), bnd_(bnd) {
     int nsamp = sampler_->numMySamples();
-    std::vector<std::shared_ptr<Vector<Real> > > lvec(nsamp), uvec(nsamp);
+    std::vector<ROL::SharedPointer<Vector<Real> > > lvec(nsamp), uvec(nsamp);
     for ( int k=0; k<sampler_->numMySamples(); ++k) {
       lvec[k] = bnd_->getLowerBound()->clone();
       lvec[k]->set(*bnd_->getLowerBound());
       uvec[k] = bnd_->getUpperBound()->clone();
       uvec[k]->set(*bnd_->getUpperBound());
     }
-    l_ = std::make_shared<SimulatedVector<Real>>(lvec,sampler_->getBatchManager());
-    u_ = std::make_shared<SimulatedVector<Real>>(uvec,sampler_->getBatchManager());
+    l_ = ROL::makeShared<SimulatedVector<Real>>(lvec,sampler_->getBatchManager());
+    u_ = ROL::makeShared<SimulatedVector<Real>>(uvec,sampler_->getBatchManager());
   }
 
   void project( Vector<Real> &x ) {
@@ -147,11 +147,11 @@ public:
     }
   }
 
-  const std::shared_ptr<const Vector<Real> > getLowerBound( void ) const {
+  const ROL::SharedPointer<const Vector<Real> > getLowerBound( void ) const {
     return l_;
   }
 
-  const std::shared_ptr<const Vector<Real> > getUpperBound( void ) const {
+  const ROL::SharedPointer<const Vector<Real> > getUpperBound( void ) const {
     return u_;
   }
 

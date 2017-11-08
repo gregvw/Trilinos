@@ -88,11 +88,11 @@ public:
   norm() const final;
 
   virtual
-  std::shared_ptr<Vector<T>>
+  ROL::SharedPointer<Vector<T>>
   clone() const final;
 
   virtual
-  std::shared_ptr<Vector<T>>
+  ROL::SharedPointer<Vector<T>>
   basis(int const i) const final;
 
   virtual

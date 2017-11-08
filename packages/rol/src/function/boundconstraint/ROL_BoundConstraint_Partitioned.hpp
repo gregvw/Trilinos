@@ -65,17 +65,17 @@ class BoundConstraint_Partitioned : public BoundConstraint<Real> {
   typedef typename std::vector<Real>::size_type uint;
 
 private:
-  std::vector<std::shared_ptr<BoundConstraint<Real> > > bnd_;
+  std::vector<ROL::SharedPointer<BoundConstraint<Real> > > bnd_;
 
-  std::shared_ptr<V> l_;
-  std::shared_ptr<V> u_;
+  ROL::SharedPointer<V> l_;
+  ROL::SharedPointer<V> u_;
 
   uint dim_;
 
 public:
   ~BoundConstraint_Partitioned() {}
 
-  BoundConstraint_Partitioned(const std::vector<std::shared_ptr<BoundConstraint<Real> > > &bnd)
+  BoundConstraint_Partitioned(const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &bnd)
     : bnd_(bnd), dim_(bnd.size()) {
     BoundConstraint<Real>::deactivate();
     for( uint k=0; k<dim_; ++k ) {
@@ -84,16 +84,16 @@ public:
         break;
       }
     }
-    std::vector<std::shared_ptr<Vector<Real> > > lp(dim_);
-    std::vector<std::shared_ptr<Vector<Real> > > up(dim_);
+    std::vector<ROL::SharedPointer<Vector<Real> > > lp(dim_);
+    std::vector<ROL::SharedPointer<Vector<Real> > > up(dim_);
     for( uint k=0; k<dim_; ++k ) {
       lp[k] = bnd[k]->getLowerBound()->clone();
       lp[k]->set(*bnd_[k]->getLowerBound());
       up[k] = bnd[k]->getUpperBound()->clone();
       up[k]->set(*bnd_[k]->getUpperBound());
     }
-    l_ = std::make_shared<PV>(lp);
-    u_ = std::make_shared<PV>(up);
+    l_ = ROL::makeShared<PV>(lp);
+    u_ = ROL::makeShared<PV>(up);
   }
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
@@ -165,11 +165,11 @@ public:
     }
   }
 
-  const std::shared_ptr<const Vector<Real> > getLowerBound( void ) const {
+  const ROL::SharedPointer<const Vector<Real> > getLowerBound( void ) const {
     return l_;
   }
 
-  const std::shared_ptr<const Vector<Real> > getUpperBound( void ) const {
+  const ROL::SharedPointer<const Vector<Real> > getUpperBound( void ) const {
     return u_;
   }
 
@@ -188,15 +188,15 @@ public:
 
 
 template<class Real>
-std::shared_ptr<BoundConstraint<Real> >
-CreateBoundConstraint_Partitioned( const std::shared_ptr<BoundConstraint<Real> > &bnd1,
-                                   const std::shared_ptr<BoundConstraint<Real> > &bnd2 ) {
+ROL::SharedPointer<BoundConstraint<Real> >
+CreateBoundConstraint_Partitioned( const ROL::SharedPointer<BoundConstraint<Real> > &bnd1,
+                                   const ROL::SharedPointer<BoundConstraint<Real> > &bnd2 ) {
 
 
   typedef BoundConstraint<Real>             BND;
   typedef BoundConstraint_Partitioned<Real> BNDP;
-  std::shared_ptr<BND> temp[] = {bnd1, bnd2};
-  return std::make_shared<BNDP>(std::vector<std::shared_ptr<BND>>(temp,temp+2));
+  ROL::SharedPointer<BND> temp[] = {bnd1, bnd2};
+  return ROL::makeShared<BNDP>(std::vector<ROL::SharedPointer<BND>>(temp,temp+2));
 }
 
 

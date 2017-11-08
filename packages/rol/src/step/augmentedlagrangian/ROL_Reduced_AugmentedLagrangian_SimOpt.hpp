@@ -51,7 +51,7 @@
 #include "ROL_AugmentedLagrangian.hpp"
 #include "ROL_Vector.hpp"
 #include "ROL_Types.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 #include <iostream>
 
 /** @ingroup func_group
@@ -97,27 +97,27 @@ namespace ROL {
 template <class Real>
 class Reduced_AugmentedLagrangian_SimOpt : public AugmentedLagrangian<Real> {
 private:
-  std::shared_ptr<AugmentedLagrangian_SimOpt<Real> > augLagSimOpt_;
-  std::shared_ptr<Reduced_Objective_SimOpt<Real> > rAugLagSimOpt_;
-  std::shared_ptr<Vector<Real> > state_;
+  ROL::SharedPointer<AugmentedLagrangian_SimOpt<Real> > augLagSimOpt_;
+  ROL::SharedPointer<Reduced_Objective_SimOpt<Real> > rAugLagSimOpt_;
+  ROL::SharedPointer<Vector<Real> > state_;
 
   // Evaluation counters
   int ngval_;
 
 public:
-  Reduced_AugmentedLagrangian_SimOpt(const std::shared_ptr<Objective_SimOpt<Real> > &obj,
-                                     const std::shared_ptr<Constraint_SimOpt<Real> > &redCon,
-                                     const std::shared_ptr<Constraint_SimOpt<Real> > &augCon,
-                                     const std::shared_ptr<Vector<Real> > &state,
-                                     const std::shared_ptr<Vector<Real> > &control,
-                                     const std::shared_ptr<Vector<Real> > &adjoint,
-                                     const std::shared_ptr<Vector<Real> > &augConVec,
-                                     const std::shared_ptr<Vector<Real> > &multiplier,
+  Reduced_AugmentedLagrangian_SimOpt(const ROL::SharedPointer<Objective_SimOpt<Real> > &obj,
+                                     const ROL::SharedPointer<Constraint_SimOpt<Real> > &redCon,
+                                     const ROL::SharedPointer<Constraint_SimOpt<Real> > &augCon,
+                                     const ROL::SharedPointer<Vector<Real> > &state,
+                                     const ROL::SharedPointer<Vector<Real> > &control,
+                                     const ROL::SharedPointer<Vector<Real> > &adjoint,
+                                     const ROL::SharedPointer<Vector<Real> > &augConVec,
+                                     const ROL::SharedPointer<Vector<Real> > &multiplier,
                                      const Real penaltyParameter,
                                      Teuchos::ParameterList &parlist) : state_(state),
                                      ngval_(0) {
 
-    augLagSimOpt_ = std::make_shared<AugmentedLagrangian_SimOpt<Real>>(obj,
+    augLagSimOpt_ = ROL::makeShared<AugmentedLagrangian_SimOpt<Real>>(obj,
                                                                       augCon,
                                                                       *multiplier,
                                                                       penaltyParameter,
@@ -125,7 +125,7 @@ public:
                                                                       *control,
                                                                       *augConVec,
                                                                       parlist);
-    rAugLagSimOpt_ = std::make_shared<Reduced_Objective_SimOpt<Real>>(augLagSimOpt_,redCon,state,control,adjoint);
+    rAugLagSimOpt_ = ROL::makeShared<Reduced_Objective_SimOpt<Real>>(augLagSimOpt_,redCon,state,control,adjoint);
     rAugLagSimOpt_->update(*control);
     Real tol = 1e-8;
     rAugLagSimOpt_->value(*control,tol);

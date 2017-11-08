@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -87,24 +87,24 @@ int main(int argc, char *argv[]) {
 
     int dim = 3;
 
-    auto m_rcp = std::make_shared<vector, std::initializer_list<RealT>>
+    auto m_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>
       ({  3.0, 1.0, 0.0, -2.0, 6.0, 2.0, 0.0, -1.0, 3.0 });
-    auto a_rcp = std::make_shared<vector, std::initializer_list<RealT>>({  3.0, 6.0, 3.0});
-    auto b_rcp = std::make_shared<vector, std::initializer_list<RealT>>({ -2.0,-1.0 });
-    auto c_rcp = std::make_shared<vector, std::initializer_list<RealT>>({  1.0, 2.0 });
+    auto a_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({  3.0, 6.0, 3.0});
+    auto b_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({ -2.0,-1.0 });
+    auto c_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({  1.0, 2.0 });
 
     MAT M(m_rcp);
     TRI T(a_rcp,b_rcp,c_rcp);
 
-    SV xm( std::make_shared<vector, std::initializer_list<RealT>>({1.0, 2.0,-1.0}));
-    SV ym( std::make_shared<vector>( dim ) );
-    SV zm( std::make_shared<vector>( dim ) );
+    SV xm( ROL::makeShared<vector, std::initializer_list<RealT>>({1.0, 2.0,-1.0}));
+    SV ym( ROL::makeShared<vector>( dim ) );
+    SV zm( ROL::makeShared<vector>( dim ) );
 
-    SV xt( std::make_shared<vector>( dim ) );
-    SV yt( std::make_shared<vector>( dim ) );
-    SV zt( std::make_shared<vector>( dim ) );
+    SV xt( ROL::makeShared<vector>( dim ) );
+    SV yt( ROL::makeShared<vector>( dim ) );
+    SV zt( ROL::makeShared<vector>( dim ) );
 
-    SV error( std::make_shared<vector>(dim) );
+    SV error( ROL::makeShared<vector>(dim) );
     RealT nerr = 0;
 
     xt.set(xm);

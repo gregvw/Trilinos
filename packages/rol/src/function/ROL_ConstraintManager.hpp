@@ -60,36 +60,36 @@ namespace ROL {
 template <class Real>
 class ConstraintManager {
 private:
-  std::shared_ptr<Constraint<Real> >      con_;
-  std::shared_ptr<Vector<Real> >          l_;
-  std::shared_ptr<Vector<Real> >          x_;
-  std::shared_ptr<BoundConstraint<Real> > bnd_;
+  ROL::SharedPointer<Constraint<Real> >      con_;
+  ROL::SharedPointer<Vector<Real> >          l_;
+  ROL::SharedPointer<Vector<Real> >          x_;
+  ROL::SharedPointer<BoundConstraint<Real> > bnd_;
 
-  std::vector<std::shared_ptr<Constraint<Real> > >      cvec_;
-  std::vector<std::shared_ptr<Vector<Real> > >          lvec_;
-  std::vector<std::shared_ptr<Vector<Real> > >          svec_;
-  std::vector<std::shared_ptr<BoundConstraint<Real> > > sbnd_;
+  std::vector<ROL::SharedPointer<Constraint<Real> > >      cvec_;
+  std::vector<ROL::SharedPointer<Vector<Real> > >          lvec_;
+  std::vector<ROL::SharedPointer<Vector<Real> > >          svec_;
+  std::vector<ROL::SharedPointer<BoundConstraint<Real> > > sbnd_;
 
   std::vector<bool> isInequality_;
 
   bool isNull_;
   bool hasInequality_;
 
-  void initializeSlackVariable(const std::shared_ptr<Constraint<Real> >      &con,
-                               const std::shared_ptr<BoundConstraint<Real> > &cbnd,
-                               const std::shared_ptr<Vector<Real> >          &s,
-                               const std::shared_ptr<Vector<Real> >          &x) {
+  void initializeSlackVariable(const ROL::SharedPointer<Constraint<Real> >      &con,
+                               const ROL::SharedPointer<BoundConstraint<Real> > &cbnd,
+                               const ROL::SharedPointer<Vector<Real> >          &s,
+                               const ROL::SharedPointer<Vector<Real> >          &x) {
     // Set slack variable to s = proj(c(x))
     Real tol = std::sqrt(ROL_EPSILON<Real>());
     con->value(*s,*x,tol);
     cbnd->project(*s);
   }
 
-  void initialize(const std::vector<std::shared_ptr<Constraint<Real> > >      &cvec,
-                  const std::vector<std::shared_ptr<Vector<Real> > >          &lvec,
-                  const std::vector<std::shared_ptr<BoundConstraint<Real> > > &bvec,
-                  const std::shared_ptr<Vector<Real> >                        &x,
-                  const std::shared_ptr<BoundConstraint<Real> >               &bnd) {
+  void initialize(const std::vector<ROL::SharedPointer<Constraint<Real> > >      &cvec,
+                  const std::vector<ROL::SharedPointer<Vector<Real> > >          &lvec,
+                  const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &bvec,
+                  const ROL::SharedPointer<Vector<Real> >                        &x,
+                  const ROL::SharedPointer<BoundConstraint<Real> >               &bnd) {
     // Check size of multiplier vector and constraint vector
     int size = static_cast<int>(cvec.size());
     if ( size != static_cast<int>(lvec.size()) ) {
@@ -99,9 +99,9 @@ private:
       throw Exception::NotImplemented(">>> ROL::ConstraintManager: Constraint and BoundConstraint vectors are different sizes!");
     }
     // If bnd is null, then make a null BoundConstraint
-    std::shared_ptr<BoundConstraint<Real> > bnd0;
-    if ( bnd == nullptr ) {
-      bnd0 = std::make_shared<BoundConstraint<Real>>();
+    ROL::SharedPointer<BoundConstraint<Real> > bnd0;
+    if ( bnd == ROL::nullPointer ) {
+      bnd0 = ROL::makeShared<BoundConstraint<Real>>();
       bnd0->deactivate();
     }
     else {
@@ -115,17 +115,17 @@ private:
     isNull_ = true;
     hasInequality_ = false;
     for (int i = 0; i < size; ++i) {
-      std::shared_ptr<Constraint<Real> >      con  = cvec[i];
-      std::shared_ptr<Vector<Real> >          l    = lvec[i];
-      std::shared_ptr<BoundConstraint<Real> > cbnd = bvec[i];
-      if (con != nullptr) {
+      ROL::SharedPointer<Constraint<Real> >      con  = cvec[i];
+      ROL::SharedPointer<Vector<Real> >          l    = lvec[i];
+      ROL::SharedPointer<BoundConstraint<Real> > cbnd = bvec[i];
+      if (con != ROL::nullPointer) {
         if ( con->isActivated() ) {
           // Set default type to equality
           isInequality_.push_back(false);
           // Fill constraint and multiplier vectors
           cvec_.push_back(con);
           lvec_.push_back(l);
-          if (cbnd != nullptr) {
+          if (cbnd != ROL::nullPointer) {
             if ( cbnd->isActivated() ) {
               // Set type to inequality
               isInequality_.back() = true;
@@ -147,8 +147,8 @@ private:
     // Create partitioned constraint and multiplier vector
     if ( !isNull_ ) {
       if ( cnt_con > 1 || hasInequality_ ) {
-        con_ = std::make_shared<Constraint_Partitioned<Real>>(cvec_,isInequality_);
-        l_   = std::make_shared<PartitionedVector<Real>>(lvec_);
+        con_ = ROL::makeShared<Constraint_Partitioned<Real>>(cvec_,isInequality_);
+        l_   = ROL::makeShared<PartitionedVector<Real>>(lvec_);
       }
       else {
         con_ = cvec_[0];
@@ -156,13 +156,13 @@ private:
       }
     }
     else {
-      con_ = nullptr;
-      l_   = nullptr;
+      con_ = ROL::nullPointer;
+      l_   = ROL::nullPointer;
     }
     // Create partitioned optimization vector and bound constraint
     if ( hasInequality_ ) {
-      x_   = std::make_shared<PartitionedVector<Real>>(svec_);
-      bnd_ = std::make_shared<BoundConstraint_Partitioned<Real>>(sbnd_);
+      x_   = ROL::makeShared<PartitionedVector<Real>>(svec_);
+      bnd_ = ROL::makeShared<BoundConstraint_Partitioned<Real>>(sbnd_);
     }
     else {
       x_   = x;
@@ -173,60 +173,60 @@ private:
 public:
   virtual ~ConstraintManager(void) {}
 
-  ConstraintManager(const std::vector<std::shared_ptr<Constraint<Real> > >      &cvec,
-                    const std::vector<std::shared_ptr<Vector<Real> > >          &lvec,
-                    const std::vector<std::shared_ptr<BoundConstraint<Real> > > &bvec,
-                    const std::shared_ptr<Vector<Real> >                        &x,
-                    const std::shared_ptr<BoundConstraint<Real> >               &bnd = nullptr)
+  ConstraintManager(const std::vector<ROL::SharedPointer<Constraint<Real> > >      &cvec,
+                    const std::vector<ROL::SharedPointer<Vector<Real> > >          &lvec,
+                    const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &bvec,
+                    const ROL::SharedPointer<Vector<Real> >                        &x,
+                    const ROL::SharedPointer<BoundConstraint<Real> >               &bnd = ROL::nullPointer)
     : isNull_(true), hasInequality_(false) {
     initialize(cvec,lvec,bvec,x,bnd);
   }
 
-  ConstraintManager(const std::vector<std::shared_ptr<Constraint<Real> > >      &cvec,
-                    const std::vector<std::shared_ptr<Vector<Real> > >          &lvec,
-                    const std::shared_ptr<Vector<Real> >                        &x,
-                    const std::shared_ptr<BoundConstraint<Real> >               &bnd = nullptr)
+  ConstraintManager(const std::vector<ROL::SharedPointer<Constraint<Real> > >      &cvec,
+                    const std::vector<ROL::SharedPointer<Vector<Real> > >          &lvec,
+                    const ROL::SharedPointer<Vector<Real> >                        &x,
+                    const ROL::SharedPointer<BoundConstraint<Real> >               &bnd = ROL::nullPointer)
     : isNull_(true), hasInequality_(false) {
-    std::vector<std::shared_ptr<BoundConstraint<Real> > > bvec(cvec.size(),nullptr);
+    std::vector<ROL::SharedPointer<BoundConstraint<Real> > > bvec(cvec.size(),ROL::nullPointer);
     initialize(cvec,lvec,bvec,x,bnd);
   }
 
-  ConstraintManager(const std::shared_ptr<Constraint<Real> >                    &con,
-                    const std::shared_ptr<Vector<Real> >                        &l,
-                    const std::shared_ptr<BoundConstraint<Real> >               &cbnd,
-                    const std::shared_ptr<Vector<Real> >                        &x,
-                    const std::shared_ptr<BoundConstraint<Real> >               &bnd = nullptr)
+  ConstraintManager(const ROL::SharedPointer<Constraint<Real> >                    &con,
+                    const ROL::SharedPointer<Vector<Real> >                        &l,
+                    const ROL::SharedPointer<BoundConstraint<Real> >               &cbnd,
+                    const ROL::SharedPointer<Vector<Real> >                        &x,
+                    const ROL::SharedPointer<BoundConstraint<Real> >               &bnd = ROL::nullPointer)
     : isNull_(true), hasInequality_(false) {
-    std::vector<std::shared_ptr<Constraint<Real> > >      cvec(1,con);
-    std::vector<std::shared_ptr<Vector<Real> > >          lvec(1,l);
-    std::vector<std::shared_ptr<BoundConstraint<Real> > > bvec(1,cbnd);
+    std::vector<ROL::SharedPointer<Constraint<Real> > >      cvec(1,con);
+    std::vector<ROL::SharedPointer<Vector<Real> > >          lvec(1,l);
+    std::vector<ROL::SharedPointer<BoundConstraint<Real> > > bvec(1,cbnd);
     initialize(cvec,lvec,bvec,x,bnd);
   }
 
-  ConstraintManager(const std::shared_ptr<Constraint<Real> >                    &con,
-                    const std::shared_ptr<Vector<Real> >                        &l,
-                    const std::shared_ptr<Vector<Real> >                        &x,
-                    const std::shared_ptr<BoundConstraint<Real> >               &bnd = nullptr)
+  ConstraintManager(const ROL::SharedPointer<Constraint<Real> >                    &con,
+                    const ROL::SharedPointer<Vector<Real> >                        &l,
+                    const ROL::SharedPointer<Vector<Real> >                        &x,
+                    const ROL::SharedPointer<BoundConstraint<Real> >               &bnd = ROL::nullPointer)
     : isNull_(true), hasInequality_(false) {
-    std::vector<std::shared_ptr<Constraint<Real> > >      cvec(1,con);
-    std::vector<std::shared_ptr<Vector<Real> > >          lvec(1,l);
-    std::vector<std::shared_ptr<BoundConstraint<Real> > > bvec(1,nullptr);
+    std::vector<ROL::SharedPointer<Constraint<Real> > >      cvec(1,con);
+    std::vector<ROL::SharedPointer<Vector<Real> > >          lvec(1,l);
+    std::vector<ROL::SharedPointer<BoundConstraint<Real> > > bvec(1,ROL::nullPointer);
     initialize(cvec,lvec,bvec,x,bnd);
   }
 
-  const std::shared_ptr<Constraint<Real> > getConstraint(void) const {
+  const ROL::SharedPointer<Constraint<Real> > getConstraint(void) const {
     return con_;
   }
 
-  const std::shared_ptr<Vector<Real> > getMultiplier(void) const {
+  const ROL::SharedPointer<Vector<Real> > getMultiplier(void) const {
     return l_;
   }
 
-  const std::shared_ptr<Vector<Real> > getOptVector(void) const {
+  const ROL::SharedPointer<Vector<Real> > getOptVector(void) const {
     return x_;
   }
 
-  const std::shared_ptr<BoundConstraint<Real> > getBoundConstraint(void) const {
+  const ROL::SharedPointer<BoundConstraint<Real> > getBoundConstraint(void) const {
     return bnd_;
   }
 

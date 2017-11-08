@@ -55,164 +55,164 @@ class QoI {
 public:
   virtual ~QoI() {}
 
-  virtual Real value(std::shared_ptr<Intrepid::FieldContainer<Real> > & val,
-                     const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                     const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                     const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) = 0;
+  virtual Real value(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & val,
+                     const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                     const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                     const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) = 0;
 
-  virtual void gradient_1(std::shared_ptr<Intrepid::FieldContainer<Real> > & grad,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void gradient_1(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & grad,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> gradient_1 not implemented.");
   }
 
-  virtual void gradient_2(std::shared_ptr<Intrepid::FieldContainer<Real> > & grad,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void gradient_2(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & grad,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> gradient_2 not implemented.");
   }
 
-  virtual std::vector<Real> gradient_3(std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & grad,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual std::vector<Real> gradient_3(std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > & grad,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> gradient_3 not implemented.");
   }
 
-  virtual void HessVec_11(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & v_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void HessVec_11(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & v_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_11 not implemented.");
   }
 
-  virtual void HessVec_12(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & v_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void HessVec_12(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & v_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_12 not implemented.");
   }
 
-  virtual void HessVec_13(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const std::vector<Real> > & v_param,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void HessVec_13(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const std::vector<Real> > & v_param,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_13 not implemented.");
   }
 
-  virtual void HessVec_21(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & v_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void HessVec_21(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & v_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_21 not implemented.");
   }
 
-  virtual void HessVec_22(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & v_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void HessVec_22(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & v_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_22 not implemented.");
   }
 
-  virtual void HessVec_23(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const std::vector<Real> > & v_param,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void HessVec_23(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const std::vector<Real> > & v_param,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_23 not implemented.");
   }
 
-  virtual std::vector<Real> HessVec_31(std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & v_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual std::vector<Real> HessVec_31(std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & v_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_31 not implemented.");
   }
 
-  virtual std::vector<Real> HessVec_32(std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & v_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual std::vector<Real> HessVec_32(std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & v_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_32 not implemented.");
   }
 
-  virtual std::vector<Real> HessVec_33(std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & hess,
-                          const std::shared_ptr<const std::vector<Real> > & v_param,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual std::vector<Real> HessVec_33(std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > & hess,
+                          const ROL::SharedPointer<const std::vector<Real> > & v_param,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> HessVec_33 not implemented.");
   }
 
-  virtual void Hessian_11(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void Hessian_11(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_11 not implemented.");
   }
 
-  virtual void Hessian_12(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void Hessian_12(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_12 not implemented.");
   }
 
-  virtual void Hessian_13(std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void Hessian_13(std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_13 not implemented.");
   }
 
-  virtual void Hessian_21(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void Hessian_21(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_21 not implemented.");
   }
 
-  virtual void Hessian_22(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void Hessian_22(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_22 not implemented.");
   }
 
-  virtual void Hessian_23(std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void Hessian_23(std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_23 not implemented.");
   }
 
-  virtual void Hessian_31(std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void Hessian_31(std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_31 not implemented.");
   }
 
-  virtual void Hessian_32(std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  virtual void Hessian_32(std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > & hess,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_32 not implemented.");
   }
 
   virtual void Hessian_33(std::vector<std::vector<Real> > & hess,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                          const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                          const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                          const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                          const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::NotImplemented(">>> Hessian_33 not implemented.");
   }
 

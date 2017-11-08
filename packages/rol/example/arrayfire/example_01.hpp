@@ -74,7 +74,7 @@ public:
   Real value(const ROL::Vector<Real> &x, Real &tol) {
 
     const ROL::ArrayFireVector<Real, Element> &ex = dynamic_cast<const ROL::ArrayFireVector<Real, Element>&>(x);
-    std::shared_ptr<const af::array> afVector = ex.getVector();
+    ROL::SharedPointer<const af::array> afVector = ex.getVector();
 
     Element one(1);
 
@@ -89,8 +89,8 @@ public:
 
     const ROL::ArrayFireVector<Real, Element> &ex = dynamic_cast<const ROL::ArrayFireVector<Real, Element>&>(x);
     ROL::ArrayFireVector<Real, Element> &eg = dynamic_cast<ROL::ArrayFireVector<Real, Element>&>(g);
-    std::shared_ptr<const af::array> afx = ex.getVector();
-    std::shared_ptr<af::array> afg = eg.getVector();
+    ROL::SharedPointer<const af::array> afx = ex.getVector();
+    ROL::SharedPointer<af::array> afg = eg.getVector();
 
     Element one(1), two(2), four(4);
 
@@ -115,9 +115,9 @@ public:
 		void hessVec(Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol) {
 
 			
-			std::shared_ptr<const vector> xp = getVector<XPrim>(x);
-			std::shared_ptr<const vector> vp = getVector<XPrim>(v);
-			std::shared_ptr<vector> hvp = getVector<XDual>(hv);
+			ROL::SharedPointer<const vector> xp = getVector<XPrim>(x);
+			ROL::SharedPointer<const vector> vp = getVector<XPrim>(v);
+			ROL::SharedPointer<vector> hvp = getVector<XDual>(hv);
 
 			uint n = xp->size();
 			for (uint i = 0; i<n / 2; i++) {

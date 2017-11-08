@@ -75,7 +75,7 @@ namespace ZOO {
     }
 
     Real value( const Vector<Real> &x, Real &tol ) {
-      std::shared_ptr<const std::vector<Real> > ex
+      ROL::SharedPointer<const std::vector<Real> > ex
         = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
       Real f1 = 1.5-(*ex)[0]*(1.0-(*ex)[1]);
@@ -86,9 +86,9 @@ namespace ZOO {
     }
 
     void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-      std::shared_ptr<std::vector<Real> > eg
+      ROL::SharedPointer<std::vector<Real> > eg
         = dynamic_cast<StdVector<Real>&>(g).getVector();
-      std::shared_ptr<const std::vector<Real> > ex
+      ROL::SharedPointer<const std::vector<Real> > ex
         = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
       Real f1 = 1.5-(*ex)[0]*(1.0-(*ex)[1]);
@@ -106,11 +106,11 @@ namespace ZOO {
     }
 #if USE_HESSVEC
     void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-      std::shared_ptr<std::vector<Real> > ehv
+      ROL::SharedPointer<std::vector<Real> > ehv
         = dynamic_cast<StdVector<Real>&>(hv).getVector();
-      std::shared_ptr<const std::vector<Real> > ev
+      ROL::SharedPointer<const std::vector<Real> > ev
         = dynamic_cast<const StdVector<Real>&>(v).getVector();
-      std::shared_ptr<const std::vector<Real> > ex
+      ROL::SharedPointer<const std::vector<Real> > ex
         = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
       Real f1 = 1.5-(*ex)[0]*(1.0-(*ex)[1]);
@@ -144,11 +144,11 @@ namespace ZOO {
     }
 #endif
     void invHessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-      std::shared_ptr<std::vector<Real> > ehv
+      ROL::SharedPointer<std::vector<Real> > ehv
         = dynamic_cast<StdVector<Real>&>(hv).getVector();
-      std::shared_ptr<const std::vector<Real> > ev
+      ROL::SharedPointer<const std::vector<Real> > ev
         = dynamic_cast<const StdVector<Real>&>(v).getVector();
-      std::shared_ptr<const std::vector<Real> > ex
+      ROL::SharedPointer<const std::vector<Real> > ex
         = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
       Real f1 = 1.5-(*ex)[0]*(1.0-(*ex)[1]);
@@ -183,28 +183,28 @@ namespace ZOO {
   };
 
   template<class Real>
-  void getBeale( std::shared_ptr<Objective<Real> > &obj,
-                 std::shared_ptr<Vector<Real> >    &x0,
-                 std::shared_ptr<Vector<Real> >    &x ) {
+  void getBeale( ROL::SharedPointer<Objective<Real> > &obj,
+                 ROL::SharedPointer<Vector<Real> >    &x0,
+                 ROL::SharedPointer<Vector<Real> >    &x ) {
     // Problem dimension
     int n = 2;
 
     // Build scale
-    std::shared_ptr<std::vector<Real> > scale = std::make_shared<std::vector<Real>>(n,0.0);
+    ROL::SharedPointer<std::vector<Real> > scale = ROL::makeShared<std::vector<Real>>(n,0.0);
     (*scale)[0] = 1.e-1; (*scale)[1] = 1.e1;
 
     // Get Initial Guess
-    std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,0.0); 
+    ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(n,0.0); 
     (*x0p)[0] = 1.0; (*x0p)[1] = 1.0;
-    x0 = std::make_shared<PrimalScaledStdVector<Real>>(x0p,scale);
+    x0 = ROL::makeShared<PrimalScaledStdVector<Real>>(x0p,scale);
 
     // Get Solution
-    std::shared_ptr<std::vector<Real> > xp  = std::make_shared<std::vector<Real>>(n,0.0);
+    ROL::SharedPointer<std::vector<Real> > xp  = ROL::makeShared<std::vector<Real>>(n,0.0);
     (*xp)[0] = 3.0; (*xp)[1] = 0.5;
-    x = std::make_shared<PrimalScaledStdVector<Real>>(xp,scale);
+    x = ROL::makeShared<PrimalScaledStdVector<Real>>(xp,scale);
 
     // Instantiate Objective Function
-    obj = std::make_shared<Objective_Beale<Real>>();
+    obj = ROL::makeShared<Objective_Beale<Real>>();
   }
 
 }// End ZOO Namespace

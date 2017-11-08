@@ -3,7 +3,7 @@
 #include "Teuchos_XMLParameterListHelpers.hpp"
 #include "Teuchos_oblackholestream.hpp"
 #include "Teuchos_GlobalMPISession.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 #include "ROL_DistributionFactory.hpp"
 
 typedef double RealT;
@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
   int errorFlag  = 0;
 
   try {
-    std::shared_ptr<ROL::Distribution<RealT> > dist;
+    ROL::SharedPointer<ROL::Distribution<RealT> > dist;
 
     // Get ROL parameterlist
     std::string filename = "input_02.xml";

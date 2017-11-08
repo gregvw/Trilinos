@@ -84,7 +84,7 @@ public:
   }
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real val(0), f(0), u(0);
@@ -99,9 +99,9 @@ public:
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > eg
+    ROL::SharedPointer<std::vector<Real> > eg
       = dynamic_cast<DualScaledStdVector<Real>&>(g).getVector();
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
     g.zero();
 
@@ -128,11 +128,11 @@ public:
   }
 #if USE_HESSVEC
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > ehv
+    ROL::SharedPointer<std::vector<Real> > ehv
       = dynamic_cast<DualScaledStdVector<Real>&>(hv).getVector();
-    std::shared_ptr<const std::vector<Real> > ev
+    ROL::SharedPointer<const std::vector<Real> > ev
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(v).getVector();
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
     hv.zero();
 
@@ -186,48 +186,48 @@ public:
 };
 
 template<class Real>
-void getHS25( std::shared_ptr<Objective<Real> >       &obj,
-              std::shared_ptr<BoundConstraint<Real> > &con, 
-              std::shared_ptr<Vector<Real> >          &x0,
-              std::shared_ptr<Vector<Real> >          &x ) {
+void getHS25( ROL::SharedPointer<Objective<Real> >       &obj,
+              ROL::SharedPointer<BoundConstraint<Real> > &con, 
+              ROL::SharedPointer<Vector<Real> >          &x0,
+              ROL::SharedPointer<Vector<Real> >          &x ) {
   // Problem dimension 
   int n = 3;
 
   // Set up vector scaling
-  std::shared_ptr<std::vector<Real> > scale = std::make_shared<std::vector<Real>>(n,0);
+  ROL::SharedPointer<std::vector<Real> > scale = ROL::makeShared<std::vector<Real>>(n,0);
   (*scale)[0] = static_cast<Real>(1.e-4);
   (*scale)[1] = static_cast<Real>(1.e-2);
   (*scale)[2] = static_cast<Real>(1);
 
   // Get Initial Guess
-  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,0);
+  ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(n,0);
   (*x0p)[0] = static_cast<Real>(100);
   (*x0p)[1] = static_cast<Real>(12.5);
   (*x0p)[2] = static_cast<Real>(3);
-  x0 = std::make_shared<PrimalScaledStdVector<Real>>(x0p,scale);
+  x0 = ROL::makeShared<PrimalScaledStdVector<Real>>(x0p,scale);
 
   // Get Solution
-  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(n,0);
+  ROL::SharedPointer<std::vector<Real> > xp = ROL::makeShared<std::vector<Real>>(n,0);
   (*xp)[0] = static_cast<Real>(50);
   (*xp)[1] = static_cast<Real>(25);
   (*xp)[2] = static_cast<Real>(1.5);
-  x = std::make_shared<PrimalScaledStdVector<Real>>(xp,scale);
+  x = ROL::makeShared<PrimalScaledStdVector<Real>>(xp,scale);
 
   // Instantiate Objective Function
-  obj = std::make_shared<Objective_HS25<Real>>();
+  obj = ROL::makeShared<Objective_HS25<Real>>();
 
   // Instantiate BoundConstraint
-  std::shared_ptr<std::vector<Real> > lp = std::make_shared<std::vector<Real>>(n,0);
+  ROL::SharedPointer<std::vector<Real> > lp = ROL::makeShared<std::vector<Real>>(n,0);
   (*lp)[0] = static_cast<Real>(0.1);
   (*lp)[1] = static_cast<Real>(0);
   (*lp)[2] = static_cast<Real>(0);
-  std::shared_ptr<Vector<Real> > l = std::make_shared<StdVector<Real>>(lp);
-  std::shared_ptr<std::vector<Real> > up = std::make_shared<std::vector<Real>>(n,0);
+  ROL::SharedPointer<Vector<Real> > l = ROL::makeShared<StdVector<Real>>(lp);
+  ROL::SharedPointer<std::vector<Real> > up = ROL::makeShared<std::vector<Real>>(n,0);
   (*up)[0] = static_cast<Real>(100);
   (*up)[1] = static_cast<Real>(25.6);
   (*up)[2] = static_cast<Real>(5);
-  std::shared_ptr<Vector<Real> > u = std::make_shared<StdVector<Real>>(up);
-  con = std::make_shared<Bounds<Real>>(l,u);
+  ROL::SharedPointer<Vector<Real> > u = ROL::makeShared<StdVector<Real>>(up);
+  con = ROL::makeShared<Bounds<Real>>(l,u);
 }
 
 } // End ZOO Namespace

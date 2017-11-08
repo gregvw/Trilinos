@@ -89,12 +89,12 @@ namespace ROL {
 template<class Real>
 class MixedQuantileQuadrangle : public RiskMeasure<Real> {
 private:
-  std::shared_ptr<PlusFunction<Real> > plusFunction_;
+  ROL::SharedPointer<PlusFunction<Real> > plusFunction_;
 
   Teuchos::Array<Real> prob_;
   Teuchos::Array<Real> coeff_;
 
-  std::shared_ptr<Vector<Real> > dualVector_;
+  ROL::SharedPointer<Vector<Real> > dualVector_;
   std::vector<Real> xvar_;
   std::vector<Real> vvar_;
 
@@ -118,7 +118,7 @@ private:
     }
     TEUCHOS_TEST_FOR_EXCEPTION((std::abs(sum-one) > std::sqrt(ROL_EPSILON<Real>())),std::invalid_argument,
       ">>> ERROR (ROL::MixedQuantileQuadrangle): Coefficients do not sum to one!");
-    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == nullptr, std::invalid_argument,
+    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == ROL::nullPointer, std::invalid_argument,
       ">>> ERROR (ROL::MixedQuantileQuadrangle): PlusFunction pointer is null!");
   }
 
@@ -140,7 +140,7 @@ public:
     // Grab probability and coefficient arrays
     prob_  = Teuchos::getArrayFromStringParameter<Real>(list,"Probability Array");
     coeff_ = Teuchos::getArrayFromStringParameter<Real>(list,"Coefficient Array");
-    plusFunction_ = std::make_shared<PlusFunction<Real>>(list);
+    plusFunction_ = ROL::makeShared<PlusFunction<Real>>(list);
     // Check inputs
     checkInputs();
     initialize();
@@ -148,13 +148,13 @@ public:
 
   MixedQuantileQuadrangle(const std::vector<Real> &prob,
                           const std::vector<Real> &coeff,
-                          const std::shared_ptr<PlusFunction<Real> > &pf )
+                          const ROL::SharedPointer<PlusFunction<Real> > &pf )
     : RiskMeasure<Real>(), plusFunction_(pf), prob_(prob), coeff_(coeff), firstReset_(true) {
     checkInputs();
     initialize();
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
@@ -167,10 +167,10 @@ public:
     dualVector_->zero();
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
-             std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(v).getVector());
+    v0 = ROL::constPointerCast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(v).getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
     vvar_ = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index));

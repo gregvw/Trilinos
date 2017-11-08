@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -81,12 +81,12 @@ int main(int argc, char *argv[]) {
 
   RealT zero(0);
 
-  std::shared_ptr<V>   x0;
-  std::shared_ptr<V>   x;
-  std::shared_ptr<V>   g;
-  std::shared_ptr<OBJ> obj;
-  std::shared_ptr<CON> con;
-  std::shared_ptr<OBJ> model;  
+  ROL::SharedPointer<V>   x0;
+  ROL::SharedPointer<V>   x;
+  ROL::SharedPointer<V>   g;
+  ROL::SharedPointer<OBJ> obj;
+  ROL::SharedPointer<CON> con;
+  ROL::SharedPointer<OBJ> model;  
 
   ROL::ZOO::getHS2(obj,con,x0,x);
 
@@ -95,11 +95,11 @@ int main(int argc, char *argv[]) {
   // Need to evaluate the gradient to construct the model
   obj->gradient(*g,*x,zero);
 
-  model = std::make_shared<ROL::ColemanLiModel<RealT>>(*obj,*con,*x,*g);
+  model = ROL::makeShared<ROL::ColemanLiModel<RealT>>(*obj,*con,*x,*g);
 
-  std::shared_ptr<V> s = x->clone();
-  std::shared_ptr<V> v = x->clone();
-  std::shared_ptr<V> u = x->clone();
+  ROL::SharedPointer<V> s = x->clone();
+  ROL::SharedPointer<V> v = x->clone();
+  ROL::SharedPointer<V> u = x->clone();
 
   ROL::RandomizeVector(*s,-1.0,1.0);
   ROL::RandomizeVector(*u,-1.0,1.0);

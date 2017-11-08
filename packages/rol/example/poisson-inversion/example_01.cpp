@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
     ROL::Algorithm<RealT> algo(stepname,parlist);
 
     // Iteration vector.
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     // Set initial guess.
     for (int i=0; i<dim; i++) {
       (*x_rcp)[i] = 0.1;
@@ -192,8 +192,8 @@ int main(int argc, char *argv[]) {
     // Run Newton algorithm.
     newton_algo.run(x, obj, true, *outStream);
 
-    std::shared_ptr<const ROL::AlgorithmState<RealT> > new_state = newton_algo.getState();
-    std::shared_ptr<const ROL::AlgorithmState<RealT> > old_state = algo.getState();
+    ROL::SharedPointer<const ROL::AlgorithmState<RealT> > new_state = newton_algo.getState();
+    ROL::SharedPointer<const ROL::AlgorithmState<RealT> > old_state = algo.getState();
     *outStream << "old_optimal_value = " << old_state->value << std::endl;
     *outStream << "new_optimal_value = " << new_state->value << std::endl;
     if ( std::abs(new_state->value - old_state->value) / std::abs(old_state->value) > errtol ) {

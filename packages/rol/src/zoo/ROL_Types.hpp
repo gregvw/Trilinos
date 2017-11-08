@@ -61,7 +61,7 @@
 #include <sstream>
 #include <limits>
 #include <Teuchos_getConst.hpp>
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_TestForException.hpp>
 #include <ROL_Vector.hpp>
@@ -102,9 +102,9 @@ std::string NumberToString( T Number )
     Real aggregateGradientNorm;
     Real aggregateModelError;
     bool flag;
-    std::shared_ptr<Vector<Real> > iterateVec;
-    std::shared_ptr<Vector<Real> > lagmultVec;
-    std::shared_ptr<Vector<Real> > minIterVec;
+    ROL::SharedPointer<Vector<Real> > iterateVec;
+    ROL::SharedPointer<Vector<Real> > lagmultVec;
+    ROL::SharedPointer<Vector<Real> > minIterVec;
     AlgorithmState(void) : iter(0), minIter(0), nfval(0), ngrad(0), value(0), minValue(0),
       gnorm(std::numeric_limits<Real>::max()),
       cnorm(std::numeric_limits<Real>::max()),
@@ -112,22 +112,22 @@ std::string NumberToString( T Number )
       aggregateGradientNorm(std::numeric_limits<Real>::max()),
       aggregateModelError(std::numeric_limits<Real>::max()),
       flag(false),
-      iterateVec(nullptr), lagmultVec(nullptr), minIterVec(nullptr) {}
+      iterateVec(ROL::nullPointer), lagmultVec(ROL::nullPointer), minIterVec(ROL::nullPointer) {}
   };
 
   /** \brief  State for step class.  Will be used for restarts.
    */
   template<class Real>
   struct StepState {
-    std::shared_ptr<Vector<Real> > gradientVec;
-    std::shared_ptr<Vector<Real> > descentVec;
-    std::shared_ptr<Vector<Real> > constraintVec;
+    ROL::SharedPointer<Vector<Real> > gradientVec;
+    ROL::SharedPointer<Vector<Real> > descentVec;
+    ROL::SharedPointer<Vector<Real> > constraintVec;
     int nfval;
     int ngrad;
     Real searchSize; // line search parameter (alpha) or trust-region radius (delta)
-    StepState(void) : gradientVec(nullptr),
-                      descentVec(nullptr),
-                      constraintVec(nullptr),
+    StepState(void) : gradientVec(ROL::nullPointer),
+                      descentVec(ROL::nullPointer),
+                      constraintVec(ROL::nullPointer),
                       nfval(0),
                       ngrad(0),
                       searchSize(0) {}

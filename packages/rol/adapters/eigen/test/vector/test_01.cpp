@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
 
     int dim = 10;
 
-    auto x_rcp = std::make_shared<EigenVector>(dim);   
-    auto y_rcp = std::make_shared<EigenVector>(dim);   
-    auto z_rcp = std::make_shared<EigenVector>(dim);   
+    auto x_rcp = ROL::makeShared<EigenVector>(dim);   
+    auto y_rcp = ROL::makeShared<EigenVector>(dim);   
+    auto z_rcp = ROL::makeShared<EigenVector>(dim);   
 
     E3V x(x_rcp);
     E3V y(y_rcp);

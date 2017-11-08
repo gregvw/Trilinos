@@ -58,20 +58,20 @@ namespace ROL {
 template <class Real>
 class BoundToConstraint : public Constraint<Real> { 
 private:
-  std::shared_ptr<InequalityConstraint<Real> > lo_;
-  std::shared_ptr<InequalityConstraint<Real> > up_;
-  std::shared_ptr<Vector<Real> > tmp_;
+  ROL::SharedPointer<InequalityConstraint<Real> > lo_;
+  ROL::SharedPointer<InequalityConstraint<Real> > up_;
+  ROL::SharedPointer<Vector<Real> > tmp_;
 
 public:
   BoundToConstraint(BoundConstraint<Real> &bnd, const Vector<Real> &x) {
-    lo_ = std::make_shared<LowerBoundToConstraint<Real>>(bnd,x);
-    up_ = std::make_shared<UpperBoundToConstraint<Real>>(bnd,x);
+    lo_ = ROL::makeShared<LowerBoundToConstraint<Real>>(bnd,x);
+    up_ = ROL::makeShared<UpperBoundToConstraint<Real>>(bnd,x);
     tmp_ = x.clone();
   }
 
   BoundToConstraint(const Vector<Real> &lo, const Vector<Real> &up) {
-    lo_ = std::make_shared<LowerBoundToConstraint<Real>>(lo);
-    up_ = std::make_shared<UpperBoundToConstraint<Real>>(up);
+    lo_ = ROL::makeShared<LowerBoundToConstraint<Real>>(lo);
+    up_ = ROL::makeShared<UpperBoundToConstraint<Real>>(up);
     tmp_ = lo.clone();
   }
 

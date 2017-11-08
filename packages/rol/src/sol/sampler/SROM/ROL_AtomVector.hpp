@@ -67,13 +67,13 @@ private:
   const int dimension_;
 
 public:
-  AtomVector(const std::shared_ptr<std::vector<Real> > &vec,
-             const std::shared_ptr<BatchManager<Real> > &bman,
+  AtomVector(const ROL::SharedPointer<std::vector<Real> > &vec,
+             const ROL::SharedPointer<BatchManager<Real> > &bman,
              const int numMySamples, const int dimension)
     : BatchStdVector<Real>(vec,bman),
       numMySamples_(numMySamples), dimension_(dimension) {}
 
-  std::shared_ptr<const std::vector<Real> > getAtom(const int i) const {
+  ROL::SharedPointer<const std::vector<Real> > getAtom(const int i) const {
     TEUCHOS_TEST_FOR_EXCEPTION((i < 0 || i > numMySamples_), std::invalid_argument,
       ">>> ERROR (ROL::AtomVector): index out of bounds in getAtom!");
     uint dim = static_cast<uint>(dimension_), I = static_cast<uint>(i);
@@ -82,7 +82,7 @@ public:
     for (uint j = 0; j < dim; ++j) {
       pt[j] = yval[I*dim + j];
     }
-    return std::make_shared<std::vector<Real>>(pt);
+    return ROL::makeShared<std::vector<Real>>(pt);
   }
 
   void setAtom(const int i, const std::vector<Real> &pt) {
@@ -108,15 +108,15 @@ template<class Real>
 class PrimalAtomVector : public AtomVector<Real> {
   typedef typename std::vector<Real>::size_type uint;
 private:
-  const std::shared_ptr<std::vector<Real> > scale_;
-  mutable std::shared_ptr<DualAtomVector<Real> > dual_vec_;
+  const ROL::SharedPointer<std::vector<Real> > scale_;
+  mutable ROL::SharedPointer<DualAtomVector<Real> > dual_vec_;
   mutable bool isDualInitialized_;
 
 public:
-  PrimalAtomVector(const std::shared_ptr<std::vector<Real> > &vec,
-                   const std::shared_ptr<BatchManager<Real> > &bman,
+  PrimalAtomVector(const ROL::SharedPointer<std::vector<Real> > &vec,
+                   const ROL::SharedPointer<BatchManager<Real> > &bman,
                    const int numMySamples, const int dimension,
-                   const std::shared_ptr<std::vector<Real> > &scale)
+                   const ROL::SharedPointer<std::vector<Real> > &scale)
     : AtomVector<Real>(vec,bman,numMySamples,dimension),
       scale_(scale), isDualInitialized_(false) {}
 
@@ -141,11 +141,11 @@ public:
     return sum_val;
   }
 
-  std::shared_ptr<Vector<Real> > clone(void) const {
+  ROL::SharedPointer<Vector<Real> > clone(void) const {
     uint numMySamples = static_cast<uint>(AtomVector<Real>::getNumMyAtoms());
     uint dimension    = static_cast<uint>(AtomVector<Real>::getDimension());
-    return std::make_shared<PrimalAtomVector>(
-           std::make_shared<std::vector<Real>>(numMySamples*dimension),
+    return ROL::makeShared<PrimalAtomVector>(
+           ROL::makeShared<std::vector<Real>>(numMySamples*dimension),
                         BatchStdVector<Real>::getBatchManager(),
                         numMySamples,dimension,scale_);
   }
@@ -154,8 +154,8 @@ public:
     uint numMySamples = static_cast<uint>(AtomVector<Real>::getNumMyAtoms());
     uint dimension    = static_cast<uint>(AtomVector<Real>::getDimension());
     if ( !isDualInitialized_ ) {
-      dual_vec_ = std::make_shared<DualAtomVector<Real>>(
-                  std::make_shared<std::vector<Real>>(numMySamples*dimension),
+      dual_vec_ = ROL::makeShared<DualAtomVector<Real>>(
+                  ROL::makeShared<std::vector<Real>>(numMySamples*dimension),
                                BatchStdVector<Real>::getBatchManager(),
                                numMySamples,dimension,scale_);
       isDualInitialized_ = true;
@@ -176,15 +176,15 @@ template<class Real>
 class DualAtomVector : public AtomVector<Real> {
   typedef typename std::vector<Real>::size_type uint;
 private:
-  const std::shared_ptr<std::vector<Real> > scale_;
-  mutable std::shared_ptr<PrimalAtomVector<Real> > primal_vec_;
+  const ROL::SharedPointer<std::vector<Real> > scale_;
+  mutable ROL::SharedPointer<PrimalAtomVector<Real> > primal_vec_;
   mutable bool isDualInitialized_;
 
 public:
-  DualAtomVector(const std::shared_ptr<std::vector<Real> > &vec,
-                 const std::shared_ptr<BatchManager<Real> > &bman,
+  DualAtomVector(const ROL::SharedPointer<std::vector<Real> > &vec,
+                 const ROL::SharedPointer<BatchManager<Real> > &bman,
                  const int numMySamples, const int dimension,
-                 const std::shared_ptr<std::vector<Real> > &scale)
+                 const ROL::SharedPointer<std::vector<Real> > &scale)
     : AtomVector<Real>(vec,bman,numMySamples,dimension),
       scale_(scale), isDualInitialized_(false) {}
 
@@ -209,11 +209,11 @@ public:
     return sum_val;
   }
 
-  std::shared_ptr<Vector<Real> > clone(void) const {
+  ROL::SharedPointer<Vector<Real> > clone(void) const {
     uint numMySamples = static_cast<uint>(AtomVector<Real>::getNumMyAtoms());
     uint dimension    = static_cast<uint>(AtomVector<Real>::getDimension());
-    return std::make_shared<DualAtomVector>(
-           std::make_shared<std::vector<Real>>(numMySamples*dimension),
+    return ROL::makeShared<DualAtomVector>(
+           ROL::makeShared<std::vector<Real>>(numMySamples*dimension),
                         BatchStdVector<Real>::getBatchManager(),
                         numMySamples,dimension,scale_);
   }
@@ -222,8 +222,8 @@ public:
     uint numMySamples = static_cast<uint>(AtomVector<Real>::getNumMyAtoms());
     uint dimension    = static_cast<uint>(AtomVector<Real>::getDimension());
     if ( !isDualInitialized_ ) {
-      primal_vec_ = std::make_shared<PrimalAtomVector<Real>>(
-                    std::make_shared<std::vector<Real>>(numMySamples*dimension),
+      primal_vec_ = ROL::makeShared<PrimalAtomVector<Real>>(
+                    ROL::makeShared<std::vector<Real>>(numMySamples*dimension),
                                BatchStdVector<Real>::getBatchManager(),
                                numMySamples,dimension,scale_);
       isDualInitialized_ = true;

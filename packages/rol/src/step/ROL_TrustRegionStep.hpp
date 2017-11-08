@@ -130,13 +130,13 @@ class TrustRegionStep : public Step<Real> {
 private:
 
   // ADDITIONAL VECTOR STORAGE
-  std::shared_ptr<Vector<Real> > xnew_; ///< Container for updated iteration vector.
-  std::shared_ptr<Vector<Real> > xold_; ///< Container for previous iteration vector.
-  std::shared_ptr<Vector<Real> > gp_;   ///< Container for previous gradient vector.
+  ROL::SharedPointer<Vector<Real> > xnew_; ///< Container for updated iteration vector.
+  ROL::SharedPointer<Vector<Real> > xold_; ///< Container for previous iteration vector.
+  ROL::SharedPointer<Vector<Real> > gp_;   ///< Container for previous gradient vector.
 
   // TRUST REGION INFORMATION
-  std::shared_ptr<TrustRegion<Real> >      trustRegion_; ///< Container for trust-region solver object.
-  std::shared_ptr<TrustRegionModel<Real> > model_;       ///< Container for trust-region model.
+  ROL::SharedPointer<TrustRegion<Real> >      trustRegion_; ///< Container for trust-region solver object.
+  ROL::SharedPointer<TrustRegionModel<Real> > model_;       ///< Container for trust-region model.
   ETrustRegion                          etr_;         ///< Trust-region subproblem solver type.
   ETrustRegionModel                     TRmodel_;     ///< Trust-region subproblem model type.
   Real                                  delMax_;      ///< Maximum trust-region radius.
@@ -146,7 +146,7 @@ private:
   bool                                  bndActive_;   ///< Flag whether bound is activated.
 
   // SECANT INFORMATION
-  std::shared_ptr<Secant<Real> > secant_;           ///< Container for secant approximation.
+  ROL::SharedPointer<Secant<Real> > secant_;           ///< Container for secant approximation.
   ESecant                     esec_;             ///< Secant type.
   bool                        useSecantHessVec_; ///< Flag whether to use a secant Hessian.
   bool                        useSecantPrecond_; ///< Flag whether to use a secant preconditioner.
@@ -181,7 +181,7 @@ private:
       @param[in]  parlist   is the user-supplied ParameterList.
   */
   void parseParameterList(Teuchos::ParameterList &parlist) {
-    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     // Trust-Region Parameters
     Teuchos::ParameterList &slist = parlist.sublist("Step");
     Teuchos::ParameterList &list  = slist.sublist("Trust Region");
@@ -232,7 +232,7 @@ private:
   */
   void updateGradient( Vector<Real> &x, Objective<Real> &obj, BoundConstraint<Real> &bnd,
                        AlgorithmState<Real> &algo_state ) {
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     if ( useInexact_[1] ) {
       const Real one(1);
       //const Real oem2(1.e-2), oe4(1.e4);
@@ -311,12 +311,12 @@ public:
   */
   TrustRegionStep( Teuchos::ParameterList & parlist )
     : Step<Real>(),
-      xnew_(nullptr), xold_(nullptr), gp_(nullptr),
-      trustRegion_(nullptr), model_(nullptr),
+      xnew_(ROL::nullPointer), xold_(ROL::nullPointer), gp_(ROL::nullPointer),
+      trustRegion_(ROL::nullPointer), model_(ROL::nullPointer),
       etr_(TRUSTREGION_DOGLEG), TRmodel_(TRUSTREGION_MODEL_KELLEYSACHS),
       delMax_(1e8), TRflag_(TRUSTREGION_FLAG_SUCCESS),
       SPflag_(0), SPiter_(0), bndActive_(false),
-      secant_(nullptr), esec_(SECANT_LBFGS),
+      secant_(ROL::nullPointer), esec_(SECANT_LBFGS),
       useSecantHessVec_(false), useSecantPrecond_(false),
       scaleEps_(1), useProjectedGrad_(false),
       alpha_init_(1), max_fval_(20), mu_(0.9999), beta_(0.01),
@@ -342,14 +342,14 @@ public:
       @param[in]     secant     is a user-defined secant object
       @param[in]     parlist    is a parameter list containing algorithmic specifications
   */
-  TrustRegionStep( std::shared_ptr<Secant<Real> > &secant, Teuchos::ParameterList &parlist )
+  TrustRegionStep( ROL::SharedPointer<Secant<Real> > &secant, Teuchos::ParameterList &parlist )
     : Step<Real>(),
-      xnew_(nullptr), xold_(nullptr), gp_(nullptr),
-      trustRegion_(nullptr), model_(nullptr),
+      xnew_(ROL::nullPointer), xold_(ROL::nullPointer), gp_(ROL::nullPointer),
+      trustRegion_(ROL::nullPointer), model_(ROL::nullPointer),
       etr_(TRUSTREGION_DOGLEG), TRmodel_(TRUSTREGION_MODEL_KELLEYSACHS),
       delMax_(1e8), TRflag_(TRUSTREGION_FLAG_SUCCESS),
       SPflag_(0), SPiter_(0), bndActive_(false),
-      secant_(nullptr), esec_(SECANT_LBFGS),
+      secant_(ROL::nullPointer), esec_(SECANT_LBFGS),
       useSecantHessVec_(false), useSecantPrecond_(false),
       scaleEps_(1), useProjectedGrad_(false),
       alpha_init_(1), max_fval_(20), mu_(0.9999), beta_(0.01),
@@ -362,7 +362,7 @@ public:
     Teuchos::ParameterList &glist = parlist.sublist("General");
     useSecantPrecond_ = glist.sublist("Secant").get("Use as Preconditioner", false);
     useSecantHessVec_ = glist.sublist("Secant").get("Use as Hessian",        false);
-    if ( secant_ == nullptr ) {
+    if ( secant_ == ROL::nullPointer ) {
       Teuchos::ParameterList Slist;
       Slist.sublist("General").sublist("Secant").set("Type","Limited-Memory BFGS");
       Slist.sublist("General").sublist("Secant").set("Maximum Storage",10);
@@ -382,7 +382,7 @@ public:
                    Objective<Real> &obj, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state ) {
     Real p1(0.1), oe10(1.e10), zero(0), one(1), half(0.5), three(3), two(2), six(6);
-    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     bndActive_ = bnd.isActivated();
 
     trustRegion_->initialize(x,s,g);
@@ -417,8 +417,8 @@ public:
     if ( !useSecantHessVec_ &&
         (etr_ == TRUSTREGION_DOGLEG || etr_ == TRUSTREGION_DOUBLEDOGLEG) ) {
       try {
-        std::shared_ptr<Vector<Real> > v  = g.clone();
-        std::shared_ptr<Vector<Real> > hv = x.clone();
+        ROL::SharedPointer<Vector<Real> > v  = g.clone();
+        ROL::SharedPointer<Vector<Real> > hv = x.clone();
         obj.invHessVec(*hv,*v,x,htol);
       }
       catch (std::exception &e) {
@@ -428,7 +428,7 @@ public:
 
     // Evaluate Objective Function at Cauchy Point
     if ( step_state->searchSize <= zero ) {
-      std::shared_ptr<Vector<Real> > Bg = g.clone();
+      ROL::SharedPointer<Vector<Real> > Bg = g.clone();
       if ( useSecantHessVec_ ) {
         secant_->applyB(*Bg,(step_state->gradientVec)->dual());
       }
@@ -441,10 +441,10 @@ public:
         alpha = algo_state.gnorm*algo_state.gnorm/gBg;
       }
       // Evaluate the objective function at the Cauchy point
-      std::shared_ptr<Vector<Real> > cp = s.clone();
+      ROL::SharedPointer<Vector<Real> > cp = s.clone();
       cp->set((step_state->gradientVec)->dual());
       cp->scale(-alpha);
-      std::shared_ptr<Vector<Real> > xcp = x.clone();
+      ROL::SharedPointer<Vector<Real> > xcp = x.clone();
       xcp->set(x);
       xcp->plus(*cp);
       if ( bnd.isActivated() ) {
@@ -496,14 +496,14 @@ public:
   void compute( Vector<Real> &s, const Vector<Real> &x, Objective<Real> &obj, BoundConstraint<Real> &bnd,
                 AlgorithmState<Real> &algo_state ) {
     // Get step state
-    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     // Build trust-region model
     if (bnd.isActivated()) {
       if ( TRmodel_ == TRUSTREGION_MODEL_KELLEYSACHS ) {
 //      Real eps = scaleEps_*algo_state.gnorm;
         Real eps = scaleEps_ * std::min(std::pow(algo_state.gnorm,static_cast<Real>(0.75)),
                                         static_cast<Real>(0.01));
-        model_ = std::make_shared<ROL::KelleySachsModel<Real>>(obj,
+        model_ = ROL::makeShared<ROL::KelleySachsModel<Real>>(obj,
                                                               bnd,
                                                               x,
                                                               *(step_state->gradientVec),
@@ -513,7 +513,7 @@ public:
                                                                useSecantHessVec_);
       }
       else if ( TRmodel_ == TRUSTREGION_MODEL_COLEMANLI ) {
-        model_ = std::make_shared<ROL::ColemanLiModel<Real>>(obj,
+        model_ = ROL::makeShared<ROL::ColemanLiModel<Real>>(obj,
                                                             bnd,
                                                             x,
                                                             *(step_state->gradientVec),
@@ -531,7 +531,7 @@ public:
       }
     }
     else {
-      model_ = std::make_shared<ROL::TrustRegionModel<Real>>(obj,
+      model_ = ROL::makeShared<ROL::TrustRegionModel<Real>>(obj,
                                                             x,
                                                             *(step_state->gradientVec),
                                                             secant_,
@@ -560,7 +560,7 @@ public:
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real>  &algo_state ) {
     // Get step state
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     // Store previous step for constraint computations
     if ( bnd.isActivated() ) {
       xold_->set(x);
@@ -742,7 +742,7 @@ public:
       @param[in]     printHeader   if ste to true will print the header at each iteration
   */
   std::string print( AlgorithmState<Real> & algo_state, bool print_header = false ) const  {
-    const std::shared_ptr<const StepState<Real> >& step_state = Step<Real>::getStepState();
+    const ROL::SharedPointer<const StepState<Real> >& step_state = Step<Real>::getStepState();
 
     std::stringstream hist;
     hist << std::scientific << std::setprecision(6);

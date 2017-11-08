@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
     int dim = 10; // Set problem dimension. 
 
-    std::shared_ptr<ParameterList> parlist = std::make_shared<ParameterList>();
+    ROL::SharedPointer<ParameterList> parlist = ROL::makeShared<ParameterList>();
     std::string paramfile = "parameters.xml";
     updateParametersFromXmlFile(paramfile,parlist.ptr());
 
@@ -97,17 +97,17 @@ int main(int argc, char *argv[]) {
     ROL::Algorithm<RealT> algo("Trust-Region",*parlist);
 
     // Iteration vector.
-    std::shared_ptr<vector> x_rcp = std::make_shared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>(dim, 0.0);
 
     // Vector of natural numbers.
-    std::shared_ptr<vector> k_rcp = std::make_shared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> k_rcp = ROL::makeShared<vector>(dim, 0.0);
 
     // For gradient and Hessian checks. 
-    std::shared_ptr<vector> xtest_rcp = std::make_shared<vector>(dim, 0.0);
-    std::shared_ptr<vector> d_rcp     = std::make_shared<vector>(dim, 0.0);
-    std::shared_ptr<vector> v_rcp     = std::make_shared<vector>(dim, 0.0);
-    std::shared_ptr<vector> hv_rcp    = std::make_shared<vector>(dim, 0.0);
-    std::shared_ptr<vector> ihhv_rcp  = std::make_shared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> xtest_rcp = ROL::makeShared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> d_rcp     = ROL::makeShared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> v_rcp     = ROL::makeShared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> hv_rcp    = ROL::makeShared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> ihhv_rcp  = ROL::makeShared<vector>(dim, 0.0);
   
 
     RealT left = -1e0, right = 1e0; 
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
       (*k_rcp)[i]   = i+1.0;
     }
 
-    std::shared_ptr<V> k = std::make_shared<SV>(k_rcp);
+    ROL::SharedPointer<V> k = ROL::makeShared<SV>(k_rcp);
     SV x(x_rcp);
 
     // Check gradient and Hessian.
@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
     algo.run(x, obj, true, *outStream);
 
     // Get True Solution
-    std::shared_ptr<vector> xtrue_rcp = std::make_shared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> xtrue_rcp = ROL::makeShared<vector>(dim, 0.0);
     SV xtrue(xtrue_rcp);
 
         

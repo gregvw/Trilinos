@@ -77,13 +77,13 @@ namespace ZOO {
   private:
 
     template<class VectorType>
-    std::shared_ptr<const vector> getVector( const V& x ) {
+    ROL::SharedPointer<const vector> getVector( const V& x ) {
       
       return dynamic_cast<const VectorType&>(x).getVector();
     }
 
     template<class VectorType>
-    std::shared_ptr<vector> getVector( V& x ) {
+    ROL::SharedPointer<vector> getVector( V& x ) {
       
       return dynamic_cast<VectorType&>(x).getVector();
     }
@@ -94,7 +94,7 @@ namespace ZOO {
     Real value( const Vector<Real> &x, Real &tol ) {
  
       
-      std::shared_ptr<const vector> xp = getVector<XPrim>(x); 
+      ROL::SharedPointer<const vector> xp = getVector<XPrim>(x); 
 
       uint n = xp->size();
       TEUCHOS_TEST_FOR_EXCEPTION( (n != 2), std::invalid_argument, ">>> ERROR (ROL_ParaboloidCircle, objective value): "
@@ -111,8 +111,8 @@ namespace ZOO {
     void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
 
       
-      std::shared_ptr<const vector> xp = getVector<XPrim>(x);
-      std::shared_ptr<vector> gp = getVector<XDual>(g); 
+      ROL::SharedPointer<const vector> xp = getVector<XPrim>(x);
+      ROL::SharedPointer<vector> gp = getVector<XDual>(g); 
 
       uint n = xp->size();
       TEUCHOS_TEST_FOR_EXCEPTION( (n != 2), std::invalid_argument, ">>> ERROR (ROL_ParaboloidCircle, objective gradient): "
@@ -134,9 +134,9 @@ namespace ZOO {
     void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
 
       
-      std::shared_ptr<const vector> xp = getVector<XPrim>(x);
-      std::shared_ptr<const vector> vp = getVector<XPrim>(v);
-      std::shared_ptr<vector> hvp = getVector<XDual>(hv);
+      ROL::SharedPointer<const vector> xp = getVector<XPrim>(x);
+      ROL::SharedPointer<const vector> vp = getVector<XPrim>(v);
+      ROL::SharedPointer<vector> hvp = getVector<XDual>(hv);
 
       uint n = xp->size();
       TEUCHOS_TEST_FOR_EXCEPTION( (n != 2), std::invalid_argument, ">>> ERROR (ROL_ParaboloidCircle, objective hessVec): "
@@ -174,13 +174,13 @@ namespace ZOO {
 
   private:
     template<class VectorType>
-    std::shared_ptr<const vector> getVector( const V& x ) {
+    ROL::SharedPointer<const vector> getVector( const V& x ) {
       
       return dynamic_cast<const VectorType&>(x).getVector();
     }
 
     template<class VectorType> 
-    std::shared_ptr<vector> getVector( V& x ) {
+    ROL::SharedPointer<vector> getVector( V& x ) {
       
       return dynamic_cast<VectorType&>(x).getVector(); 
     }
@@ -191,8 +191,8 @@ namespace ZOO {
     void value( Vector<Real> &c, const Vector<Real> &x, Real &tol ) {
 
       
-      std::shared_ptr<const vector> xp = getVector<XPrim>(x);
-      std::shared_ptr<vector> cp = getVector<CPrim>(c);
+      ROL::SharedPointer<const vector> xp = getVector<XPrim>(x);
+      ROL::SharedPointer<vector> cp = getVector<CPrim>(c);
 
       uint n = xp->size();
       TEUCHOS_TEST_FOR_EXCEPTION( (n != 2), std::invalid_argument, ">>> ERROR (ROL_ParaboloidCircle, constraint value): "
@@ -213,9 +213,9 @@ namespace ZOO {
     void applyJacobian( Vector<Real> &jv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
 
       
-      std::shared_ptr<const vector> xp = getVector<XPrim>(x);
-      std::shared_ptr<const vector> vp = getVector<XPrim>(v);
-      std::shared_ptr<vector> jvp = getVector<CPrim>(jv);
+      ROL::SharedPointer<const vector> xp = getVector<XPrim>(x);
+      ROL::SharedPointer<const vector> vp = getVector<XPrim>(v);
+      ROL::SharedPointer<vector> jvp = getVector<CPrim>(jv);
 
       uint n = xp->size();
       TEUCHOS_TEST_FOR_EXCEPTION( (n != 2), std::invalid_argument, ">>> ERROR (ROL_ParaboloidCircle, constraint applyJacobian): "
@@ -242,9 +242,9 @@ namespace ZOO {
     void applyAdjointJacobian( Vector<Real> &ajv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
 
       
-      std::shared_ptr<const vector> xp = getVector<XPrim>(x);
-      std::shared_ptr<const vector> vp = getVector<CDual>(v);
-      std::shared_ptr<vector> ajvp = getVector<XDual>(ajv);
+      ROL::SharedPointer<const vector> xp = getVector<XPrim>(x);
+      ROL::SharedPointer<const vector> vp = getVector<CDual>(v);
+      ROL::SharedPointer<vector> ajvp = getVector<XDual>(ajv);
 
       uint n = xp->size();
       TEUCHOS_TEST_FOR_EXCEPTION( (n != 2), std::invalid_argument, ">>> ERROR (ROL_ParaboloidCircle, constraint applyAdjointJacobian): "
@@ -279,10 +279,10 @@ namespace ZOO {
       }
       else {
         
-        std::shared_ptr<const vector> xp = getVector<XPrim>(x);
-        std::shared_ptr<const vector> up = getVector<CDual>(u);
-        std::shared_ptr<const vector> vp = getVector<XPrim>(v);
-        std::shared_ptr<vector> ahuvp = getVector<XDual>(ahuv);
+        ROL::SharedPointer<const vector> xp = getVector<XPrim>(x);
+        ROL::SharedPointer<const vector> up = getVector<CDual>(u);
+        ROL::SharedPointer<const vector> vp = getVector<XPrim>(v);
+        ROL::SharedPointer<vector> ahuvp = getVector<XDual>(ahuv);
 
         uint n = xp->size();
         TEUCHOS_TEST_FOR_EXCEPTION( (n != 2), std::invalid_argument, ">>> ERROR (ROL_ParaboloidCircle, constraint applyAdjointHessian): "
@@ -315,8 +315,8 @@ namespace ZOO {
 
 
   template<class Real, class XPrim, class XDual, class CPrim, class CDual>
-  void getParaboloidCircle( std::shared_ptr<Objective<Real> > &obj,
-                            std::shared_ptr<Constraint<Real> > &constr,
+  void getParaboloidCircle( ROL::SharedPointer<Objective<Real> > &obj,
+                            ROL::SharedPointer<Constraint<Real> > &constr,
                             Vector<Real> &x0,
                             Vector<Real> &sol ) {
 
@@ -328,8 +328,8 @@ namespace ZOO {
      
 
     // Cast initial guess and solution vectors.
-    std::shared_ptr<vector> x0p  = dynamic_cast<XPrim&>(x0).getVector(); 
-    std::shared_ptr<vector> solp = dynamic_cast<XPrim&>(sol).getVector();
+    ROL::SharedPointer<vector> x0p  = dynamic_cast<XPrim&>(x0).getVector(); 
+    ROL::SharedPointer<vector> solp = dynamic_cast<XPrim&>(sol).getVector();
 
     uint n = 2;
 
@@ -337,12 +337,12 @@ namespace ZOO {
     x0p->resize(n);
     solp->resize(n);
     // Instantiate objective function.
-    obj = std::make_shared<Objective_ParaboloidCircle<Real, XPrim, XDual>>();
+    obj = ROL::makeShared<Objective_ParaboloidCircle<Real, XPrim, XDual>>();
     // Instantiate constraints.
-    constr = std::make_shared<Constraint_ParaboloidCircle<Real, XPrim, XDual, CPrim, CDual>>();
+    constr = ROL::makeShared<Constraint_ParaboloidCircle<Real, XPrim, XDual, CPrim, CDual>>();
     // later we will bundle equality constraints into constraints ...
-    //std::vector<std::shared_ptr<Constraint<Real> > > eqc( 1, std::make_shared<Constraint_ParaboloidCircle<Real> )>();
-    //constr = std::make_shared<Constraints<Real>>(eqc);
+    //std::vector<ROL::SharedPointer<Constraint<Real> > > eqc( 1, ROL::makeShared<Constraint_ParaboloidCircle<Real> )>();
+    //constr = ROL::makeShared<Constraints<Real>>(eqc);
 
     // Get initial guess.
     Real zero(0), one(1);

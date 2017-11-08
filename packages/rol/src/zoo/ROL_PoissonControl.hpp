@@ -73,12 +73,12 @@ typedef typename vector::size_type uint;
 private:
   Real alpha_;
 
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
     
     return dynamic_cast<const SV&>(x).getVector();
   }
 
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     
     return dynamic_cast<SV&>(x).getVector();
   }
@@ -90,8 +90,8 @@ public:
   void apply_mass(Vector<Real> &Mz, const Vector<Real> &z ) {
 
     
-    std::shared_ptr<const vector> zp = getVector(z);
-    std::shared_ptr<vector> Mzp = getVector(Mz);
+    ROL::SharedPointer<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> Mzp = getVector(Mz);
 
     uint  n = zp->size();
     Real h = 1.0/((Real)n+1.0);
@@ -113,12 +113,12 @@ public:
     
     
 
-    std::shared_ptr<vector> up = getVector(u);
+    ROL::SharedPointer<vector> up = getVector(u);
 
     uint  n = up->size();
     Real h = 1.0/((Real)n+1.0);
-    SV b( std::make_shared<vector>(n,0.0) );
-    std::shared_ptr<vector> bp = getVector(b);
+    SV b( ROL::makeShared<vector>(n,0.0) );
+    ROL::SharedPointer<vector> bp = getVector(b);
     apply_mass(b,z);
 
     Real d   =  2.0/h;
@@ -146,13 +146,13 @@ public:
 
     
     
-    std::shared_ptr<const vector> zp = getVector(z);
+    ROL::SharedPointer<const vector> zp = getVector(z);
     uint n    = zp->size();
     Real h    = 1.0/((Real)n+1.0);
     // SOLVE STATE EQUATION
-    SV u( std::make_shared<vector>(n,0.0) );
+    SV u( ROL::makeShared<vector>(n,0.0) );
     solve_poisson(u,z);
-    std::shared_ptr<vector> up = getVector(u);
+    ROL::SharedPointer<vector> up = getVector(u);
 
     Real val  = 0.0;
     Real res  = 0.0;
@@ -189,28 +189,28 @@ public:
 
     
     
-    std::shared_ptr<const vector> zp = getVector(z);
-    std::shared_ptr<vector> gp = getVector(g);
+    ROL::SharedPointer<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> gp = getVector(g);
 
     uint  n = zp->size();
     Real h = 1.0/((Real)n+1.0);
 
     // SOLVE STATE EQUATION
-    SV u( std::make_shared<vector>(n,0.0) );
+    SV u( ROL::makeShared<vector>(n,0.0) );
     solve_poisson(u,z);
-    std::shared_ptr<vector> up = getVector(u);
+    ROL::SharedPointer<vector> up = getVector(u);
 
     // SOLVE ADJOINT EQUATION
-    StdVector<Real> res( std::make_shared<std::vector<Real>>(n,0.0) );
-    std::shared_ptr<vector> rp = getVector(res);
+    StdVector<Real> res( ROL::makeShared<std::vector<Real>>(n,0.0) );
+    ROL::SharedPointer<vector> rp = getVector(res);
 
     for (uint i=0; i<n; i++) {
       (*rp)[i] = -((*up)[i]-evaluate_target((Real)(i+1)*h));
     }
 
-    SV p( std::make_shared<vector>(n,0.0) );
+    SV p( ROL::makeShared<vector>(n,0.0) );
     solve_poisson(p,res);
-    std::shared_ptr<vector> pp = getVector(p);
+    ROL::SharedPointer<vector> pp = getVector(p);
 
     Real res1 = 0.0;
     Real res2 = 0.0;
@@ -239,23 +239,23 @@ public:
 
     
     
-    std::shared_ptr<const vector> zp = getVector(z);
-    std::shared_ptr<const vector> vp = getVector(v);
-    std::shared_ptr<vector> hvp = getVector(hv);
+    ROL::SharedPointer<const vector> zp = getVector(z);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<vector> hvp = getVector(hv);
 
     uint  n = zp->size();
     Real h = 1.0/((Real)n+1.0);
 
     // SOLVE STATE EQUATION
-    SV u( std::make_shared<vector>(n,0.0) );
+    SV u( ROL::makeShared<vector>(n,0.0) );
     solve_poisson(u,v);
-    std::shared_ptr<vector> up = getVector(u);
+    ROL::SharedPointer<vector> up = getVector(u);
 
     // SOLVE ADJOINT EQUATION
-    SV p( std::make_shared<vector>(n,0.0) );
+    SV p( ROL::makeShared<vector>(n,0.0) );
 
     solve_poisson(p,u);
-    std::shared_ptr<vector> pp = getVector(p);  
+    ROL::SharedPointer<vector> pp = getVector(p);  
 
     Real res1 = 0.0;
     Real res2 = 0.0;
@@ -283,30 +283,30 @@ public:
 };
 
 template<class Real>
-void getPoissonControl( std::shared_ptr<Objective<Real> > &obj,
-                        std::shared_ptr<Vector<Real> >    &x0,
-                        std::shared_ptr<Vector<Real> >    &x ) {
+void getPoissonControl( ROL::SharedPointer<Objective<Real> > &obj,
+                        ROL::SharedPointer<Vector<Real> >    &x0,
+                        ROL::SharedPointer<Vector<Real> >    &x ) {
   // Problem dimension
   int n = 512;
 
   // Get Initial Guess
-  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(n,0.0);
   for (int i=0; i<n; i++) {
     (*x0p)[i] = 0.0;
   }
-  x0 = std::make_shared<StdVector<Real>>(x0p);
+  x0 = ROL::makeShared<StdVector<Real>>(x0p);
 
   // Get Solution
-  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > xp = ROL::makeShared<std::vector<Real>>(n,0.0);
   Real h = 1.0/((Real)n+1.0), pt = 0.0;
   for( int i = 0; i < n; i++ ) {
     pt = (Real)(i+1)*h;
     (*xp)[i] = 4.0*pt*(1.0-pt);
   }
-  x = std::make_shared<StdVector<Real>>(xp);
+  x = ROL::makeShared<StdVector<Real>>(xp);
 
   // Instantiate Objective Function
-  obj = std::make_shared<Objective_PoissonControl<Real>>();
+  obj = ROL::makeShared<Objective_PoissonControl<Real>>();
 }
 
 } // End ZOO Namespace

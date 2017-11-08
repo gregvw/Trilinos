@@ -57,13 +57,13 @@ namespace ROL {
 template<class Real>
 class TruncatedCG : public TrustRegion<Real> {
 private:
-  std::shared_ptr<Vector<Real> > primalVector_;
+  ROL::SharedPointer<Vector<Real> > primalVector_;
 
-  std::shared_ptr<Vector<Real> > s_;
-  std::shared_ptr<Vector<Real> > g_;
-  std::shared_ptr<Vector<Real> > v_;
-  std::shared_ptr<Vector<Real> > p_;
-  std::shared_ptr<Vector<Real> > Hp_;
+  ROL::SharedPointer<Vector<Real> > s_;
+  ROL::SharedPointer<Vector<Real> > g_;
+  ROL::SharedPointer<Vector<Real> > v_;
+  ROL::SharedPointer<Vector<Real> > p_;
+  ROL::SharedPointer<Vector<Real> > Hp_;
 
   int maxit_;
   Real tol1_;
@@ -198,9 +198,9 @@ public:
 
     // Compute Cauchy Point
     Real scnorm = 0.0;
-    std::shared_ptr<Vector<Real> > sc = x.clone();
+    ROL::SharedPointer<Vector<Real> > sc = x.clone();
     cauchypoint(*sc,scnorm,del,iflag,iter,x,grad,gnorm,pObj);
-    std::shared_ptr<Vector<Real> > xc = x.clone();
+    ROL::SharedPointer<Vector<Real> > xc = x.clone();
     xc->set(x);
     xc->plus(*sc);
 
@@ -208,30 +208,30 @@ public:
     s.set(*sc); 
     snorm = s.norm();
     Real snorm2  = snorm*snorm;
-    std::shared_ptr<Vector<Real> > s1 = x.clone();
+    ROL::SharedPointer<Vector<Real> > s1 = x.clone();
     s1->zero();
     Real s1norm2 = 0.0;
 
     // Gradient Vector
-    std::shared_ptr<Vector<Real> > g = x.clone(); 
+    ROL::SharedPointer<Vector<Real> > g = x.clone(); 
     g->set(grad);
-    std::shared_ptr<Vector<Real> > Hs = x.clone();
+    ROL::SharedPointer<Vector<Real> > Hs = x.clone();
     pObj.reducedHessVec(*Hs,s,*xc,x,tol);
     g->plus(*Hs);
     Real normg = g->norm();
 
     // Preconditioned Gradient Vector
-    std::shared_ptr<Vector<Real> > v  = x.clone();
+    ROL::SharedPointer<Vector<Real> > v  = x.clone();
     pObj.reducedPrecond(*v,*g,*xc,x,tol);
 
     // Basis Vector
-    std::shared_ptr<Vector<Real> > p = x.clone(); 
+    ROL::SharedPointer<Vector<Real> > p = x.clone(); 
     p->set(*v); 
     p->scale(-1.0);
     Real pnorm2 = v->dot(*g);
 
     // Hessian Times Basis Vector
-    std::shared_ptr<Vector<Real> > Hp = x.clone();
+    ROL::SharedPointer<Vector<Real> > Hp = x.clone();
 
     iter        = 0; 
     iflag       = 0; 

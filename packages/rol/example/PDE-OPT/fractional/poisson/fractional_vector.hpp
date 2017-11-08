@@ -54,62 +54,62 @@ extern template class Assembler<double>;
 template <class Real>
 class FractionalVector {
 private:
-  const std::shared_ptr<PDE<Real> > pde_local_;
-  const std::shared_ptr<PDE<Real> > pde_cylinder_;
-  std::shared_ptr<Assembler<Real> > assembler_local_;
-  std::shared_ptr<Assembler<Real> > assembler_cylinder_;
+  const ROL::SharedPointer<PDE<Real> > pde_local_;
+  const ROL::SharedPointer<PDE<Real> > pde_cylinder_;
+  ROL::SharedPointer<Assembler<Real> > assembler_local_;
+  ROL::SharedPointer<Assembler<Real> > assembler_cylinder_;
 
-  std::shared_ptr<Tpetra::MultiVector<> > Flocal_;
-  std::shared_ptr<Tpetra::CrsMatrix<> > Klocal_;
-  std::shared_ptr<Tpetra::CrsMatrix<> > Mcylinder_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > Flocal_;
+  ROL::SharedPointer<Tpetra::CrsMatrix<> > Klocal_;
+  ROL::SharedPointer<Tpetra::CrsMatrix<> > Mcylinder_;
 
-  std::shared_ptr<Tpetra::MultiVector<> > Frcp_;
-  std::shared_ptr<ROL::Vector<Real> > F_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > Frcp_;
+  ROL::SharedPointer<ROL::Vector<Real> > F_;
 
 public:
-  FractionalVector(const std::shared_ptr<PDE<Real> > &pde_local,
-                   const std::shared_ptr<MeshManager<Real> > &mesh_local,
-                   const std::shared_ptr<PDE<Real> > &pde_cylinder,
-                   const std::shared_ptr<MeshManager<Real> > &mesh_cylinder,
-                   const std::shared_ptr<const Teuchos::Comm<int> > &comm,
+  FractionalVector(const ROL::SharedPointer<PDE<Real> > &pde_local,
+                   const ROL::SharedPointer<MeshManager<Real> > &mesh_local,
+                   const ROL::SharedPointer<PDE<Real> > &pde_cylinder,
+                   const ROL::SharedPointer<MeshManager<Real> > &mesh_cylinder,
+                   const ROL::SharedPointer<const Teuchos::Comm<int> > &comm,
                    Teuchos::ParameterList &parlist,
                    std::ostream &outStream = std::cout)
     : pde_local_(pde_local), pde_cylinder_(pde_cylinder) {
-    std::shared_ptr<Tpetra::MultiVector<> > uvec;
-    std::shared_ptr<Tpetra::MultiVector<> > zvec;
+    ROL::SharedPointer<Tpetra::MultiVector<> > uvec;
+    ROL::SharedPointer<Tpetra::MultiVector<> > zvec;
     // Assemble local components
-    assembler_local_ = std::make_shared<Assembler<Real>(pde_local_->getFields>(),mesh_local,comm,parlist,outStream);
+    assembler_local_ = ROL::makeShared<Assembler<Real>(pde_local_->getFields>(),mesh_local,comm,parlist,outStream);
     assembler_local_->setCellNodes(*pde_local_);
     uvec = assembler_local_->createStateVector();   uvec->putScalar(static_cast<Real>(0));
     zvec = assembler_local_->createControlVector(); zvec->putScalar(static_cast<Real>(0));
     assembler_local_->assemblePDEJacobian1(Klocal_,pde_local_,uvec,zvec);
     assembler_local_->assemblePDEResidual(Flocal_,pde_local_,uvec,zvec);
     // Assemble cylinder components
-    assembler_cylinder_ = std::make_shared<Assembler<Real>(pde_cylinder_->getFields>(),mesh_cylinder,comm,parlist,outStream);
+    assembler_cylinder_ = ROL::makeShared<Assembler<Real>(pde_cylinder_->getFields>(),mesh_cylinder,comm,parlist,outStream);
     assembler_cylinder_->setCellNodes(*pde_cylinder_);
     assembler_cylinder_->assemblePDERieszMap1(Mcylinder_,pde_cylinder_);
     // Build fractional vector
     Real s     = parlist.sublist("Problem").get("Fractional Power",0.5);
     Real alpha = static_cast<Real>(1) - static_cast<Real>(2)*s;
     Real ds    = std::pow(static_cast<Real>(2), alpha) * tgamma(static_cast<Real>(1)-s)/tgamma(s);
-    Frcp_ = std::make_shared<Tpetra::MultiVector<>(Klocal_->getRowMap(),Mcylinder_->getGlobalNumCols>());
+    Frcp_ = ROL::makeShared<Tpetra::MultiVector<>(Klocal_->getRowMap(),Mcylinder_->getGlobalNumCols>());
     Frcp_->getVectorNonConst(0)->scale(-ds,*Flocal_);
-    F_ = std::make_shared<ROL::TpetraMultiVector<Real>>(Frcp_);
+    F_ = ROL::makeShared<ROL::TpetraMultiVector<Real>>(Frcp_);
   }
 
-  FractionalVector(const std::shared_ptr<const Tpetra::MultiVector<> > &F,
-                   const std::shared_ptr<const Tpetra::Map<> > &map,
+  FractionalVector(const ROL::SharedPointer<const Tpetra::MultiVector<> > &F,
+                   const ROL::SharedPointer<const Tpetra::Map<> > &map,
                    const int numCylinder,
                    const Real s) {
     // Build fractional vector
     Real alpha = static_cast<Real>(1) - static_cast<Real>(2)*s;
     Real ds    = std::pow(static_cast<Real>(2), alpha) * tgamma(static_cast<Real>(1)-s)/tgamma(s);
-    Frcp_ = std::make_shared<Tpetra::MultiVector<>>(map,numCylinder);
+    Frcp_ = ROL::makeShared<Tpetra::MultiVector<>>(map,numCylinder);
     Frcp_->getVectorNonConst(0)->scale(-ds,*F);
-    F_ = std::make_shared<ROL::TpetraMultiVector<Real>>(Frcp_);
+    F_ = ROL::makeShared<ROL::TpetraMultiVector<Real>>(Frcp_);
   }
 
-  const std::shared_ptr<const ROL::Vector<Real> > get(void) const {
+  const ROL::SharedPointer<const ROL::Vector<Real> > get(void) const {
     return F_;
   }
 };

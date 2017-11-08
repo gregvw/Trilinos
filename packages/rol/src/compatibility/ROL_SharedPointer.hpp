@@ -45,37 +45,109 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 
-/* \file ROL_shared_ptr
- * \brief Provides unified interface to std::shared_ptr and 
+/* \file ROL_SharedPointer.hpp
+ * \brief Provides unified interface to ROL::SharedPointer and 
  *        Teuchos::RCP for legacy support.
  */
 
-
-#ifndef ROL_DISABLE_TEUCHOS // Legacy support
-
+#include <cstddef>
 #include <utility>
+
+
+#ifndef ROL_SHARED_POINTER    // Legacy support
+
 #include "Teuchos_RCP.hpp"
 
 namespace ROL {
 
-template<class T> using shared_ptr = Teuchos::RCP<T>;
+template<class T> using SharedPointer = Teuchos::RCP<T>;
+
+Teuchos::ENull nullPointer = Teuchos::null;
+
+}
+
+
+namespace std {
+
+template<class T>
+struct is_pointer<ROL::SharedPointer<T>> : public std::true_type { };
+
+}
+
+namespace ROL {
 
 template<class T, class... Args>
 inline 
-shared_ptr<T> make_shared( Args&&... args ) {
-  return Teuchos::rcp( new std::forward<T>(args...) );
+SharedPointer<T> makeShared( Args&&... args ) {
+  return Teuchos::rcp( new T(std::forward<Args>(args)...) );
+}
+/*
+template<class T>
+bool operator == ( const SharedPointer<T>& a, const Teuchos::ENull &b ) {
+  return a.is_null();
+}
+
+template<class T>
+bool operator != ( const ROL::SharedPointer<T>& a, const Teuchos::ENull &b ) {
+  return a.nonnull();
+}
+*/
+template< class T, class U > 
+inline
+SharedPointer<T> staticPointerCast( const SharedPointer<U>& r ) noexcept {
+  return Teuchos::rcp_static_cast<T>(r);
+}
+
+template< class T, class U > 
+inline
+SharedPointer<T> constPointerCast( const SharedPointer<U>& r ) noexcept {
+  return Teuchos::rcp_const_cast<T>(r);
+}
+
+template< class T, class U > 
+inline
+SharedPointer<T> dynamicPointerCast( const SharedPointer<U>& r ) noexcept {
+  return Teuchos::rcp_dynamic_cast<T>(r);
 }
 
 } // namespace ROL
 
+/*-------------------------------------------------------------------------------*/
 #else // Use C++11 std functions
 
 namespace ROL {
 
-template<class T> using shared_ptr = std::shared_ptr<T>;
+template<class T> using SharedPointer = std::shared_ptr<T>;
+
+using nullPointer = ROL::nullPointer;
+
+template<class T>
+inline
+SharedPointer<T> makeShared( Args&&... args ) {
+  return std::make_shared<T>(args...);
+}
+
+template< class T, class U > 
+inline
+SharedPointer<T> staticPointerCast( const SharedPointer<U>& r ) noexcept {
+  return static_pointer_cast<T>(r);
+}
+
+template< class T, class U > 
+inline
+SharedPointer<T> constPointerCast( const SharedPointer<U>& r ) noexcept {
+  return const_pointer_cast<T>(r);
+}
+
+template< class T, class U > 
+inline
+SharedPointer<T> dynamicPointerCast( const SharedPointer<U>& r ) noexcept {
+  return dynamic_pointer_cast<T>(r);
+}
 
 } // namespace ROL
 
-#endif // ROL_DISABLE_TEUCHOS
+#endif // ROL_SHARED_POINTER
 

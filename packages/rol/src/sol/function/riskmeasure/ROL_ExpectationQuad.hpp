@@ -89,7 +89,7 @@ template<class Real>
 class ExpectationQuad : public RiskMeasure<Real> {
 private:
 
-  std::shared_ptr<Vector<Real> > dualVector_;
+  ROL::SharedPointer<Vector<Real> > dualVector_;
 
   Real xstat_;
   Real vstat_;
@@ -219,7 +219,7 @@ public:
     std::cout << "\n";
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
@@ -232,10 +232,10 @@ public:
     dualVector_->zero();
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
-             std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
+    v0 = ROL::constPointerCast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
            dynamic_cast<const Vector<Real>&>(v)).getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();

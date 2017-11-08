@@ -47,29 +47,29 @@
 namespace ROL {
 
 template <class Real>
-SparseGridGenerator<Real>::SparseGridGenerator(const std::shared_ptr<BatchManager<Real> > &bman, 
+SparseGridGenerator<Real>::SparseGridGenerator(const ROL::SharedPointer<BatchManager<Real> > &bman, 
                                                const QuadratureInfo &info, const bool adaptive)
   : SampleGenerator<Real>(bman), info_(info), isVectorInit_(false) {
   adaptive_ = info.adaptive;
   if ( adaptive_ ) {
-    indices_   = std::make_shared<SparseGridIndexSet<Real>>(info.dim, info.maxLevel);
-    grid_      = std::make_shared<Quadrature<Real>>(info.dim);
+    indices_   = ROL::makeShared<SparseGridIndexSet<Real>>(info.dim, info.maxLevel);
+    grid_      = ROL::makeShared<Quadrature<Real>>(info.dim);
     error_     = static_cast<Real>(0);
     direction_ = 0;
   }
   else {
-    grid_ = std::make_shared<Quadrature<Real>>(info);
+    grid_ = ROL::makeShared<Quadrature<Real>>(info);
   }
   // Split points and weights across processors
   setSamples(true);
 }
 
 template <class Real>
-SparseGridGenerator<Real>::SparseGridGenerator(const std::shared_ptr<BatchManager<Real> > &bman, 
+SparseGridGenerator<Real>::SparseGridGenerator(const ROL::SharedPointer<BatchManager<Real> > &bman, 
                                                const char* SGinfo, const char* SGdata, 
                                                const bool isNormalized)
     : SampleGenerator<Real>(bman), adaptive_(false), isVectorInit_(false) {
-  grid_ = std::make_shared<Quadrature<Real>>(SGinfo,SGdata,isNormalized);
+  grid_ = ROL::makeShared<Quadrature<Real>>(SGinfo,SGdata,isNormalized);
   // Split points and weights across processors
   setSamples(true);
 }
@@ -96,7 +96,7 @@ void SparseGridGenerator<Real>::update(const Vector<Real> &x) {
   SampleGenerator<Real>::update(x);
   if ( adaptive_ ) {
     indices_->reset();
-    grid_ = std::make_shared<Quadrature<Real>>(info_.dim);
+    grid_ = ROL::makeShared<Quadrature<Real>>(info_.dim);
     index_.clear();
     direction_ = 0;
     error_ = static_cast<Real>(0);
@@ -109,7 +109,7 @@ template<class Real>
 void SparseGridGenerator<Real>::refine(void) {
   if ( adaptive_ ) {
     npts_ = 0;
-    std::shared_ptr<Quadrature<Real> > rule;
+    ROL::SharedPointer<Quadrature<Real> > rule;
 //    bool terminate = false;
 //int cnt = 0;
 //    while (!terminate) {
@@ -135,7 +135,7 @@ void SparseGridGenerator<Real>::refine(void) {
         search_index_ = index_;
         search_index_[direction_]++;
       }
-      rule = std::make_shared<Quadrature<Real>>(info_.dim);
+      rule = ROL::makeShared<Quadrature<Real>>(info_.dim);
       if (    !(indices_->isMember(search_index_))           // Check if index is old/active
            && !(indices_->isMaxLevelExceeded(search_index_)) // Check if index violates maxLevel
            && indices_->isAdmissible(search_index_) ) {      // Check if index is admissible
@@ -181,7 +181,7 @@ Real SparseGridGenerator<Real>::computeError(std::vector<Real> &vals){
 }
 
 template<class Real>
-Real SparseGridGenerator<Real>::computeError(std::vector<std::shared_ptr<Vector<Real> > > &vals,
+Real SparseGridGenerator<Real>::computeError(std::vector<ROL::SharedPointer<Vector<Real> > > &vals,
                                              const Vector<Real> &x ){
   if ( adaptive_ ) {
     if ( !isVectorInit_ ) {
@@ -286,7 +286,7 @@ void SparseGridGenerator<Real>::updateSamples( Quadrature<Real> &grid ) {
 
 template<class Real>
 void SparseGridGenerator<Real>::printIndexSet(void) const {
-  if (indices_ != nullptr) {
+  if (indices_ != ROL::nullPointer) {
     indices_->print(info_.name,SampleGenerator<Real>::batchID());
   }
 }

@@ -47,7 +47,7 @@
 #include "ROL_Types.hpp"
 #include "ROL_Vector.hpp"
 
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 
 #include <vector>
 #include <set>
@@ -64,17 +64,17 @@ class Bundle {
 /***************** BUNDLE STORAGE **************************************************************/
 /***********************************************************************************************/
 private: 
-  std::vector<std::shared_ptr<Vector<Real> > > subgradients_;
+  std::vector<ROL::SharedPointer<Vector<Real> > > subgradients_;
   std::vector<Real> linearizationErrors_;
   std::vector<Real> distanceMeasures_;
 
   std::vector<Real> dualVariables_;
 
-  std::shared_ptr<Vector<Real> > tG_;
-  std::shared_ptr<Vector<Real> > eG_;
-  std::shared_ptr<Vector<Real> > yG_;
-  std::shared_ptr<Vector<Real> > gx_;
-  std::shared_ptr<Vector<Real> > ge_;
+  ROL::SharedPointer<Vector<Real> > tG_;
+  ROL::SharedPointer<Vector<Real> > eG_;
+  ROL::SharedPointer<Vector<Real> > yG_;
+  ROL::SharedPointer<Vector<Real> > gx_;
+  ROL::SharedPointer<Vector<Real> > ge_;
 
   unsigned size_;
 
@@ -134,7 +134,7 @@ public:
     coeff_ = std::max(static_cast<Real>(0),coeff_);
     omega_ = std::max(static_cast<Real>(1),omega_);
     subgradients_.clear();
-    subgradients_.assign(maxSize,nullptr);
+    subgradients_.assign(maxSize,ROL::nullPointer);
     linearizationErrors_.clear();
     linearizationErrors_.assign(maxSize_,ROL_OVERFLOW<Real>());
     distanceMeasures_.clear();

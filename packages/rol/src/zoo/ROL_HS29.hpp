@@ -66,12 +66,12 @@ class Objective_HS29 : public Objective<Real> {
 
 private:
 
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
     
     return dynamic_cast<const SV&>(x).getVector();
   }
 
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     
     return dynamic_cast<SV&>(x).getVector();
   }
@@ -81,7 +81,7 @@ public:
   Real value( const Vector<Real> &x, Real &tol ) {
 
     
-    std::shared_ptr<const vector> xp = getVector(x);    
+    ROL::SharedPointer<const vector> xp = getVector(x);    
 
     return -(*xp)[0]*(*xp)[1]*(*xp)[2];
 
@@ -90,8 +90,8 @@ public:
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
 
     
-    std::shared_ptr<const vector> xp = getVector(x);
-    std::shared_ptr<vector> gp = getVector(g);
+    ROL::SharedPointer<const vector> xp = getVector(x);
+    ROL::SharedPointer<vector> gp = getVector(g);
 
     (*gp)[0] = -(*xp)[1]*(*xp)[2];
     (*gp)[1] = -(*xp)[0]*(*xp)[2];
@@ -102,9 +102,9 @@ public:
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
 
     
-    std::shared_ptr<const vector> xp = getVector(x);
-    std::shared_ptr<const vector> vp = getVector(v);
-    std::shared_ptr<vector> hvp = getVector(hv);
+    ROL::SharedPointer<const vector> xp = getVector(x);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<vector> hvp = getVector(hv);
 
     (*hvp)[0] = -( (*xp)[2]*(*vp)[1] + (*xp)[1]*(*vp)[2] );
     (*hvp)[1] = -( (*xp)[2]*(*vp)[0] + (*xp)[0]*(*vp)[2] );
@@ -124,12 +124,12 @@ class InequalityConstraint_HS29 : public InequalityConstraint<Real> {
 
 private:
   
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
     
     return dynamic_cast<const SV&>(x).getVector();
   }
 
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     
     return dynamic_cast<SV&>(x).getVector();
   }
@@ -140,8 +140,8 @@ public:
 
     
 
-    std::shared_ptr<vector> cp = getVector(c);
-    std::shared_ptr<const vector> xp = getVector(x); 
+    ROL::SharedPointer<vector> cp = getVector(c);
+    ROL::SharedPointer<const vector> xp = getVector(x); 
 
     (*cp)[0] = -std::pow((*xp)[0],2) - 2*std::pow((*xp)[1],2) - 4*std::pow((*xp)[2],2) + 48;
 
@@ -152,9 +152,9 @@ public:
 
     
     
-    std::shared_ptr<vector> jvp = getVector(jv);
-    std::shared_ptr<const vector> vp = getVector(v);
-    std::shared_ptr<const vector> xp = getVector(x); 
+    ROL::SharedPointer<vector> jvp = getVector(jv);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> xp = getVector(x); 
 
     (*jvp)[0] = -2*(*xp)[0]*(*vp)[0] - 4*(*xp)[1]*(*vp)[1] - 8*(*xp)[2]*(*vp)[2];
        
@@ -165,9 +165,9 @@ public:
 
     
 
-    std::shared_ptr<vector> ajvp = getVector(ajv);
-    std::shared_ptr<const vector> vp = getVector(v);
-    std::shared_ptr<const vector> xp = getVector(x);
+    ROL::SharedPointer<vector> ajvp = getVector(ajv);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> xp = getVector(x);
 
     (*ajvp)[0] = -2*(*xp)[0]*(*vp)[0];
     (*ajvp)[1] = -4*(*xp)[1]*(*vp)[0];
@@ -180,10 +180,10 @@ public:
 
     
   
-    std::shared_ptr<vector> ahuvp = getVector(ahuv);
-    std::shared_ptr<const vector> up = getVector(u);
-    std::shared_ptr<const vector> vp = getVector(v);
-    std::shared_ptr<const vector> xp = getVector(x);
+    ROL::SharedPointer<vector> ahuvp = getVector(ahuv);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> xp = getVector(x);
 
     (*ahuvp)[0] = -2*(*up)[0]*(*vp)[0];
     (*ahuvp)[1] = -4*(*up)[0]*(*vp)[1];

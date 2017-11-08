@@ -54,11 +54,11 @@ namespace ROL {
 template<class Real>
 class PlusFunction : public PositiveFunction<Real> {
 private:
-  std::shared_ptr<Distribution<Real> > dist_;
+  ROL::SharedPointer<Distribution<Real> > dist_;
   Real param_;
 
 public: 
-  PlusFunction(std::shared_ptr<Distribution<Real> > &dist, Real param = 1.) : dist_(dist) {
+  PlusFunction(ROL::SharedPointer<Distribution<Real> > &dist, Real param = 1.) : dist_(dist) {
     param_ = ((param <= 0) ? 1.e-2 : param);
   }
 

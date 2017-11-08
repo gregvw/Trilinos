@@ -67,16 +67,16 @@ class TeuchosVector : public ElementwiseVector<Real> {
 
 private:
 
-  std::shared_ptr<SDV> vec_;
+  ROL::SharedPointer<SDV> vec_;
   Ordinal dim_;
 
 public:
 
-  TeuchosVector( const std::shared_ptr<SDV> &vec ) : vec_(vec), dim_(vec_->length()) { }
+  TeuchosVector( const ROL::SharedPointer<SDV> &vec ) : vec_(vec), dim_(vec_->length()) { }
 
   // Create a vector of given length with optional zeroing
   TeuchosVector( Ordinal length, bool zeroOut=true ) :
-    vec_(std::make_shared<SDV>(length,zeroOut) ),
+    vec_(ROL::makeShared<SDV>(length,zeroOut) ),
     dim_(length) {
   }
 
@@ -84,8 +84,8 @@ public:
     return static_cast<int>(dim_);
   }
 
-  std::shared_ptr<V> basis( const int i ) const {
-    std::shared_ptr<TV> b = std::make_shared<TV>(dim_,true);
+  ROL::SharedPointer<V> basis( const int i ) const {
+    ROL::SharedPointer<TV> b = ROL::makeShared<TV>(dim_,true);
     (*b)[static_cast<Ordinal>(i)] = Real(1.0);
     return b;
   }
@@ -117,15 +117,15 @@ public:
     return result;
   }
 
-  std::shared_ptr<V> clone() const {
-    return std::make_shared<TV>( dim_ );
+  ROL::SharedPointer<V> clone() const {
+    return ROL::makeShared<TV>( dim_ );
   }
 
-  std::shared_ptr<SDV> getVector() {
+  ROL::SharedPointer<SDV> getVector() {
     return vec_;
   }
 
-  std::shared_ptr<const SDV> getVector() const {
+  ROL::SharedPointer<const SDV> getVector() const {
     return vec_;
   }
 

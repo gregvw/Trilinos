@@ -69,8 +69,8 @@ class DualScaledTpetraMultiVector;
 template <class Real, class LO, class GO, class Node>
 class PrimalScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> {
   private:
-    const std::shared_ptr<const Tpetra::Vector<Real,LO,GO,Node> > scale_vec_;
-    mutable std::shared_ptr<DualScaledTpetraMultiVector<Real> > dual_vec_;
+    const ROL::SharedPointer<const Tpetra::Vector<Real,LO,GO,Node> > scale_vec_;
+    mutable ROL::SharedPointer<DualScaledTpetraMultiVector<Real> > dual_vec_;
     mutable bool isDualInitialized_;
 
     void applyScaling(Tpetra::MultiVector<Real,LO,GO,Node> &out,
@@ -82,8 +82,8 @@ class PrimalScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> 
   public:
     virtual ~PrimalScaledTpetraMultiVector() {}
 
-    PrimalScaledTpetraMultiVector(const std::shared_ptr<Tpetra::MultiVector<Real,LO,GO,Node> > &tpetra_vec,
-                                  const std::shared_ptr<const Tpetra::Vector<Real,LO,GO,Node> > &scale_vec)
+    PrimalScaledTpetraMultiVector(const ROL::SharedPointer<Tpetra::MultiVector<Real,LO,GO,Node> > &tpetra_vec,
+                                  const ROL::SharedPointer<const Tpetra::Vector<Real,LO,GO,Node> > &scale_vec)
       : TpetraMultiVector<Real,LO,GO,Node>(tpetra_vec),
         scale_vec_(scale_vec), isDualInitialized_(false) {}
 
@@ -110,12 +110,12 @@ class PrimalScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> 
       return xy;
     }
 
-    std::shared_ptr<Vector<Real> > clone() const {
+    ROL::SharedPointer<Vector<Real> > clone() const {
       const Tpetra::MultiVector<Real,LO,GO,Node> &ey
         = *(TpetraMultiVector<Real,LO,GO,Node>::getVector());
       size_t n = ey.getNumVectors();
       return Teuchos::rcp(new PrimalScaledTpetraMultiVector<Real,LO,GO,Node>(
-             std::make_shared<Tpetra::MultiVector<Real,LO,GO,Node>(TpetraMultiVector<Real>::getMap>(),n),
+             ROL::makeShared<Tpetra::MultiVector<Real,LO,GO,Node>(TpetraMultiVector<Real>::getMap>(),n),
              scale_vec_));
     }
 
@@ -124,7 +124,7 @@ class PrimalScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> 
         // Create new memory for dual vector
         size_t n = TpetraMultiVector<Real,LO,GO,Node>::getVector()->getNumVectors();
         dual_vec_ = Teuchos::rcp(new DualScaledTpetraMultiVector<Real,LO,GO,Node>(
-                    std::make_shared<Tpetra::MultiVector<Real,LO,GO,Node>(TpetraMultiVector<Real>::getMap>(),n),
+                    ROL::makeShared<Tpetra::MultiVector<Real,LO,GO,Node>(TpetraMultiVector<Real>::getMap>(),n),
                     scale_vec_));
         isDualInitialized_ = true;
       }
@@ -138,8 +138,8 @@ class PrimalScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> 
 template <class Real, class LO, class GO, class Node>
 class DualScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> {
   private:
-    const std::shared_ptr<const Tpetra::Vector<Real,LO,GO,Node> > scale_vec_;
-    mutable std::shared_ptr<PrimalScaledTpetraMultiVector<Real> > primal_vec_;
+    const ROL::SharedPointer<const Tpetra::Vector<Real,LO,GO,Node> > scale_vec_;
+    mutable ROL::SharedPointer<PrimalScaledTpetraMultiVector<Real> > primal_vec_;
     mutable bool isDualInitialized_;
 
     void applyScaling(Tpetra::MultiVector<Real,LO,GO,Node> &out,
@@ -153,8 +153,8 @@ class DualScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> {
   public:
     virtual ~DualScaledTpetraMultiVector() {}
 
-    DualScaledTpetraMultiVector(const std::shared_ptr<Tpetra::MultiVector<Real,LO,GO,Node> > &tpetra_vec,
-                                const std::shared_ptr<const Tpetra::Vector<Real,LO,GO,Node> > &scale_vec)
+    DualScaledTpetraMultiVector(const ROL::SharedPointer<Tpetra::MultiVector<Real,LO,GO,Node> > &tpetra_vec,
+                                const ROL::SharedPointer<const Tpetra::Vector<Real,LO,GO,Node> > &scale_vec)
       : TpetraMultiVector<Real,LO,GO,Node>(tpetra_vec),
         scale_vec_(scale_vec), isDualInitialized_(false) {}
 
@@ -181,12 +181,12 @@ class DualScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> {
       return xy;
     }
 
-    std::shared_ptr<Vector<Real> > clone() const {
+    ROL::SharedPointer<Vector<Real> > clone() const {
       const Tpetra::MultiVector<Real,LO,GO,Node> &ey
         = *(TpetraMultiVector<Real,LO,GO,Node>::getVector());
       size_t n = ey.getNumVectors();  
       return Teuchos::rcp(new DualScaledTpetraMultiVector<Real,LO,GO,Node>(
-             std::make_shared<Tpetra::MultiVector<Real,LO,GO,Node>(TpetraMultiVector<Real>::getMap>(),n),
+             ROL::makeShared<Tpetra::MultiVector<Real,LO,GO,Node>(TpetraMultiVector<Real>::getMap>(),n),
              scale_vec_));
     }
 
@@ -195,7 +195,7 @@ class DualScaledTpetraMultiVector : public TpetraMultiVector<Real,LO,GO,Node> {
         // Create new memory for dual vector
         size_t n = TpetraMultiVector<Real,LO,GO,Node>::getVector()->getNumVectors();
         primal_vec_ = Teuchos::rcp(new PrimalScaledTpetraMultiVector<Real,LO,GO,Node>(
-                      std::make_shared<Tpetra::MultiVector<Real,LO,GO,Node>(TpetraMultiVector<Real>::getMap>(),n),
+                      ROL::makeShared<Tpetra::MultiVector<Real,LO,GO,Node>(TpetraMultiVector<Real>::getMap>(),n),
                       scale_vec_));
         isDualInitialized_ = true;
       }

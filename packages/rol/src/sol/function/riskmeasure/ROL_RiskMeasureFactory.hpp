@@ -227,58 +227,58 @@ namespace ROL {
   }
 
   template<class Real>
-  inline std::shared_ptr<RiskMeasure<Real> > RiskMeasureFactory(Teuchos::ParameterList &parlist) {
+  inline ROL::SharedPointer<RiskMeasure<Real> > RiskMeasureFactory(Teuchos::ParameterList &parlist) {
     std::string risk = parlist.sublist("SOL").sublist("Risk Measure").get("Name","CVaR");
     ERiskMeasure ed = StringToERiskMeasure(risk);
     switch(ed) {
       case RISKMEASURE_CVAR:
-             return std::make_shared<CVaR<Real>>(parlist);
+             return ROL::makeShared<CVaR<Real>>(parlist);
       case RISKMEASURE_COHERENTEXPUTILITY:
-             return std::make_shared<CoherentExpUtility<Real>>();
+             return ROL::makeShared<CoherentExpUtility<Real>>();
       case RISKMEASURE_EXPUTILITY:
-             return std::make_shared<ExpUtility<Real>>(parlist);
+             return ROL::makeShared<ExpUtility<Real>>(parlist);
       case RISKMEASURE_HMCR:
-             return std::make_shared<HMCR<Real>>(parlist);
+             return ROL::makeShared<HMCR<Real>>(parlist);
       case RISKMEASURE_MEANDEVIATIONFROMTARGET:
-             return std::make_shared<MeanDeviationFromTarget<Real>>(parlist);
+             return ROL::makeShared<MeanDeviationFromTarget<Real>>(parlist);
       case RISKMEASURE_MEANDEVIATION:
-             return std::make_shared<MeanDeviation<Real>>(parlist);
+             return ROL::makeShared<MeanDeviation<Real>>(parlist);
       case RISKMEASURE_MEANVARIANCEFROMTARGET:
-             return std::make_shared<MeanVarianceFromTarget<Real>>(parlist);
+             return ROL::makeShared<MeanVarianceFromTarget<Real>>(parlist);
       case RISKMEASURE_MEANVARIANCE:
-             return std::make_shared<MeanVariance<Real>>(parlist);
+             return ROL::makeShared<MeanVariance<Real>>(parlist);
       case RISKMEASURE_MOREAUYOSIDACVAR:
-             return std::make_shared<MoreauYosidaCVaR<Real>>(parlist);
+             return ROL::makeShared<MoreauYosidaCVaR<Real>>(parlist);
       case RISKMEASURE_GENMOREAUYOSIDACVAR:
-             return std::make_shared<GenMoreauYosidaCVaR<Real>>(parlist);
+             return ROL::makeShared<GenMoreauYosidaCVaR<Real>>(parlist);
       case RISKMEASURE_LOGEXPONENTIALQUADRANGLE:
-             return std::make_shared<LogExponentialQuadrangle<Real>>(parlist);
+             return ROL::makeShared<LogExponentialQuadrangle<Real>>(parlist);
       case RISKMEASURE_LOGQUANTILEQUADRANGLE:
-             return std::make_shared<LogQuantileQuadrangle<Real>>(parlist);
+             return ROL::makeShared<LogQuantileQuadrangle<Real>>(parlist);
       case RISKMEASURE_MEANVARIANCEQUADRANGLE:
-             return std::make_shared<MeanVarianceQuadrangle<Real>>(parlist);
+             return ROL::makeShared<MeanVarianceQuadrangle<Real>>(parlist);
       case RISKMEASURE_MIXEDQUANTILEQUADRANGLE:
-             return std::make_shared<MixedQuantileQuadrangle<Real>>(parlist);
+             return ROL::makeShared<MixedQuantileQuadrangle<Real>>(parlist);
       case RISKMEASURE_SUPERQUANTILEQUADRANGLE:
-             return std::make_shared<SuperQuantileQuadrangle<Real>>(parlist);
+             return ROL::makeShared<SuperQuantileQuadrangle<Real>>(parlist);
       case RISKMEASURE_CHEBYSHEVKUSUOKA:
-             return std::make_shared<ChebyshevKusuoka<Real>>(parlist);
+             return ROL::makeShared<ChebyshevKusuoka<Real>>(parlist);
       case RISKMEASURE_SPECTRALRISK:
-             return std::make_shared<SpectralRisk<Real>>(parlist);
+             return ROL::makeShared<SpectralRisk<Real>>(parlist);
       case RISKMEASURE_QUANTILEQUADRANGLE:
-             return std::make_shared<QuantileQuadrangle<Real>>(parlist);
+             return ROL::makeShared<QuantileQuadrangle<Real>>(parlist);
       case RISKMEASURE_QUANTILERADIUSQUADRANGLE:
-             return std::make_shared<QuantileRadiusQuadrangle<Real>>(parlist);
+             return ROL::makeShared<QuantileRadiusQuadrangle<Real>>(parlist);
       case RISKMEASURE_SMOOTHEDWORSTCASEQUADRANGLE:
-             return std::make_shared<SmoothedWorstCaseQuadrangle<Real>>(parlist);
+             return ROL::makeShared<SmoothedWorstCaseQuadrangle<Real>>(parlist);
       case RISKMEASURE_TRUNCATEDMEANQUADRANGLE:
-             return std::make_shared<TruncatedMeanQuadrangle<Real>>(parlist);
+             return ROL::makeShared<TruncatedMeanQuadrangle<Real>>(parlist);
       case RISKMEASURE_CHI2DIVERGENCE:
-             return std::make_shared<Chi2Divergence<Real>>(parlist);
+             return ROL::makeShared<Chi2Divergence<Real>>(parlist);
       case RISKMEASURE_KLDIVERGENCE:
-             return std::make_shared<KLDivergence<Real>>(parlist);
+             return ROL::makeShared<KLDivergence<Real>>(parlist);
       case RISKMEASURE_BPOE:
-             return std::make_shared<BPOE<Real>>(parlist);
+             return ROL::makeShared<BPOE<Real>>(parlist);
       default:
         TEUCHOS_TEST_FOR_EXCEPTION(true,std::invalid_argument,
                                    "Invalid risk measure type " << risk << "!");

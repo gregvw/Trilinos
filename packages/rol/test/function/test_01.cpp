@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -84,9 +84,9 @@ int main(int argc, char *argv[]) {
   try {
 
     int dim = 128;
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
-    std::shared_ptr<std::vector<RealT> > y_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
-    std::shared_ptr<std::vector<RealT> > z_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > y_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     ROL::StdVector<RealT> x(x_rcp);
     ROL::StdVector<RealT> y(y_rcp);
     ROL::StdVector<RealT> z(z_rcp);

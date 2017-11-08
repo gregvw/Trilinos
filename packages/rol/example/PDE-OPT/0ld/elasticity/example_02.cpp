@@ -70,12 +70,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
     outStream = &std::cout, false;
@@ -91,14 +91,14 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    std::shared_ptr<ElasticitySIMPData<RealT> > data = std::make_shared<ElasticitySIMPData<RealT>>(comm, parlist, outStream);
-    std::shared_ptr<Tpetra::MultiVector<RealT> > rhs = data->getVecF();
+    ROL::SharedPointer<ElasticitySIMPData<RealT> > data = ROL::makeShared<ElasticitySIMPData<RealT>>(comm, parlist, outStream);
+    ROL::SharedPointer<Tpetra::MultiVector<RealT> > rhs = data->getVecF();
     data->getSolver()->setB(rhs);
-    std::shared_ptr<Tpetra::MultiVector<RealT> > sol = std::make_shared<Tpetra::MultiVector<RealT>(rhs->getMap>(), 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<RealT> > sol = ROL::makeShared<Tpetra::MultiVector<RealT>(rhs->getMap>(), 1, true);
     //sol->putScalar(0.0);
     data->getSolver()->setX(sol);
     data->getSolver()->solve();

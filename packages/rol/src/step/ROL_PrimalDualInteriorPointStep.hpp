@@ -128,29 +128,29 @@ class PrimalDualInteriorPointStep : public Step<Real> {
 
 private:
 
-  std::shared_ptr<KRYLOV> krylov_;      // Krylov solver for the Primal Dual system
-  std::shared_ptr<LINOP>  precond_;     // Preconditioner for the Primal Dual system
+  ROL::SharedPointer<KRYLOV> krylov_;      // Krylov solver for the Primal Dual system
+  ROL::SharedPointer<LINOP>  precond_;     // Preconditioner for the Primal Dual system
 
-  std::shared_ptr<BND> pbnd_;           // bound constraint for projecting x sufficiently away from the given bounds
+  ROL::SharedPointer<BND> pbnd_;           // bound constraint for projecting x sufficiently away from the given bounds
 
-  std::shared_ptr<V> x_;                // Optimization vector
-  std::shared_ptr<V> g_;                // Gradient of the Lagrangian
-  std::shared_ptr<V> l_;                // Lagrange multiplier
+  ROL::SharedPointer<V> x_;                // Optimization vector
+  ROL::SharedPointer<V> g_;                // Gradient of the Lagrangian
+  ROL::SharedPointer<V> l_;                // Lagrange multiplier
 
-  std::shared_ptr<V> xl_;               // Lower bound vector
-  std::shared_ptr<V> xu_;               // Upper bound vector
+  ROL::SharedPointer<V> xl_;               // Lower bound vector
+  ROL::SharedPointer<V> xu_;               // Upper bound vector
 
-  std::shared_ptr<V> zl_;               // Lagrange multiplier for lower bound
-  std::shared_ptr<V> zu_;               // Lagrange multiplier for upper bound
+  ROL::SharedPointer<V> zl_;               // Lagrange multiplier for lower bound
+  ROL::SharedPointer<V> zu_;               // Lagrange multiplier for upper bound
 
-  std::shared_ptr<V> xscratch_;         // Scratch vector (size of x)
-  std::shared_ptr<V> lscratch_;         // Scratch vector (size of l)
+  ROL::SharedPointer<V> xscratch_;         // Scratch vector (size of x)
+  ROL::SharedPointer<V> lscratch_;         // Scratch vector (size of l)
 
-  std::shared_ptr<V> zlscratch_;        // Scratch vector (size of x)
-  std::shared_ptr<V> zuscratch_;        // Scratch vector (size of x)
+  ROL::SharedPointer<V> zlscratch_;        // Scratch vector (size of x)
+  ROL::SharedPointer<V> zuscratch_;        // Scratch vector (size of x)
 
-  std::shared_ptr<V> maskL_;            // Elements are 1 when xl>-INF, zero for xl = -INF
-  std::shared_ptr<V> maskU_;            // Elements are 1 when xu< INF, zero for xu =  INF
+  ROL::SharedPointer<V> maskL_;            // Elements are 1 when xl>-INF, zero for xl = -INF
+  ROL::SharedPointer<V> maskU_;            // Elements are 1 when xu< INF, zero for xu =  INF
 
   int iterKrylov_;
   int flagKrylov_;
@@ -189,7 +189,7 @@ private:
                     EQCON &con, BND &bnd, ALGO &algo_state ) {
 
     Real tol = std::sqrt(ROL_EPSILON<Real>());
-    std::shared_ptr<STATE> state = Step<Real>::getState();
+    ROL::SharedPointer<STATE> state = Step<Real>::getState();
 
     obj.update(x,true,algo_state.iter);
     con.update(x,true,algo_state.iter);
@@ -266,8 +266,8 @@ public:
   using Step<Real>::update;
 
   PrimalDualInteriorPointStep( Teuchos::ParameterList &parlist,
-                               const std::shared_ptr<Krylov<Real> > &krylov = nullptr,
-                               const std::shared_ptr<LinearOperator<Real> > &precond = nullptr ) :
+                               const ROL::SharedPointer<Krylov<Real> > &krylov = ROL::nullPointer,
+                               const ROL::SharedPointer<LinearOperator<Real> > &precond = ROL::nullPointer ) :
     Step<Real>(), krylov_(krylov), precond_(precond), iterKrylov_(0), flagKrylov_(0) {
 
     typedef Teuchos::ParameterList PL;
@@ -286,11 +286,11 @@ public:
 
     PL &filter  = iplist.sublist("Filter Parameters");
 
-    if(krylov_ == nullptr) {
+    if(krylov_ == ROL::nullPointer) {
       krylov_ = KrylovFactory<Real>(parlist);
     }
 
-    if( precond_ == nullptr) {
+    if( precond_ == ROL::nullPointer) {
       class IdentityOperator : public LINOP {
       public:
         apply( V& Hv, const V &v, Real tol ) const {
@@ -298,7 +298,7 @@ public:
         }
       }; // class IdentityOperator
 
-      precond_ = std::make_shared<IdentityOperator<Real>>();
+      precond_ = ROL::makeShared<IdentityOperator<Real>>();
     }
 
   }
@@ -315,10 +315,10 @@ public:
 
     using Elementwise::ValueSet;
 
-    std::shared_ptr<PENALTY> &ipPen = dynamic_cast<PENALTY&>(obj);
+    ROL::SharedPointer<PENALTY> &ipPen = dynamic_cast<PENALTY&>(obj);
 
     // Initialize step state
-    std::shared_ptr<STATE> state = Step<Real>::getState();
+    ROL::SharedPointer<STATE> state = Step<Real>::getState();
     state->descentVec   = x.clone();
     state->gradientVec  = g.clone();
     state->constaintVec = c.clone();
@@ -363,7 +363,7 @@ public:
     /* Create a new bound constraint with perturbed bounds                                     */
     /*******************************************************************************************/
 
-    std::shared_ptr<V> xdiff = xu_->clone();
+    ROL::SharedPointer<V> xdiff = xu_->clone();
     xdiff->set(*xu_);
     xdiff->axpy(-1.0,*xl_);
     xdiff->scale(kappa2_);
@@ -380,14 +380,14 @@ public:
     Elementwise::Min                 min;
 
     // Lower perturbation vector
-    std::shared_ptr<V> pl = xl_->clone();
+    ROL::SharedPointer<V> pl = xl_->clone();
     pl->applyUnary(absval);
     pl->applyUnary(max1x);               // pl_i = max(1,|xl_i|)
     pl->scale(kappa1_);
     pl->applyBinary(min,xdiff);          // pl_i = min(kappa1*max(1,|xl_i|),kappa2*(xu_i-xl_i))
 
     // Upper perturbation vector
-    std::shared_ptr<V> pu = xu_->clone();
+    ROL::SharedPointer<V> pu = xu_->clone();
     pu->applyUnary(absval);
     pu->applyUnary(max1x);              // pu_i = max(1,|xu_i|)
     pu->scale(kappa_1);
@@ -398,7 +398,7 @@ public:
     pu->scale(-1.0);
     pu->plus(*xu_);
 
-    pbnd_ = std::make_shared<BoundConstraint<Real>>(pl,pu)
+    pbnd_ = ROL::makeShared<BoundConstraint<Real>>(pl,pu)
 
     // Project the initial guess onto the perturbed bounds
     pbnd_->project(x);
@@ -445,11 +445,11 @@ public:
     Elementwise::Divide<Real>   div;
     Elementwise::Multiply<Real> mult;
 
-    std::shared_ptr<STATE> state = Step<Real>::getState();
+    ROL::SharedPointer<STATE> state = Step<Real>::getState();
 
-    std::shared_ptr<OBJ>   obj_ptr(&obj);
-    std::shared_ptr<EQCON> con_ptr(&con);
-    std::shared_ptr<BND>   bnd_ptr(&bnd);
+    ROL::SharedPointer<OBJ>   obj_ptr(&obj);
+    ROL::SharedPointer<EQCON> con_ptr(&con);
+    ROL::SharedPointer<BND>   bnd_ptr(&bnd);
 
 
     /*******************************************************************************************/
@@ -457,19 +457,19 @@ public:
     /*******************************************************************************************/
 
 
-    std::shared_ptr<V> rhs = CreatePartitionedVector(state->gradientVec,
+    ROL::SharedPointer<V> rhs = CreatePartitionedVector(state->gradientVec,
                                          state->constraintVec,
                                          resL_,
                                          resU_);
 
-    std::shared_ptr<V> sysvec = CreatePartitionedVector( x_, l_, zl_, zu_ );
+    ROL::SharedPointer<V> sysvec = CreatePartitionedVector( x_, l_, zl_, zu_ );
 
 
-    std::shared_ptr<RESIDUAL> residual = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL_,maskU_,w_,mu_,symmetrize_);
+    ROL::SharedPointer<RESIDUAL> residual = ROL::makeShared<RESIDUAL>(obj,con,bnd,*sol,maskL_,maskU_,w_,mu_,symmetrize_);
 
     residual->value(*rhs,*sysvec,tol);
 
-    std::shared_ptr<V> sol = CreatePartitionedVector( xscratch_, lscratch_, zlscratch_, zuscratch_ );
+    ROL::SharedPointer<V> sol = CreatePartitionedVector( xscratch_, lscratch_, zlscratch_, zuscratch_ );
 
     LOPEC jacobian( sysvec, residual );
 

@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -87,10 +87,10 @@ int main(int argc, char *argv[]) {
     afinfo = af::infoString(true);
     *outStream << std::endl << afinfo << std::endl;
 
-    /***** Define std::shared_ptrs to random arrays. *****/
-    std::shared_ptr<af::array> A_rcp = std::make_shared<af::array>(5,1,afType);
-    std::shared_ptr<af::array> B_rcp = std::make_shared<af::array>(5,1,afType);
-    std::shared_ptr<af::array> C_rcp = std::make_shared<af::array>(5,1,afType);
+    /***** Define ROL::SharedPointers to random arrays. *****/
+    ROL::SharedPointer<af::array> A_rcp = ROL::makeShared<af::array>(5,1,afType);
+    ROL::SharedPointer<af::array> B_rcp = ROL::makeShared<af::array>(5,1,afType);
+    ROL::SharedPointer<af::array> C_rcp = ROL::makeShared<af::array>(5,1,afType);
     *A_rcp = af::randu(A_rcp->dims(),afType);
     *B_rcp = af::randu(B_rcp->dims(),afType);
     *C_rcp = af::randu(C_rcp->dims(),afType);
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
     //af_print(*B_rcp);
     //af_print(*C_rcp);
 
-    /***** Wrap ArrayFire std::shared_ptrs as ROL::ArrayFireVectors. *****/
+    /***** Wrap ArrayFire ROL::SharedPointers as ROL::ArrayFireVectors. *****/
     ROL::ArrayFireVector<RealT, ElementT> A(A_rcp);
     ROL::ArrayFireVector<RealT, ElementT> B(B_rcp);
     ROL::ArrayFireVector<RealT, ElementT> C(C_rcp);

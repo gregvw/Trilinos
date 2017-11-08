@@ -55,9 +55,9 @@ namespace ROL {
 template<class Real>
 class Constraint_Partitioned : public Constraint<Real> {
 private:
-  std::vector<std::shared_ptr<Constraint<Real> > > cvec_;
+  std::vector<ROL::SharedPointer<Constraint<Real> > > cvec_;
   std::vector<bool> isInequality_;      // Label whether cvec_[i] is inequality
-  std::shared_ptr<Vector<Real> > scratch_; // Scratch vector for intermediate computation
+  ROL::SharedPointer<Vector<Real> > scratch_; // Scratch vector for intermediate computation
   int  ncval_;                          // Number of constraint evaluations
   bool initialized_;                    // Is scratch vector initialized?
 
@@ -89,17 +89,17 @@ private:
   
 
 public:
-  Constraint_Partitioned(const std::vector<std::shared_ptr<Constraint<Real> > > &cvec,
+  Constraint_Partitioned(const std::vector<ROL::SharedPointer<Constraint<Real> > > &cvec,
                          bool isInequality = false)
    : cvec_(cvec),
-     scratch_(nullptr), ncval_(0), initialized_(false) {
+     scratch_(ROL::nullPointer), ncval_(0), initialized_(false) {
     isInequality_.clear(); isInequality_.resize(cvec.size(),isInequality);
   }
 
-  Constraint_Partitioned(const std::vector<std::shared_ptr<Constraint<Real> > > &cvec,
+  Constraint_Partitioned(const std::vector<ROL::SharedPointer<Constraint<Real> > > &cvec,
                          const std::vector<bool>                             &isInequality)
    : cvec_(cvec), isInequality_(isInequality),
-     scratch_(nullptr), ncval_(0), initialized_(false) {}
+     scratch_(ROL::nullPointer), ncval_(0), initialized_(false) {}
 
   int getNumberConstraintEvaluations(void) const {
     return ncval_;
@@ -119,7 +119,7 @@ public:
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
     for (int i = 0; i < ncon; ++i) {
-      std::shared_ptr<Vector<Real> > ci = cpv.get(i);
+      ROL::SharedPointer<Vector<Real> > ci = cpv.get(i);
       cvec_[i]->value(*ci, getOpt(x), tol);
       if (isInequality_[i]) {
         ci->axpy(static_cast<Real>(-1),getSlack(x,cnt));
@@ -139,7 +139,7 @@ public:
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
     for (int i = 0; i < ncon; ++i) {
-      std::shared_ptr<Vector<Real> > jvi = jvpv.get(i);
+      ROL::SharedPointer<Vector<Real> > jvi = jvpv.get(i);
       cvec_[i]->applyJacobian(*jvi, getOpt(v), getOpt(x), tol);
       if (isInequality_[i]) {
         jvi->axpy(static_cast<Real>(-1),getSlack(v,cnt));
@@ -164,7 +164,7 @@ public:
     int cnt = 1;
     getOpt(ajv).zero();
     for (int i = 0; i < ncon; ++i) {
-      std::shared_ptr<const Vector<Real> > vi = vpv.get(i);
+      ROL::SharedPointer<const Vector<Real> > vi = vpv.get(i);
       scratch_->zero();
       cvec_[i]->applyAdjointJacobian(*scratch_, *vi, getOpt(x), tol);
       getOpt(ajv).plus(*scratch_);
@@ -193,7 +193,7 @@ public:
     int cnt = 1;
     getOpt(ahuv).zero();
     for (int i = 0; i < ncon; ++i) {
-      std::shared_ptr<const Vector<Real> > ui = upv.get(i);
+      ROL::SharedPointer<const Vector<Real> > ui = upv.get(i);
       scratch_->zero();
       cvec_[i]->applyAdjointHessian(*scratch_, *ui, getOpt(v), getOpt(x), tol);
       getOpt(ahuv).plus(*scratch_);

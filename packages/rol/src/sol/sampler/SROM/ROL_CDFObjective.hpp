@@ -48,7 +48,7 @@
 #include "ROL_BatchManager.hpp"
 #include "ROL_Vector.hpp"
 #include "ROL_Distribution.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 #include <math.h>
 
 namespace ROL {
@@ -57,10 +57,10 @@ template <class Real>
 class CDFObjective : public Objective<Real> {
 private:
   // Batch manager for parallel computation
-  std::shared_ptr<BatchManager<Real> > bman_;
+  ROL::SharedPointer<BatchManager<Real> > bman_;
 
   // Distribution information
-  std::vector<std::shared_ptr<Distribution<Real> > > dist_;
+  std::vector<ROL::SharedPointer<Distribution<Real> > > dist_;
   std::vector<Real> lowerBound_;
   std::vector<Real> upperBound_;
   int dimension_;
@@ -176,8 +176,8 @@ private:
   }
 
 public:
-  CDFObjective(const std::vector<std::shared_ptr<Distribution<Real> > > &dist,
-               const std::shared_ptr<BatchManager<Real> > &bman,
+  CDFObjective(const std::vector<ROL::SharedPointer<Distribution<Real> > > &dist,
+               const ROL::SharedPointer<BatchManager<Real> > &bman,
                const Real scale = 1.e-2,
                const bool optProb = true, const bool optAtom = true)
     : Objective<Real>(), bman_(bman), dist_(dist), dimension_(dist.size()),

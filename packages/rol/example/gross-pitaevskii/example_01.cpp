@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 
     // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
     int iprint     = argc - 1;
-    std::shared_ptr<std::ostream> outStream;
+    ROL::SharedPointer<std::ostream> outStream;
     Teuchos::oblackholestream bhs; // outputs nothing
     if (iprint > 0)
         outStream = &std::cout, false;
@@ -100,14 +100,14 @@ int main(int argc, char **argv) {
     RealT dx = 1.0/(nx+1);
 
     // Pointer to linspace type vector \f$x_i = \frac{i+1}{n_x+1}\f$ where \f$i=0,\hdots,n_x\f$
-    std::shared_ptr<std::vector<RealT> > xi_rcp = std::make_shared<std::vector<RealT>>(nx, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > xi_rcp = ROL::makeShared<std::vector<RealT>>(nx, 0.0);
     
     for(int i=0; i<nx; ++i) {
         (*xi_rcp)[i] = RealT(i+1)/(nx+1);
     }
     
     // Pointer to potential vector (quadratic centered at x=0.5)
-    std::shared_ptr<std::vector<RealT> > V_rcp = std::make_shared<std::vector<RealT>>(nx, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > V_rcp = ROL::makeShared<std::vector<RealT>>(nx, 0.0);
     for(int i=0; i<nx; ++i) {
        (*V_rcp)[i] = 100.0*pow((*xi_rcp)[i]-0.5,2);
     }
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     StdVector<RealT> V(V_rcp);
         
     // Iteration Vector (pointer to optimzation vector)
-    std::shared_ptr<std::vector<RealT> > psi_rcp = std::make_shared<std::vector<RealT>>(nx, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > psi_rcp = ROL::makeShared<std::vector<RealT>>(nx, 0.0);
 
        
     // Set Initial Guess (normalized)
@@ -128,15 +128,15 @@ int main(int argc, char **argv) {
     StdVector<RealT> psi(psi_rcp);
 
     // Constraint value (scalar)  
-    std::shared_ptr<std::vector<RealT> > c_rcp = std::make_shared<std::vector<RealT>>(1, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > c_rcp = ROL::makeShared<std::vector<RealT>>(1, 0.0);
     StdVector<RealT> c(c_rcp);
 
     // Lagrange multiplier value (scalar)   
-    std::shared_ptr<std::vector<RealT> > lam_rcp = std::make_shared<std::vector<RealT>>(1, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > lam_rcp = ROL::makeShared<std::vector<RealT>>(1, 0.0);
     StdVector<RealT> lam(lam_rcp);
 
     // Gradient   
-    std::shared_ptr<std::vector<RealT> > g_rcp = std::make_shared<std::vector<RealT>>(nx, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > g_rcp = ROL::makeShared<std::vector<RealT>>(nx, 0.0);
     StdVector<RealT> g(g_rcp);
 
     // Instantiate objective function  

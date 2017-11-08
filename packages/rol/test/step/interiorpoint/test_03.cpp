@@ -70,7 +70,7 @@ template<class Real>
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
   try {
-    std::shared_ptr<const std::vector<Real> > xp = 
+    ROL::SharedPointer<const std::vector<Real> > xp = 
       dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
     outStream << "Standard Vector" << std::endl;
@@ -95,8 +95,8 @@ void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 }
 
 template<class Real> 
-void printMatrix( const std::vector<std::shared_ptr<ROL::Vector<Real> > > &A,
-                  const std::vector<std::shared_ptr<ROL::Vector<Real> > > &I,
+void printMatrix( const std::vector<ROL::SharedPointer<ROL::Vector<Real> > > &A,
+                  const std::vector<ROL::SharedPointer<ROL::Vector<Real> > > &I,
                   std::ostream &outStream ) {
   typedef typename std::vector<Real>::size_type uint;
   uint dim = A.size();
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs;
   if( iprint > 0 ) 
     outStream = &std::cout,false;
@@ -179,59 +179,59 @@ int main(int argc, char *argv[]) {
 
     // Create a Conjugate Gradients solver 
     krylist.set("Type","Conjugate Gradients"); 
-    std::shared_ptr<KRYLOV> cg = ROL::KrylovFactory<RealT>(parlist);
+    ROL::SharedPointer<KRYLOV> cg = ROL::KrylovFactory<RealT>(parlist);
     HS::ProblemFactory<RealT> problemFactory;
 
     // Choose an example problem with inequality constraints and
     // a mixture of finite and infinite bounds
-    std::shared_ptr<NLP> nlp = problemFactory.getProblem(16);
-    std::shared_ptr<OPT> opt = nlp->getOptimizationProblem();
+    ROL::SharedPointer<NLP> nlp = problemFactory.getProblem(16);
+    ROL::SharedPointer<OPT> opt = nlp->getOptimizationProblem();
  
-    std::shared_ptr<V>   x   = opt->getSolutionVector();
-    std::shared_ptr<V>   l   = opt->getMultiplierVector();
-    std::shared_ptr<V>   zl  = x->clone(); zl->zero();
-    std::shared_ptr<V>   zu  = x->clone(); zu->zero();
+    ROL::SharedPointer<V>   x   = opt->getSolutionVector();
+    ROL::SharedPointer<V>   l   = opt->getMultiplierVector();
+    ROL::SharedPointer<V>   zl  = x->clone(); zl->zero();
+    ROL::SharedPointer<V>   zu  = x->clone(); zu->zero();
 
-    std::shared_ptr<V>   scratch = x->clone();
+    ROL::SharedPointer<V>   scratch = x->clone();
 
-    std::shared_ptr<PV>  x_pv = std::dynamic_pointer_cast<PV>(x);
+    ROL::SharedPointer<PV>  x_pv = ROL::dynamicPointerCast<PV>(x);
     // New slack variable initialization does not guarantee strict feasibility.
     // This ensures that the slack variables are the same as the previous
     // implementation.
-    (*std::dynamic_pointer_cast<ROL::StdVector<RealT> >(x_pv->get(1))->getVector())[0] = 1.0;
+    (*ROL::dynamicPointerCast<ROL::StdVector<RealT> >(x_pv->get(1))->getVector())[0] = 1.0;
 
-    std::shared_ptr<V>   sol = CreatePartitionedVector(x,l,zl,zu);   
+    ROL::SharedPointer<V>   sol = CreatePartitionedVector(x,l,zl,zu);   
 
-    std::vector<std::shared_ptr<V> > I;
-    std::vector<std::shared_ptr<V> > J;
+    std::vector<ROL::SharedPointer<V> > I;
+    std::vector<ROL::SharedPointer<V> > J;
 
     for( int k=0; k<sol->dimension(); ++k ) {
       I.push_back(sol->basis(k));
       J.push_back(sol->clone());
     }
 
-    std::shared_ptr<V>   u = sol->clone();
-    std::shared_ptr<V>   v = sol->clone();
+    ROL::SharedPointer<V>   u = sol->clone();
+    ROL::SharedPointer<V>   v = sol->clone();
 
-    std::shared_ptr<V>   rhs = sol->clone();
-    std::shared_ptr<V>   symrhs = sol->clone();
+    ROL::SharedPointer<V>   rhs = sol->clone();
+    ROL::SharedPointer<V>   symrhs = sol->clone();
 
-    std::shared_ptr<V>   gmres_sol = sol->clone();   gmres_sol->set(*sol);
-    std::shared_ptr<V>   cg_sol = sol->clone();      cg_sol->set(*sol);
+    ROL::SharedPointer<V>   gmres_sol = sol->clone();   gmres_sol->set(*sol);
+    ROL::SharedPointer<V>   cg_sol = sol->clone();      cg_sol->set(*sol);
  
     IdentityOperator<RealT> identity;
 
     RandomizeVector(*u,-1.0,1.0);
     RandomizeVector(*v,-1.0,1.0);
 
-    std::shared_ptr<OBJ> obj = opt->getObjective();
-    std::shared_ptr<CON> con = opt->getConstraint();
-    std::shared_ptr<BND> bnd = opt->getBoundConstraint();
+    ROL::SharedPointer<OBJ> obj = opt->getObjective();
+    ROL::SharedPointer<CON> con = opt->getConstraint();
+    ROL::SharedPointer<BND> bnd = opt->getBoundConstraint();
 
     PENALTY penalty(obj,bnd,parlist);
  
-    std::shared_ptr<const V> maskL = penalty.getLowerMask();
-    std::shared_ptr<const V> maskU = penalty.getUpperMask();
+    ROL::SharedPointer<const V> maskL = penalty.getLowerMask();
+    ROL::SharedPointer<const V> maskU = penalty.getUpperMask();
 
     zl->set(*maskL);
     zu->set(*maskU);
@@ -244,15 +244,15 @@ int main(int argc, char *argv[]) {
     int gmres_flag = 0;
 
     // Form the residual's Jacobian operator
-    std::shared_ptr<CON> res = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false);
-    std::shared_ptr<LOP> lop = std::make_shared<LOPEC>( sol, res );
+    ROL::SharedPointer<CON> res = ROL::makeShared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false);
+    ROL::SharedPointer<LOP> lop = ROL::makeShared<LOPEC>( sol, res );
 
     // Evaluate the right-hand-side
     res->value(*rhs,*sol,tol);
 
     // Create a GMRES solver
     krylist.set("Type","GMRES");
-    std::shared_ptr<KRYLOV> gmres = ROL::KrylovFactory<RealT>(parlist);
+    ROL::SharedPointer<KRYLOV> gmres = ROL::KrylovFactory<RealT>(parlist);
 
      for( int k=0; k<sol->dimension(); ++k ) {
       res->applyJacobian(*(J[k]),*(I[k]),*sol,tol);
@@ -277,12 +277,12 @@ int main(int argc, char *argv[]) {
     int cg_iter = 0;
     int cg_flag = 0;
 
-    std::shared_ptr<V> jv = v->clone();
-    std::shared_ptr<V> ju = u->clone();
+    ROL::SharedPointer<V> jv = v->clone();
+    ROL::SharedPointer<V> ju = u->clone();
 
     iplist.set("Symmetrize Primal Dual System",true);
-    std::shared_ptr<CON> symres = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,true);
-    std::shared_ptr<LOP> symlop = std::make_shared<LOPEC>( sol, res );
+    ROL::SharedPointer<CON> symres = ROL::makeShared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,true);
+    ROL::SharedPointer<LOP> symlop = ROL::makeShared<LOPEC>( sol, res );
     symres->value(*symrhs,*sol,tol);
 
     symres->applyJacobian(*jv,*v,*sol,tol);

@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -87,23 +87,23 @@ int main(int argc, char *argv[]) {
 
     int dim = 10; // Set problem dimension. 
 
-    std::shared_ptr<ParameterList> parlist = std::make_shared<ParameterList>();
+    ROL::SharedPointer<ParameterList> parlist = ROL::makeShared<ParameterList>();
     std::string paramfile = "parameters.xml";
     updateParametersFromXmlFile(paramfile,parlist.ptr());
 
-    std::shared_ptr<vector> x_rcp = std::make_shared<vector>(dim, 1.0);
-    std::shared_ptr<vector> k_rcp = std::make_shared<vector>(dim, 0.0);
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>(dim, 1.0);
+    ROL::SharedPointer<vector> k_rcp = ROL::makeShared<vector>(dim, 0.0);
 
-    std::shared_ptr<V> x = std::make_shared<SV>(x_rcp);  // Optimization vector
-    std::shared_ptr<V> k = std::make_shared<SV>(k_rcp);  // Vector appearing in Zakharov objective
+    ROL::SharedPointer<V> x = ROL::makeShared<SV>(x_rcp);  // Optimization vector
+    ROL::SharedPointer<V> k = ROL::makeShared<SV>(k_rcp);  // Vector appearing in Zakharov objective
 
-    std::shared_ptr<V> s = x->clone();            // Step vector
+    ROL::SharedPointer<V> s = x->clone();            // Step vector
 
     for( int i=0; i<dim; ++i ) {
       (*k_rcp)[i] = i+1.0;
     }
     
-    std::shared_ptr<ROL::Objective<RealT> > obj = std::make_shared<ROL::ZOO::Objective_Zakharov<RealT>>(k);
+    ROL::SharedPointer<ROL::Objective<RealT> > obj = ROL::makeShared<ROL::ZOO::Objective_Zakharov<RealT>>(k);
     
     ROL::OptimizationProblem<RealT> opt(obj,x);
     ROL::AlgorithmState<RealT> state;

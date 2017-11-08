@@ -55,9 +55,9 @@ private:
 
 public:
 
-ElasticityData(const std::shared_ptr<const Teuchos::Comm<int> > &comm,
-             const std::shared_ptr<Teuchos::ParameterList> &parlist,
-             const std::shared_ptr<std::ostream> &outStream) 
+ElasticityData(const ROL::SharedPointer<const Teuchos::Comm<int> > &comm,
+             const ROL::SharedPointer<Teuchos::ParameterList> &parlist,
+             const ROL::SharedPointer<std::ostream> &outStream) 
 {
 	this->Initialize (comm, parlist, outStream);
 	this->SetParallelStructure();

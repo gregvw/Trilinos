@@ -71,9 +71,9 @@ class StatusTestFactory;
 template <class Real>
 class Algorithm {
 private:
-  std::shared_ptr<Step<Real> >           step_;
-  std::shared_ptr<StatusTest<Real> >     status_;
-  std::shared_ptr<AlgorithmState<Real> > state_;
+  ROL::SharedPointer<Step<Real> >           step_;
+  ROL::SharedPointer<StatusTest<Real> >     status_;
+  ROL::SharedPointer<AlgorithmState<Real> > state_;
 
   bool printHeader_;
 
@@ -83,21 +83,21 @@ public:
 
   /** \brief Constructor, given a step and a status test.
   */
-  Algorithm( const std::shared_ptr<Step<Real> > & step,
-             const std::shared_ptr<StatusTest<Real> > & status,
+  Algorithm( const ROL::SharedPointer<Step<Real> > & step,
+             const ROL::SharedPointer<StatusTest<Real> > & status,
              bool printHeader = false ) {
     step_ = step;
     status_ = status;
-    state_ = std::make_shared<AlgorithmState<Real>>();
+    state_ = ROL::makeShared<AlgorithmState<Real>>();
     printHeader_ = printHeader;
   }
 
   /** \brief Constructor, given a step, a status test, and a
              previously defined algorithm state.
   */
-  Algorithm( const std::shared_ptr<Step<Real> > & step,
-             const std::shared_ptr<StatusTest<Real> > & status,
-             const std::shared_ptr<AlgorithmState<Real> > & state,
+  Algorithm( const ROL::SharedPointer<Step<Real> > & step,
+             const ROL::SharedPointer<StatusTest<Real> > & status,
+             const ROL::SharedPointer<AlgorithmState<Real> > & state,
              bool printHeader = false ) {
     step_ = step;
     status_ = status;
@@ -114,7 +114,7 @@ public:
              bool printHeader = false) {
 
 // Uncomment to test for parameter inconsistencies
-//    std::shared_ptr<const Teuchos::ParameterList> validParlist = getValidROLParameters();
+//    ROL::SharedPointer<const Teuchos::ParameterList> validParlist = getValidROLParameters();
 //    parlist.validateParametersAndSetDefaults(*validParlist);
 
     EStep els = StringToEStep(stepname);
@@ -125,7 +125,7 @@ public:
     StatusTestFactory<Real> statusTestFactory;
     step_   = stepFactory.getStep(stepname,parlist);
     status_ = statusTestFactory.getStatusTest(stepname,parlist);
-    state_  = std::make_shared<AlgorithmState<Real>>();
+    state_  = ROL::makeShared<AlgorithmState<Real>>();
     printHeader_ = printHeader;
   }
 
@@ -191,13 +191,13 @@ public:
     std::vector<std::string> output;
 
     // Initialize Current Iterate Container 
-    if ( state_->iterateVec == nullptr ) {
+    if ( state_->iterateVec == ROL::nullPointer ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
     // Initialize Step Container
-    std::shared_ptr<Vector<Real> > s = x.clone();
+    ROL::SharedPointer<Vector<Real> > s = x.clone();
 
     // Initialize Step
     step_->initialize(x, g, obj, bnd, *state_);
@@ -207,7 +207,7 @@ public:
     }
 
     // Initialize Minimum Value and Vector
-    if ( state_->minIterVec == nullptr ) {
+    if ( state_->minIterVec == ROL::nullPointer ) {
       state_->minIterVec = x.clone();
     }
     state_->minIterVec->set(x);
@@ -277,19 +277,19 @@ public:
     std::vector<std::string> output;
 
     // Initialize Current Iterate Container 
-    if ( state_->iterateVec == nullptr ) {
+    if ( state_->iterateVec == ROL::nullPointer ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
     // Initialize Current Lagrange Multiplier Container 
-    if ( state_->lagmultVec == nullptr ) {
+    if ( state_->lagmultVec == ROL::nullPointer ) {
       state_->lagmultVec = l.clone();
     }
     state_->lagmultVec->set(l);
 
     // Initialize Step Container
-    std::shared_ptr<Vector<Real> > s = x.clone();
+    ROL::SharedPointer<Vector<Real> > s = x.clone();
 
     // Initialize Step
     step_->initialize(x, g, l, c, obj, con, *state_);
@@ -299,7 +299,7 @@ public:
     }
 
     // Initialize Minimum Value and Vector
-    if ( state_->minIterVec == nullptr ) {
+    if ( state_->minIterVec == ROL::nullPointer ) {
       state_->minIterVec = x.clone();
     }
     state_->minIterVec->set(x);
@@ -360,19 +360,19 @@ public:
     std::vector<std::string> output;
 
     // Initialize Current Iterate Container 
-    if ( state_->iterateVec == nullptr ) {
+    if ( state_->iterateVec == ROL::nullPointer ) {
       state_->iterateVec = x.clone();
     }
     state_->iterateVec->set(x);
 
     // Initialize Current Lagrange Multiplier Container 
-    if ( state_->lagmultVec == nullptr ) {
+    if ( state_->lagmultVec == ROL::nullPointer ) {
       state_->lagmultVec = l.clone();
     }
     state_->lagmultVec->set(l);
 
     // Initialize Step Container
-    std::shared_ptr<Vector<Real> > s = x.clone();
+    ROL::SharedPointer<Vector<Real> > s = x.clone();
 
     // Initialize Step
     step_->initialize(x, g, l, c, obj, con, bnd, *state_);
@@ -382,7 +382,7 @@ public:
     }
 
     // Initialize Minimum Value and Vector
-    if ( state_->minIterVec == nullptr ) {
+    if ( state_->minIterVec == ROL::nullPointer ) {
       state_->minIterVec = x.clone();
     }
     state_->minIterVec->set(x);
@@ -410,15 +410,15 @@ public:
                                         bool                       print = false,
                                         std::ostream              &outStream = std::cout ) {
     // Get components of optimization problem
-    std::shared_ptr<Objective<Real> >          obj = opt.getObjective();
-    std::shared_ptr<Vector<Real> >             x   = opt.getSolutionVector();
-    std::shared_ptr<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
-    std::shared_ptr<Constraint<Real> >         con = opt.getConstraint();
-    std::shared_ptr<Vector<Real> >             l   = opt.getMultiplierVector();
+    ROL::SharedPointer<Objective<Real> >          obj = opt.getObjective();
+    ROL::SharedPointer<Vector<Real> >             x   = opt.getSolutionVector();
+    ROL::SharedPointer<BoundConstraint<Real> >    bnd = opt.getBoundConstraint();
+    ROL::SharedPointer<Constraint<Real> >         con = opt.getConstraint();
+    ROL::SharedPointer<Vector<Real> >             l   = opt.getMultiplierVector();
 
     // Call appropriate run function
-    if ( con == nullptr ) {
-      if ( bnd == nullptr ) {
+    if ( con == ROL::nullPointer ) {
+      if ( bnd == ROL::nullPointer ) {
         return run(*x,*obj,print,outStream);
       }
       else {
@@ -426,7 +426,7 @@ public:
       }
     }
     else {
-      if ( bnd == nullptr ) {
+      if ( bnd == ROL::nullPointer ) {
         return run(*x,*l,*obj,*con,print,outStream);
       }
       else {
@@ -443,12 +443,12 @@ public:
     return step_->print(*state_,withHeader);
   }
 
-  std::shared_ptr<const AlgorithmState<Real> > getState(void) const {
+  ROL::SharedPointer<const AlgorithmState<Real> > getState(void) const {
     return state_;
   }
 
   void reset(void) {
-    state_  = std::make_shared<AlgorithmState<Real>>();
+    state_  = ROL::makeShared<AlgorithmState<Real>>();
   }
 
 

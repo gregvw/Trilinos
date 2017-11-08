@@ -69,9 +69,9 @@ public:
   matrix(const int dim) : dim_(dim) {}
 
   void apply( ROL::Vector<Real> &Hv, const ROL::Vector<Real> &v, Real &tol ) const {
-    std::shared_ptr<std::vector<Real> > Hvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(Hv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp
+    ROL::SharedPointer<std::vector<Real> > Hvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(Hv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp
       = (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
     for (int i = 0; i < dim_; i++) {
       (*Hvp)[i] = 2.0*(*vp)[i];
@@ -94,9 +94,9 @@ public:
   precond(const int dim) : dim_(dim) {}
 
   void apply( ROL::Vector<Real> &Hv, const ROL::Vector<Real> &v, Real &tol ) const {
-    std::shared_ptr<std::vector<Real> > Hvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(Hv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp
+    ROL::SharedPointer<std::vector<Real> > Hvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(Hv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp
       = (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
     for (int i = 0; i < dim_; i++) {
       (*Hvp)[i] = 2.0*(*vp)[i];
@@ -104,9 +104,9 @@ public:
   }
 
   void applyInverse( ROL::Vector<Real> &Hv, const ROL::Vector<Real> &v, Real &tol ) const {
-    std::shared_ptr<std::vector<Real> > Hvp =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(Hv)).getVector());
-    std::shared_ptr<const std::vector<Real> > vp
+    ROL::SharedPointer<std::vector<Real> > Hvp =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(Hv)).getVector());
+    ROL::SharedPointer<const std::vector<Real> > vp
       = (dynamic_cast<ROL::StdVector<Real> >(const_cast<ROL::Vector<Real> &&>(v))).getVector();
     for (int i = 0; i < dim_; i++) {
       (*Hvp)[i] = 0.5*(*vp)[i];
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -134,26 +134,26 @@ int main(int argc, char *argv[]) {
 
     // Set up problem data
     int dim = 10; // Set problem dimension. 
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
-    std::shared_ptr<std::vector<RealT> > g_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
-    std::shared_ptr<std::vector<RealT> > d_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
-    std::shared_ptr<std::vector<RealT> > v_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > g_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > d_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > v_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     for (int i=0; i<dim; i++) {
       (*x_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
       (*g_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
       (*d_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
       (*v_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
     }
-    std::shared_ptr<ROL::Vector<RealT> > x = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > g = std::make_shared<ROL::StdVector<RealT>>(g_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > d = std::make_shared<ROL::StdVector<RealT>>(d_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > v = std::make_shared<ROL::StdVector<RealT>>(v_rcp);
-    std::shared_ptr<ROL::LinearOperator<RealT> > op = std::make_shared<matrix<RealT>>(dim);
-    std::shared_ptr<ROL::Objective<RealT> > obj = std::make_shared<ROL::QuadraticObjective<RealT>>(op,g);
+    ROL::SharedPointer<ROL::Vector<RealT> > x = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > g = ROL::makeShared<ROL::StdVector<RealT>>(g_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > d = ROL::makeShared<ROL::StdVector<RealT>>(d_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > v = ROL::makeShared<ROL::StdVector<RealT>>(v_rcp);
+    ROL::SharedPointer<ROL::LinearOperator<RealT> > op = ROL::makeShared<matrix<RealT>>(dim);
+    ROL::SharedPointer<ROL::Objective<RealT> > obj = ROL::makeShared<ROL::QuadraticObjective<RealT>>(op,g);
 
    // Define algorithm
-    std::shared_ptr<Teuchos::ParameterList> parlist
-      = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist
+      = ROL::makeShared<Teuchos::ParameterList>();
     std::string paramfile = "input.xml";
     Teuchos::updateParametersFromXmlFile(paramfile,parlist.ptr());
     ROL::Algorithm<RealT> algo("Trust-Region",*parlist);
@@ -172,9 +172,9 @@ int main(int argc, char *argv[]) {
     // Solve using Krylov
     RealT absTol = 1.e-4, relTol = 1.e-2;
     int iter = 2*dim+1;
-    std::shared_ptr<ROL::Krylov<RealT> > kv
-      = std::make_shared<ROL::ConjugateGradients<RealT>>(absTol,relTol,iter,false);
-    std::shared_ptr<ROL::LinearOperator<RealT> > M = std::make_shared<precond<RealT>>(dim);
+    ROL::SharedPointer<ROL::Krylov<RealT> > kv
+      = ROL::makeShared<ROL::ConjugateGradients<RealT>>(absTol,relTol,iter,false);
+    ROL::SharedPointer<ROL::LinearOperator<RealT> > M = ROL::makeShared<precond<RealT>>(dim);
     int iterCG = 0, flagCG = 0;
     kv->run(*v,*op,*g,*M,iterCG,flagCG);
     v->scale(-1.0);

@@ -65,9 +65,9 @@ namespace ROL {
 template<class Real>
 class ExpUtility : public RiskMeasure<Real> {
 private:
-  std::shared_ptr<Vector<Real> > scaledGradient_;
-  std::shared_ptr<Vector<Real> > dualVector1_;
-  std::shared_ptr<Vector<Real> > dualVector2_;
+  ROL::SharedPointer<Vector<Real> > scaledGradient_;
+  ROL::SharedPointer<Vector<Real> > dualVector1_;
+  ROL::SharedPointer<Vector<Real> > dualVector2_;
   bool firstReset_;
 
   Real coeff_;
@@ -104,7 +104,7 @@ public:
     checkInputs();
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
     RiskMeasure<Real>::reset(x0,x);
     if ( firstReset_ ) {
       scaledGradient_ = (x0->dual()).clone();
@@ -115,10 +115,10 @@ public:
     scaledGradient_->zero(); dualVector1_->zero(); dualVector2_->zero();
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
-             std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0 = std::const_pointer_cast<Vector<Real> >(
+    v0 = ROL::constPointerCast<Vector<Real> >(
            dynamic_cast<const RiskVector<Real>&>(v).getVector());
   }
 

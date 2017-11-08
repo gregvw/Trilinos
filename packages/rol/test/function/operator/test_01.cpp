@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -96,20 +96,20 @@ int main(int argc, char *argv[]) {
 
   try {
 
-    auto a_rcp = std::make_shared<vector, std::initializer_list<RealT>>({4.0,2.0,1.0,3.0});
-    auto ai_rcp = std::make_shared<vector, std::initializer_list<RealT>>({3.0/10.0, -2.0/10.0, -1.0/10.0, 4.0/10.0});
+    auto a_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({4.0,2.0,1.0,3.0});
+    auto ai_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({3.0/10.0, -2.0/10.0, -1.0/10.0, 4.0/10.0});
 
-    auto x1_rcp  = std::make_shared<vector, std::initializer_list<RealT>>({1.0,-1.0});
-    auto b1_rcp = std::make_shared<vector>(2);
+    auto x1_rcp  = ROL::makeShared<vector, std::initializer_list<RealT>>({1.0,-1.0});
+    auto b1_rcp = ROL::makeShared<vector>(2);
 
-    auto x2_rcp = std::make_shared<vector>(2);
-    auto b2_rcp  = std::make_shared<vector, std::initializer_list<RealT>>({3.0,-1.0});
+    auto x2_rcp = ROL::makeShared<vector>(2);
+    auto b2_rcp  = ROL::makeShared<vector, std::initializer_list<RealT>>({3.0,-1.0});
 
-    auto y3_rcp = std::make_shared<vector, std::initializer_list<RealT>>({-2.0,1.0});
-    auto c3_rcp = std::make_shared<vector>(2);
+    auto y3_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({-2.0,1.0});
+    auto c3_rcp = ROL::makeShared<vector>(2);
 
-    auto y4_rcp = std::make_shared<vector>(2);
-    auto c4_rcp = std::make_shared<vector, std::initializer_list<RealT>>({-6.0,1.0});
+    auto y4_rcp = ROL::makeShared<vector>(2);
+    auto c4_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({-6.0,1.0});
 
     StdLinearOperator A(a_rcp);
     StdLinearOperator Ai(ai_rcp);

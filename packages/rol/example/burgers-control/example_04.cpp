@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -95,17 +95,17 @@ int main(int argc, char *argv[]) {
     RealT f     = 0.0;   // Constant volumetric force.
     RealT cH1   = 1.0;   // Scale for derivative term in H1 norm.
     RealT cL2   = 0.0;   // Scale for mass term in H1 norm.
-    std::shared_ptr<BurgersFEM<RealT> > fem
-      = std::make_shared<BurgersFEM<RealT>>(nx,nu,nl,u0,u1,f,cH1,cL2);
+    ROL::SharedPointer<BurgersFEM<RealT> > fem
+      = ROL::makeShared<BurgersFEM<RealT>>(nx,nu,nl,u0,u1,f,cH1,cL2);
     fem->test_inverse_mass(*outStream);
     fem->test_inverse_H1(*outStream);
     /*************************************************************************/
     /************* INITIALIZE SIMOPT OBJECTIVE FUNCTION **********************/
     /*************************************************************************/
-    std::shared_ptr<std::vector<RealT> > ud_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.);
-    std::shared_ptr<ROL::Vector<RealT> > ud
-      = std::make_shared<L2VectorPrimal<RealT>>(ud_rcp,fem);
+    ROL::SharedPointer<std::vector<RealT> > ud_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.);
+    ROL::SharedPointer<ROL::Vector<RealT> > ud
+      = ROL::makeShared<L2VectorPrimal<RealT>>(ud_rcp,fem);
     Objective_BurgersControl<RealT> obj(fem,ud,alpha);
     /*************************************************************************/
     /************* INITIALIZE SIMOPT EQUALITY CONSTRAINT *********************/
@@ -118,14 +118,14 @@ int main(int argc, char *argv[]) {
     // INITIALIZE STATE CONSTRAINTS
     std::vector<RealT> Ulo(nx, 0.), Uhi(nx, 1.);
     //std::vector<RealT> Ulo(nx, -1.e8), Uhi(nx, 1.e8);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > Ubnd
-       = std::make_shared<H1BoundConstraint<RealT>>(Ulo,Uhi,fem);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > Ubnd
+       = ROL::makeShared<H1BoundConstraint<RealT>>(Ulo,Uhi,fem);
     //Ubnd->deactivate();
     // INITIALIZE CONTROL CONSTRAINTS
     //std::vector<RealT> Zlo(nx+2, -1.e8), Zhi(nx+2, 1.e8);
     std::vector<RealT> Zlo(nx+2,0.), Zhi(nx+2,2.);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > Zbnd
-      = std::make_shared<L2BoundConstraint<RealT>>(Zlo,Zhi,fem);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > Zbnd
+      = ROL::makeShared<L2BoundConstraint<RealT>>(Zlo,Zhi,fem);
     //Zbnd->deactivate();
     // INITIALIZE SIMOPT BOUND CONSTRAINTS
     ROL::BoundConstraint_SimOpt<RealT> bnd(Ubnd,Zbnd);
@@ -134,47 +134,47 @@ int main(int argc, char *argv[]) {
     /************* INITIALIZE VECTOR STORAGE *********************************/
     /*************************************************************************/
     // INITIALIZE CONTROL VECTORS
-    std::shared_ptr<std::vector<RealT> > z_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 0.);
-    std::shared_ptr<std::vector<RealT> > zrand_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 1.);
-    std::shared_ptr<std::vector<RealT> > gz_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 1.);
-    std::shared_ptr<std::vector<RealT> > yz_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 1.);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 0.);
+    ROL::SharedPointer<std::vector<RealT> > zrand_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 1.);
+    ROL::SharedPointer<std::vector<RealT> > gz_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 1.);
+    ROL::SharedPointer<std::vector<RealT> > yz_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 1.);
     for (int i=0; i<nx+2; i++) {
       (*zrand_rcp)[i] = 10.*(RealT)rand()/(RealT)RAND_MAX-5.;
       (*yz_rcp)[i] = 10.*(RealT)rand()/(RealT)RAND_MAX-5.;
     }
-    std::shared_ptr<ROL::Vector<RealT> > zp
-      = std::make_shared<PrimalControlVector>(z_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > zrandp
-      = std::make_shared<PrimalControlVector>(zrand_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > gzp
-      = std::make_shared<DualControlVector>(gz_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > yzp
-      = std::make_shared<PrimalControlVector>(yz_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > zp
+      = ROL::makeShared<PrimalControlVector>(z_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > zrandp
+      = ROL::makeShared<PrimalControlVector>(zrand_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > gzp
+      = ROL::makeShared<DualControlVector>(gz_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > yzp
+      = ROL::makeShared<PrimalControlVector>(yz_rcp,fem);
     // INITIALIZE STATE VECTORS
-    std::shared_ptr<std::vector<RealT> > u_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.);
-    std::shared_ptr<std::vector<RealT> > gu_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.);
-    std::shared_ptr<std::vector<RealT> > yu_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.);
+    ROL::SharedPointer<std::vector<RealT> > u_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.);
+    ROL::SharedPointer<std::vector<RealT> > gu_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.);
+    ROL::SharedPointer<std::vector<RealT> > yu_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.);
     for (int i=0; i<nx; i++) {
       (*yu_rcp)[i] = 10.*(RealT)rand()/(RealT)RAND_MAX-5.;
     }
-    std::shared_ptr<ROL::Vector<RealT> > up
-      = std::make_shared<PrimalStateVector>(u_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > gup
-      = std::make_shared<DualStateVector>(gu_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > yup
-      = std::make_shared<PrimalStateVector>(yu_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > up
+      = ROL::makeShared<PrimalStateVector>(u_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > gup
+      = ROL::makeShared<DualStateVector>(gu_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > yup
+      = ROL::makeShared<PrimalStateVector>(yu_rcp,fem);
     // INITIALIZE CONSTRAINT VECTORS
-    std::shared_ptr<std::vector<RealT> > c_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.);
-    std::shared_ptr<std::vector<RealT> > l_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.);
+    ROL::SharedPointer<std::vector<RealT> > c_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.);
+    ROL::SharedPointer<std::vector<RealT> > l_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.);
     for (int i=0; i<nx; i++) {
       (*l_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
     }
@@ -186,8 +186,8 @@ int main(int argc, char *argv[]) {
     ROL::Vector_SimOpt<RealT> y(yup,yzp);
     // READ IN XML INPUT
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist
-      = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist
+      = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     /*************************************************************************/
     /************* CHECK DERIVATIVES AND CONSISTENCY *************************/
@@ -207,9 +207,9 @@ int main(int argc, char *argv[]) {
     con.checkInverseAdjointJacobian_1(c,*yup,*up,*zp,true,*outStream);
     *outStream << "\n";
     // CHECK PENALTY OBJECTIVE DERIVATIVES
-    std::shared_ptr<ROL::Objective<RealT> > obj_ptr = Teuchos::rcpFromRef(obj);
-    std::shared_ptr<ROL::Constraint<RealT> > con_ptr = Teuchos::rcpFromRef(con);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd_ptr = Teuchos::rcpFromRef(bnd);
+    ROL::SharedPointer<ROL::Objective<RealT> > obj_ptr = Teuchos::rcpFromRef(obj);
+    ROL::SharedPointer<ROL::Constraint<RealT> > con_ptr = Teuchos::rcpFromRef(con);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd_ptr = Teuchos::rcpFromRef(bnd);
     ROL::MoreauYosidaPenalty<RealT> myPen(obj_ptr,bnd_ptr,x,*parlist);
     myPen.checkGradient(x, y, true, *outStream);
     myPen.checkHessVec(x, g, y, true, *outStream);
@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
     con.applyInverseAdjointJacobian_1(l,*gup,*up,*zp,zerotol);
     gup->zero(); c.zero();
     algoMY.run(x, g, l, c, myPen, con, bnd, true, *outStream);
-    std::shared_ptr<ROL::Vector<RealT> > xMY = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > xMY = x.clone();
     xMY->set(x);
     // SOLVE USING AUGMENTED LAGRANGIAN
     ROL::Algorithm<RealT> algoAL("Augmented Lagrangian",*parlist,false);
@@ -241,7 +241,7 @@ int main(int argc, char *argv[]) {
     gup->zero(); c.zero();
     algoAL.run(x, g, l, c, myAugLag, con, bnd, true, *outStream);
     // COMPARE SOLUTIONS
-    std::shared_ptr<ROL::Vector<RealT> > err = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > err = x.clone();
     err->set(x); err->axpy(-1.,*xMY);
     errorFlag += ((err->norm() > 1.e-7*x.norm()) ? 1 : 0);
   }

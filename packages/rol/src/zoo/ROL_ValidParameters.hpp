@@ -52,11 +52,11 @@ namespace ROL {
 
 /* ROL Parameters */
 
-inline std::shared_ptr<const Teuchos::ParameterList> getValidROLParameters() {
+inline ROL::SharedPointer<const Teuchos::ParameterList> getValidROLParameters() {
   
   typedef Teuchos::ParameterList PL;
 
-  std::shared_ptr<PL> rol = std::make_shared<PL>("ROL");
+  ROL::SharedPointer<PL> rol = ROL::makeShared<PL>("ROL");
 
   /* ===== GENERAL INPUT PARAMETERS ============================ */ 
   PL &general = rol->sublist("General");
@@ -287,11 +287,11 @@ inline std::shared_ptr<const Teuchos::ParameterList> getValidROLParameters() {
 
 /* SOL Parameters */
 
-inline std::shared_ptr<const Teuchos::ParameterList> getValidSOLParameters() {
+inline ROL::SharedPointer<const Teuchos::ParameterList> getValidSOLParameters() {
   
   typedef Teuchos::ParameterList PL;
 
-  std::shared_ptr<PL> sol = std::make_shared<PL>("SOL");
+  ROL::SharedPointer<PL> sol = ROL::makeShared<PL>("SOL");
 
   sol->set("Stochastic Component Type",  "Risk Neutral");
   sol->set("Store Sampled Value and Gradient", true);

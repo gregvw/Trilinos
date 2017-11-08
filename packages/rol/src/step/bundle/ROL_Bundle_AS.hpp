@@ -59,11 +59,11 @@ class Bundle_AS : public Bundle<Real> {
 /***********************************************************************************************/
 private:
 
-  std::shared_ptr<Vector<Real> > tG_;
-  std::shared_ptr<Vector<Real> > eG_;
-  std::shared_ptr<Vector<Real> > yG_;
-  std::shared_ptr<Vector<Real> > gx_;
-  std::shared_ptr<Vector<Real> > ge_;
+  ROL::SharedPointer<Vector<Real> > tG_;
+  ROL::SharedPointer<Vector<Real> > eG_;
+  ROL::SharedPointer<Vector<Real> > yG_;
+  ROL::SharedPointer<Vector<Real> > gx_;
+  ROL::SharedPointer<Vector<Real> > ge_;
 
   std::set<unsigned> workingSet_;
   std::set<unsigned> nworkingSet_;

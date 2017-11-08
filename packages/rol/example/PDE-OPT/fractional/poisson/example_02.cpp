@@ -73,12 +73,12 @@ typedef double RealT;
 int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     // Set parameters for cylidner mesh
@@ -118,67 +118,67 @@ int main(int argc, char *argv[]) {
     *outStream << std::endl;
 
     // Initialize 2D Poisson's equation
-    std::shared_ptr<MeshManager<RealT> > meshMgr_local
-      = std::make_shared<MeshManager_Rectangle<RealT>>(*parlist);
-    std::shared_ptr<PDE_Fractional_Poisson_Local<RealT> > pde_local
-      = std::make_shared<PDE_Fractional_Poisson_Local<RealT>>(*parlist);
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr_local
+      = ROL::makeShared<MeshManager_Rectangle<RealT>>(*parlist);
+    ROL::SharedPointer<PDE_Fractional_Poisson_Local<RealT> > pde_local
+      = ROL::makeShared<PDE_Fractional_Poisson_Local<RealT>>(*parlist);
     // Initialize 1D singular Poisson's equation
-    std::shared_ptr<MeshManager<RealT> > meshMgr_cylinder
-      = std::make_shared<MeshManager_Fractional_Cylinder<RealT>>(*parlist);
-    std::shared_ptr<PDE_Fractional_Poisson_Cylinder<RealT> > pde_cylinder
-      = std::make_shared<PDE_Fractional_Poisson_Cylinder<RealT>>(*parlist);
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr_cylinder
+      = ROL::makeShared<MeshManager_Fractional_Cylinder<RealT>>(*parlist);
+    ROL::SharedPointer<PDE_Fractional_Poisson_Cylinder<RealT> > pde_cylinder
+      = ROL::makeShared<PDE_Fractional_Poisson_Cylinder<RealT>>(*parlist);
     // Build fractional constraint
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con
       = Teuchos::rcp(new FractionalConstraint<RealT>(pde_local,    meshMgr_local,    comm,
                                                      pde_cylinder, meshMgr_cylinder, comm,
                                                      *parlist, *outStream));
-    std::shared_ptr<FractionalConstraint<RealT> > fracCon
-      = std::dynamic_pointer_cast<FractionalConstraint<RealT> >(con);
-    std::shared_ptr<Assembler<RealT> > assembler = fracCon->getLocalAssembler();
+    ROL::SharedPointer<FractionalConstraint<RealT> > fracCon
+      = ROL::dynamicPointerCast<FractionalConstraint<RealT> >(con);
+    ROL::SharedPointer<Assembler<RealT> > assembler = fracCon->getLocalAssembler();
 
     // Build objective fuction
-    std::vector<std::shared_ptr<QoI<RealT> > > qoi_vec(2,nullptr);
-    qoi_vec[0] = std::make_shared<QoI_L2Tracking_Fractional_Poisson<RealT>(pde_local->getFE>());
-    qoi_vec[1] = std::make_shared<QoI_L2Penalty_Fractional_Poisson<RealT>(pde_local->getFE>());
+    std::vector<ROL::SharedPointer<QoI<RealT> > > qoi_vec(2,ROL::nullPointer);
+    qoi_vec[0] = ROL::makeShared<QoI_L2Tracking_Fractional_Poisson<RealT>(pde_local->getFE>());
+    qoi_vec[1] = ROL::makeShared<QoI_L2Penalty_Fractional_Poisson<RealT>(pde_local->getFE>());
     RealT stateCost   = parlist->sublist("Problem").get("State Cost",1e0);
     RealT controlCost = parlist->sublist("Problem").get("Control Cost",1e0);
     std::vector<RealT> wts = {stateCost, controlCost};
-    std::shared_ptr<ROL::Objective_SimOpt<RealT> > pdeobj
-      = std::make_shared<PDE_Objective<RealT>>(qoi_vec,wts,assembler);
-    std::shared_ptr<ROL::Objective_SimOpt<RealT> > obj
-      = std::make_shared<FractionalObjective<RealT>>(pdeobj);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > pdeobj
+      = ROL::makeShared<PDE_Objective<RealT>>(qoi_vec,wts,assembler);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > obj
+      = ROL::makeShared<FractionalObjective<RealT>>(pdeobj);
 
     // Build vectors
-    std::shared_ptr<Tpetra::MultiVector<> > stateVec = assembler->createStateVector();
-    std::shared_ptr<Tpetra::MultiVector<> > u_rcp    = std::make_shared<Tpetra::MultiVector<>(stateVec->getMap>(),NI+1);
-    std::shared_ptr<Tpetra::MultiVector<> > p_rcp    = std::make_shared<Tpetra::MultiVector<>(stateVec->getMap>(),NI+1);
-    std::shared_ptr<Tpetra::MultiVector<> > du_rcp   = std::make_shared<Tpetra::MultiVector<>(stateVec->getMap>(),NI+1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > stateVec = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp    = ROL::makeShared<Tpetra::MultiVector<>(stateVec->getMap>(),NI+1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > p_rcp    = ROL::makeShared<Tpetra::MultiVector<>(stateVec->getMap>(),NI+1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > du_rcp   = ROL::makeShared<Tpetra::MultiVector<>(stateVec->getMap>(),NI+1);
     u_rcp->randomize();  //u_rcp->putScalar(static_cast<RealT>(1));
     p_rcp->randomize();  //p_rcp->putScalar(static_cast<RealT>(1));
     du_rcp->randomize(); //du_rcp->putScalar(static_cast<RealT>(0));
-    std::shared_ptr<ROL::Vector<RealT> > up  = std::make_shared<ROL::TpetraMultiVector<RealT>>(u_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > pp  = std::make_shared<ROL::TpetraMultiVector<RealT>>(p_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > dup = std::make_shared<ROL::TpetraMultiVector<RealT>>(du_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > up  = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(u_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > pp  = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(p_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > dup = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(du_rcp);
     // Create residual vectors
-    std::shared_ptr<Tpetra::MultiVector<> > conVec = assembler->createResidualVector();
-    std::shared_ptr<Tpetra::MultiVector<> > r_rcp  = std::make_shared<Tpetra::MultiVector<>(conVec->getMap>(),NI+1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > conVec = assembler->createResidualVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > r_rcp  = ROL::makeShared<Tpetra::MultiVector<>(conVec->getMap>(),NI+1);
     r_rcp->randomize(); //r_rcp->putScalar(static_cast<RealT>(1));
-    std::shared_ptr<ROL::Vector<RealT> > rp = std::make_shared<ROL::TpetraMultiVector<RealT>>(r_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > rp = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(r_rcp);
     // Create control vector and set to ones
-    std::shared_ptr<Tpetra::MultiVector<> > z_rcp  = assembler->createControlVector();
-    std::shared_ptr<Tpetra::MultiVector<> > dz_rcp = assembler->createControlVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > z_rcp  = assembler->createControlVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > dz_rcp = assembler->createControlVector();
     z_rcp->randomize();  //z_rcp->putScalar(static_cast<RealT>(1));
     dz_rcp->randomize(); //dz_rcp->putScalar(static_cast<RealT>(0));
-    std::shared_ptr<ROL::Vector<RealT> > zp  = std::make_shared<ROL::TpetraMultiVector<RealT>>(z_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > dzp = std::make_shared<ROL::TpetraMultiVector<RealT>>(dz_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > zp  = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(z_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > dzp = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(dz_rcp);
     // Create ROL SimOpt vectors
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> d(dup,dzp);
 
     // Build reduced objective function
     bool storage = parlist->sublist("Problem").get("Use State and Adjoint Storage",true);
-    std::shared_ptr<ROL::Reduced_Objective_SimOpt<RealT> > objReduced
-      = std::make_shared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, pp, storage, false);
+    ROL::SharedPointer<ROL::Reduced_Objective_SimOpt<RealT> > objReduced
+      = ROL::makeShared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, pp, storage, false);
 
     // Check derivatives.
     bool checkDeriv = parlist->sublist("Problem").get("Check Derivatives",false);
@@ -227,8 +227,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Run optimization
-    std::shared_ptr<ROL::Algorithm<RealT> > algo
-      = std::make_shared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo
+      = ROL::makeShared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
     zp->zero();
     algo->run(*zp,*objReduced,true,*outStream);
 

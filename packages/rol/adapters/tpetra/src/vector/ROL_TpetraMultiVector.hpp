@@ -153,19 +153,19 @@ template <class Real,
           class Node=Tpetra::Map<>::node_type >
 class TpetraMultiVector : public Vector<Real> {
 private:
-  const std::shared_ptr<Tpetra::MultiVector<Real,LO,GO,Node> > tpetra_vec_;
-  const std::shared_ptr<const Tpetra::Map<LO,GO,Node> > map_;
-  const std::shared_ptr<const Teuchos::Comm<int> > comm_;
+  const ROL::SharedPointer<Tpetra::MultiVector<Real,LO,GO,Node> > tpetra_vec_;
+  const ROL::SharedPointer<const Tpetra::Map<LO,GO,Node> > map_;
+  const ROL::SharedPointer<const Teuchos::Comm<int> > comm_;
 
 protected:
-  const std::shared_ptr<const Tpetra::Map<LO,GO,Node> > getMap(void) const {
+  const ROL::SharedPointer<const Tpetra::Map<LO,GO,Node> > getMap(void) const {
     return map_;
   }
 
 public:
   virtual ~TpetraMultiVector() {}
 
-  TpetraMultiVector(const std::shared_ptr<Tpetra::MultiVector<Real,LO,GO,Node> > &tpetra_vec)
+  TpetraMultiVector(const ROL::SharedPointer<Tpetra::MultiVector<Real,LO,GO,Node> > &tpetra_vec)
     : tpetra_vec_(tpetra_vec), map_(tpetra_vec_->getMap()), comm_(map_->getComm()) {}
 
   /** \brief Assign \f$y \leftarrow x \f$ where \f$y = \mbox{*this}\f$.
@@ -231,10 +231,10 @@ public:
 
   /** \brief Clone to make a new (uninitialized) vector.
   */
-  virtual std::shared_ptr<Vector<Real> > clone() const {
+  virtual ROL::SharedPointer<Vector<Real> > clone() const {
     size_t n = tpetra_vec_->getNumVectors();
     return Teuchos::rcp( new TpetraMultiVector(
-           std::make_shared<Tpetra::MultiVector<Real,LO,GO,Node>>(map_,n)));
+           ROL::makeShared<Tpetra::MultiVector<Real,LO,GO,Node>>(map_,n)));
   }
 
   /**  \brief Set to zero vector.
@@ -244,27 +244,27 @@ public:
     tpetra_vec_->putScalar(zero);
   }
 
-  std::shared_ptr<const Tpetra::MultiVector<Real,LO,GO,Node> > getVector() const {
+  ROL::SharedPointer<const Tpetra::MultiVector<Real,LO,GO,Node> > getVector() const {
     return tpetra_vec_;
   }
 
-  std::shared_ptr<Tpetra::MultiVector<Real,LO,GO,Node> > getVector() {
+  ROL::SharedPointer<Tpetra::MultiVector<Real,LO,GO,Node> > getVector() {
     return tpetra_vec_;
   }
 
-  std::shared_ptr<Vector<Real> > basis( const int i ) const {
+  ROL::SharedPointer<Vector<Real> > basis( const int i ) const {
     TEUCHOS_TEST_FOR_EXCEPTION( i >= dimension() || i<0,
                                 std::invalid_argument,
                                 "Error: Basis index must be between 0 and vector dimension." );
     const size_t n = tpetra_vec_->getNumVectors();
-    std::shared_ptr<Tpetra::MultiVector<Real,LO,GO,Node> > e
-      = std::make_shared<Tpetra::MultiVector<Real,LO,GO,Node>>(map_,n);
+    ROL::SharedPointer<Tpetra::MultiVector<Real,LO,GO,Node> > e
+      = ROL::makeShared<Tpetra::MultiVector<Real,LO,GO,Node>>(map_,n);
     if (!map_.is_null() && map_->isNodeGlobalElement(static_cast<GO>(i))) {
       for (size_t j = 0; j < n; ++j) {
         e->replaceGlobalValue (i, j, Teuchos::ScalarTraits<Real>::one());
       }
     }
-    return std::make_shared<TpetraMultiVector>(e);
+    return ROL::makeShared<TpetraMultiVector>(e);
   }
 
   int dimension() const {
@@ -296,7 +296,7 @@ public:
                                 "Error: Vectors must have the same dimension." );
 
    const TpetraMultiVector &ex = dynamic_cast<const TpetraMultiVector&>(x);
-   std::shared_ptr<const Tpetra::MultiVector<Real,LO,GO,Node> > xp = ex.getVector();
+   ROL::SharedPointer<const Tpetra::MultiVector<Real,LO,GO,Node> > xp = ex.getVector();
 
     ViewType v_lcl = tpetra_vec_->getDualView().d_view;
     ViewType x_lcl = xp->getDualView().d_view;

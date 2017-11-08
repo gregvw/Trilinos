@@ -56,7 +56,7 @@
 template<class Real>
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
-  std::shared_ptr<const std::vector<Real> > xp =
+  ROL::SharedPointer<const std::vector<Real> > xp =
     dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
   outStream << "Standard Vector" << std::endl;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -96,11 +96,11 @@ int main(int argc, char *argv[]) {
     RealT tol = std::sqrt(ROL::ROL_EPSILON<RealT>());
 
 
-    std::shared_ptr<V> v   = std::make_shared<SV>(std::make_shared<std::vector<RealT>>(dim));
-    std::shared_ptr<V> Hv  = v->clone();
-    std::shared_ptr<V> HHv = v->clone();
+    ROL::SharedPointer<V> v   = ROL::makeShared<SV>(ROL::makeShared<std::vector<RealT>>(dim));
+    ROL::SharedPointer<V> Hv  = v->clone();
+    ROL::SharedPointer<V> HHv = v->clone();
 
-    std::shared_ptr<V> e0 = v->basis(0);
+    ROL::SharedPointer<V> e0 = v->basis(0);
 
     RandomizeVector(*v);
 

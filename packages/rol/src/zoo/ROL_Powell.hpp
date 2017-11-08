@@ -68,7 +68,7 @@ public:
   Objective_Powell() {}
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > xp
+    ROL::SharedPointer<const std::vector<Real> > xp
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real f1 = 1.e4*(*xp)[0]*(*xp)[1] - 1.0;
@@ -78,9 +78,9 @@ public:
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > gp
+    ROL::SharedPointer<std::vector<Real> > gp
       = dynamic_cast<DualScaledStdVector<Real>&>(g).getVector();
-    std::shared_ptr<const std::vector<Real> > xp
+    ROL::SharedPointer<const std::vector<Real> > xp
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real f1 = 1.e4*(*xp)[0]*(*xp)[1] - 1.0;
@@ -96,11 +96,11 @@ public:
   }
 #if USE_HESSVEC
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > hvp
+    ROL::SharedPointer<std::vector<Real> > hvp
       = dynamic_cast<DualScaledStdVector<Real>&>(hv).getVector();
-    std::shared_ptr<const std::vector<Real> > vp
+    ROL::SharedPointer<const std::vector<Real> > vp
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(v).getVector();
-    std::shared_ptr<const std::vector<Real> > xp
+    ROL::SharedPointer<const std::vector<Real> > xp
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real f1 = 1.e4*(*xp)[0]*(*xp)[1] - 1.0;
@@ -130,11 +130,11 @@ public:
   }
 #endif
   void invHessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > hvp
+    ROL::SharedPointer<std::vector<Real> > hvp
       = dynamic_cast<PrimalScaledStdVector<Real>&>(hv).getVector();
-    std::shared_ptr<const std::vector<Real> > vp
+    ROL::SharedPointer<const std::vector<Real> > vp
       = dynamic_cast<const DualScaledStdVector<Real>&>(v).getVector();
-    std::shared_ptr<const std::vector<Real> > xp
+    ROL::SharedPointer<const std::vector<Real> > xp
       = dynamic_cast<const PrimalScaledStdVector<Real>&>(x).getVector();
 
     Real f1 = 1.e4*(*xp)[0]*(*xp)[1] - 1.0;
@@ -165,28 +165,28 @@ public:
 };
 
 template<class Real>
-void getPowell( std::shared_ptr<Objective<Real> > &obj,
-                std::shared_ptr<Vector<Real> >    &x0,
-                std::shared_ptr<Vector<Real> >    &x ) {
+void getPowell( ROL::SharedPointer<Objective<Real> > &obj,
+                ROL::SharedPointer<Vector<Real> >    &x0,
+                ROL::SharedPointer<Vector<Real> >    &x ) {
   // Problem dimension
   int n = 2;
 
   // Get problem scaling
-  std::shared_ptr<std::vector<Real> > scale = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > scale = ROL::makeShared<std::vector<Real>>(n,0.0);
   (*scale)[0] = 1.e10; (*scale)[1] = 1.e-2;
 
   // Get Initial Guess
-  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(n,0.0);
   (*x0p)[0] = 0.0; (*x0p)[1] = 1.0;
-  x0 = std::make_shared<PrimalScaledStdVector<Real>>(x0p,scale);
+  x0 = ROL::makeShared<PrimalScaledStdVector<Real>>(x0p,scale);
 
   // Get Solution: (*xp)[0] = 1.0981770261368074e-05;
-  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > xp = ROL::makeShared<std::vector<Real>>(n,0.0);
   (*xp)[0] = 1.098e-05; (*xp)[1] = 9.106;
-  x = std::make_shared<PrimalScaledStdVector<Real>>(xp,scale);
+  x = ROL::makeShared<PrimalScaledStdVector<Real>>(xp,scale);
 
   // Instantiate Objective Function
-  obj = std::make_shared<Objective_Powell<Real>>();
+  obj = ROL::makeShared<Objective_Powell<Real>>();
 }
 
 } // End ZOO Namespace

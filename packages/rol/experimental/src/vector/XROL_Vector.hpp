@@ -60,7 +60,7 @@ template<class V> struct Operator;
     \return     a pointer to a new vector
 */
 template<class V> 
-std::unique_ptr<V> clone( const V& x );// { return nullptr; }
+std::unique_ptr<V> clone( const V& x );// { return ROL::nullPointer; }
 
 /** \fn         basis 
     \brief      Create the ith canonical vector from the same vector space as x 
@@ -72,7 +72,7 @@ std::unique_ptr<V> clone( const V& x );// { return nullptr; }
     @param[in]      i  the index of the unit element   
 */ 
 template<class V> 
-void basis( V& x, index_t<V> i );// { return nullptr; }
+void basis( V& x, index_t<V> i );// { return ROL::nullPointer; }
 
 
 /** \fn          dual

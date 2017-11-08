@@ -94,10 +94,10 @@ public:
       
  
     SV &Hvs = dynamic_cast<SV&>(Hv);
-    std::shared_ptr<vector> Hvp = Hvs.getVector();
+    ROL::SharedPointer<vector> Hvp = Hvs.getVector();
  
     const SV &vs = dynamic_cast<const SV&>(v);
-    std::shared_ptr<const vector> vp = vs.getVector();
+    ROL::SharedPointer<const vector> vp = vs.getVector();
 
     uint n = vp->size();
 
@@ -117,10 +117,10 @@ public:
       
  
     SV &Hvs = dynamic_cast<SV&>(Hv);
-    std::shared_ptr<vector> Hvp = Hvs.getVector();
+    ROL::SharedPointer<vector> Hvp = Hvs.getVector();
  
     const SV &vs = dynamic_cast<const SV&>(v);
-    std::shared_ptr<const vector> vp = vs.getVector();
+    ROL::SharedPointer<const vector> vp = vs.getVector();
 
     uint n = vp->size();
 
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -187,10 +187,10 @@ int main(int argc, char *argv[]) {
 
     uint dim = 10;
 
-    std::shared_ptr<vector> xp = std::make_shared<vector>(dim,0.0);
-    std::shared_ptr<vector> yp = std::make_shared<vector>(dim,0.0);
-    std::shared_ptr<vector> zp = std::make_shared<vector>(dim,0.0);
-    std::shared_ptr<vector> bp = std::make_shared<vector>(dim,0.0);
+    ROL::SharedPointer<vector> xp = ROL::makeShared<vector>(dim,0.0);
+    ROL::SharedPointer<vector> yp = ROL::makeShared<vector>(dim,0.0);
+    ROL::SharedPointer<vector> zp = ROL::makeShared<vector>(dim,0.0);
+    ROL::SharedPointer<vector> bp = ROL::makeShared<vector>(dim,0.0);
 
     SV x(xp); // Exact solution
     SV y(yp); // Solution using direct solve
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
 
     T.applyInverse(y,b,tol);
 
-    std::shared_ptr<ROL::Krylov<RealT> > krylov = ROL::KrylovFactory<RealT>( parlist );
+    ROL::SharedPointer<ROL::Krylov<RealT> > krylov = ROL::KrylovFactory<RealT>( parlist );
 
     int iter;
     int flag;

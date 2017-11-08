@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     ROL::Algorithm<RealT> algo("Line Search",parlist);
 
     // Iteration Vector
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     // Set Initial Guess
     for (int i=0; i<dim/2; i++) {
       (*x_rcp)[2*i]   = -1.2;
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
     algo.run(x, obj, true, *outStream);
 
     // Get True Solution
-    std::shared_ptr<std::vector<RealT> > xtrue_rcp = std::make_shared<std::vector<RealT>>(dim, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > xtrue_rcp = ROL::makeShared<std::vector<RealT>>(dim, 1.0);
     ROL::StdVector<RealT> xtrue(xtrue_rcp);
     
     // Compute Error

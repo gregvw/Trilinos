@@ -69,12 +69,12 @@ int main(int argc, char *argv[]) {
 
     
      
-    typedef std::shared_ptr<MV> MVP;
+    typedef ROL::SharedPointer<MV> MVP;
 
     Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
     typedef Tpetra::DefaultPlatform::DefaultPlatformType Platform;
     Platform &platform = Tpetra::DefaultPlatform::getDefaultPlatform();
-    std::shared_ptr<const Teuchos::Comm<int> > comm = platform.getComm();
+    ROL::SharedPointer<const Teuchos::Comm<int> > comm = platform.getComm();
  
 
     int iprint = argc - 1;
@@ -90,11 +90,11 @@ int main(int argc, char *argv[]) {
 
         int dim = 10; 
       
-        std::shared_ptr<Map> map = std::make_shared<Map>(dim,0,comm);
+        ROL::SharedPointer<Map> map = ROL::makeShared<Map>(dim,0,comm);
 
         // Create Tpetra::MultiVectors (single vectors) 
-        MVP x_rcp = std::make_shared<MV>(map,1,true); 
-        MVP y_rcp = std::make_shared<MV>(map,1,true); 
+        MVP x_rcp = ROL::makeShared<MV>(map,1,true); 
+        MVP y_rcp = ROL::makeShared<MV>(map,1,true); 
 
         // Random elements
         x_rcp->randomize(); 
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
         }
 
         // clone z from x, deep copy x into z, norm of z
-        std::shared_ptr<ROL::Vector<RealT> > z = x.clone();
+        ROL::SharedPointer<ROL::Vector<RealT> > z = x.clone();
         z->set(x);
         RealT znorm = z->norm();
         outStream << "\nNorm of ROL::Vector z (clone of x): " << znorm << "\n";
@@ -181,14 +181,14 @@ int main(int argc, char *argv[]) {
         x_rcp->putScalar(4.0);
 
         // For constructing Zakharov objective
-        MVP k_rcp     = std::make_shared<MV>(map,1,true);
+        MVP k_rcp     = ROL::makeShared<MV>(map,1,true);
 
         // For gradient and Hessian checks
-        MVP xtest_rcp = std::make_shared<MV>(map,1,true);
-        MVP d_rcp     = std::make_shared<MV>(map,1,true);
-        MVP v_rcp     = std::make_shared<MV>(map,1,true);
-        MVP hv_rcp    = std::make_shared<MV>(map,1,true);
-        MVP ihhv_rcp  = std::make_shared<MV>(map,1,true);
+        MVP xtest_rcp = ROL::makeShared<MV>(map,1,true);
+        MVP d_rcp     = ROL::makeShared<MV>(map,1,true);
+        MVP v_rcp     = ROL::makeShared<MV>(map,1,true);
+        MVP hv_rcp    = ROL::makeShared<MV>(map,1,true);
+        MVP ihhv_rcp  = ROL::makeShared<MV>(map,1,true);
  
         int numElem = map->getNodeNumElements();
          
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
         d_rcp->randomize();
         v_rcp->randomize();
 
-        std::shared_ptr<ROL::Vector<RealT> > k = std::make_shared<ROL::TpetraMultiVector<RealT,LO,GO,Node>>(k_rcp);
+        ROL::SharedPointer<ROL::Vector<RealT> > k = ROL::makeShared<ROL::TpetraMultiVector<RealT,LO,GO,Node>>(k_rcp);
 
         // Check gradient and Hessian
         ROL::TpetraMultiVector<RealT,LO,GO,Node> xtest(xtest_rcp);

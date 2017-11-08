@@ -47,7 +47,7 @@
 #include "ROL_Types.hpp"
 
 #include "Teuchos_ParameterList.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 
 #include "ROL_LineSearch.hpp"
 #include "ROL_IterationScaling.hpp"
@@ -61,21 +61,21 @@
 
 namespace ROL {
   template<class Real>
-  inline std::shared_ptr<LineSearch<Real> > LineSearchFactory(Teuchos::ParameterList &parlist) {
+  inline ROL::SharedPointer<LineSearch<Real> > LineSearchFactory(Teuchos::ParameterList &parlist) {
     ELineSearch els = StringToELineSearch(
       parlist.sublist("Step").sublist("Line Search").sublist("Line-Search Method").get("Type","Cubic Interpolation"));
     switch(els) {
-      case LINESEARCH_ITERATIONSCALING:     return std::make_shared<IterationScaling<Real>>(parlist);
-      case LINESEARCH_PATHBASEDTARGETLEVEL: return std::make_shared<PathBasedTargetLevel<Real>>(parlist);
-      case LINESEARCH_BACKTRACKING:         return std::make_shared<BackTracking<Real>>(parlist);
-      case LINESEARCH_CUBICINTERP:          return std::make_shared<CubicInterp<Real>>(parlist);
-//      case LINESEARCH_BISECTION:            return std::make_shared<Bisection<Real>>(parlist);
-//      case LINESEARCH_BRENTS:               return std::make_shared<Brents<Real>>(parlist);
-//      case LINESEARCH_GOLDENSECTION:        return std::make_shared<GoldenSection<Real>>(parlist);
+      case LINESEARCH_ITERATIONSCALING:     return ROL::makeShared<IterationScaling<Real>>(parlist);
+      case LINESEARCH_PATHBASEDTARGETLEVEL: return ROL::makeShared<PathBasedTargetLevel<Real>>(parlist);
+      case LINESEARCH_BACKTRACKING:         return ROL::makeShared<BackTracking<Real>>(parlist);
+      case LINESEARCH_CUBICINTERP:          return ROL::makeShared<CubicInterp<Real>>(parlist);
+//      case LINESEARCH_BISECTION:            return ROL::makeShared<Bisection<Real>>(parlist);
+//      case LINESEARCH_BRENTS:               return ROL::makeShared<Brents<Real>>(parlist);
+//      case LINESEARCH_GOLDENSECTION:        return ROL::makeShared<GoldenSection<Real>>(parlist);
       case LINESEARCH_BRENTS:
       case LINESEARCH_GOLDENSECTION:
-      case LINESEARCH_BISECTION:            return std::make_shared<ScalarMinimizationLineSearch<Real>>(parlist);
-      default:                              return nullptr;
+      case LINESEARCH_BISECTION:            return ROL::makeShared<ScalarMinimizationLineSearch<Real>>(parlist);
+      default:                              return ROL::nullPointer;
     }
   }
 }

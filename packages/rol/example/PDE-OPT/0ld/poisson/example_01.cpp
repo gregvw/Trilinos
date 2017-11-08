@@ -74,12 +74,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
     outStream = &std::cout, false;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     RealT z_lo_bound = parlist->sublist("Problem").get("Control lower bound", ROL::ROL_NINF<RealT>());
@@ -104,22 +104,22 @@ int main(int argc, char *argv[]) {
     RealT u_up_bound = parlist->sublist("Problem").get("State upper bound",  ROL::ROL_INF<RealT>());
 
     /*** Initialize main data structure. ***/
-    std::shared_ptr<PoissonData<RealT> > data = std::make_shared<PoissonData<RealT>>(comm, parlist, outStream);
+    ROL::SharedPointer<PoissonData<RealT> > data = ROL::makeShared<PoissonData<RealT>>(comm, parlist, outStream);
 
     /*** Build vectors and dress them up as ROL vectors. ***/
-    std::shared_ptr<const Tpetra::Map<> > vecmap_u = data->getMatA()->getDomainMap();
-    std::shared_ptr<const Tpetra::Map<> > vecmap_z = data->getMatB()->getDomainMap();
-    std::shared_ptr<const Tpetra::Map<> > vecmap_c = data->getMatA()->getRangeMap();
-    std::shared_ptr<Tpetra::MultiVector<> > u_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > p_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > u_lo_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > u_up_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > z_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > z_lo_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > z_up_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > c_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_c, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > du_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
-    std::shared_ptr<Tpetra::MultiVector<> > dz_rcp = std::make_shared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
+    ROL::SharedPointer<const Tpetra::Map<> > vecmap_u = data->getMatA()->getDomainMap();
+    ROL::SharedPointer<const Tpetra::Map<> > vecmap_z = data->getMatB()->getDomainMap();
+    ROL::SharedPointer<const Tpetra::Map<> > vecmap_c = data->getMatA()->getRangeMap();
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > p_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_lo_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_up_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > z_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > z_lo_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > z_up_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > c_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_c, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > du_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_u, 1, true);
+    ROL::SharedPointer<Tpetra::MultiVector<> > dz_rcp = ROL::makeShared<Tpetra::MultiVector<>>(vecmap_z, 1, true);
     // Set all values to 1 in u, z and c.
     u_rcp->putScalar(1.0);
     p_rcp->putScalar(1.0);
@@ -133,34 +133,34 @@ int main(int argc, char *argv[]) {
     du_rcp->randomize();
     dz_rcp->randomize();
     // Create ROL::TpetraMultiVectors.
-    std::shared_ptr<ROL::Vector<RealT> > up = std::make_shared<ROL::TpetraMultiVector<RealT>>(u_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > pp = std::make_shared<ROL::TpetraMultiVector<RealT>>(p_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > u_lo_p = std::make_shared<ROL::TpetraMultiVector<RealT>>(u_lo_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > u_up_p = std::make_shared<ROL::TpetraMultiVector<RealT>>(u_up_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > zp = std::make_shared<ROL::TpetraMultiVector<RealT>>(z_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > z_lo_p = std::make_shared<ROL::TpetraMultiVector<RealT>>(z_lo_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > z_up_p = std::make_shared<ROL::TpetraMultiVector<RealT>>(z_up_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > cp = std::make_shared<ROL::TpetraMultiVector<RealT>>(c_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > dup = std::make_shared<ROL::TpetraMultiVector<RealT>>(du_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > dzp = std::make_shared<ROL::TpetraMultiVector<RealT>>(dz_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > up = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(u_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > pp = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(p_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > u_lo_p = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(u_lo_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > u_up_p = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(u_up_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > zp = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(z_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > z_lo_p = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(z_lo_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > z_up_p = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(z_up_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > cp = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(c_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > dup = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(du_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > dzp = ROL::makeShared<ROL::TpetraMultiVector<RealT>>(dz_rcp);
     // Create ROL SimOpt vectors.
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> d(dup,dzp);
 
     /*** Build objective function, equality constraint, reduced objective function and bound constraint. ***/
-    std::shared_ptr<ROL::Objective_SimOpt<RealT> > obj =
-      std::make_shared<Objective_PDEOPT_Poisson<RealT>>(data, parlist);
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con =
-      std::make_shared<EqualityConstraint_PDEOPT_Poisson<RealT>>(data, parlist);
-    std::shared_ptr<ROL::Objective<RealT> > objReduced =
-      std::make_shared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, pp);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bcon_control =
-      std::make_shared<ROL::Bounds<RealT>>(z_lo_p, z_up_p);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bcon_state =
-      std::make_shared<ROL::Bounds<RealT>>(u_lo_p, u_up_p);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > obj =
+      ROL::makeShared<Objective_PDEOPT_Poisson<RealT>>(data, parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con =
+      ROL::makeShared<EqualityConstraint_PDEOPT_Poisson<RealT>>(data, parlist);
+    ROL::SharedPointer<ROL::Objective<RealT> > objReduced =
+      ROL::makeShared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, pp);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bcon_control =
+      ROL::makeShared<ROL::Bounds<RealT>>(z_lo_p, z_up_p);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bcon_state =
+      ROL::makeShared<ROL::Bounds<RealT>>(u_lo_p, u_up_p);
     // Initialize SimOpt bound constraint.
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bcon_simopt =
-      std::make_shared<ROL::BoundConstraint_SimOpt<RealT>>(bcon_state,bcon_control);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bcon_simopt =
+      ROL::makeShared<ROL::BoundConstraint_SimOpt<RealT>>(bcon_state,bcon_control);
 
     /*** Check functional interface. ***/
     obj->checkGradient(x,d,true,*outStream);

@@ -57,7 +57,7 @@ namespace ROL {
 template <class Real>
 class CombinedStatusTest : public StatusTest<Real> {
 private:
-  std::vector<std::shared_ptr<StatusTest<Real> > > status_;
+  std::vector<ROL::SharedPointer<StatusTest<Real> > > status_;
 
 public:
   CombinedStatusTest(void) {
@@ -68,7 +68,7 @@ public:
     status_.clear();
   }
 
-  void add(const std::shared_ptr<StatusTest<Real> > &status) {
+  void add(const ROL::SharedPointer<StatusTest<Real> > &status) {
     status_.push_back(status);
   }
 

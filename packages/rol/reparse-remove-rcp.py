@@ -13,12 +13,12 @@ def repl_rcp(matchobj):
 
     q = re.match(r" *new(.*)\((.*)\) *", g)
     if (q != None):
-        repl = "std::make_shared<" + q.group(1).strip() + ">(" + q.group(2) + ")"
+        repl = "ROL::makeShared<" + q.group(1).strip() + ">(" + q.group(2) + ")"
         return repl
 
     q = re.match(r" *new(.*) *", g)
     if (q != None):
-        repl = "std::make_shared<" + q.group(1).strip() + ">()"
+        repl = "ROL::makeShared<" + q.group(1).strip() + ">()"
         return repl
 
     return g
@@ -46,12 +46,12 @@ for filename in filenames:
     data = re.sub('using Teuchos::dyn_cast;', '', data)
 
     # Simple replacements
-    data = re.sub('"Teuchos_RCP.hpp"', '<memory>', data)
-    data = re.sub('Teuchos::null', 'nullptr', data)
-    data = re.sub('Teuchos::RCP', 'std::shared_ptr', data)
-    data = re.sub('RCP', 'std::shared_ptr', data)
-    data = re.sub('Teuchos::rcp_dynamic_cast', 'std::dynamic_pointer_cast', data)
-    data = re.sub('Teuchos::rcp_const_cast', 'std::const_pointer_cast', data)
+    data = re.sub('"Teuchos_RCP.hpp"', '"ROL_SharedPointer.hpp"', data)
+    data = re.sub('Teuchos::null', 'ROL::nullPointer', data)
+    data = re.sub('Teuchos::RCP', 'ROL::SharedPointer', data)
+    data = re.sub('RCP', 'ROL::SharedPointer', data)
+    data = re.sub('Teuchos::rcp_dynamic_cast', 'ROL::dynamicPointerCast', data)
+    data = re.sub('Teuchos::rcp_const_cast', 'ROL::constPointerCast', data)
 
     # More complex replacement (with make_shared)
     data = re.sub('Teuchos::rcp\((.*)\)', repl_rcp, data)

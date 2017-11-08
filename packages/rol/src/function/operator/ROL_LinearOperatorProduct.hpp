@@ -61,25 +61,25 @@ class LinearOperatorProduct : public LinearOperator<Real> {
   typedef Vector<Real>         V;
   typedef LinearOperator<Real> OP;
  
-  typedef typename std::vector<std::shared_ptr<OP> >::size_type size_type;
+  typedef typename std::vector<ROL::SharedPointer<OP> >::size_type size_type;
 
 private:
 
-  std::shared_ptr<std::vector<std::shared_ptr<OP> > > ops_;
+  ROL::SharedPointer<std::vector<ROL::SharedPointer<OP> > > ops_;
 
 public:
 
-  LinearOperatorSum( std::shared_ptr<OP> &A, 
-                     std::shared_ptr<OP> &B) {
-    ops_ = std::make_shared<std::vector<OP> >>();
+  LinearOperatorSum( ROL::SharedPointer<OP> &A, 
+                     ROL::SharedPointer<OP> &B) {
+    ops_ = ROL::makeShared<std::vector<OP> >>();
     ops_->push_back(A);
     ops_->push_back(B);
   }
 
-  LinearOperatorSum( std::shared_ptr<OP> &A, 
-                     std::shared_ptr<OP> &B, 
-                     std::shared_ptr<OP> &C) {
-    ops_ = std::make_shared<std::vector<OP> >>();
+  LinearOperatorSum( ROL::SharedPointer<OP> &A, 
+                     ROL::SharedPointer<OP> &B, 
+                     ROL::SharedPointer<OP> &C) {
+    ops_ = ROL::makeShared<std::vector<OP> >>();
     ops_->push_back(A);
     ops_->push_back(B);
     ops_->push_back(C);

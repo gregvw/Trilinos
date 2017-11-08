@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -95,25 +95,25 @@ int main(int argc, char *argv[]) {
     RealT xmin = 0.5;
     RealT xmax = 2.5;
 
-    auto  x_rcp  = std::make_shared<vector>(dim,0.0);
-    auto  g_rcp  = std::make_shared<vector>(dim,0.0);
-    auto  v_rcp  = std::make_shared<vector>(dim,0.0);
-    auto  hv_rcp = std::make_shared<vector>(dim,0.0);
+    auto  x_rcp  = ROL::makeShared<vector>(dim,0.0);
+    auto  g_rcp  = ROL::makeShared<vector>(dim,0.0);
+    auto  v_rcp  = ROL::makeShared<vector>(dim,0.0);
+    auto  hv_rcp = ROL::makeShared<vector>(dim,0.0);
 
-    auto  l_rcp = std::make_shared<vector>(dim,1.0);
-    auto  u_rcp = std::make_shared<vector>(dim,2.0);
+    auto  l_rcp = ROL::makeShared<vector>(dim,1.0);
+    auto  u_rcp = ROL::makeShared<vector>(dim,2.0);
 
-    auto  xlog0_rcp = std::make_shared<vector>(dim,0.0);
-    auto  xlog1_rcp = std::make_shared<vector>(dim,0.0);
-    auto  xlog2_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xlog0_rcp = ROL::makeShared<vector>(dim,0.0);
+    auto  xlog1_rcp = ROL::makeShared<vector>(dim,0.0);
+    auto  xlog2_rcp = ROL::makeShared<vector>(dim,0.0);
 
-    auto  xquad0_rcp = std::make_shared<vector>(dim,0.0);
-    auto  xquad1_rcp = std::make_shared<vector>(dim,0.0);
-    auto  xquad2_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xquad0_rcp = ROL::makeShared<vector>(dim,0.0);
+    auto  xquad1_rcp = ROL::makeShared<vector>(dim,0.0);
+    auto  xquad2_rcp = ROL::makeShared<vector>(dim,0.0);
 
-    auto  xdwell0_rcp = std::make_shared<vector>(dim,0.0);
-    auto  xdwell1_rcp = std::make_shared<vector>(dim,0.0);
-    auto  xdwell2_rcp = std::make_shared<vector>(dim,0.0);
+    auto  xdwell0_rcp = ROL::makeShared<vector>(dim,0.0);
+    auto  xdwell1_rcp = ROL::makeShared<vector>(dim,0.0);
+    auto  xdwell2_rcp = ROL::makeShared<vector>(dim,0.0);
 
 
 
@@ -122,20 +122,20 @@ int main(int argc, char *argv[]) {
     SV v(v_rcp);
     SV hv(hv_rcp);
 
-    std::shared_ptr<SV> xlog0 = std::make_shared<SV>(xlog0_rcp);
-    std::shared_ptr<SV> xlog1 = std::make_shared<SV>(xlog1_rcp);
-    std::shared_ptr<SV> xlog2 = std::make_shared<SV>(xlog2_rcp);
+    ROL::SharedPointer<SV> xlog0 = ROL::makeShared<SV>(xlog0_rcp);
+    ROL::SharedPointer<SV> xlog1 = ROL::makeShared<SV>(xlog1_rcp);
+    ROL::SharedPointer<SV> xlog2 = ROL::makeShared<SV>(xlog2_rcp);
 
-    std::shared_ptr<SV> xquad0 = std::make_shared<SV>(xquad0_rcp);
-    std::shared_ptr<SV> xquad1 = std::make_shared<SV>(xquad1_rcp);
-    std::shared_ptr<SV> xquad2 = std::make_shared<SV>(xquad2_rcp);
+    ROL::SharedPointer<SV> xquad0 = ROL::makeShared<SV>(xquad0_rcp);
+    ROL::SharedPointer<SV> xquad1 = ROL::makeShared<SV>(xquad1_rcp);
+    ROL::SharedPointer<SV> xquad2 = ROL::makeShared<SV>(xquad2_rcp);
 
-    std::shared_ptr<SV> xdwell0 = std::make_shared<SV>(xdwell0_rcp);
-    std::shared_ptr<SV> xdwell1 = std::make_shared<SV>(xdwell1_rcp);
-    std::shared_ptr<SV> xdwell2 = std::make_shared<SV>(xdwell2_rcp);
+    ROL::SharedPointer<SV> xdwell0 = ROL::makeShared<SV>(xdwell0_rcp);
+    ROL::SharedPointer<SV> xdwell1 = ROL::makeShared<SV>(xdwell1_rcp);
+    ROL::SharedPointer<SV> xdwell2 = ROL::makeShared<SV>(xdwell2_rcp);
 
-    std::shared_ptr<V> lo = std::make_shared<SV>(l_rcp);
-    std::shared_ptr<V> up = std::make_shared<SV>(u_rcp);
+    ROL::SharedPointer<V> lo = ROL::makeShared<SV>(l_rcp);
+    ROL::SharedPointer<V> up = ROL::makeShared<SV>(u_rcp);
 
     for(uint i=0; i<dim; ++i) {
       RealT t = static_cast<RealT>(i)/static_cast<RealT>(dim-1);
@@ -161,41 +161,41 @@ int main(int argc, char *argv[]) {
 
 
     logObj.value(x,tol);
-    auto q = std::dynamic_pointer_cast<SV>(logObj.getBarrierVector());
+    auto q = ROL::dynamicPointerCast<SV>(logObj.getBarrierVector());
     xlog0->set(*q);
 
     logObj.gradient(g,x,tol);
-    q = std::dynamic_pointer_cast<SV>(logObj.getBarrierVector());
+    q = ROL::dynamicPointerCast<SV>(logObj.getBarrierVector());
     xlog1->set(*q);
 
     logObj.hessVec(hv,v,x,tol);
-    q = std::dynamic_pointer_cast<SV>(logObj.getBarrierVector());
+    q = ROL::dynamicPointerCast<SV>(logObj.getBarrierVector());
     xlog2->set(*q);
 
 
     quadObj.value(x,tol);
-    q = std::dynamic_pointer_cast<SV>(quadObj.getBarrierVector());
+    q = ROL::dynamicPointerCast<SV>(quadObj.getBarrierVector());
     xquad0->set(*q);
 
     quadObj.gradient(g,x,tol);
-    q = std::dynamic_pointer_cast<SV>(quadObj.getBarrierVector());
+    q = ROL::dynamicPointerCast<SV>(quadObj.getBarrierVector());
     xquad1->set(*q);
 
     quadObj.hessVec(hv,v,x,tol);
-    q = std::dynamic_pointer_cast<SV>(quadObj.getBarrierVector());
+    q = ROL::dynamicPointerCast<SV>(quadObj.getBarrierVector());
     xquad2->set(*q);
 
 
     dwellObj.value(x,tol);
-    q = std::dynamic_pointer_cast<SV>(dwellObj.getBarrierVector());
+    q = ROL::dynamicPointerCast<SV>(dwellObj.getBarrierVector());
     xdwell0->set(*q);
 
     dwellObj.gradient(g,x,tol);
-    q = std::dynamic_pointer_cast<SV>(dwellObj.getBarrierVector());
+    q = ROL::dynamicPointerCast<SV>(dwellObj.getBarrierVector());
     xdwell1->set(*q);
 
     dwellObj.hessVec(hv,v,x,tol);
-    q = std::dynamic_pointer_cast<SV>(dwellObj.getBarrierVector());
+    q = ROL::dynamicPointerCast<SV>(dwellObj.getBarrierVector());
     xdwell2->set(*q);
 
 

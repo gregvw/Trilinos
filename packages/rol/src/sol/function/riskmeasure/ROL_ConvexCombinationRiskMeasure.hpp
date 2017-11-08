@@ -70,11 +70,11 @@ private:
   typedef typename std::vector<Real>::size_type uint;
 
   std::vector<Real> lambda_;
-  std::vector<std::shared_ptr<Teuchos::ParameterList> > parlist_;
-  std::vector<std::shared_ptr<RiskMeasure<Real> > > risk_;
+  std::vector<ROL::SharedPointer<Teuchos::ParameterList> > parlist_;
+  std::vector<ROL::SharedPointer<RiskMeasure<Real> > > risk_;
   uint size_;
 
-  std::shared_ptr<Vector<Real> > dualVector0_;
+  ROL::SharedPointer<Vector<Real> > dualVector0_;
   bool firstReset_;
 
   void checkInputs(void) const {
@@ -85,7 +85,7 @@ private:
     for (uint i = 0; i < lSize; ++i) {
       TEUCHOS_TEST_FOR_EXCEPTION((lambda_[i]>one || lambda_[i]<zero), std::invalid_argument,
         ">>> ERROR (ROL::ConvexCombinationRiskMeasure): Element of convex combination parameter array out of range!");
-      TEUCHOS_TEST_FOR_EXCEPTION(risk_[i] == nullptr, std::invalid_argument,
+      TEUCHOS_TEST_FOR_EXCEPTION(risk_[i] == ROL::nullPointer, std::invalid_argument,
         ">>> ERROR (ROL::ConvexCombinationRiskMeasure): Risk measure pointer is null!");
       sum += lambda_[i];
     }
@@ -113,15 +113,15 @@ public:
     lambda_ = lambda.toVector();
     size_ = lambda_.size();
     // Build risk measures
-    risk_.clear(); risk_.resize(size_,nullptr);
-    parlist_.clear(); parlist_.resize(size_,nullptr);
+    risk_.clear(); risk_.resize(size_,ROL::nullPointer);
+    parlist_.clear(); parlist_.resize(size_,ROL::nullPointer);
     for (uint i = 0; i < size_; ++i) {
       std::ostringstream convert;
       convert << i;
       std::string si = convert.str();
       Teuchos::ParameterList &ilist = list.sublist(si);
       std::string name = ilist.get<std::string>("Name");
-      parlist_[i] = std::make_shared<Teuchos::ParameterList>();
+      parlist_[i] = ROL::makeShared<Teuchos::ParameterList>();
       parlist_[i]->sublist("SOL").sublist("Risk Measure").set("Name",name);
       parlist_[i]->sublist("SOL").sublist("Risk Measure").sublist(name) = ilist;
       risk_[i] = RiskMeasureFactory<Real>(*parlist_[i]);
@@ -130,23 +130,23 @@ public:
     checkInputs();
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x) {
-    std::shared_ptr<std::vector<Real> > stati;
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
+    ROL::SharedPointer<std::vector<Real> > stati;
     int N = 0, Ni = 0;
     // Must make x a risk vector with appropriate statistic
     const RiskVector<Real> &xr = dynamic_cast<const RiskVector<Real>&>(x);
-    std::shared_ptr<const Vector<Real> > xptr = xr.getVector();
+    ROL::SharedPointer<const Vector<Real> > xptr = xr.getVector();
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    std::shared_ptr<const std::vector<Real> > stat
+    ROL::SharedPointer<const std::vector<Real> > stat
       = xr.getStatistic(comp,index);
-    x0 = std::const_pointer_cast<Vector<Real> >(xptr);
+    x0 = ROL::constPointerCast<Vector<Real> >(xptr);
     for (uint i = 0; i < size_; ++i) {
       // Build temporary risk vector
       RiskVector<Real> xri(parlist_[i],x0);
       // Set statistic from original risk vector
       stati = xri.getStatistic(0);
-      if (stati != nullptr) {
+      if (stati != ROL::nullPointer) {
         Ni = stati->size();
         for (int j = 0; j < Ni; ++j) {
           (*stati)[j] = (*stat)[N+j];
@@ -167,23 +167,23 @@ public:
     dualVector0_->zero();
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
-             std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     ConvexCombinationRiskMeasure<Real>::reset(x0,x);
-    std::shared_ptr<std::vector<Real> > xstati, vstati;
+    ROL::SharedPointer<std::vector<Real> > xstati, vstati;
     int N = 0, Ni = 0;
     // Must make x and v risk vectors with appropriate statistics
     const RiskVector<Real> &xr = dynamic_cast<const RiskVector<Real>&>(x);
     const RiskVector<Real> &vr = dynamic_cast<const RiskVector<Real>&>(v);
-    std::shared_ptr<const Vector<Real> > xptr = xr.getVector();
-    std::shared_ptr<const Vector<Real> > vptr = vr.getVector();
-    x0 = std::const_pointer_cast<Vector<Real> >(xptr);
-    v0 = std::const_pointer_cast<Vector<Real> >(vptr);
+    ROL::SharedPointer<const Vector<Real> > xptr = xr.getVector();
+    ROL::SharedPointer<const Vector<Real> > vptr = vr.getVector();
+    x0 = ROL::constPointerCast<Vector<Real> >(xptr);
+    v0 = ROL::constPointerCast<Vector<Real> >(vptr);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
-    std::shared_ptr<const std::vector<Real> > xstat
+    ROL::SharedPointer<const std::vector<Real> > xstat
       = xr.getStatistic(comp,index);
-    std::shared_ptr<const std::vector<Real> > vstat
+    ROL::SharedPointer<const std::vector<Real> > vstat
       = vr.getStatistic(comp,index);
     for (uint i = 0; i < size_; ++i) {
       // Build temporary risk vector
@@ -191,7 +191,7 @@ public:
       // Set statistic from original risk vector
       xstati = xri.getStatistic(0);
       vstati = vri.getStatistic(0);
-      if (xstati != nullptr) {
+      if (xstati != ROL::nullPointer) {
         Ni = xstati->size();
         for (int j = 0; j < Ni; ++j) {
           (*xstati)[j] = (*xstat)[N+j];
@@ -238,14 +238,14 @@ public:
     g.zero();
     // g does not have the correct dimension if it is a risk vector
     RiskVector<Real> &gr = dynamic_cast<RiskVector<Real>&>(g);
-    std::shared_ptr<std::vector<Real> > stat, stati;
-    stat = std::make_shared<std::vector<Real>>(0);
+    ROL::SharedPointer<std::vector<Real> > stat, stati;
+    stat = ROL::makeShared<std::vector<Real>>(0);
     for (uint i = 0; i < size_; ++i) {
       RiskVector<Real> gri(parlist_[i],dualVector0_);
       risk_[i]->getGradient(gri,sampler);
       (gr.getVector())->axpy(lambda_[i],*dualVector0_);
       stati = gri.getStatistic(0);
-      if (stati != nullptr) {
+      if (stati != ROL::nullPointer) {
         for (uint j = 0; j < stati->size(); ++j) {
           stat->push_back(lambda_[i]*(*stati)[j]);
         }
@@ -267,14 +267,14 @@ public:
     hv.zero();
     // hv does not have the correct dimension if it is a risk vector
     RiskVector<Real> &hvr = dynamic_cast<RiskVector<Real>&>(hv);
-    std::shared_ptr<std::vector<Real> > stat, stati;
-    stat = std::make_shared<std::vector<Real>>(0);
+    ROL::SharedPointer<std::vector<Real> > stat, stati;
+    stat = ROL::makeShared<std::vector<Real>>(0);
     for (uint i = 0; i < size_; ++i) {
       RiskVector<Real> hvri(parlist_[i],dualVector0_);
       risk_[i]->getHessVec(hvri,sampler);
       (hvr.getVector())->axpy(lambda_[i],*dualVector0_);
       stati = hvri.getStatistic(0);
-      if (stati != nullptr) {
+      if (stati != ROL::nullPointer) {
         for (uint j = 0; j < stati->size(); ++j) {
           stat->push_back(lambda_[i]*(*stati)[j]);
         }

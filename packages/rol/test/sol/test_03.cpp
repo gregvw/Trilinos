@@ -66,7 +66,7 @@ template<class Real>
 class ParametrizedObjectiveEx3 : public ROL::Objective<Real> {
 public:
   Real value( const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
     Real quad(0), lin(0);
     std::vector<Real> p = ROL::Objective<Real>::getParameter();
@@ -79,9 +79,9 @@ public:
   }
 
   void gradient( ROL::Vector<Real> &g, const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
-    std::shared_ptr<std::vector<Real> > eg
+    ROL::SharedPointer<std::vector<Real> > eg
       = dynamic_cast<ROL::StdVector<Real>&>(g).getVector();
     std::vector<Real> p = ROL::Objective<Real>::getParameter();
     unsigned size = static_cast<unsigned>(ex->size());
@@ -93,9 +93,9 @@ public:
 
   void hessVec( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                 const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ev
+    ROL::SharedPointer<const std::vector<Real> > ev
       = dynamic_cast<const ROL::StdVector<Real>&>(v).getVector();
-    std::shared_ptr<std::vector<Real> > ehv
+    ROL::SharedPointer<std::vector<Real> > ehv
       = dynamic_cast<ROL::StdVector<Real>&>(hv).getVector();
     std::vector<Real> p = ROL::Objective<Real>::getParameter();
     unsigned size = static_cast<unsigned>(ev->size());
@@ -107,10 +107,10 @@ public:
 };
 
 void setUpAndSolve(Teuchos::ParameterList &list,
-                   std::shared_ptr<ROL::Objective<RealT> > &pObj,
-                   std::shared_ptr<ROL::SampleGenerator<RealT> > &sampler,
-                   std::shared_ptr<ROL::Vector<RealT> > &x,
-                   std::shared_ptr<ROL::BoundConstraint<RealT> > &bnd,
+                   ROL::SharedPointer<ROL::Objective<RealT> > &pObj,
+                   ROL::SharedPointer<ROL::SampleGenerator<RealT> > &sampler,
+                   ROL::SharedPointer<ROL::Vector<RealT> > &x,
+                   ROL::SharedPointer<ROL::BoundConstraint<RealT> > &bnd,
                    std::ostream & outStream) {
   ROL::OptimizationProblem<RealT> opt(pObj,x,bnd);
   opt.setStochasticObjective(list,sampler);
@@ -122,7 +122,7 @@ void setUpAndSolve(Teuchos::ParameterList &list,
 }
 
 template<class Real>
-Real random(const std::shared_ptr<const Teuchos::Comm<int> > &commptr) {
+Real random(const ROL::SharedPointer<const Teuchos::Comm<int> > &commptr) {
   Real val(0);
   if ( Teuchos::rank<int>(*commptr)==0 ) {
     srand(time(NULL));
@@ -133,7 +133,7 @@ Real random(const std::shared_ptr<const Teuchos::Comm<int> > &commptr) {
 }
 
 void setRandomVector(std::vector<RealT> &x,
-               const std::shared_ptr<const Teuchos::Comm<int> > &commptr) {
+               const ROL::SharedPointer<const Teuchos::Comm<int> > &commptr) {
   unsigned dim = static_cast<unsigned>(x.size());
   for ( unsigned i = 0; i < dim; i++ ) {
     x[i] = random<RealT>(commptr);
@@ -153,11 +153,11 @@ void printSolution(const std::vector<RealT> &x,
 int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  std::shared_ptr<const Teuchos::Comm<int> > commptr(&*Teuchos::DefaultComm<int>::getComm());
+  ROL::SharedPointer<const Teuchos::Comm<int> > commptr(&*Teuchos::DefaultComm<int>::getComm());
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0 && commptr->getRank()==0)
     outStream.reset(&std::cout);
@@ -175,16 +175,16 @@ int main(int argc, char* argv[]) {
     auto parlist = Teuchos::getParametersFromXmlFile(filename);
     Teuchos::ParameterList list = *parlist;
     // Build ROL algorithm
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
     /**********************************************************************************************/
     /************************* CONSTRUCT SOL COMPONENTS *******************************************/
     /**********************************************************************************************/
     // Build vectors
     unsigned dim = 4;
-    std::shared_ptr<std::vector<RealT> > x_rcp  = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > x  = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
-    std::shared_ptr<std::vector<RealT> > d_rcp  = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > d  = std::make_shared<ROL::StdVector<RealT>>(d_rcp);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp  = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > x  = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<std::vector<RealT> > d_rcp  = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > d  = ROL::makeShared<ROL::StdVector<RealT>>(d_rcp);
     setRandomVector(*x_rcp,commptr);
     setRandomVector(*d_rcp,commptr);
     // Build samplers
@@ -192,18 +192,18 @@ int main(int argc, char* argv[]) {
     unsigned sdim = dim + 2;
     std::vector<RealT> tmp(2,0.); tmp[0] = -1.; tmp[1] = 1.;
     std::vector<std::vector<RealT> > bounds(sdim,tmp);
-    std::shared_ptr<ROL::BatchManager<RealT> > bman =
-      std::make_shared<ROL::StdTeuchosBatchManager<RealT,int>>(commptr);
-    std::shared_ptr<ROL::SampleGenerator<RealT> > sampler =
-      std::make_shared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman,false,false,100);
+    ROL::SharedPointer<ROL::BatchManager<RealT> > bman =
+      ROL::makeShared<ROL::StdTeuchosBatchManager<RealT,int>>(commptr);
+    ROL::SharedPointer<ROL::SampleGenerator<RealT> > sampler =
+      ROL::makeShared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman,false,false,100);
     // Build risk-averse objective function
-    std::shared_ptr<ROL::Objective<RealT> > pObj =
-      std::make_shared<ParametrizedObjectiveEx3<RealT>>();
+    ROL::SharedPointer<ROL::Objective<RealT> > pObj =
+      ROL::makeShared<ParametrizedObjectiveEx3<RealT>>();
     // Build bound constraints
     std::vector<RealT> l(dim,0.0);
     std::vector<RealT> u(dim,1.0);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd =
-      std::make_shared<ROL::StdBoundConstraint<RealT>>(l,u);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd =
+      ROL::makeShared<ROL::StdBoundConstraint<RealT>>(l,u);
     bnd->deactivate();
     // Test parametrized objective functions
     *outStream << "Check Derivatives of Parametrized Objective Function\n";

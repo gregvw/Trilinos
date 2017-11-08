@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -100,24 +100,24 @@ int main(int argc, char *argv[]) {
 
   HS::ProblemFactory<RealT> factory;
 
-  std::shared_ptr<NLP>  nlp;
-  std::shared_ptr<OPT>  opt;
+  ROL::SharedPointer<NLP>  nlp;
+  ROL::SharedPointer<OPT>  opt;
 
   // Get two copies so we can validate without setting defaults
-  std::shared_ptr<PL>   parlist = std::make_shared<PL>();
-  std::shared_ptr<PL>   parlistCopy = std::make_shared<PL>();
-  std::shared_ptr<PL>   test = std::make_shared<PL>();
+  ROL::SharedPointer<PL>   parlist = ROL::makeShared<PL>();
+  ROL::SharedPointer<PL>   parlistCopy = ROL::makeShared<PL>();
+  ROL::SharedPointer<PL>   test = ROL::makeShared<PL>();
 
   Teuchos::updateParametersFromXmlFile(std::string("hs_parameters.xml"),parlist.ptr());
   Teuchos::updateParametersFromXmlFile(std::string("hs_parameters.xml"),parlistCopy.ptr());
   Teuchos::updateParametersFromXmlFile(std::string("test_parameters.xml"),test.ptr());
 
-  std::shared_ptr<const PL> validParameters = getValidROLParameters();
+  ROL::SharedPointer<const PL> validParameters = getValidROLParameters();
 
   parlistCopy->validateParametersAndSetDefaults(*validParameters);
 
-  std::shared_ptr<V>           x;
-  std::shared_ptr<const STATE> algo_state;
+  ROL::SharedPointer<V>           x;
+  ROL::SharedPointer<const STATE> algo_state;
 
   bool problemSolved;
 

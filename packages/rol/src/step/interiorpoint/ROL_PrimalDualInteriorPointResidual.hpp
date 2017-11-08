@@ -96,22 +96,22 @@ private:
   static const size_type LOWER = 2;
   static const size_type UPPER = 3;
 
-  const std::shared_ptr<OBJ> obj_;
-  const std::shared_ptr<CON> con_;
-  const std::shared_ptr<BND> bnd_;
+  const ROL::SharedPointer<OBJ> obj_;
+  const ROL::SharedPointer<CON> con_;
+  const ROL::SharedPointer<BND> bnd_;
 
-  std::shared_ptr<const V>   x_;            // Optimization vector
-  std::shared_ptr<const V>   l_;            //  constraint multiplier
-  std::shared_ptr<const V>   zl_;           // Lower bound multiplier
-  std::shared_ptr<const V>   zu_;           // Upper bound multiplier
+  ROL::SharedPointer<const V>   x_;            // Optimization vector
+  ROL::SharedPointer<const V>   l_;            //  constraint multiplier
+  ROL::SharedPointer<const V>   zl_;           // Lower bound multiplier
+  ROL::SharedPointer<const V>   zu_;           // Upper bound multiplier
 
-  std::shared_ptr<const V>   xl_;           // Lower bound
-  std::shared_ptr<const V>   xu_;           // Upper bound 
+  ROL::SharedPointer<const V>   xl_;           // Lower bound
+  ROL::SharedPointer<const V>   xu_;           // Upper bound 
 
-  const std::shared_ptr<const V> maskL_;   
-  const std::shared_ptr<const V> maskU_;
+  const ROL::SharedPointer<const V> maskL_;   
+  const ROL::SharedPointer<const V> maskU_;
 
-  std::shared_ptr<V> scratch_;              // Scratch vector the same dimension as x
+  ROL::SharedPointer<V> scratch_;              // Scratch vector the same dimension as x
 
   Real mu_;
 
@@ -155,14 +155,14 @@ private:
   InFill inFill_;
  
   // Extract the optimization and lagrange multiplier
-  std::shared_ptr<V> getOptMult( V &vec ) {
+  ROL::SharedPointer<V> getOptMult( V &vec ) {
     PV &vec_pv = dynamic_cast<PV&>(vec);
  
     return CreatePartitioned(vec_pv.get(OPT),vec_pv.get(EQUAL));
   }
 
   // Extract the optimization and lagrange multiplier
-  std::shared_ptr<const V> getOptMult( const V &vec ) {
+  ROL::SharedPointer<const V> getOptMult( const V &vec ) {
     const PV &vec_pv = dynamic_cast<const PV&>(vec);
  
     return CreatePartitioned(vec_pv.get(OPT),vec_pv.get(EQUAL));
@@ -173,13 +173,13 @@ private:
 
 public:
 
-  PrimalDualInteriorPointResidual( const std::shared_ptr<OBJ> &obj, 
-                                   const std::shared_ptr<CON> &con, 
-                                   const std::shared_ptr<BND> &bnd,
+  PrimalDualInteriorPointResidual( const ROL::SharedPointer<OBJ> &obj, 
+                                   const ROL::SharedPointer<CON> &con, 
+                                   const ROL::SharedPointer<BND> &bnd,
                                    const V &x,
-                                   const std::shared_ptr<const V> &maskL,
-                                   const std::shared_ptr<const V> &maskU,
-                                         std::shared_ptr<V> &scratch,
+                                   const ROL::SharedPointer<const V> &maskL,
+                                   const ROL::SharedPointer<const V> &maskU,
+                                         ROL::SharedPointer<V> &scratch,
                                          Real mu, bool symmetrize ) :
     obj_(obj), con_(con), bnd_(bnd), xl_(bnd->getLowerBound()),
     xu_(bnd->getUpperBound()), maskL_(maskL), maskU_(maskU), scratch_(scratch),
@@ -229,10 +229,10 @@ public:
     zl_ = x_pv.get(LOWER);
     zu_ = x_pv.get(UPPER);  
 
-    std::shared_ptr<V> cx  = c_pv.get(OPT);
-    std::shared_ptr<V> cl  = c_pv.get(EQUAL);
-    std::shared_ptr<V> czl = c_pv.get(LOWER);
-    std::shared_ptr<V> czu = c_pv.get(UPPER);  
+    ROL::SharedPointer<V> cx  = c_pv.get(OPT);
+    ROL::SharedPointer<V> cl  = c_pv.get(EQUAL);
+    ROL::SharedPointer<V> czl = c_pv.get(LOWER);
+    ROL::SharedPointer<V> czu = c_pv.get(UPPER);  
     
     /********************************************************************************/
     /* Optimization Components                                                      */
@@ -320,16 +320,16 @@ public:
     const PV &x_pv = dynamic_cast<const PV&>(x); 
 
     // output vector components
-    std::shared_ptr<V> jvx  = jv_pv.get(OPT);
-    std::shared_ptr<V> jvl  = jv_pv.get(EQUAL);
-    std::shared_ptr<V> jvzl = jv_pv.get(LOWER);
-    std::shared_ptr<V> jvzu = jv_pv.get(UPPER);
+    ROL::SharedPointer<V> jvx  = jv_pv.get(OPT);
+    ROL::SharedPointer<V> jvl  = jv_pv.get(EQUAL);
+    ROL::SharedPointer<V> jvzl = jv_pv.get(LOWER);
+    ROL::SharedPointer<V> jvzu = jv_pv.get(UPPER);
 
     // input vector components
-    std::shared_ptr<const V> vx  = v_pv.get(OPT);
-    std::shared_ptr<const V> vl  = v_pv.get(EQUAL); 
-    std::shared_ptr<const V> vzl = v_pv.get(LOWER);
-    std::shared_ptr<const V> vzu = v_pv.get(UPPER);
+    ROL::SharedPointer<const V> vx  = v_pv.get(OPT);
+    ROL::SharedPointer<const V> vl  = v_pv.get(EQUAL); 
+    ROL::SharedPointer<const V> vzl = v_pv.get(LOWER);
+    ROL::SharedPointer<const V> vzu = v_pv.get(UPPER);
 
     x_  = x_pv.get(OPT);
     l_  = x_pv.get(EQUAL);

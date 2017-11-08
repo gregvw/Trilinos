@@ -51,7 +51,7 @@ private:
   int nx_;
   int ny_;
   Real width_;
-  std::shared_ptr<std::vector<std::vector<std::vector<int> > > >  meshSideSets_;
+  ROL::SharedPointer<std::vector<std::vector<std::vector<int> > > >  meshSideSets_;
 
 public: 
 
@@ -67,7 +67,7 @@ public:
   void computeSideSets() {
 
     int numSideSets = 8;
-    meshSideSets_ = std::make_shared<std::vector<std::vector<std::vector<int> > >>(numSideSets);
+    meshSideSets_ = ROL::makeShared<std::vector<std::vector<std::vector<int> > >>(numSideSets);
 
     Real pf(0.125);
     Real patchFrac = (pf < width_) ? pf/width_ : pf;
@@ -147,7 +147,7 @@ public:
 
   } // computeSideSets
 
-  std::shared_ptr<std::vector<std::vector<std::vector<int> > > > getSideSets(
+  ROL::SharedPointer<std::vector<std::vector<std::vector<int> > > > getSideSets(
               const bool verbose = false,
               std::ostream & outStream = std::cout) const { 
     if ( verbose ) {

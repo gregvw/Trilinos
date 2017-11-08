@@ -67,7 +67,7 @@ public:
   Objective_FreudensteinRoth() {}
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
     Real f1 = -13.0 + (*ex)[0] + ((5.0-(*ex)[1])*(*ex)[1] - 2.0)*(*ex)[1];
@@ -77,9 +77,9 @@ public:
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > eg
+    ROL::SharedPointer<std::vector<Real> > eg
       = dynamic_cast<StdVector<Real>&>(g).getVector();
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
     Real f1 = -13.0 + (*ex)[0] + ((5.0-(*ex)[1])*(*ex)[1] - 2.0)*(*ex)[1];
@@ -95,11 +95,11 @@ public:
   }
 #if USE_HESSVEC
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > ehv
+    ROL::SharedPointer<std::vector<Real> > ehv
       = dynamic_cast<StdVector<Real>&>(hv).getVector();
-    std::shared_ptr<const std::vector<Real> > ev
+    ROL::SharedPointer<const std::vector<Real> > ev
       = dynamic_cast<const StdVector<Real>&>(v).getVector();
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
     Real f1 = -13.0 + (*ex)[0] + ((5.0-(*ex)[1])*(*ex)[1] - 2.0)*(*ex)[1];
@@ -122,11 +122,11 @@ public:
   }
 #endif
   void invHessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > ehv
+    ROL::SharedPointer<std::vector<Real> > ehv
       = dynamic_cast<StdVector<Real>&>(hv).getVector();
-    std::shared_ptr<const std::vector<Real> > ev
+    ROL::SharedPointer<const std::vector<Real> > ev
       = dynamic_cast<const StdVector<Real>&>(v).getVector();
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
     Real f1 = -13.0 + (*ex)[0] + ((5.0-(*ex)[1])*(*ex)[1] - 2.0)*(*ex)[1];
@@ -150,24 +150,24 @@ public:
 };
 
 template<class Real>
-void getFreudensteinRoth( std::shared_ptr<Objective<Real> > &obj,
-                          std::shared_ptr<Vector<Real> >    &x0,
-                          std::shared_ptr<Vector<Real> >    &x ) {
+void getFreudensteinRoth( ROL::SharedPointer<Objective<Real> > &obj,
+                          ROL::SharedPointer<Vector<Real> >    &x0,
+                          ROL::SharedPointer<Vector<Real> >    &x ) {
   // Problem dimension
   int n = 2;
 
   // Get Initial Guess
-  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(n,0.0);
   (*x0p)[0] = 0.5; (*x0p)[1] = -2.0;
-  x0 = std::make_shared<StdVector<Real>>(x0p);
+  x0 = ROL::makeShared<StdVector<Real>>(x0p);
 
   // Get Solution
-  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > xp = ROL::makeShared<std::vector<Real>>(n,0.0);
   (*xp)[0] = 5.0; (*xp)[1] = 4.0;
-  x = std::make_shared<StdVector<Real>>(xp);
+  x = ROL::makeShared<StdVector<Real>>(xp);
 
   // Instantiate Objective Function
-  obj = std::make_shared<Objective_FreudensteinRoth<Real>>();
+  obj = ROL::makeShared<Objective_FreudensteinRoth<Real>>();
 }
 
 

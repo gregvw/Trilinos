@@ -68,7 +68,7 @@ template<class Real>
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
   try {
-    std::shared_ptr<const std::vector<Real> > xp = 
+    ROL::SharedPointer<const std::vector<Real> > xp = 
       dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
     outStream << "Standard Vector" << std::endl;
@@ -106,7 +106,7 @@ void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu )
 
   
   
-  using std::dynamic_pointer_cast;
+  using ROL::dynamicPointerCast;
 
   const size_type OPT   = 0;
   const size_type EQUAL = 1;
@@ -157,7 +157,7 @@ void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL
 
   
   
-  using std::dynamic_pointer_cast;
+  using ROL::dynamicPointerCast;
 
   const size_type OPT   = 0;
   const size_type EQUAL = 1;
@@ -226,7 +226,7 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs;
   if( iprint > 0 ) 
     outStream = &std::cout,false;
@@ -256,44 +256,44 @@ int main(int argc, char *argv[]) {
     // 1) Has an equality constraint 
     // 2) Has a bound constraint where all variables have finite upper and lower bounds
 
-    std::shared_ptr<NLP> nlp = std::make_shared<HS::Problem_041<RealT>>(); 
-    std::shared_ptr<OPT> opt = nlp->getOptimizationProblem();
+    ROL::SharedPointer<NLP> nlp = ROL::makeShared<HS::Problem_041<RealT>>(); 
+    ROL::SharedPointer<OPT> opt = nlp->getOptimizationProblem();
  
-    std::shared_ptr<V>   x   = opt->getSolutionVector();
-    std::shared_ptr<V>   l   = opt->getMultiplierVector();
-    std::shared_ptr<V>   zl  = x->clone();
-    std::shared_ptr<V>   zu  = x->clone();
+    ROL::SharedPointer<V>   x   = opt->getSolutionVector();
+    ROL::SharedPointer<V>   l   = opt->getMultiplierVector();
+    ROL::SharedPointer<V>   zl  = x->clone();
+    ROL::SharedPointer<V>   zu  = x->clone();
 
-    std::shared_ptr<V>   scratch = x->clone();
+    ROL::SharedPointer<V>   scratch = x->clone();
 
-    std::shared_ptr<PV>  x_pv = std::dynamic_pointer_cast<PV>(x);
+    ROL::SharedPointer<PV>  x_pv = ROL::dynamicPointerCast<PV>(x);
 
-    std::shared_ptr<V>   sol = CreatePartitionedVector(x,l,zl,zu);
+    ROL::SharedPointer<V>   sol = CreatePartitionedVector(x,l,zl,zu);
 
-    std::shared_ptr<V>   c = sol->clone();
-    std::shared_ptr<V>   v = sol->clone();
-    std::shared_ptr<V>  jv = sol->clone();
+    ROL::SharedPointer<V>   c = sol->clone();
+    ROL::SharedPointer<V>   v = sol->clone();
+    ROL::SharedPointer<V>  jv = sol->clone();
 
-    std::shared_ptr<V>   c_exact = c->clone();
-    std::shared_ptr<V>  jv_exact = jv->clone();
+    ROL::SharedPointer<V>   c_exact = c->clone();
+    ROL::SharedPointer<V>  jv_exact = jv->clone();
 
     ROL::RandomizeVector(*l, -1.0, 1.0);
     ROL::RandomizeVector(*v,  0.0, 1.0);
 
 
-    std::shared_ptr<OBJ> obj = opt->getObjective();
-    std::shared_ptr<CON> con = opt->getConstraint();
-    std::shared_ptr<BND> bnd = opt->getBoundConstraint();
+    ROL::SharedPointer<OBJ> obj = opt->getObjective();
+    ROL::SharedPointer<CON> con = opt->getConstraint();
+    ROL::SharedPointer<BND> bnd = opt->getBoundConstraint();
 
     PENALTY penalty(obj,bnd,parlist);
  
-    std::shared_ptr<const V> maskL = penalty.getLowerMask();
-    std::shared_ptr<const V> maskU = penalty.getUpperMask();
+    ROL::SharedPointer<const V> maskL = penalty.getLowerMask();
+    ROL::SharedPointer<const V> maskU = penalty.getUpperMask();
 
     zl->set(*maskL);
     zu->set(*maskU);
 
-    std::shared_ptr<CON> res = std::make_shared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false);
+    ROL::SharedPointer<CON> res = ROL::makeShared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false);
 
 
     *outStream << "\n[x|lambda|zl|zu]" << std::endl;

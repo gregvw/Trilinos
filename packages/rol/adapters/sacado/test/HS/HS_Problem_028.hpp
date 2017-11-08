@@ -77,7 +77,7 @@ public:
 template<class Real> 
 class Problem_028 : public ROL::NonlinearProgram<Real> {
 
-  template<typename T> using std::shared_ptr = std::shared_ptr<T>;
+  template<typename T> using ROL::SharedPointer = ROL::SharedPointer<T>;
 
   typedef ROL::NonlinearProgram<Real>   NP;
   typedef ROL::Vector<Real>             V;
@@ -93,16 +93,16 @@ public:
   int dimension_x()  { return 3; }
   int dimension_ce() { return 1; }
 
-  const std::shared_ptr<OBJ> getObjective() { 
-    return std::make_shared<ROL::Sacado_StdObjective<Real,HS_028::Obj>>();
+  const ROL::SharedPointer<OBJ> getObjective() { 
+    return ROL::makeShared<ROL::Sacado_StdObjective<Real,HS_028::Obj>>();
   }
 
-  const std::shared_ptr<CON> getEqualityConstraint() {
+  const ROL::SharedPointer<CON> getEqualityConstraint() {
     return Teuchos::rcp( 
       new ROL::Sacado_StdConstraint<Real,HS_028::EqCon> );
   }
 
-  const std::shared_ptr<const V> getInitialGuess() {
+  const ROL::SharedPointer<const V> getInitialGuess() {
     Real x[] = {-4.0,1.0,1.0};
     return NP::createOptVector(x);
   };
@@ -117,7 +117,7 @@ public:
     return Real(0);
   }
 
-  std::shared_ptr<const V> getSolutionSet() {
+  ROL::SharedPointer<const V> getSolutionSet() {
     Real x[] = {0.5,-0.5,0.5};
     return ROL::CreatePartitionedVector(NP::createOptVector(x));
   }

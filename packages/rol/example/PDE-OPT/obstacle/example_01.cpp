@@ -93,16 +93,16 @@ Real evaluateUpperBound(const std::vector<Real> & coord) {
 
 
 template <class Real>
-void computeUpperBound(const std::shared_ptr<Tpetra::MultiVector<> > & ubVec,
-                       const std::shared_ptr<const FE<Real> > & fe,
-                       const std::shared_ptr<Intrepid::FieldContainer<Real> > & cellNodes,
-                       const std::shared_ptr<Intrepid::FieldContainer<int> > & cellDofs,
+void computeUpperBound(const ROL::SharedPointer<Tpetra::MultiVector<> > & ubVec,
+                       const ROL::SharedPointer<const FE<Real> > & fe,
+                       const ROL::SharedPointer<Intrepid::FieldContainer<Real> > & cellNodes,
+                       const ROL::SharedPointer<Intrepid::FieldContainer<int> > & cellDofs,
                        const Teuchos::Array<int> & cellIds) {
   int c = fe->gradN()->dimension(0);
   int f = fe->gradN()->dimension(1);
   int d = fe->gradN()->dimension(3);
-  std::shared_ptr<Intrepid::FieldContainer<Real> > dofPoints =
-    std::make_shared<Intrepid::FieldContainer<Real>>(c,f,d);
+  ROL::SharedPointer<Intrepid::FieldContainer<Real> > dofPoints =
+    ROL::makeShared<Intrepid::FieldContainer<Real>>(c,f,d);
   fe->computeDofCoords(dofPoints, cellNodes);
   
   std::vector<Real> coord(d);
@@ -125,12 +125,12 @@ void computeUpperBound(const std::shared_ptr<Tpetra::MultiVector<> > & ubVec,
 int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
@@ -146,43 +146,43 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize PDE describing the obstacle problem ***/
-    std::shared_ptr<MeshManager<RealT> > meshMgr
-      = std::make_shared<MeshManager_Rectangle<RealT>>(*parlist);
-    std::shared_ptr<PDE_Obstacle<RealT> > pde
-      = std::make_shared<PDE_Obstacle<RealT>>(*parlist);
-    std::shared_ptr<EnergyObjective<RealT> > obj
-      = std::make_shared<EnergyObjective<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
-    std::shared_ptr<Assembler<RealT> > assembler = obj->getAssembler();
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr
+      = ROL::makeShared<MeshManager_Rectangle<RealT>>(*parlist);
+    ROL::SharedPointer<PDE_Obstacle<RealT> > pde
+      = ROL::makeShared<PDE_Obstacle<RealT>>(*parlist);
+    ROL::SharedPointer<EnergyObjective<RealT> > obj
+      = ROL::makeShared<EnergyObjective<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
+    ROL::SharedPointer<Assembler<RealT> > assembler = obj->getAssembler();
 
     // Create state vector and set to zeroes
-    std::shared_ptr<Tpetra::MultiVector<> > u_rcp = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp = assembler->createStateVector();
     u_rcp->randomize();
-    std::shared_ptr<ROL::Vector<RealT> > up
-      = std::make_shared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::Vector<RealT> > up
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
     // Create state direction vector and set to random
-    std::shared_ptr<Tpetra::MultiVector<> > du_rcp = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > du_rcp = assembler->createStateVector();
     du_rcp->randomize();
-    std::shared_ptr<ROL::Vector<RealT> > dup
-      = std::make_shared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::Vector<RealT> > dup
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler);
 
     // Build bound constraints
-    std::shared_ptr<Tpetra::MultiVector<> > lo_rcp = assembler->createStateVector();
-    std::shared_ptr<Tpetra::MultiVector<> > hi_rcp = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > lo_rcp = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > hi_rcp = assembler->createStateVector();
     lo_rcp->putScalar(0.0); hi_rcp->putScalar(1.0);
     computeUpperBound<RealT>(hi_rcp,pde->getFE(),
                              pde->getCellNodes(),
                              assembler->getDofManager()->getCellDofs(),
                              assembler->getCellIds());
-    std::shared_ptr<ROL::Vector<RealT> > lop
-      = std::make_shared<PDE_PrimalSimVector<RealT>>(lo_rcp,pde,assembler);
-    std::shared_ptr<ROL::Vector<RealT> > hip
-      = std::make_shared<PDE_PrimalSimVector<RealT>>(hi_rcp,pde,assembler);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd
-      = std::make_shared<ROL::Bounds<RealT>>(lop,hip);
+    ROL::SharedPointer<ROL::Vector<RealT> > lop
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(lo_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::Vector<RealT> > hip
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(hi_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd
+      = ROL::makeShared<ROL::Bounds<RealT>>(lop,hip);
 
     // Run derivative checks
     obj->checkGradient(*up,*dup,true,*outStream);

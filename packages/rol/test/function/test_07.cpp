@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream.reset(&std::cout);
@@ -142,20 +142,20 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Build vectors
     unsigned dim = 4;
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > x = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > x = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
     setRandomVector(*x_rcp);
-    std::shared_ptr<std::vector<RealT> > d_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > d = std::make_shared<ROL::StdVector<RealT>>(d_rcp);
+    ROL::SharedPointer<std::vector<RealT> > d_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > d = ROL::makeShared<ROL::StdVector<RealT>>(d_rcp);
     setRandomVector(*d_rcp);
     // Build objective function
-    std::vector<std::shared_ptr<ROL::Objective<RealT> > > vec_obj(2,nullptr);
-    vec_obj[0] = std::make_shared<ObjectiveFunctionTest07_1<RealT>>();
-    vec_obj[1] = std::make_shared<ObjectiveFunctionTest07_2<RealT>>();
-    std::shared_ptr<ROL::StdObjective<RealT> > obj_scalarize
-      = std::make_shared<ObjectiveFunctionTest07_scalarize<RealT>>();
-    std::shared_ptr<ROL::Objective<RealT> > obj
-      = std::make_shared<ROL::CompositeObjective<RealT>>(vec_obj,obj_scalarize);
+    std::vector<ROL::SharedPointer<ROL::Objective<RealT> > > vec_obj(2,ROL::nullPointer);
+    vec_obj[0] = ROL::makeShared<ObjectiveFunctionTest07_1<RealT>>();
+    vec_obj[1] = ROL::makeShared<ObjectiveFunctionTest07_2<RealT>>();
+    ROL::SharedPointer<ROL::StdObjective<RealT> > obj_scalarize
+      = ROL::makeShared<ObjectiveFunctionTest07_scalarize<RealT>>();
+    ROL::SharedPointer<ROL::Objective<RealT> > obj
+      = ROL::makeShared<ROL::CompositeObjective<RealT>>(vec_obj,obj_scalarize);
     // Test parametrized objective functions
     *outStream << "Check Derivatives of CompositeObjective\n";
     obj->checkGradient(*x,*d,true,*outStream);

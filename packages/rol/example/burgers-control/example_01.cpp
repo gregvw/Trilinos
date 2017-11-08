@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -81,8 +81,8 @@ int main(int argc, char *argv[]) {
     RealT alpha = 1.e-3; // Set penalty parameter.
     Objective_BurgersControl<RealT> obj(alpha,nx);
     // Initialize iteration vectors.
-    std::shared_ptr<vector> x_rcp = std::make_shared<vector>(nx+2, 1.0);
-    std::shared_ptr<vector> y_rcp = std::make_shared<vector>(nx+2, 0.0);
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>(nx+2, 1.0);
+    ROL::SharedPointer<vector> y_rcp = ROL::makeShared<vector>(nx+2, 0.0);
     for (uint i=0; i<nx+2; i++) {
       (*x_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
       (*y_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
@@ -96,19 +96,19 @@ int main(int argc, char *argv[]) {
     obj.checkHessVec(x,x,y,true,*outStream);
 
     // Initialize Constraints
-    std::shared_ptr<vector> l_rcp = std::make_shared<vector>(nx+2,0.0);
-    std::shared_ptr<vector> u_rcp = std::make_shared<vector>(nx+2,1.0);
-    std::shared_ptr<V> lo = std::make_shared<SV>(l_rcp);
-    std::shared_ptr<V> up = std::make_shared<SV>(u_rcp); 
+    ROL::SharedPointer<vector> l_rcp = ROL::makeShared<vector>(nx+2,0.0);
+    ROL::SharedPointer<vector> u_rcp = ROL::makeShared<vector>(nx+2,1.0);
+    ROL::SharedPointer<V> lo = ROL::makeShared<SV>(l_rcp);
+    ROL::SharedPointer<V> up = ROL::makeShared<SV>(u_rcp); 
       
     ROL::Bounds<RealT> icon(lo,up);
 
     // ROL components.
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
 
     // Primal dual active set.
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     // Krylov parameters.
     parlist->sublist("General").sublist("Krylov").set("Absolute Tolerance",1.e-8);
@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Step Tolerance",1.e-16);
     parlist->sublist("Status Test").set("Iteration Limit",100);
     // Define algorithm.
-    algo = std::make_shared<ROL::Algorithm<RealT>>("Primal Dual Active Set",*parlist,false);
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>("Primal Dual Active Set",*parlist,false);
     // Run algorithm.
     x.zero();
     algo->run(x, obj, icon, true, *outStream);
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
     parlist->sublist("General").sublist("Krylov").set("Relative Tolerance",1.e-2);
     parlist->sublist("General").sublist("Krylov").set("Iteration Limit",50);
     // Define algorithm.
-    algo = std::make_shared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
     // Run Algorithm
     y.zero();
     algo->run(y,obj,icon,true,*outStream);
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
     }
     file.close();
     // Compute error 
-    std::shared_ptr<ROL::Vector<RealT> > diff = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > diff = x.clone();
     diff->set(x);
     diff->axpy(-1.0,y);
     RealT error = diff->norm();

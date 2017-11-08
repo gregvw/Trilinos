@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
     RealT    pi = std::acos(-1);
     ComplexT i(RealT(0),RealT(1));
 
-    std::shared_ptr<vector> xp = std::make_shared<vector>(N);
+    ROL::SharedPointer<vector> xp = ROL::makeShared<vector>(N);
 
     RealT scale = 1.0/std::sqrt(N);    
 

@@ -60,7 +60,7 @@ template<class Real>
 class TrustRegion {
 private:
 
-  std::shared_ptr<Vector<Real> > prim_, dual_;
+  ROL::SharedPointer<Vector<Real> > prim_, dual_;
 
   ETrustRegionModel TRmodel_;
 

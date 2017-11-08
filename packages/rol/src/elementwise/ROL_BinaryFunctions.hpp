@@ -194,13 +194,13 @@ class BinaryComposition : public BinaryFunction<Real> {
 
 private:
 
-  std::shared_ptr<BinaryFunction<Real> > f_;
-  std::shared_ptr<UnaryFunction<Real> >  g_;
+  ROL::SharedPointer<BinaryFunction<Real> > f_;
+  ROL::SharedPointer<UnaryFunction<Real> >  g_;
 
 public:
 
-  BinaryComposition( std::shared_ptr<BinaryFunction<Real> > &f,
-                     std::shared_ptr<UnaryFunction<Real> > &g ) : f_(f), g_(g) {}
+  BinaryComposition( ROL::SharedPointer<BinaryFunction<Real> > &f,
+                     ROL::SharedPointer<UnaryFunction<Real> > &g ) : f_(f), g_(g) {}
   Real apply( const Real &x, const Real &y ) const {
     return g_->apply(f_->apply(x,y));
   }

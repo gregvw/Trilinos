@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -85,16 +85,16 @@ int main(int argc, char *argv[]) {
     ROL::Minimax1<RealT> obj;
 
     // Initialize iteration vectors.
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     (*x_rcp)[0] = 1.0; (*x_rcp)[1] = -0.1;
     ROL::StdVector<RealT> x(x_rcp);
-    std::shared_ptr<std::vector<RealT> > z_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     (*z_rcp)[0] = 1.13904; (*z_rcp)[1] = 0.89956;
     ROL::StdVector<RealT> z(x_rcp);
 
     // Algorithmic input parameters.
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     std::string stepname = "Bundle";
     ROL::Algorithm<RealT> algo(stepname,*parlist);
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
     algo.run(x, obj, true, *outStream);
 
     // Compute error 
-    std::shared_ptr<ROL::Vector<RealT> > diff = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > diff = x.clone();
     diff->set(x);
     diff->axpy(-1.0,z);
     RealT error = diff->norm();

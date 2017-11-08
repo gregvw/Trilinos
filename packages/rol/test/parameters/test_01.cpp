@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
   using namespace Teuchos;
 
-  std::shared_ptr<ParameterList> inlist = std::make_shared<ParameterList>();
+  ROL::SharedPointer<ParameterList> inlist = ROL::makeShared<ParameterList>();
   std::string infile  = "parameters.xml";
   std::string outfile = "tiered_parameters.xml";
 
