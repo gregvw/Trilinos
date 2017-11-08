@@ -286,11 +286,11 @@ public:
 
     Teuchos::oblackholestream bhs; // outputs nothing
 
-    std::shared_ptr<std::ostream> pStream;
+    std::ostream *pStream;
     if (printToStream) {
-      pStream.reset(&outStream);
+      pStream = &outStream;
     } else {
-      pStream.reset(&bhs);
+      pStream = &bhs;
     }
 
     // Save the format state of the original pStream.
