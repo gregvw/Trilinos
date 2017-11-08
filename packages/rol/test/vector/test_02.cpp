@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT, ElementT> checkvec(std::make_shared<std::vector<RealT>>(&consistency));
+    ROL::StdVector<RealT, ElementT> checkvec((std::shared_ptr<std::vector<RealT>>(&consistency)));
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
