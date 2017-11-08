@@ -35,7 +35,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Questions? Contact lead developers:
-//         
+//
 //              Drew Kouri   (dpkouri@sandia.gov) and
 //              Denis Ridzal (dridzal@sandia.gov)
 //
@@ -52,40 +52,40 @@
 
 int main(int argc, char *argv[]) {
 
-  
-   
+
+
 
   typedef double RealT;
 
   typedef ROL::Vector<RealT>               V;
   typedef ROL::BoundConstraint<RealT>      BC;
   typedef ROL::Objective<RealT>            OBJ;
-  typedef ROL::InequalityConstraint<RealT> INEQ; 
+  typedef ROL::InequalityConstraint<RealT> INEQ;
 
-   
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
-  try { 
+  try {
 
     std::shared_ptr<V>    x     = ROL::ZOO::getInitialGuess_HS24<RealT>();
     std::shared_ptr<V>    xs    = ROL::ZOO::getSolution_HS24<RealT>();
-    std::shared_ptr<V>    inmul = ROL::ZOO::getInequalityMultiplier_HS24<RealT>();    
+    std::shared_ptr<V>    inmul = ROL::ZOO::getInequalityMultiplier_HS24<RealT>();
 
     std::shared_ptr<BC>   bnd   = ROL::ZOO::getBoundConstraint_HS24<RealT>();
     std::shared_ptr<OBJ>  obj   = ROL::ZOO::getObjective_HS24<RealT>();
     std::shared_ptr<INEQ> incon = ROL::ZOO::getInequalityConstraint_HS24<RealT>();
-   
+
     std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
 
     std::string stepname = "Interior Point";
@@ -110,20 +110,20 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Step Tolerance",1.e-8);
     parlist->sublist("Status Test").set("Iteration Limit",100);
 
-    // Define Optimization Problem 
+    // Define Optimization Problem
     ROL::OptimizationProblem<RealT> problem( obj, x, bnd, incon, inmul, parlist );
 
     std::shared_ptr<V> d = x->clone();
     RandomizeVector(*d);
 
-//    problem.checkObjectiveGradient(*d); 
-//    problem.checkObjectiveHessVec(*d); 
+//    problem.checkObjectiveGradient(*d);
+//    problem.checkObjectiveHessVec(*d);
 
     // Define algorithm.
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;    
+    std::shared_ptr<ROL::Algorithm<RealT> > algo;
     algo = std::make_shared<ROL::Algorithm<RealT>>(stepname,*parlist);
 
-    algo->run(problem,true,*outStream);   
+    algo->run(problem,true,*outStream);
 
     x->axpy(-1.0,*xs);
 
@@ -145,6 +145,6 @@ int main(int argc, char *argv[]) {
 
   return 0;
 
-   
+
 
 }

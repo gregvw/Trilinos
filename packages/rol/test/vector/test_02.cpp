@@ -64,12 +64,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -100,8 +100,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Standard tests.
-    std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT, ElementT> checkvec((std::shared_ptr<std::vector<RealT>>(&consistency)));
+    auto consistency = std::make_shared<std::vector<RealT>>(x.checkVector(y, z, true, *outStream));
+    ROL::StdVector<RealT, ElementT> checkvec(consistency);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 
     // Repeat the checkVector tests with a zero vector.
     x.scale(0.0);
-    consistency = x.checkVector(x, x, true, *outStream);
+    *consistency = x.checkVector(x, x, true, *outStream);
     if (checkvec.norm() > 0.0) {
       errorFlag++;
     }

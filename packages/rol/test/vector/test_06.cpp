@@ -75,12 +75,12 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
 
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag = 0;
 

@@ -35,7 +35,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Questions? Contact lead developers:
-//         
+//
 //              Drew Kouri   (dpkouri@sandia.gov) and
 //              Denis Ridzal (dridzal@sandia.gov)
 //
@@ -53,8 +53,8 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  
-   
+
+
 
   typedef std::vector<RealT>            vec;
   typedef ROL::StdVector<RealT>         SV;
@@ -63,12 +63,12 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
@@ -87,19 +87,19 @@ int main(int argc, char *argv[]) {
     // Original obective
     using ROL::ZOO::Objective_HS29;
     using ROL::ZOO::InequalityConstraint_HS29;
-    
+
     std::shared_ptr<ROL::Objective<RealT> >             obj_hs29 = std::make_shared<Objective_HS29<RealT>>();
     std::shared_ptr<ROL::InequalityConstraint<RealT> >  incon_hs29 = std::make_shared<InequalityConstraint_HS29<RealT>>();
 
     std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
-    std::string stepname = "Interior Point"; 
+    std::string stepname = "Interior Point";
 
     RealT mu = 0.1;            // Initial penalty parameter
     RealT factor = 0.1;        // Penalty reduction factor
 
     // Set solver parameters
     parlist->sublist("General").set("Print Verbosity",1);
-    
+
     parlist->sublist("Step").sublist("Interior Point").set("Initial Barrier Penalty",mu);
     parlist->sublist("Step").sublist("Interior Point").set("Minimium Barrier Penalty",1e-8);
     parlist->sublist("Step").sublist("Interior Point").set("Barrier Penalty Reduction Factor",factor);
@@ -116,18 +116,18 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Step Tolerance",1.e-8);
     parlist->sublist("Status Test").set("Iteration Limit",100);
 
-    ROL::OptimizationProblem<RealT> problem( obj_hs29, xopt, incon_hs29, li, parlist);  
-    
+    ROL::OptimizationProblem<RealT> problem( obj_hs29, xopt, incon_hs29, li, parlist);
+
     // Define algorithm.
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;    
+    std::shared_ptr<ROL::Algorithm<RealT> > algo;
     algo = std::make_shared<ROL::Algorithm<RealT>>(stepname,*parlist);
 
-    algo->run(problem,true,*outStream);   
+    algo->run(problem,true,*outStream);
 
 
 
     *outStream << std::endl << std::setw(20) << "Computed Minimizer" << std::endl;
-    for( int i=0;i<xopt_dim;++i ) {   
+    for( int i=0;i<xopt_dim;++i ) {
       *outStream << std::setw(20) << (*xopt_rcp)[i] << std::endl;
     }
 
@@ -147,6 +147,6 @@ int main(int argc, char *argv[]) {
 
   return 0;
 
-   
+
 
 }

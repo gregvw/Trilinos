@@ -35,7 +35,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Questions? Contact lead developers:
-//         
+//
 //              Drew Kouri   (dpkouri@sandia.gov) and
 //              Denis Ridzal (dridzal@sandia.gov)
 //
@@ -46,7 +46,7 @@
     \brief Test of Primal Dual Interior Point KKT system
 */
 
-#include "ROL_HS32.hpp" 
+#include "ROL_HS32.hpp"
 #include "ROL_InteriorPointPrimalDualResidual.hpp"
 #include "ROL_RandomVector.hpp"
 #include "ROL_GMRES.hpp"
@@ -67,18 +67,18 @@ int main(int argc, char *argv[]) {
   typedef typename vector::size_type    uint;
 
 
-  
-  
+
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
@@ -98,10 +98,10 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<vector> xe_rcp = std::make_shared<vector>(ce_dim,0.0); // equality multipliers
     std::shared_ptr<vector> xi_rcp = std::make_shared<vector>(ci_dim,0.0); // inequality multipliers
 
-    std::shared_ptr<V> xo = std::make_shared<SV>(xo_rcp); 
+    std::shared_ptr<V> xo = std::make_shared<SV>(xo_rcp);
     std::shared_ptr<V> xs = std::make_shared<SV>(xs_rcp);
     std::shared_ptr<V> xe = std::make_shared<SV>(xe_rcp);
-    std::shared_ptr<V> xi = std::make_shared<SV>(xi_rcp);     
+    std::shared_ptr<V> xi = std::make_shared<SV>(xi_rcp);
 
     ROL::RandomizeVector(*xo,left,right);
     ROL::RandomizeVector(*xs,left,right);
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
     ROL::RandomizeVector(*xi,left,right);
 
     std::shared_ptr<V> x = ROL::CreatePartitionedVector( xo, xs, xe, xi );
-    
+
 
     // ----[ Full primal-dual direction vector ]------
 
@@ -117,11 +117,11 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<vector> vs_rcp = std::make_shared<vector>(ci_dim,0.0); // slack
     std::shared_ptr<vector> ve_rcp = std::make_shared<vector>(ce_dim,0.0); // equality multipliers
     std::shared_ptr<vector> vi_rcp = std::make_shared<vector>(ci_dim,0.0); // inequality multipliers
- 
+
     std::shared_ptr<V> vo = std::make_shared<SV>(vo_rcp);
     std::shared_ptr<V> vs = std::make_shared<SV>(vs_rcp);
     std::shared_ptr<V> ve = std::make_shared<SV>(ve_rcp);
-    std::shared_ptr<V> vi = std::make_shared<SV>(vi_rcp);     
+    std::shared_ptr<V> vi = std::make_shared<SV>(vi_rcp);
 
     ROL::RandomizeVector(*vo,left,right);
     ROL::RandomizeVector(*vs,left,right);
@@ -137,11 +137,11 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<vector> rs_rcp = std::make_shared<vector>(ci_dim,0.0); // slack
     std::shared_ptr<vector> re_rcp = std::make_shared<vector>(ce_dim,0.0); // equality multipliers
     std::shared_ptr<vector> ri_rcp = std::make_shared<vector>(ci_dim,0.0); // inequality multipliers
- 
+
     std::shared_ptr<V> ro = std::make_shared<SV>(vo_rcp);
     std::shared_ptr<V> rs = std::make_shared<SV>(vs_rcp);
     std::shared_ptr<V> re = std::make_shared<SV>(ve_rcp);
-    std::shared_ptr<V> ri = std::make_shared<SV>(vi_rcp);     
+    std::shared_ptr<V> ri = std::make_shared<SV>(vi_rcp);
 
     ROL::RandomizeVector(*ro,left,right);
     ROL::RandomizeVector(*rs,left,right);
@@ -152,25 +152,25 @@ int main(int argc, char *argv[]) {
 
     // ----[ Primal-dual constraint ]-------
 
-    std::shared_ptr<ROL::Objective<RealT> > obj_hs32 = 
+    std::shared_ptr<ROL::Objective<RealT> > obj_hs32 =
       std::make_shared<ROL::ZOO::Objective_HS32<RealT>>();
 
-    std::shared_ptr<ROL::EqualityConstraint<RealT> > eqcon_hs32 = 
+    std::shared_ptr<ROL::EqualityConstraint<RealT> > eqcon_hs32 =
       std::make_shared<ROL::ZOO::EqualityConstraint_HS32<RealT>>();
-    
-    std::shared_ptr<ROL::EqualityConstraint<RealT> > incon_hs32 = 
-      std::make_shared<ROL::ZOO::InequalityConstraint_HS32<RealT>>();      
+
+    std::shared_ptr<ROL::EqualityConstraint<RealT> > incon_hs32 =
+      std::make_shared<ROL::ZOO::InequalityConstraint_HS32<RealT>>();
 
 
-    *outStream << "Performing finite difference check on Primal-Dual KKT system" 
+    *outStream << "Performing finite difference check on Primal-Dual KKT system"
                << std::endl;
 
-    using ROL::InteriorPoint::PrimalDualResidual;    
+    using ROL::InteriorPoint::PrimalDualResidual;
 
     PrimalDualResidual<RealT> con(obj_hs32,eqcon_hs32,incon_hs32, *x);
-   
-    con.checkApplyJacobian(*x,*v,*r,true,*outStream);  
-    
+
+    con.checkApplyJacobian(*x,*v,*r,true,*outStream);
+
   }
 
   catch (std::logic_error err) {
@@ -182,9 +182,7 @@ int main(int argc, char *argv[]) {
     std::cout << "End Result: TEST FAILED\n";
   else
     std::cout << "End Result: TEST PASSED\n";
-  
+
 
   return 0;
 }
-
-

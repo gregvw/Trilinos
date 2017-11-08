@@ -161,9 +161,8 @@ int main(int argc, char *argv[]) {
     ROL::PrimalScaledStdVector<RealT,ElementT> y1(y1_rcp,W_rcp);
     ROL::PrimalScaledStdVector<RealT,ElementT> z1(z1_rcp,W_rcp);
 
-    std::vector<RealT> consistency = x1.checkVector(y1, z1, true, outStream);
-    auto q = std::shared_ptr<std::vector<RealT>>(&consistency);
-    ROL::StdVector<RealT> checkvec(q);
+    auto consistency = std::make_shared<std::vector<RealT>>(x1.checkVector(y1, z1, true, outStream));
+    ROL::StdVector<RealT> checkvec(consistency);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }

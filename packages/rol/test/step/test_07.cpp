@@ -35,7 +35,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Questions? Contact lead developers:
-//         
+//
 //              Drew Kouri   (dpkouri@sandia.gov) and
 //              Denis Ridzal (dridzal@sandia.gov)
 //
@@ -54,8 +54,8 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  
-   
+
+
 
   typedef std::vector<RealT>            vec;
   typedef ROL::StdVector<RealT>         SV;
@@ -67,12 +67,12 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 
     std::shared_ptr<vec> le_rcp  = std::make_shared<vec>(ce_dim,0.0);    // Equality multiplier
     std::shared_ptr<vec> li_rcp  = std::make_shared<vec>(ci_dim,0.0);    // Inequality multiplier
-     
+
     // Feasible initial guess
     (*xopt_rcp)[0] = 0.1;
     (*xopt_rcp)[1] = 0.7;
@@ -102,12 +102,12 @@ int main(int argc, char *argv[]) {
 
     using ROL::ZOO::Objective_HS32;
     using ROL::ZOO::EqualityConstraint_HS32;
-    using ROL::ZOO::InequalityConstraint_HS32;    
+    using ROL::ZOO::InequalityConstraint_HS32;
 
-    std::shared_ptr<ROL::Objective<RealT> > obj_hs32 = std::make_shared<Objective_HS32<RealT>>(); 
+    std::shared_ptr<ROL::Objective<RealT> > obj_hs32 = std::make_shared<Objective_HS32<RealT>>();
     std::shared_ptr<ROL::EqualityConstraint<RealT> > eqcon_hs32 = std::make_shared<EqualityConstraint_HS32<RealT>>();
     std::shared_ptr<ROL::InequalityConstraint<RealT> > incon_hs32 = std::make_shared<InequalityConstraint_HS32<RealT>>();
-    
+
     std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
     std::string stepname = "Interior Point";
 
@@ -131,16 +131,16 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Step Tolerance",1.e-8);
     parlist->sublist("Status Test").set("Iteration Limit",100);
 
-    ROL::OptimizationProblem<RealT> problem( obj_hs32, xopt, eqcon_hs32, le, incon_hs32, li, parlist);  
+    ROL::OptimizationProblem<RealT> problem( obj_hs32, xopt, eqcon_hs32, le, incon_hs32, li, parlist);
 
     // Define algorithm.
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;    
+    std::shared_ptr<ROL::Algorithm<RealT> > algo;
     algo = std::make_shared<ROL::Algorithm<RealT>>(stepname,*parlist);
 
-    algo->run(problem,true,*outStream);   
-  
+    algo->run(problem,true,*outStream);
+
     *outStream << std::endl << std::setw(20) << "Computed Minimizer" << std::setw(20) << "Exact Minimizer" << std::endl;
-    for( int i=0;i<xopt_dim;++i ) {   
+    for( int i=0;i<xopt_dim;++i ) {
       *outStream << std::setw(20) << (*xopt_rcp)[i] << std::setw(20) << (*x_exact_rcp)[i] << std::endl;
     }
   }
@@ -156,4 +156,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-

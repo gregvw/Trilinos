@@ -207,7 +207,7 @@ public:
     std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
 
     // Build Hessian and Preconditioner object
-    std::shared_ptr<Objective<Real> > obj_ptr(&obj);
+    std::shared_ptr<Objective<Real> > obj_ptr(&obj, [](Objective<Real>*){});
     std::shared_ptr<LinearOperator<Real> > hessian
       = std::make_shared<HessianNK>(obj_ptr,algo_state.iterateVec);
     std::shared_ptr<LinearOperator<Real> > precond;
