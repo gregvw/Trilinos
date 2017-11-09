@@ -433,8 +433,8 @@ public:
       s.zero();
       if ( rtmp_->norm() > zero ) {
         // Initialize Hessian and preconditioner
-        std::shared_ptr<Objective<Real> > obj_ptr(&obj);
-        std::shared_ptr<BoundConstraint<Real> > con_ptr(&con);
+        std::shared_ptr<Objective<Real> > obj_ptr(&obj, [](Objective<Real>*){});
+        std::shared_ptr<BoundConstraint<Real> > con_ptr(&con, [](BoundConstraint<Real>*){});
         std::shared_ptr<LinearOperator<Real> > hessian
           = std::make_shared<HessianPD>(obj_ptr,con_ptr,
               algo_state.iterateVec,xlam_,neps_,secant_,useSecantHessVec_);

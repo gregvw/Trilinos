@@ -257,10 +257,10 @@ public:
     alpha = LineSearch<Real>::getInitialAlpha(ls_neval,ls_ngrad,fval,gs,x,s,obj,con);
 
     // Build ScalarFunction and ScalarMinimizationStatusTest
-    std::shared_ptr<const Vector<Real> > x_ptr(&x);
-    std::shared_ptr<const Vector<Real> > s_ptr(&s);
-    std::shared_ptr<Objective<Real> > obj_ptr(&obj);
-    std::shared_ptr<BoundConstraint<Real> > bnd_ptr(&con);
+    std::shared_ptr<const Vector<Real> > x_ptr(&x, [](const Vector<Real>*){});
+    std::shared_ptr<const Vector<Real> > s_ptr(&s, [](const Vector<Real>*){});
+    std::shared_ptr<Objective<Real> > obj_ptr(&obj, [](Objective<Real>*){});
+    std::shared_ptr<BoundConstraint<Real> > bnd_ptr(&con, [](BoundConstraint<Real>*){});
 
 
     std::shared_ptr<ScalarFunction<Real> > phi;
