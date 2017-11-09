@@ -239,8 +239,8 @@ namespace ROL {
                         Real eps = 0.0 )
       : isInitialized_(false), useSecantPrecond_(useSecantPrecond),
         useSecantHessVec_(useSecantHessVec), eps_(eps) {
-      obj_.reset(&obj);
-      con_.reset(&con);
+      obj_.reset(&obj, [](Objective<Real>*){});
+      con_.reset(&con, [](BoundConstraint<Real>*){});
       secant_ = secant;
     }
 

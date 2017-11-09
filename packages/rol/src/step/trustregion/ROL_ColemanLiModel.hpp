@@ -210,7 +210,7 @@ private:
   // Build diagonal D and C matrices
   void initialize(Objective<Real> &obj, BoundConstraint<Real> &bnd,
                   const Vector<Real> &x, const Vector<Real> &g) {
-    bnd_.reset(&bnd);
+    bnd_.reset(&bnd, [](BoundConstraint<Real>*){});
 
     prim_ = x.clone();
     dual_ = g.clone();

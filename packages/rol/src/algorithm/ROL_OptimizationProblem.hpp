@@ -640,7 +640,7 @@ public:
     }
     else {
       needRiskLessObj_ = false;
-      parlistObj_.reset(&parlist);
+      parlistObj_.reset(&parlist, [](Teuchos::ParameterList*){});
       INTERMEDIATE_obj_
         = std::make_shared<RiskAverseObjective<Real>>(INPUT_obj_,parlist,vsampler_,gsampler_,hsampler_);
     }
@@ -845,7 +845,7 @@ public:
     ixsampler_[index] = sampler;
     if ( INPUT_icon_[index] != nullptr && sampler != nullptr ) {
       needRiskLessIcon_[index] = false;
-      parlistCon_[index].reset(&parlist);
+      parlistCon_[index].reset(&parlist, [](Teuchos::ParameterList*){});
       INTERMEDIATE_icon_[index]
         = std::make_shared<RiskAverseConstraint<Real>>(INPUT_icon_[index],sampler,parlist,index);
       INTERMEDIATE_ibnd_[index] = INPUT_ibnd_[index];

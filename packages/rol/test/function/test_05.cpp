@@ -65,12 +65,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -126,10 +126,10 @@ int main(int argc, char *argv[]) {
     constr->checkApplyJacobian(xtest, v, vc, true, *outStream);                 *outStream << "\n";
     constr->checkApplyAdjointJacobian(xtest, vl, vc, xtest, true, *outStream);  *outStream << "\n";
     constr->checkApplyAdjointHessian(xtest, vl, d, xtest, true, *outStream);    *outStream << "\n";
-    nlls.checkGradient(xtest, d, true, *outStream);                             *outStream << "\n"; 
+    nlls.checkGradient(xtest, d, true, *outStream);                             *outStream << "\n";
     nlls.checkHessVec(xtest, v, true, *outStream);                              *outStream << "\n";
     nlls.checkHessSym(xtest, d, v, true, *outStream);                           *outStream << "\n";
-    
+
     // Define algorithm.
     Teuchos::ParameterList parlist;
     std::string stepname = "Trust Region";
@@ -162,4 +162,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

@@ -43,7 +43,7 @@
 
 /*! \file  test_11.cpp
     \brief Verify that the implementation of the Coleman-Li Trust-Region
-           model passes derivative checks 
+           model passes derivative checks
 */
 
 #include "ROL_ColemanLiModel.hpp"
@@ -61,19 +61,19 @@ int main(int argc, char *argv[]) {
 
   typedef ROL::Vector<RealT>          V;
   typedef ROL::Objective<RealT>       OBJ;
-  typedef ROL::BoundConstraint<RealT> CON; 
-  
+  typedef ROL::BoundConstraint<RealT> CON;
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
   std::shared_ptr<V>   g;
   std::shared_ptr<OBJ> obj;
   std::shared_ptr<CON> con;
-  std::shared_ptr<OBJ> model;  
+  std::shared_ptr<OBJ> model;
 
   ROL::ZOO::getHS2(obj,con,x0,x);
 
@@ -111,5 +111,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
-

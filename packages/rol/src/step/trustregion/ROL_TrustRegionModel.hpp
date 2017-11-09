@@ -80,9 +80,9 @@ public:
 
   TrustRegionModel(Objective<Real> &obj, const Vector<Real> &x, const Vector<Real> &g, const bool init = true)
     : secant_(nullptr), useSecantPrecond_(false), useSecantHessVec_(false) {
-    obj_.reset(&obj);
-    x_.reset(&x);
-    g_.reset(&g);
+    obj_.reset(&obj, [](Objective<Real>*){});
+    x_.reset(&x, [](const Vector<Real>*){});
+    g_.reset(&g, [](const Vector<Real>*){});
     if ( init ) {
       dual_ = g.clone();
     }
@@ -92,9 +92,9 @@ public:
                    const std::shared_ptr<Secant<Real> > &secant,
                    const bool useSecantPrecond, const bool useSecantHessVec)
     : secant_(secant), useSecantPrecond_(useSecantPrecond), useSecantHessVec_(useSecantHessVec) {
-    obj_.reset(&obj);
-    x_.reset(&x);
-    g_.reset(&g);
+    obj_.reset(&obj, [](Objective<Real>*){});
+    x_.reset(&x, [](const Vector<Real>*){});
+    g_.reset(&g, [](const Vector<Real>*){});
     dual_ = g.clone();
   }
 

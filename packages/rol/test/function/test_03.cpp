@@ -106,13 +106,13 @@ int main(int argc, char *argv[]) {
 
   int iprint = argc - 1;
 
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   oblackholestream bhs; // no output
 
   if( iprint>0 )
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag = 0;
 

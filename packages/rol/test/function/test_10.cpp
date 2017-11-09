@@ -359,12 +359,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -426,8 +426,8 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<ROL::Constraint_SimOpt<RealT> > redCon = std::make_shared<redConstraint<RealT>>();
     redCon->checkAdjointConsistencyJacobian_1(*cz,*ds,*s,*z,true,*outStream);
     redCon->checkAdjointConsistencyJacobian_2(*cz,*dz,*s,*z,true,*outStream);
-    redCon->checkInverseJacobian_1(*cz,*ds,*s,*z,true,*outStream); 
-    redCon->checkInverseAdjointJacobian_1(*ds,*cz,*s,*z,true,*outStream); 
+    redCon->checkInverseJacobian_1(*cz,*ds,*s,*z,true,*outStream);
+    redCon->checkInverseAdjointJacobian_1(*ds,*cz,*s,*z,true,*outStream);
     redCon->checkApplyJacobian_1(*s,*z,*ds,*cz,true,*outStream);
     redCon->checkApplyJacobian_2(*s,*z,*dz,*cz,true,*outStream);
     redCon->checkApplyJacobian(y,dy,*cz,true,*outStream);
@@ -462,4 +462,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

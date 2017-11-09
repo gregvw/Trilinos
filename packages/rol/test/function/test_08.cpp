@@ -51,7 +51,7 @@
 
 typedef double RealT;
 
-template<class Real> 
+template<class Real>
 class ObjectiveFunctionTest08_1 : public ROL::Objective_SimOpt<Real> {
 public:
   Real value( const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
@@ -62,11 +62,11 @@ public:
     Real half(0.5), quadu(0), quadz(0);
     unsigned usize = up->size();
     for ( unsigned i = 0; i < usize; i++ ) {
-      quadu += (*up)[i]*(*up)[i]; 
+      quadu += (*up)[i]*(*up)[i];
     }
     unsigned zsize = zp->size();
     for ( unsigned i = 0; i < zsize; i++ ) {
-      quadz += (*zp)[i]*(*zp)[i]; 
+      quadz += (*zp)[i]*(*zp)[i];
     }
     return half*(quadu + quadz);
   }
@@ -116,7 +116,7 @@ public:
   }
 };
 
-template<class Real> 
+template<class Real>
 class ObjectiveFunctionTest08_2 : public ROL::Objective_SimOpt<Real> {
 public:
   Real value( const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
@@ -173,7 +173,7 @@ public:
   }
 };
 
-template<class Real> 
+template<class Real>
 class ObjectiveFunctionTest08_scalarize : public ROL::StdObjective<Real> {
 public:
   Real value( const std::vector<Real> &x, Real &tol ) {
@@ -208,12 +208,12 @@ int main(int argc, char* argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 

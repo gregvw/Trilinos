@@ -44,9 +44,9 @@
 /*! \file  test_13.cpp
     \brief Validate BinaryConstraint class
 
-    Solve a bound constrained problem where a solution is sought on 
+    Solve a bound constrained problem where a solution is sought on
     the surface of the bounding set by converting the bound constraint
-    into an equality constraint. 
+    into an equality constraint.
 
 */
 
@@ -66,13 +66,13 @@
 
 
 // Creates f(x) = <x,Dx>/2 - <x,b> where D is a diagonal matrix
-// If D_{ii}>0 for all i, then the minimizer is the solution to 
+// If D_{ii}>0 for all i, then the minimizer is the solution to
 // the linear system x_i=b_i/d_i
-template<class Real> 
-std::shared_ptr<ROL::Objective<Real>> 
-createDiagonalQuadraticObjective( const ROL::Vector<Real> &a, 
+template<class Real>
+std::shared_ptr<ROL::Objective<Real>>
+createDiagonalQuadraticObjective( const ROL::Vector<Real> &a,
                                   const ROL::Vector<Real> &b ) {
-  
+
   auto op = std::make_shared<ROL::DiagonalOperator<Real>>(a);
   auto vec = b.clone();
   vec->set(b);
@@ -83,28 +83,28 @@ createDiagonalQuadraticObjective( const ROL::Vector<Real> &a,
 typedef double RealT;
 
 int main(int argc, char *argv[]) {
-  
+
 //  typedef ROL::Vector<RealT>    V;
   typedef ROL::StdVector<RealT> SV;
 
-   
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a
   // (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
-  try { 
- 
+  try {
+
     auto parlist = Teuchos::getParametersFromXmlFile("binary_constraint.xml");
 
     // Penalty parameter
@@ -112,11 +112,11 @@ int main(int argc, char *argv[]) {
 
     RealT INF  = ROL::ROL_INF<RealT>();
     RealT NINF = ROL::ROL_NINF<RealT>();
-  
+
     /*-----  Optimization Vector -----*/
 
     // Initial guess
-    auto x0_rcp = std::make_shared<std::vector<RealT>>(4);  
+    auto x0_rcp = std::make_shared<std::vector<RealT>>(4);
     auto x0 = std::make_shared<SV>(x0_rcp);
     ROL::RandomizeVector(*x0);
 
@@ -125,21 +125,21 @@ int main(int argc, char *argv[]) {
     /*----- Objective Function -----*/
 
     // Diagonal quadratic objective scaling vector
-    auto d_rcp = std::make_shared<std::vector<RealT>>(4);  
+    auto d_rcp = std::make_shared<std::vector<RealT>>(4);
     auto d = std::make_shared<SV>(d_rcp);
 
     // Quadratic objective offset vector
-    auto b_rcp = std::make_shared<std::vector<RealT>>(4);  
+    auto b_rcp = std::make_shared<std::vector<RealT>>(4);
     auto b = std::make_shared<SV>(b_rcp);
 
     // Set values for objective
-    (*b_rcp)[0] = 1.0;  (*b_rcp)[1] = 1.0;  
-    (*b_rcp)[2] = 1.0;  (*b_rcp)[3] = 1.0;   
+    (*b_rcp)[0] = 1.0;  (*b_rcp)[1] = 1.0;
+    (*b_rcp)[2] = 1.0;  (*b_rcp)[3] = 1.0;
 
-    (*d_rcp)[0] = 1.0;  (*d_rcp)[1] = 2.0;  
+    (*d_rcp)[0] = 1.0;  (*d_rcp)[1] = 2.0;
     (*d_rcp)[2] = 4.0;  (*d_rcp)[3] = 8.0;
 
-    auto obj = createDiagonalQuadraticObjective( *d, *b ); 
+    auto obj = createDiagonalQuadraticObjective( *d, *b );
 
     // Unconstrained minimizer: x = [ 1.0, 0.5, 0.25, 0.125 ]
 
@@ -147,18 +147,18 @@ int main(int argc, char *argv[]) {
     /*----- Bound Constraint -----*/
 
     // Lower bound vector
-    auto xl_rcp = std::make_shared<std::vector<RealT>>(4);  
+    auto xl_rcp = std::make_shared<std::vector<RealT>>(4);
     auto xl = std::make_shared<SV>(xl_rcp);
 
     // Upper bound vector
-    auto xu_rcp = std::make_shared<std::vector<RealT>>(4);  
+    auto xu_rcp = std::make_shared<std::vector<RealT>>(4);
     auto xu = std::make_shared<SV>(xu_rcp);
-    
+
     // Set bounds
-    (*xl_rcp)[0] = 0.0;   (*xl_rcp)[1] = 0.0;  
+    (*xl_rcp)[0] = 0.0;   (*xl_rcp)[1] = 0.0;
     (*xl_rcp)[2] = NINF;  (*xl_rcp)[3] = NINF;
 
-    (*xu_rcp)[0] = 1.0;   (*xu_rcp)[1] = INF;  
+    (*xu_rcp)[0] = 1.0;   (*xu_rcp)[1] = INF;
     (*xu_rcp)[2] = 1.0;   (*xu_rcp)[3] = INF;
 
 //    ROL::BoundConstraint<RealT> bnd(xl,xu);
@@ -174,51 +174,51 @@ int main(int argc, char *argv[]) {
     l->applyUnary( ROL::Elementwise::Fill<RealT>(1.0) );
 
     // Constrained minimizer set X = { [ 0, 0, 1, 0.125 ], [ 1, 0, 1, 0.125 ] }
-   
+
     // Create Optimization problems
-    ROL::OptimizationProblem<RealT> problem_E( obj, x, nullptr, con, l ); 
-    ROL::OptimizationProblem<RealT> problem_EB( obj, x, bnd, con, l ); 
-   
+    ROL::OptimizationProblem<RealT> problem_E( obj, x, nullptr, con, l );
+    ROL::OptimizationProblem<RealT> problem_EB( obj, x, bnd, con, l );
+
     // Perform linear algebra and finite difference checks
     problem_E.check( *outStream );
-    
+
 
     // Solve using Composite Step where the bound is not enforced and
     // equality constraints are satisfied asymptotically
     parlist->sublist("Step").set("Type","Composite Step");
     ROL::OptimizationSolver<RealT> solver_cs( problem_E, *parlist );
-    solver_cs.solve( *outStream );    
+    solver_cs.solve( *outStream );
     *outStream << "\n\nFinal optimization vector:";
     x->print(*outStream);
 
-    // Reset optimization vector and Lagrange multiplier to initial values 
+    // Reset optimization vector and Lagrange multiplier to initial values
     x->set(*x0); l->applyUnary(FillWithOnes);
-  
 
-    // Solve using Augmented Lagrangian where the bound is enforced explicitly 
+
+    // Solve using Augmented Lagrangian where the bound is enforced explicitly
     // and equality constraints are enforced through penalization
     parlist->sublist("Step").set("Type","Augmented Lagrangian");
     ROL::OptimizationSolver<RealT> solver_al( problem_EB, *parlist );
-    solver_al.solve( *outStream );    
+    solver_al.solve( *outStream );
     *outStream << "\n\nFinal optimization vector:";
     x->print(*outStream);
-    
 
-    // Reset optimization vector and Lagrange multiplier to initial values 
+
+    // Reset optimization vector and Lagrange multiplier to initial values
     x->set(*x0); l->applyUnary(FillWithOnes);
 
 
-    // Solve using Moreau-Yosida where the bound is enforced through penalization 
+    // Solve using Moreau-Yosida where the bound is enforced through penalization
     // and equality constraints are satisfied asymptotically
     parlist->sublist("Step").set("Type","Moreau-Yosida Penalty");
     ROL::OptimizationSolver<RealT> solver_my( problem_EB, *parlist );
-    solver_my.solve( *outStream );    
+    solver_my.solve( *outStream );
     *outStream << "\n\nFinal optimization vector:";
     x->print(*outStream);
-    
+
 
   }
-  
+
   catch (std::logic_error err) {
     *outStream << err.what() << "\n";
     errorFlag = -1000;
@@ -231,4 +231,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-

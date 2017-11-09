@@ -42,8 +42,8 @@
 // @HEADER
 
 /*! \file  test_02.cpp
-    \brief Test creating a LineSearch using an externally provided 
-           scalar minimization function. 
+    \brief Test creating a LineSearch using an externally provided
+           scalar minimization function.
 */
 
 #include "ROL_Algorithm.hpp"
@@ -60,7 +60,7 @@ int main(int argc, char *argv[] ) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
-   
+
   using namespace ROL;
 
   typedef std::vector<RealT> vector;
@@ -69,12 +69,12 @@ int main(int argc, char *argv[] ) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream.reset(&std::cout);
+    outStream = &std::cout;
   else
-    outStream.reset(&bhs);
+    outStream = &bhs;
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -86,7 +86,7 @@ int main(int argc, char *argv[] ) {
   try {
 
     int dim = 10;
-   
+
     std::shared_ptr<vector> x_rcp = std::make_shared<vector>( dim, 0.0 );
     std::shared_ptr<vector> k_rcp = std::make_shared<vector>( dim, 0.0 );
 
@@ -109,12 +109,12 @@ int main(int argc, char *argv[] ) {
     std::shared_ptr<ScalarMinimization<RealT> > sm = std::make_shared<BisectionScalarMinimization<RealT>>(parlist);
     std::shared_ptr<LineSearch<RealT> > ls = std::make_shared<ScalarMinimizationLineSearch<RealT>>(parlist, sm);
     std::shared_ptr<Step<RealT> > step = std::make_shared<LineSearchStep<RealT>>( parlist, ls );
-   
+
     std::shared_ptr<StatusTest<RealT> > status = std::make_shared<StatusTest<RealT>>(parlist);
 
     Algorithm<RealT> algo( step, status, false );
- 
-    algo.run(x, obj, true, *outStream);  
+
+    algo.run(x, obj, true, *outStream);
 
     RealT abserr = x.norm();
 
@@ -140,5 +140,3 @@ int main(int argc, char *argv[] ) {
 
   return 0;
 }
-
-

@@ -135,7 +135,7 @@ public:
     stol_  = stlist.get("Step Tolerance", 1.e-8);
     maxit_ = stlist.get("Iteration Limit", 100);
 
-    parlist_.reset(&parlist);
+    parlist_.reset(&parlist, [](Teuchos::ParameterList*){});
   }
 
   /** \brief Initialize step with equality constraint
@@ -159,8 +159,8 @@ public:
 
     x_->set(x);
 
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
-    ipcon_.reset(&dynamic_cast<IPCON&>(con));
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
+    ipcon_.reset(&dynamic_cast<IPCON&>(con), [](IPCON*){});
 
     // Set initial penalty
     ipobj_->updatePenalty(mu_);
@@ -211,7 +211,7 @@ public:
     g_ = g.clone();
 
     // Set initial penalty
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
     ipobj_->updatePenalty(mu_);
 
     algo_state.nfval = 0;
@@ -245,8 +245,8 @@ public:
                 Constraint<Real>     &con,
                 AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
-    ipcon_.reset(&dynamic_cast<IPCON&>(con));
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
+    ipcon_.reset(&dynamic_cast<IPCON&>(con), [](IPCON*){});
 
     // Create the algorithm
     algo_ = std::make_shared<Algorithm<Real>>("Composite Step",*parlist_,false);
@@ -277,7 +277,7 @@ public:
                 BoundConstraint<Real> &bnd,
                 AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
 
     // Create the algorithm
     algo_ = std::make_shared<Algorithm<Real>>("Trust Region",*parlist_,false);
@@ -302,8 +302,8 @@ public:
                Constraint<Real>     &con,
                AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
-    ipcon_.reset(&dynamic_cast<IPCON&>(con));
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
+    ipcon_.reset(&dynamic_cast<IPCON&>(con), [](IPCON*){});
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {
@@ -368,7 +368,7 @@ public:
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj));
+    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {

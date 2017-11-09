@@ -54,21 +54,21 @@
 
 #include <iomanip>
 
-/*! \file test_02.cpp 
+/*! \file test_02.cpp
     \brief Perform a finite difference check on for the Hessian of the Lagrangian
            resulting from a Type-EB problem. Note that this test has a required
-           dependence on Sacado. 
+           dependence on Sacado.
            NOTE: The finite difference check can only be expected to pass if
-           the system is not symmetrized and all bounds are finite. 
+           the system is not symmetrized and all bounds are finite.
 
 */
 
 
-template<class Real> 
+template<class Real>
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
   try {
-    std::shared_ptr<const std::vector<Real> > xp = 
+    std::shared_ptr<const std::vector<Real> > xp =
       dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
     outStream << "Standard Vector" << std::endl;
@@ -78,7 +78,7 @@ void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
   }
   catch( const std::bad_cast& e ) {
     outStream << "Partitioned Vector" << std::endl;
-    
+
     typedef ROL::PartitionedVector<Real>    PV;
     typedef typename PV::size_type          size_type;
 
@@ -104,8 +104,8 @@ void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu )
 
   typedef typename PV::size_type size_type;
 
-  
-  
+
+
   using std::dynamic_pointer_cast;
 
   const size_type OPT   = 0;
@@ -124,7 +124,7 @@ void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu )
   vector &cl  = *(rcp_dynamic_cast<SV>(c_pv.get(EQUAL))->getVector());
   vector &czl = *(rcp_dynamic_cast<SV>(c_pv.get(LOWER))->getVector());
   vector &czu = *(rcp_dynamic_cast<SV>(c_pv.get(UPPER))->getVector());
- 
+
   cx[0] = -x[1]*x[2] +   l[0] - zl[0] + zu[0];
   cx[1] = -x[0]*x[1] + 2*l[0] - zl[1] + zu[1];
   cx[2] = -x[0]*x[1] + 2*l[0] - zl[2] + zu[2];
@@ -136,18 +136,18 @@ void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu )
   czl[1] = x[1]*zl[1] - mu;
   czl[2] = x[2]*zl[2] - mu;
   czl[3] = x[3]*zl[3] - mu;
- 
+
   czu[0] = (1.0-x[0])*zu[0] - mu;
   czu[1] = (1.0-x[1])*zu[1] - mu;
   czu[2] = (1.0-x[2])*zl[2] - mu;
   czu[3] = (2.0-x[3])*zl[3] - mu;
 }
- 
+
 
 
 // Exact residual for H&S Problem 41
 template<class Real>
-void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &sol ) { 
+void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &sol ) {
 
   typedef std::vector<Real>            vector;
   typedef ROL::StdVector<Real>         SV;
@@ -155,8 +155,8 @@ void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL
 
   typedef typename PV::size_type size_type;
 
-  
-  
+
+
   using std::dynamic_pointer_cast;
 
   const size_type OPT   = 0;
@@ -181,7 +181,7 @@ void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL
   vector &jvl  = *(rcp_dynamic_cast<SV>(jv_pv.get(EQUAL))->getVector());
   vector &jvzl = *(rcp_dynamic_cast<SV>(jv_pv.get(LOWER))->getVector());
   vector &jvzu = *(rcp_dynamic_cast<SV>(jv_pv.get(UPPER))->getVector());
- 
+
   jvx[0] = -x[1]*vx[2] - x[2]*vx[1] +   vl[0] - vzl[0] + vzu[0];
   jvx[1] = -x[0]*vx[2] - x[2]*vx[0] + 2*vl[0] - vzl[1] + vzu[1];
   jvx[2] = -x[0]*vx[1] - x[1]*vx[0] + 2*vl[0] - vzl[2] + vzu[2];
@@ -200,12 +200,12 @@ void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL
   jvzu[3] = -zu[3]*vx[3] + vzu[3]*(2.0-x[3]);
 
 }
- 
+
 
 typedef double RealT;
 
 int main(int argc, char *argv[]) {
- 
+
 //  typedef std::vector<RealT>                          vector;
 
   typedef Teuchos::ParameterList                      PL;
@@ -221,20 +221,20 @@ int main(int argc, char *argv[]) {
   typedef ROL::InteriorPointPenalty<RealT>            PENALTY;
   typedef ROL::PrimalDualInteriorPointResidual<RealT> RESIDUAL;
 
-   
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs;
-  if( iprint > 0 ) 
-    outStream = &std::cout,false;
+  if( iprint > 0 )
+    outStream = &std::cout;
   else
-    outStream = &bhs,false;
+    outStream = &bhs;
 
   int errorFlag = 0;
-   
+
   try {
 
     RealT mu = 0.1;
@@ -253,12 +253,12 @@ int main(int argc, char *argv[]) {
     lblist.set("Initial Barrier Parameter", mu);
 
     // Need an example problem that satisfies the following criteria:
-    // 1) Has an equality constraint 
+    // 1) Has an equality constraint
     // 2) Has a bound constraint where all variables have finite upper and lower bounds
 
-    std::shared_ptr<NLP> nlp = std::make_shared<HS::Problem_041<RealT>>(); 
+    std::shared_ptr<NLP> nlp = std::make_shared<HS::Problem_041<RealT>>();
     std::shared_ptr<OPT> opt = nlp->getOptimizationProblem();
- 
+
     std::shared_ptr<V>   x   = opt->getSolutionVector();
     std::shared_ptr<V>   l   = opt->getMultiplierVector();
     std::shared_ptr<V>   zl  = x->clone();
@@ -286,7 +286,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<BND> bnd = opt->getBoundConstraint();
 
     PENALTY penalty(obj,bnd,parlist);
- 
+
     std::shared_ptr<const V> maskL = penalty.getLowerMask();
     std::shared_ptr<const V> maskU = penalty.getUpperMask();
 
@@ -330,9 +330,9 @@ int main(int argc, char *argv[]) {
     jv->axpy(-1.0,*jv_exact);
 
     RealT jverror = jv->norm();
-    
+
     if( jverror > tol ) {
-      ++errorFlag;  
+      ++errorFlag;
     }
 
     *outStream << "\n\n||jv-jv_exact|| = " << jverror << std::endl;
@@ -355,4 +355,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
