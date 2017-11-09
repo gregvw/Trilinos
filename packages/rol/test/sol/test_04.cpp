@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
   auto teuchos_comm = Teuchos::DefaultComm<int>::getComm();
-  std::shared_ptr<const Teuchos::Comm<int>> commptr(&*teuchos_comm, [](const Teuchos::Comm<int>*){});
+  ROL::SharedPointer<const Teuchos::Comm<int>> commptr(&*teuchos_comm, [](const Teuchos::Comm<int>*){});
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
@@ -84,8 +84,8 @@ int main(int argc, char* argv[]) {
     size_t dimension = 1;
 
     // Initialize distribution
-    std::shared_ptr<ROL::Distribution<RealT> > dist;
-    std::vector<std::shared_ptr<ROL::Distribution<RealT> > > distVec(dimension);
+    ROL::SharedPointer<ROL::Distribution<RealT> > dist;
+    std::vector<ROL::SharedPointer<ROL::Distribution<RealT> > > distVec(dimension);
     Teuchos::ParameterList Dlist;
     Dlist.sublist("SOL").sublist("Distribution").set("Name","Beta");
     RealT alpha = 1., beta = 4.;
@@ -108,10 +108,10 @@ int main(int argc, char* argv[]) {
     size_t numMoments = static_cast<size_t>(moments.size());
 
     std::clock_t timer = std::clock();
-    std::shared_ptr<ROL::BatchManager<RealT> > bman =
-      std::make_shared<ROL::TeuchosBatchManager<RealT,int>>(commptr);
-    std::shared_ptr<ROL::SampleGenerator<RealT> > sampler =
-      std::make_shared<ROL::SROMGenerator<RealT>>(*parlist,bman,distVec);
+    ROL::SharedPointer<ROL::BatchManager<RealT> > bman =
+      ROL::makeShared<ROL::TeuchosBatchManager<RealT,int>>(commptr);
+    ROL::SharedPointer<ROL::SampleGenerator<RealT> > sampler =
+      ROL::makeShared<ROL::SROMGenerator<RealT>>(*parlist,bman,distVec);
     *outStream << std::endl << "Sample Time: "
                << (std::clock()-timer)/(RealT)CLOCKS_PER_SEC << " seconds"
                << std::endl;

@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
     RandomizeVector(z, left, right );
 
     // Standard tests.
-    auto consistency = std::make_shared<std::vector<RealT>>(x.checkVector(y, z, true, *outStream));
+    auto consistency = ROL::makeShared<std::vector<RealT>>(x.checkVector(y, z, true, *outStream));
     StdV checkvec(consistency);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 
     // Basis tests.
     // set x to first basis vector
-    std::shared_ptr<V> zp = x.basis(0);
+    ROL::SharedPointer<V> zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";
     if ( std::abs(znorm-1.0) > errtol ) {
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 
     // Repeat the checkVector tests with a zero vector.
     x.scale(0.0);
-    consistency = std::make_shared<std::vector<RealT>>(x.checkVector(x, x, true, *outStream));
+    consistency = ROL::makeShared<std::vector<RealT>>(x.checkVector(x, x, true, *outStream));
     if (checkvec.norm() > 0.0) {
       errorFlag++;
     }

@@ -71,8 +71,8 @@ void print_vector( const ROL::Vector<Real> &x ) {
     
   for(size_type k=0; k<n; ++k) {
     std::cout << "[subvector " << k << "]" << std::endl;
-    std::shared_ptr<const V> vec = eb.get(k);
-    std::shared_ptr<const std::vector<Real> > vp = 
+    ROL::SharedPointer<const V> vec = eb.get(k);
+    ROL::SharedPointer<const std::vector<Real> > vp = 
       dynamic_cast<const SV&>(*vec).getVector();  
    for(size_type i=0;i<vp->size();++i) {
       std::cout << (*vp)[i] << std::endl;
@@ -90,12 +90,12 @@ int main(int argc, char *argv[]) {
   typedef ROL::SimulatedVector<RealT>   PV;
 
   GlobalMPISession mpiSession(&argc, &argv);
-  std::shared_ptr<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
-  std::shared_ptr<ROL::TpetraTeuchosBatchManager<RealT> > bman = std::make_shared<ROL::TpetraTeuchosBatchManager<RealT>>(comm);
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  ROL::SharedPointer<ROL::TpetraTeuchosBatchManager<RealT> > bman = ROL::makeShared<ROL::TpetraTeuchosBatchManager<RealT>>(comm);
 
   int iprint = argc - 1;
 
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   oblackholestream bhs; // no output
  
   if( iprint>0 ) 
@@ -113,8 +113,8 @@ int main(int argc, char *argv[]) {
     int nSamp = 100;
     std::vector<RealT> tmp(2,0.0); tmp[0] = -1.0; tmp[1] = 1.0;
     std::vector<std::vector<RealT> > bounds(stoch_dim,tmp);
-    std::shared_ptr<ROL::SampleGenerator<RealT> > sampler
-      = std::make_shared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman);
+    ROL::SharedPointer<ROL::SampleGenerator<RealT> > sampler
+      = ROL::makeShared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman);
 
     int batchID = bman->batchID();
     int nvecloc = sampler->numMySamples();
@@ -127,19 +127,19 @@ int main(int argc, char *argv[]) {
      
     RealT left = -1e0, right = 1e0;
 
-    std::vector<std::shared_ptr<V> > x_rcp;
-    std::vector<std::shared_ptr<V> > y_rcp;
-    std::vector<std::shared_ptr<V> > z_rcp;
+    std::vector<ROL::SharedPointer<V> > x_rcp;
+    std::vector<ROL::SharedPointer<V> > y_rcp;
+    std::vector<ROL::SharedPointer<V> > z_rcp;
 
     for( int k=0; k<nvecloc; ++k ) {
        
-      std::shared_ptr<std::vector<RealT> > xk_rcp = std::make_shared<std::vector<RealT>>(dim);
-      std::shared_ptr<std::vector<RealT> > yk_rcp = std::make_shared<std::vector<RealT>>(dim);
-      std::shared_ptr<std::vector<RealT> > zk_rcp = std::make_shared<std::vector<RealT>>(dim);
+      ROL::SharedPointer<std::vector<RealT> > xk_rcp = ROL::makeShared<std::vector<RealT>>(dim);
+      ROL::SharedPointer<std::vector<RealT> > yk_rcp = ROL::makeShared<std::vector<RealT>>(dim);
+      ROL::SharedPointer<std::vector<RealT> > zk_rcp = ROL::makeShared<std::vector<RealT>>(dim);
 
-      std::shared_ptr<V> xk = std::make_shared<SV>( xk_rcp );
-      std::shared_ptr<V> yk = std::make_shared<SV>( yk_rcp );
-      std::shared_ptr<V> zk = std::make_shared<SV>( zk_rcp );
+      ROL::SharedPointer<V> xk = ROL::makeShared<SV>( xk_rcp );
+      ROL::SharedPointer<V> yk = ROL::makeShared<SV>( yk_rcp );
+      ROL::SharedPointer<V> zk = ROL::makeShared<SV>( zk_rcp );
 
       for( int i=0; i<dim; ++i ) {
         (*xk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
@@ -179,10 +179,10 @@ int main(int argc, char *argv[]) {
     x_rcp.resize(0);
     y_rcp.resize(0);
     for( int k=0; k<nvecloc; ++k ) {
-      std::shared_ptr<std::vector<RealT> > xk_rcp = std::make_shared<std::vector<RealT>>(dim);
-      std::shared_ptr<std::vector<RealT> > yk_rcp = std::make_shared<std::vector<RealT>>(dim);
-      std::shared_ptr<V> xk = std::make_shared<SV>( xk_rcp );
-      std::shared_ptr<V> yk = std::make_shared<SV>( yk_rcp );
+      ROL::SharedPointer<std::vector<RealT> > xk_rcp = ROL::makeShared<std::vector<RealT>>(dim);
+      ROL::SharedPointer<std::vector<RealT> > yk_rcp = ROL::makeShared<std::vector<RealT>>(dim);
+      ROL::SharedPointer<V> xk = ROL::makeShared<SV>( xk_rcp );
+      ROL::SharedPointer<V> yk = ROL::makeShared<SV>( yk_rcp );
       for( int i=0; i<dim; ++i ) {
         (*xk_rcp)[i] = 1.0;
         (*yk_rcp)[i] = 2.0;

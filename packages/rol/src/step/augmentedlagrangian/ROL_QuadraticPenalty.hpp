@@ -48,7 +48,7 @@
 #include "ROL_Constraint.hpp"
 #include "ROL_Vector.hpp"
 #include "ROL_Types.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 #include <iostream>
 
 /** @ingroup func_group
@@ -84,17 +84,17 @@ template <class Real>
 class QuadraticPenalty : public Objective<Real> {
 private:
   // Required for quadratic penalty definition
-  const std::shared_ptr<Constraint<Real> > con_;
-  std::shared_ptr<Vector<Real> > multiplier_;
+  const ROL::SharedPointer<Constraint<Real> > con_;
+  ROL::SharedPointer<Vector<Real> > multiplier_;
   Real penaltyParameter_;
 
   // Auxiliary storage
-  std::shared_ptr<Vector<Real> > primalMultiplierVector_;
-  std::shared_ptr<Vector<Real> > dualOptVector_;
-  std::shared_ptr<Vector<Real> > primalConVector_;
+  ROL::SharedPointer<Vector<Real> > primalMultiplierVector_;
+  ROL::SharedPointer<Vector<Real> > dualOptVector_;
+  ROL::SharedPointer<Vector<Real> > primalConVector_;
 
   // Constraint evaluations
-  std::shared_ptr<Vector<Real> > conValue_;
+  ROL::SharedPointer<Vector<Real> > conValue_;
 
   // Evaluation counters
   int ncval_;
@@ -115,7 +115,7 @@ private:
   }
 
 public:
-  QuadraticPenalty(const std::shared_ptr<Constraint<Real> > &con,
+  QuadraticPenalty(const ROL::SharedPointer<Constraint<Real> > &con,
                    const Vector<Real> &multiplier,
                    const Real penaltyParameter,
                    const Vector<Real> &optVec,

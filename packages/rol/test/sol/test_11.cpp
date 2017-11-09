@@ -164,13 +164,13 @@ public:
 
 template<class Real>
 Real setUpAndSolve(Teuchos::ParameterList                    &list,
-                   std::shared_ptr<ROL::Objective<Real> >       &obj,
-                   std::shared_ptr<ROL::Vector<Real> >          &x,
-                   std::shared_ptr<ROL::BoundConstraint<Real> > &bnd,
-                   std::shared_ptr<ROL::Constraint<Real> >      &con,
-                   std::shared_ptr<ROL::Vector<Real> >          &mul,
-                   std::shared_ptr<ROL::BoundConstraint<Real> > &ibnd,
-                   std::shared_ptr<ROL::SampleGenerator<Real> > &sampler,
+                   ROL::SharedPointer<ROL::Objective<Real> >       &obj,
+                   ROL::SharedPointer<ROL::Vector<Real> >          &x,
+                   ROL::SharedPointer<ROL::BoundConstraint<Real> > &bnd,
+                   ROL::SharedPointer<ROL::Constraint<Real> >      &con,
+                   ROL::SharedPointer<ROL::Vector<Real> >          &mul,
+                   ROL::SharedPointer<ROL::BoundConstraint<Real> > &ibnd,
+                   ROL::SharedPointer<ROL::SampleGenerator<Real> > &sampler,
                    std::ostream & outStream) {
   ROL::OptimizationProblem<Real> optProblem(obj,x,bnd,con,mul,ibnd);
   optProblem.setMeanValueInequality(sampler);
@@ -178,7 +178,7 @@ Real setUpAndSolve(Teuchos::ParameterList                    &list,
   // Run ROL algorithm
   ROL::OptimizationSolver<Real> optSolver(optProblem, list);
   optSolver.solve(outStream);
-  std::shared_ptr<ROL::Objective<Real> > robj = optProblem.getObjective();
+  ROL::SharedPointer<ROL::Objective<Real> > robj = optProblem.getObjective();
   Real tol(1.e-8);
   return robj->value(*(optProblem.getSolutionVector()),tol);
 }
@@ -223,36 +223,36 @@ int main(int argc, char* argv[]) {
     // Build vectors
     const RealT zero(0), half(0.5), one(1), two(2);
     unsigned dim = 7;
-    std::shared_ptr<std::vector<RealT> > x_rcp;
-    x_rcp = std::make_shared<std::vector<RealT>>(dim,zero);
-    std::shared_ptr<ROL::Vector<RealT> > x;
-    x = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp;
+    x_rcp = ROL::makeShared<std::vector<RealT>>(dim,zero);
+    ROL::SharedPointer<ROL::Vector<RealT> > x;
+    x = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
     // Build samplers
     int nSamp = 50;
     unsigned sdim = dim + 1;
-    std::shared_ptr<ROL::BatchManager<RealT> > bman
-      = std::make_shared<ROL::BatchManager<RealT>>();
-    std::shared_ptr<ROL::SampleGenerator<RealT> > sampler
-      = std::make_shared<ROL::UserInputGenerator<RealT>>("points.txt","weights.txt",nSamp,sdim,bman);
+    ROL::SharedPointer<ROL::BatchManager<RealT> > bman
+      = ROL::makeShared<ROL::BatchManager<RealT>>();
+    ROL::SharedPointer<ROL::SampleGenerator<RealT> > sampler
+      = ROL::makeShared<ROL::UserInputGenerator<RealT>>("points.txt","weights.txt",nSamp,sdim,bman);
     // Build objective function
-    std::shared_ptr<ROL::Objective<RealT> > obj
-      = std::make_shared<ObjectiveEx11<RealT>>();
+    ROL::SharedPointer<ROL::Objective<RealT> > obj
+      = ROL::makeShared<ObjectiveEx11<RealT>>();
     // Build bound constraints
     std::vector<RealT> lx(dim,half);
     std::vector<RealT> ux(dim,two);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd
-      = std::make_shared<ROL::StdBoundConstraint<RealT>>(lx,ux);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd
+      = ROL::makeShared<ROL::StdBoundConstraint<RealT>>(lx,ux);
     // Build inequality constraint
     std::vector<RealT> zeta(dim,one/static_cast<RealT>(std::sqrt(3.)));
     zeta[0] *= half;
     zeta[1] *= half;
-    std::shared_ptr<ROL::Constraint<RealT> > con
-      = std::make_shared<ConstraintEx11<RealT>>(zeta);
+    ROL::SharedPointer<ROL::Constraint<RealT> > con
+      = ROL::makeShared<ConstraintEx11<RealT>>(zeta);
     // Build inequality bound constraint
     std::vector<RealT> lc(dim,ROL::ROL_NINF<RealT>());
     std::vector<RealT> uc(dim,zero);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > ibnd
-      = std::make_shared<ROL::StdBoundConstraint<RealT>>(lc,uc);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > ibnd
+      = ROL::makeShared<ROL::StdBoundConstraint<RealT>>(lc,uc);
     ibnd->deactivateLower();
     // Build multipliers
     std::vector<RealT> mean(sdim,zero), gmean(sdim,zero);
@@ -264,8 +264,8 @@ int main(int argc, char* argv[]) {
       }
     }
     sampler->sumAll(&mean[0],&gmean[0],sdim);
-    std::shared_ptr<std::vector<RealT> > scaling_vec
-      = std::make_shared<std::vector<RealT>>(dim,zero);
+    ROL::SharedPointer<std::vector<RealT> > scaling_vec
+      = ROL::makeShared<std::vector<RealT>>(dim,zero);
     for (unsigned i = 0; i < dim; ++i) {
       RealT cl = std::abs(gmean[dim]/zeta[i] - gmean[i]*lx[i]);
       RealT cu = std::abs(gmean[dim]/zeta[i] - gmean[i]*ux[i]);
@@ -273,10 +273,10 @@ int main(int argc, char* argv[]) {
       (*scaling_vec)[i] = (scale > std::sqrt(ROL::ROL_EPSILON<RealT>()))
                             ? scale : one;
     }
-    std::shared_ptr<std::vector<RealT> > l_rcp
-      = std::make_shared<std::vector<RealT>>(dim,one);
-    std::shared_ptr<ROL::Vector<RealT> > l
-      = std::make_shared<ROL::DualScaledStdVector<RealT>>(l_rcp,scaling_vec);
+    ROL::SharedPointer<std::vector<RealT> > l_rcp
+      = ROL::makeShared<std::vector<RealT>>(dim,one);
+    ROL::SharedPointer<ROL::Vector<RealT> > l
+      = ROL::makeShared<ROL::DualScaledStdVector<RealT>>(l_rcp,scaling_vec);
 
     /**********************************************************************************************/
     /************************* SUPER QUANTILE QUADRANGLE ******************************************/
@@ -286,10 +286,10 @@ int main(int argc, char* argv[]) {
     printSolution<RealT>(*x_rcp,*outStream);
 
     // Compute exact solution
-    std::shared_ptr<std::vector<RealT> > ximean, gximean, xsol;
-    ximean  = std::make_shared<std::vector<RealT>>(dim+1,0);
-    gximean = std::make_shared<std::vector<RealT>>(dim+1);
-    xsol    = std::make_shared<std::vector<RealT>>(dim);
+    ROL::SharedPointer<std::vector<RealT> > ximean, gximean, xsol;
+    ximean  = ROL::makeShared<std::vector<RealT>>(dim+1,0);
+    gximean = ROL::makeShared<std::vector<RealT>>(dim+1);
+    xsol    = ROL::makeShared<std::vector<RealT>>(dim);
     for (int i = 0; i < sampler->numMySamples(); ++i) {
       std::vector<RealT> pt = sampler->getMyPoint(i);
       RealT              wt = sampler->getMyWeight(i);
@@ -301,8 +301,8 @@ int main(int argc, char* argv[]) {
     for (unsigned i = 0; i < dim; ++i) {
       (*xsol)[i] = std::max(half,(std::exp((*gximean)[dim])/std::exp((*gximean)[i]))/zeta[i]);
     }
-    std::shared_ptr<ROL::Vector<RealT> > xtrue
-      = std::make_shared<ROL::StdVector<RealT>>(xsol);
+    ROL::SharedPointer<ROL::Vector<RealT> > xtrue
+      = ROL::makeShared<ROL::StdVector<RealT>>(xsol);
     *outStream << "True Solution" << std::endl;
     printSolution<RealT>(*xsol,*outStream);
     xtrue->axpy(-one,*x);

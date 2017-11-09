@@ -60,9 +60,9 @@ template<class Real>
 class CauchyPoint : public TrustRegion<Real> {
 private:
 
-  std::shared_ptr<Vector<Real> > g_;
-  std::shared_ptr<Vector<Real> > p_;
-  std::shared_ptr<Vector<Real> > Hp_;
+  ROL::SharedPointer<Vector<Real> > g_;
+  ROL::SharedPointer<Vector<Real> > p_;
+  ROL::SharedPointer<Vector<Real> > Hp_;
 
   Real pRed_;
   Real eps_;

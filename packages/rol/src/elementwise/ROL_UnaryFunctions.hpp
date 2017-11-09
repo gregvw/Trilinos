@@ -266,12 +266,12 @@ class UnaryComposition : public UnaryFunction<Real> {
 
 private:
   
-  std::shared_ptr<UnaryFunction<Real> > f_;
-  std::shared_ptr<UnaryFunction<Real> > g_; 
+  ROL::SharedPointer<UnaryFunction<Real> > f_;
+  ROL::SharedPointer<UnaryFunction<Real> > g_; 
   
 public:
-  UnaryComposition( std::shared_ptr<UnaryFunction<Real> > &f,
-                    std::shared_ptr<UnaryFunction<Real> > &g ) : f_(f), g_(g) {}
+  UnaryComposition( ROL::SharedPointer<UnaryFunction<Real> > &f,
+                    ROL::SharedPointer<UnaryFunction<Real> > &g ) : f_(f), g_(g) {}
   Real apply( const Real &x ) const {
     return g_->apply(f_->apply(x));
   }

@@ -72,12 +72,12 @@ typedef double RealT;
 int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
@@ -93,73 +93,73 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    std::shared_ptr<MeshManager<RealT> > meshMgr
-      = std::make_shared<MeshManager_BackwardFacingStepChannel<RealT>>(*parlist);
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr
+      = ROL::makeShared<MeshManager_BackwardFacingStepChannel<RealT>>(*parlist);
     // Initialize PDE describing Navier-Stokes equations.
-    std::shared_ptr<PDE_NavierStokes<RealT> > pde
-      = std::make_shared<PDE_NavierStokes<RealT>>(*parlist);
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
-      = std::make_shared<PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
+    ROL::SharedPointer<PDE_NavierStokes<RealT> > pde
+      = ROL::makeShared<PDE_NavierStokes<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con
+      = ROL::makeShared<PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    std::shared_ptr<PDE_Constraint<RealT> > pdecon
-      = std::dynamic_pointer_cast<PDE_Constraint<RealT> >(con);
-    std::shared_ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
+    ROL::SharedPointer<PDE_Constraint<RealT> > pdecon
+      = ROL::dynamicPointerCast<PDE_Constraint<RealT> >(con);
+    ROL::SharedPointer<Assembler<RealT> > assembler = pdecon->getAssembler();
     con->setSolveParameters(*parlist);
 
     // Create state vector and set to zeroes
-    std::shared_ptr<Tpetra::MultiVector<> > u_rcp = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp = assembler->createStateVector();
     u_rcp->randomize();
-    std::shared_ptr<ROL::Vector<RealT> > up
-      = std::make_shared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler,*parlist);
-    std::shared_ptr<Tpetra::MultiVector<> > p_rcp = assembler->createStateVector();
+    ROL::SharedPointer<ROL::Vector<RealT> > up
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler,*parlist);
+    ROL::SharedPointer<Tpetra::MultiVector<> > p_rcp = assembler->createStateVector();
     p_rcp->randomize();
-    std::shared_ptr<ROL::Vector<RealT> > pp
-      = std::make_shared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler,*parlist);
+    ROL::SharedPointer<ROL::Vector<RealT> > pp
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler,*parlist);
     // Create control vector and set to ones
-    std::shared_ptr<Tpetra::MultiVector<> > z_rcp = assembler->createControlVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > z_rcp = assembler->createControlVector();
     z_rcp->randomize();  //putScalar(1.0);
-    std::shared_ptr<ROL::Vector<RealT> > zp
-      = std::make_shared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler,*parlist);
+    ROL::SharedPointer<ROL::Vector<RealT> > zp
+      = ROL::makeShared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler,*parlist);
     // Create residual vector and set to zeros
-    std::shared_ptr<Tpetra::MultiVector<> > r_rcp = assembler->createResidualVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > r_rcp = assembler->createResidualVector();
     r_rcp->putScalar(0.0);
-    std::shared_ptr<ROL::Vector<RealT> > rp
-      = std::make_shared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler,*parlist);
+    ROL::SharedPointer<ROL::Vector<RealT> > rp
+      = ROL::makeShared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler,*parlist);
     // Create state direction vector and set to random
-    std::shared_ptr<Tpetra::MultiVector<> > du_rcp = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > du_rcp = assembler->createStateVector();
     du_rcp->randomize();
-    std::shared_ptr<ROL::Vector<RealT> > dup
-      = std::make_shared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler,*parlist);
+    ROL::SharedPointer<ROL::Vector<RealT> > dup
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler,*parlist);
     // Create control direction vector and set to random
-    std::shared_ptr<Tpetra::MultiVector<> > dz_rcp = assembler->createControlVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > dz_rcp = assembler->createControlVector();
     dz_rcp->randomize();
-    std::shared_ptr<ROL::Vector<RealT> > dzp
-      = std::make_shared<PDE_PrimalOptVector<RealT>>(dz_rcp,pde,assembler,*parlist);
+    ROL::SharedPointer<ROL::Vector<RealT> > dzp
+      = ROL::makeShared<PDE_PrimalOptVector<RealT>>(dz_rcp,pde,assembler,*parlist);
     // Create ROL SimOpt vectors
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> d(dup,dzp);
 
     // Initialize quadratic objective function.
-    std::vector<std::shared_ptr<QoI<RealT> > > qoi_vec(2,nullptr);
+    std::vector<ROL::SharedPointer<QoI<RealT> > > qoi_vec(2,ROL::nullPointer);
     qoi_vec[0] = Teuchos::rcp(new QoI_State_NavierStokes<RealT>(*parlist,
                                                                 pde->getVelocityFE(),
                                                                 pde->getPressureFE(),
                                                                 pde->getFieldHelper()));
-    qoi_vec[1] = std::make_shared<QoI_L2Penalty_NavierStokes<RealT>(pde->getVelocityFE(>(),
+    qoi_vec[1] = ROL::makeShared<QoI_L2Penalty_NavierStokes<RealT>(pde->getVelocityFE(>(),
                                                                     pde->getPressureFE(),
                                                                     pde->getVelocityBdryFE(),
                                                                     pde->getBdryCellLocIds(),
                                                                     pde->getFieldHelper()));
-    std::shared_ptr<StdObjective_NavierStokes<RealT> > std_obj
-      = std::make_shared<StdObjective_NavierStokes<RealT>>(*parlist);
-    std::shared_ptr<ROL::Objective_SimOpt<RealT> > obj
-      = std::make_shared<PDE_Objective<RealT>>(qoi_vec,std_obj,assembler);
-    std::shared_ptr<ROL::Reduced_Objective_SimOpt<RealT> > robj
-      = std::make_shared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, pp, true, false);
+    ROL::SharedPointer<StdObjective_NavierStokes<RealT> > std_obj
+      = ROL::makeShared<StdObjective_NavierStokes<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > obj
+      = ROL::makeShared<PDE_Objective<RealT>>(qoi_vec,std_obj,assembler);
+    ROL::SharedPointer<ROL::Reduced_Objective_SimOpt<RealT> > robj
+      = ROL::makeShared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, pp, true, false);
 
     //up->zero();
     //zp->zero();
@@ -182,15 +182,15 @@ int main(int argc, char *argv[]) {
       robj->checkHessVec(*zp,*dzp,true,*outStream);
     }
     bool useCompositeStep = parlist->sublist("Problem").get("Full space",false);
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
     up->zero();
     zp->zero();
     if ( useCompositeStep ) {
-      algo = std::make_shared<ROL::Algorithm<RealT>>("Composite Step",*parlist,false);
+      algo = ROL::makeShared<ROL::Algorithm<RealT>>("Composite Step",*parlist,false);
       algo->run(x,*rp,*obj,*con,true,*outStream);
     }
     else {
-      algo = std::make_shared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
+      algo = ROL::makeShared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
       algo->run(*zp,*robj,true,*outStream);
     }
 

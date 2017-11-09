@@ -48,7 +48,7 @@
 #define ROL_UNUSED(x) (void) x
 
 #include <ostream>
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 
 #include "ROL_Elementwise_Function.hpp"
 
@@ -131,7 +131,7 @@ public:
 
              ---
   */
-  virtual std::shared_ptr<Vector> clone() const = 0;
+  virtual ROL::SharedPointer<Vector> clone() const = 0;
 
 
   /** \brief Compute \f$y \leftarrow \alpha x + y\f$ where \f$y = \mathtt{*this}\f$.
@@ -146,7 +146,7 @@ public:
              ---
   */
   virtual void axpy( const Real alpha, const Vector &x ) {
-    std::shared_ptr<Vector> ax = x.clone();
+    ROL::SharedPointer<Vector> ax = x.clone();
     ax->set(x);
     ax->scale(alpha);
     this->plus(*ax);
@@ -174,9 +174,9 @@ public:
 
              ---
   */
-  virtual std::shared_ptr<Vector> basis( const int i ) const {
+  virtual ROL::SharedPointer<Vector> basis( const int i ) const {
     ROL_UNUSED(i);
-    return nullptr;
+    return ROL::nullPointer;
   }
 
 
@@ -297,10 +297,10 @@ public:
     Teuchos::oblackholestream oldFormatState, headerFormatState;
     oldFormatState.copyfmt(*pStream);
 
-    std::shared_ptr<Vector> v    = this->clone();
-    std::shared_ptr<Vector> vtmp = this->clone();
-    std::shared_ptr<Vector> xtmp = x.clone();
-    std::shared_ptr<Vector> ytmp = y.clone();
+    ROL::SharedPointer<Vector> v    = this->clone();
+    ROL::SharedPointer<Vector> vtmp = this->clone();
+    ROL::SharedPointer<Vector> xtmp = x.clone();
+    ROL::SharedPointer<Vector> ytmp = y.clone();
 
     //*pStream << "\n************ Begin verification of linear algebra.\n\n";
     *pStream << "\n" << std::setw(width) << std::left << std::setfill('*') << "********** Begin verification of linear algebra. " << "\n\n";
@@ -370,9 +370,7 @@ public:
 
     // Reflexivity.
     v->set(*this);
-    xtmp = this->dual().clone();
-    ytmp = xtmp->dual().clone();
-    v->axpy(-one, *ytmp); vCheck.push_back(v->norm());
+    v->axpy(-one, this->dual().dual()); vCheck.push_back(v->norm());
     *pStream << std::setw(width) << std::left << "Reflexivity. Consistency error: " << " " << vCheck.back() << "\n\n";
 
     //*pStream << "************   End verification of linear algebra.\n\n";

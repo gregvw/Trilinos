@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
 
     int dim = 10;
 
-    auto x_rcp = std::make_shared<EigenVector>(dim);
-    auto y_rcp = std::make_shared<EigenVector>(dim);
-    auto z_rcp = std::make_shared<EigenVector>(dim);
+    auto x_rcp = ROL::makeShared<EigenVector>(dim);
+    auto y_rcp = ROL::makeShared<EigenVector>(dim);
+    auto z_rcp = ROL::makeShared<EigenVector>(dim);
 
     E3V x(x_rcp);
     E3V y(y_rcp);
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     auto consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT> checkvec((std::shared_ptr<std::vector<Real>>(&consistency)));
+    ROL::StdVector<RealT> checkvec((ROL::SharedPointer<std::vector<Real>>(&consistency)));
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }

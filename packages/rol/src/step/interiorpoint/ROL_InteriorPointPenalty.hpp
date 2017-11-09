@@ -69,19 +69,19 @@ class InteriorPointPenalty : public Objective<Real> {
 
 private:
   
-  const std::shared_ptr<OBJ>       obj_;
-  const std::shared_ptr<BND>       bnd_;
-  const std::shared_ptr<const V>   lo_;
-  const std::shared_ptr<const V>   up_;
+  const ROL::SharedPointer<OBJ>       obj_;
+  const ROL::SharedPointer<BND>       bnd_;
+  const ROL::SharedPointer<const V>   lo_;
+  const ROL::SharedPointer<const V>   up_;
 
-  std::shared_ptr<V>   g_;       // Gradient of penalized objective
+  ROL::SharedPointer<V>   g_;       // Gradient of penalized objective
 
-  std::shared_ptr<V>   maskL_;   // Elements are 1 when xl>-INF, zero for xl = -INF
-  std::shared_ptr<V>   maskU_;   // Elements are 1 when xu< INF, zero for xu =  INF
+  ROL::SharedPointer<V>   maskL_;   // Elements are 1 when xl>-INF, zero for xl = -INF
+  ROL::SharedPointer<V>   maskU_;   // Elements are 1 when xu< INF, zero for xu =  INF
 
-  std::shared_ptr<V>   a_;       // Scratch vector
-  std::shared_ptr<V>   b_;       // Scratch vector
-  std::shared_ptr<V>   c_;       // Scratch vector
+  ROL::SharedPointer<V>   a_;       // Scratch vector
+  ROL::SharedPointer<V>   b_;       // Scratch vector
+  ROL::SharedPointer<V>   c_;       // Scratch vector
 
   bool useLinearDamping_;     // Add linear damping terms to the penalized objective
                               // to prevent the problems such as when the log barrier
@@ -143,8 +143,8 @@ public:
 
   ~InteriorPointPenalty() {}
 
-  InteriorPointPenalty( const std::shared_ptr<Objective<Real> > &obj,
-                        const std::shared_ptr<BoundConstraint<Real> > &con, 
+  InteriorPointPenalty( const ROL::SharedPointer<Objective<Real> > &obj,
+                        const ROL::SharedPointer<BoundConstraint<Real> > &con, 
                         Teuchos::ParameterList &parlist ) :
     obj_(obj), bnd_(con), lo_( con->getLowerBound() ), up_( con->getUpperBound() ) {
 
@@ -182,7 +182,7 @@ public:
     return fval_;
   }
 
-  std::shared_ptr<Vector<Real> > getGradient(void) const {
+  ROL::SharedPointer<Vector<Real> > getGradient(void) const {
     return g_;
   }
 
@@ -194,11 +194,11 @@ public:
     return ngval_;
   }
 
-  std::shared_ptr<const Vector<Real> > getLowerMask(void) const {
+  ROL::SharedPointer<const Vector<Real> > getLowerMask(void) const {
     return maskL_;
   }
 
-  std::shared_ptr<const Vector<Real> > getUpperMask(void) const {
+  ROL::SharedPointer<const Vector<Real> > getUpperMask(void) const {
     return maskU_;
   }
 
@@ -369,10 +369,10 @@ public:
  }
 
   // Return the unpenalized objective
-  const std::shared_ptr<OBJ> getObjective( void ) { return obj_; }
+  const ROL::SharedPointer<OBJ> getObjective( void ) { return obj_; }
 
   // Return the bound constraint
-  const std::shared_ptr<BND> getBoundConstraint( void ) { return bnd_; }
+  const ROL::SharedPointer<BND> getBoundConstraint( void ) { return bnd_; }
 
 }; // class InteriorPointPenalty
 

@@ -62,7 +62,7 @@ template<class Real>
 class ParametrizedObjectiveEx8 : public ROL::Objective<Real> {
 public:
   Real value( const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex =
+    ROL::SharedPointer<const std::vector<Real> > ex =
       (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
     Real quad = 0.0, lin = 0.0;
     std::vector<Real> p = this->getParameter();
@@ -75,10 +75,10 @@ public:
   }
 
   void gradient( ROL::Vector<Real> &g, const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex =
+    ROL::SharedPointer<const std::vector<Real> > ex =
       (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
-    std::shared_ptr<std::vector<Real> > eg =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(g)).getVector());
+    ROL::SharedPointer<std::vector<Real> > eg =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(g)).getVector());
     std::vector<Real> p = this->getParameter();
     unsigned size = ex->size();
     for ( unsigned i = 0; i < size; i++ ) {
@@ -87,12 +87,12 @@ public:
   }
 
   void hessVec( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex =
+    ROL::SharedPointer<const std::vector<Real> > ex =
       (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
-    std::shared_ptr<const std::vector<Real> > ev =
+    ROL::SharedPointer<const std::vector<Real> > ev =
       (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(v))).getVector();
-    std::shared_ptr<std::vector<Real> > ehv =
-      std::const_pointer_cast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(hv)).getVector());
+    ROL::SharedPointer<std::vector<Real> > ehv =
+      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(hv)).getVector());
     std::vector<Real> p = this->getParameter();
     unsigned size = ex->size();
     for ( unsigned i = 0; i < size; i++ ) {
@@ -102,10 +102,10 @@ public:
 };
 
 RealT setUpAndSolve(Teuchos::ParameterList &list,
-                    std::shared_ptr<ROL::Objective<RealT> > &pObj,
-                    std::shared_ptr<ROL::SampleGenerator<RealT> > &sampler,
-                    std::shared_ptr<ROL::Vector<RealT> > &x,
-                    std::shared_ptr<ROL::BoundConstraint<RealT> > &bnd,
+                    ROL::SharedPointer<ROL::Objective<RealT> > &pObj,
+                    ROL::SharedPointer<ROL::SampleGenerator<RealT> > &sampler,
+                    ROL::SharedPointer<ROL::Vector<RealT> > &x,
+                    ROL::SharedPointer<ROL::BoundConstraint<RealT> > &bnd,
                     std::ostream & outStream) {
   ROL::OptimizationProblem<RealT> opt(pObj,x,bnd);
   opt.setStochasticObjective(list,sampler);
@@ -114,7 +114,7 @@ RealT setUpAndSolve(Teuchos::ParameterList &list,
   // Run ROL algorithm
   ROL::Algorithm<RealT> algo("Trust Region",list,false);
   algo.run(opt,true,outStream);
-  std::shared_ptr<ROL::Objective<RealT> > robj = opt.getObjective();
+  ROL::SharedPointer<ROL::Objective<RealT> > robj = opt.getObjective();
   RealT tol(1.e-8);
   return robj->value(*(opt.getSolutionVector()),tol);
 }
@@ -164,28 +164,28 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Build vectors
     unsigned dim = 4;
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > x = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
-    std::shared_ptr<std::vector<RealT> > d_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > d = std::make_shared<ROL::StdVector<RealT>>(d_rcp);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > x = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<std::vector<RealT> > d_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > d = ROL::makeShared<ROL::StdVector<RealT>>(d_rcp);
     setRandomVector(*d_rcp);
     // Build samplers
     int nSamp = 1000;
     unsigned sdim = dim + 2;
     std::vector<RealT> tmp(2,0.); tmp[0] = -1.; tmp[1] = 1.;
     std::vector<std::vector<RealT> > bounds(sdim,tmp);
-    std::shared_ptr<ROL::BatchManager<RealT> > bman =
-      std::make_shared<ROL::BatchManager<RealT>>();
-    std::shared_ptr<ROL::SampleGenerator<RealT> > sampler =
-      std::make_shared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman,false,false,100);
+    ROL::SharedPointer<ROL::BatchManager<RealT> > bman =
+      ROL::makeShared<ROL::BatchManager<RealT>>();
+    ROL::SharedPointer<ROL::SampleGenerator<RealT> > sampler =
+      ROL::makeShared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman,false,false,100);
     // Build risk-averse objective function
-    std::shared_ptr<ROL::Objective<RealT> > pObj =
-      std::make_shared<ParametrizedObjectiveEx8<RealT>>();
+    ROL::SharedPointer<ROL::Objective<RealT> > pObj =
+      ROL::makeShared<ParametrizedObjectiveEx8<RealT>>();
     // Build bound constraints
     std::vector<RealT> l(dim,0.0);
     std::vector<RealT> u(dim,1.0);
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd =
-      std::make_shared<ROL::StdBoundConstraint<RealT>>(l,u);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd =
+      ROL::makeShared<ROL::StdBoundConstraint<RealT>>(l,u);
     bnd->deactivate();
     // Test parametrized objective functions
     *outStream << "Check Derivatives of Parametrized Objective Function\n";
@@ -201,16 +201,16 @@ int main(int argc, char* argv[]) {
     *outStream << "\nSPECTRAL RISK MEASURE\n";
     list.sublist("SOL").set("Stochastic Component Type","Risk Averse");
     list.sublist("SOL").sublist("Risk Measure").set("Name","Spectral Risk");
-    std::vector<std::shared_ptr<std::vector<RealT> > > hist(nQuadUp-nQuadLo,nullptr);
-    std::vector<std::shared_ptr<ROL::StdVector<RealT> > > hvec(nQuadUp-nQuadLo,nullptr);
+    std::vector<ROL::SharedPointer<std::vector<RealT> > > hist(nQuadUp-nQuadLo,ROL::nullPointer);
+    std::vector<ROL::SharedPointer<ROL::StdVector<RealT> > > hvec(nQuadUp-nQuadLo,ROL::nullPointer);
     for (int i = nQuadLo; i < nQuadUp; ++i) {
       order = i+1;
       list.sublist("SOL").sublist("Risk Measure").sublist("Spectral Risk").set("Number of Quadrature Points",order);
       setRandomVector(*x_rcp);
       obj[i-nQuadLo] = setUpAndSolve(list,pObj,sampler,x,bnd,*outStream);
       norm[i]  = x->norm();
-      hist[i-nQuadLo] = std::make_shared<std::vector<RealT>>(dim);
-      hvec[i-nQuadLo] = std::make_shared<ROL::StdVector<RealT>>(hist[i-nQuadLo]);
+      hist[i-nQuadLo] = ROL::makeShared<std::vector<RealT>>(dim);
+      hvec[i-nQuadLo] = ROL::makeShared<ROL::StdVector<RealT>>(hist[i-nQuadLo]);
       hvec[i-nQuadLo]->set(*x);
       printSolution(*x_rcp,*outStream);
     }

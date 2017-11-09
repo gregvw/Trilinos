@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -80,9 +80,9 @@ int main(int argc, char *argv[]) {
     list.sublist("SimOpt").sublist("Solve").set("Absolute Residual Tolerance",1.e2*ROL::ROL_EPSILON<RealT>());
     con.setSolveParameters(list);
     // Initialize iteration vectors.
-    std::shared_ptr<std::vector<RealT> > z_rcp  = std::make_shared<std::vector<RealT>>(nx+2, 1.0);
-    std::shared_ptr<std::vector<RealT> > gz_rcp = std::make_shared<std::vector<RealT>>(nx+2, 1.0);
-    std::shared_ptr<std::vector<RealT> > yz_rcp = std::make_shared<std::vector<RealT>>(nx+2, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp  = ROL::makeShared<std::vector<RealT>>(nx+2, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > gz_rcp = ROL::makeShared<std::vector<RealT>>(nx+2, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > yz_rcp = ROL::makeShared<std::vector<RealT>>(nx+2, 1.0);
     for (int i=0; i<nx+2; i++) {
       (*z_rcp)[i]  = (RealT)rand()/(RealT)RAND_MAX;
       (*yz_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
@@ -90,13 +90,13 @@ int main(int argc, char *argv[]) {
     ROL::StdVector<RealT> z(z_rcp);
     ROL::StdVector<RealT> gz(gz_rcp);
     ROL::StdVector<RealT> yz(yz_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > zp  = &z,false;
-    std::shared_ptr<ROL::Vector<RealT> > gzp = &z,false;
-    std::shared_ptr<ROL::Vector<RealT> > yzp = &yz,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > zp  = &z,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > gzp = &z,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > yzp = &yz,false;
 
-    std::shared_ptr<std::vector<RealT> > u_rcp  = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<std::vector<RealT> > gu_rcp = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<std::vector<RealT> > yu_rcp = std::make_shared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > u_rcp  = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > gu_rcp = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > yu_rcp = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
     for (int i=0; i<nx; i++) {
       (*u_rcp)[i]  = (RealT)rand()/(RealT)RAND_MAX;
       (*yu_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
@@ -104,12 +104,12 @@ int main(int argc, char *argv[]) {
     ROL::StdVector<RealT> u(u_rcp);
     ROL::StdVector<RealT> gu(gu_rcp);
     ROL::StdVector<RealT> yu(yu_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > up  = &u,false;
-    std::shared_ptr<ROL::Vector<RealT> > gup = &u,false;
-    std::shared_ptr<ROL::Vector<RealT> > yup = &yu,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > up  = &u,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > gup = &u,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > yup = &yu,false;
 
-    std::shared_ptr<std::vector<RealT> > c_rcp = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<std::vector<RealT> > l_rcp = std::make_shared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > c_rcp = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > l_rcp = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
     ROL::StdVector<RealT> c(c_rcp);
     ROL::StdVector<RealT> l(l_rcp);
 
@@ -125,11 +125,11 @@ int main(int argc, char *argv[]) {
     con.checkApplyAdjointHessian(x,yu,y,x,true,*outStream);
 
     // Initialize reduced objective function.
-    std::shared_ptr<std::vector<RealT> > p_rcp  = std::make_shared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > p_rcp  = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
     ROL::StdVector<RealT> p(p_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > pp  = &p,false;
-    std::shared_ptr<ROL::Objective_SimOpt<RealT> > pobj = &obj,false;
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > pcon = &con,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > pp  = &p,false;
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > pobj = &obj,false;
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > pcon = &con,false;
     ROL::Reduced_Objective_SimOpt<RealT> robj(pobj,pcon,up,zp,pp);
     // Check derivatives.
     robj.checkGradient(z,z,yz,true,*outStream);
@@ -137,32 +137,32 @@ int main(int argc, char *argv[]) {
 
     // Get parameter list.
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     parlist->sublist("Status Test").set("Gradient Tolerance",1.e-14);
     parlist->sublist("Status Test").set("Constraint Tolerance",1.e-14);
     parlist->sublist("Status Test").set("Step Tolerance",1.e-16);
     parlist->sublist("Status Test").set("Iteration Limit",1000);
     // Declare ROL algorithm pointer.
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
 
     // Run optimization with Composite Step.
-    algo = std::make_shared<ROL::Algorithm<RealT>>("Composite Step",*parlist,false);
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>("Composite Step",*parlist,false);
     RealT zerotol = std::sqrt(ROL::ROL_EPSILON<RealT>());
     z.zero();
     con.solve(c,u,z,zerotol);
     c.zero(); l.zero();
     algo->run(x, g, l, c, obj, con, true, *outStream);
-    std::shared_ptr<ROL::Vector<RealT> > zCS = z.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > zCS = z.clone();
     zCS->set(z);
 
     // Run Optimization with Trust-Region algorithm.
-    algo = std::make_shared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
     z.zero();
     algo->run(z,robj,true,*outStream);
 
     // Check solutions.
-    std::shared_ptr<ROL::Vector<RealT> > err = z.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > err = z.clone();
     err->set(*zCS); err->axpy(-1.,z);
     errorFlag += ((err->norm()) > 1.e-8) ? 1 : 0;
   }

@@ -53,24 +53,24 @@ namespace ROL {
 template <class Real>
 class Reduced_Constraint_SimOpt : public Constraint<Real> {
 private:
-  const std::shared_ptr<Constraint_SimOpt<Real> > conVal_;          
-  const std::shared_ptr<Constraint_SimOpt<Real> > conRed_; 
-  const std::shared_ptr<SimController<Real> > stateStore_;
-  std::shared_ptr<SimController<Real> > adjointStore_;
+  const ROL::SharedPointer<Constraint_SimOpt<Real> > conVal_;          
+  const ROL::SharedPointer<Constraint_SimOpt<Real> > conRed_; 
+  const ROL::SharedPointer<SimController<Real> > stateStore_;
+  ROL::SharedPointer<SimController<Real> > adjointStore_;
 
   // Primal vectors
-  std::shared_ptr<Vector<Real> > state_;                              
-  std::shared_ptr<Vector<Real> > adjoint_;                            
-  std::shared_ptr<Vector<Real> > residual_;                            
-  std::shared_ptr<Vector<Real> > state_sens_;                              
-  std::shared_ptr<Vector<Real> > adjoint_sens_;                            
+  ROL::SharedPointer<Vector<Real> > state_;                              
+  ROL::SharedPointer<Vector<Real> > adjoint_;                            
+  ROL::SharedPointer<Vector<Real> > residual_;                            
+  ROL::SharedPointer<Vector<Real> > state_sens_;                              
+  ROL::SharedPointer<Vector<Real> > adjoint_sens_;                            
 
   // Dual vectors
-  std::shared_ptr<Vector<Real> > dualstate_;
-  std::shared_ptr<Vector<Real> > dualstate1_;
-  std::shared_ptr<Vector<Real> > dualadjoint_;
-  std::shared_ptr<Vector<Real> > dualcontrol_;
-  std::shared_ptr<Vector<Real> > dualresidual_;                            
+  ROL::SharedPointer<Vector<Real> > dualstate_;
+  ROL::SharedPointer<Vector<Real> > dualstate1_;
+  ROL::SharedPointer<Vector<Real> > dualadjoint_;
+  ROL::SharedPointer<Vector<Real> > dualcontrol_;
+  ROL::SharedPointer<Vector<Real> > dualresidual_;                            
 
   const bool storage_;             
   const bool useFDhessVec_;
@@ -171,19 +171,19 @@ public:
       @param[in] useFDhessVec is a flag whether or not to use a finite-difference Hessian approximation.
   */
   Reduced_Constraint_SimOpt(
-      const std::shared_ptr<Constraint_SimOpt<Real> > &conVal, 
-      const std::shared_ptr<Constraint_SimOpt<Real> > &conRed, 
-      const std::shared_ptr<SimController<Real> > &stateStore,
-      const std::shared_ptr<Vector<Real> > &state, 
-      const std::shared_ptr<Vector<Real> > &control, 
-      const std::shared_ptr<Vector<Real> > &adjoint,
-      const std::shared_ptr<Vector<Real> > &residual,
+      const ROL::SharedPointer<Constraint_SimOpt<Real> > &conVal, 
+      const ROL::SharedPointer<Constraint_SimOpt<Real> > &conRed, 
+      const ROL::SharedPointer<SimController<Real> > &stateStore,
+      const ROL::SharedPointer<Vector<Real> > &state, 
+      const ROL::SharedPointer<Vector<Real> > &control, 
+      const ROL::SharedPointer<Vector<Real> > &adjoint,
+      const ROL::SharedPointer<Vector<Real> > &residual,
       const bool storage = true,
       const bool useFDhessVec = false) 
     : conVal_(conVal), conRed_(conRed), stateStore_(stateStore),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    adjointStore_ = std::make_shared<SimController<Real>>();
+    adjointStore_ = ROL::makeShared<SimController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     residual_     = residual->clone();
@@ -211,23 +211,23 @@ public:
       @param[in] useFDhessVec is a flag whether or not to use a finite-difference Hessian approximation.
   */
   Reduced_Constraint_SimOpt(
-      const std::shared_ptr<Constraint_SimOpt<Real> > &conVal, 
-      const std::shared_ptr<Constraint_SimOpt<Real> > &conRed,
-      const std::shared_ptr<SimController<Real> > &stateStore, 
-      const std::shared_ptr<Vector<Real> > &state,
-      const std::shared_ptr<Vector<Real> > &control, 
-      const std::shared_ptr<Vector<Real> > &adjoint,
-      const std::shared_ptr<Vector<Real> > &residual,
-      const std::shared_ptr<Vector<Real> > &dualstate,
-      const std::shared_ptr<Vector<Real> > &dualcontrol, 
-      const std::shared_ptr<Vector<Real> > &dualadjoint,
-      const std::shared_ptr<Vector<Real> > &dualresidual,
+      const ROL::SharedPointer<Constraint_SimOpt<Real> > &conVal, 
+      const ROL::SharedPointer<Constraint_SimOpt<Real> > &conRed,
+      const ROL::SharedPointer<SimController<Real> > &stateStore, 
+      const ROL::SharedPointer<Vector<Real> > &state,
+      const ROL::SharedPointer<Vector<Real> > &control, 
+      const ROL::SharedPointer<Vector<Real> > &adjoint,
+      const ROL::SharedPointer<Vector<Real> > &residual,
+      const ROL::SharedPointer<Vector<Real> > &dualstate,
+      const ROL::SharedPointer<Vector<Real> > &dualcontrol, 
+      const ROL::SharedPointer<Vector<Real> > &dualadjoint,
+      const ROL::SharedPointer<Vector<Real> > &dualresidual,
       const bool storage = true,
       const bool useFDhessVec = false)
     : conVal_(conVal), conRed_(conRed), stateStore_(stateStore),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    adjointStore_ = std::make_shared<SimController<Real>>();
+    adjointStore_ = ROL::makeShared<SimController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     residual_     = residual->clone();

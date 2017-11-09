@@ -62,10 +62,10 @@ class StdVector<Real, std::complex<Real> > : public Vector<Real> {
 
 private:
 
-  std::shared_ptr<vector> std_vec_;
+  ROL::SharedPointer<vector> std_vec_;
 
 public:
-  StdVector( const std::shared_ptr<vector> &std_vec) : std_vec_(std_vec) {}
+  StdVector( const ROL::SharedPointer<vector> &std_vec) : std_vec_(std_vec) {}
 
   void set( const V &x ) {
     const SV &ex = dynamic_cast<const SV&>(x);
@@ -119,21 +119,21 @@ public:
     return std::sqrt(val);
   }
 
-  virtual std::shared_ptr<Vector<Real> > clone() const {
-    return std::make_shared<StdVector( Teuchos::std::make_shared<vector(std_vec_->size>>()));
+  virtual ROL::SharedPointer<Vector<Real> > clone() const {
+    return ROL::makeShared<StdVector( Teuchos::ROL::makeShared<vector(std_vec_->size>>()));
   }
 
-  std::shared_ptr<const vector> getVector() const {
+  ROL::SharedPointer<const vector> getVector() const {
     return std_vec_;
   }
 
-  std::shared_ptr<vector> getVector() {
+  ROL::SharedPointer<vector> getVector() {
     return std_vec_;
   }
 
-  std::shared_ptr<Vector<Real> > basis( const int i ) const {
+  ROL::SharedPointer<Vector<Real> > basis( const int i ) const {
 
-    std::shared_ptr<StdVector> e = std::make_shared<StdVector( Teuchos::std::make_shared<vector(std_vec_->size>>(), 0.0));
+    ROL::SharedPointer<StdVector> e = ROL::makeShared<StdVector( Teuchos::ROL::makeShared<vector(std_vec_->size>>(), 0.0));
     (*e->getVector())[i] = 1.0;
     return e;
   }

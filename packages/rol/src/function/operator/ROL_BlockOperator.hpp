@@ -64,16 +64,16 @@ class BlockOperator : public LinearOperator<Real> {
   typedef PartitionedVector<Real>    PV;   // Partitioned Vector
   typedef LinearOperator<Real>       OP;   // Linear Operator
 
-  typedef std::vector<std::shared_ptr<OP> > OpVec;  // Vector (column-stacked matrix) of pointers to operators
+  typedef std::vector<ROL::SharedPointer<OP> > OpVec;  // Vector (column-stacked matrix) of pointers to operators
   typedef typename OpVec::size_type      uint;   // index type
 
 private:
   
-  std::shared_ptr<OpVec> blocks_;
+  ROL::SharedPointer<OpVec> blocks_;
 
 public:
   BlockOperator() {}
-  BlockOperator( const std::shared_ptr<OpVec> &blocks ) : blocks_(blocks) {}
+  BlockOperator( const ROL::SharedPointer<OpVec> &blocks ) : blocks_(blocks) {}
   
   virtual void apply( V &Hv, const V &v, Real &tol ) const {
  
@@ -95,8 +95,8 @@ public:
 
     for( uint i=0; i<nvec1; ++i ) {
       
-      std::shared_ptr<V> Hvi = Hv_part.get(i);
-      std::shared_ptr<V> u = Hvi->clone();
+      ROL::SharedPointer<V> Hvi = Hv_part.get(i);
+      ROL::SharedPointer<V> u = Hvi->clone();
 
       u->zero(); 
 

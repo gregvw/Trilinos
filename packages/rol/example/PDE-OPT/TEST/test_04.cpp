@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -80,14 +80,14 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input_04.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist
-      = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist
+      = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize mesh / degree-of-freedom manager. ***/
     MeshManager_Rectangle<RealT> meshmgr(*parlist);
-    std::shared_ptr<Intrepid::FieldContainer<RealT> > nodesPtr = meshmgr.getNodes();
-    std::shared_ptr<Intrepid::FieldContainer<int> >   cellToNodeMapPtr = meshmgr.getCellToNodeMap();
+    ROL::SharedPointer<Intrepid::FieldContainer<RealT> > nodesPtr = meshmgr.getNodes();
+    ROL::SharedPointer<Intrepid::FieldContainer<int> >   cellToNodeMapPtr = meshmgr.getCellToNodeMap();
 
     Intrepid::FieldContainer<RealT> &nodes = *nodesPtr;
     Intrepid::FieldContainer<int>   &cellToNodeMap = *cellToNodeMapPtr;
@@ -95,13 +95,13 @@ int main(int argc, char *argv[]) {
     *outStream << "Number of cells = " << meshmgr.getNumCells() << std::endl;
     *outStream << "Number of edges = " << meshmgr.getNumEdges() << std::endl;
 
-    std::shared_ptr<MeshManager<RealT> > meshmgrPtr = Teuchos::rcpFromRef(meshmgr);
+    ROL::SharedPointer<MeshManager<RealT> > meshmgrPtr = Teuchos::rcpFromRef(meshmgr);
 
     // Basis.
-    std::shared_ptr<Intrepid::Basis<RealT, Intrepid::FieldContainer<RealT> > >    basis =
-      std::make_shared<Intrepid::Basis_HGRAD_QUAD_C2_FEM<RealT, Intrepid::FieldContainer<RealT> >>();
+    ROL::SharedPointer<Intrepid::Basis<RealT, Intrepid::FieldContainer<RealT> > >    basis =
+      ROL::makeShared<Intrepid::Basis_HGRAD_QUAD_C2_FEM<RealT, Intrepid::FieldContainer<RealT> >>();
     // Cubature.
-    std::shared_ptr<Intrepid::Cubature<RealT, Intrepid::FieldContainer<RealT> > > cubature;
+    ROL::SharedPointer<Intrepid::Cubature<RealT, Intrepid::FieldContainer<RealT> > > cubature;
     shards::CellTopology cellType = basis->getBaseCellTopology();                        // get the cell type from any basis
     Intrepid::DefaultCubatureFactory<RealT> cubFactory;                                  // create cubature factory
     int cubDegree = 4;                                                                   // set cubature degree, e.g., 2

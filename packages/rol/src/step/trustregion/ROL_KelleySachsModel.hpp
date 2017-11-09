@@ -60,9 +60,9 @@ namespace ROL {
 template<class Real>
 class KelleySachsModel : public TrustRegionModel<Real> {
 private:
-  std::shared_ptr<BoundConstraint<Real> > bnd_;
-  std::shared_ptr<Secant<Real> > secant_;
-  std::shared_ptr<Vector<Real> > dual_, prim_;
+  ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+  ROL::SharedPointer<Secant<Real> > secant_;
+  ROL::SharedPointer<Vector<Real> > dual_, prim_;
 
   const bool useSecantPrecond_;
   const bool useSecantHessVec_;
@@ -74,7 +74,7 @@ public:
   KelleySachsModel(Objective<Real> &obj, BoundConstraint<Real> &bnd,
                    const Vector<Real> &x, const Vector<Real> &g, const Real eps)
     : TrustRegionModel<Real>::TrustRegionModel(obj,x,g,false),
-      secant_(nullptr), useSecantPrecond_(false), useSecantHessVec_(false), eps_(eps) {
+      secant_(ROL::nullPointer), useSecantPrecond_(false), useSecantHessVec_(false), eps_(eps) {
     bnd_.reset(&bnd, [](BoundConstraint<Real>*){});
     prim_ = x.clone();
     dual_ = g.clone();
@@ -82,7 +82,7 @@ public:
 
   KelleySachsModel(Objective<Real> &obj, BoundConstraint<Real> &bnd,
                    const Vector<Real> &x, const Vector<Real> &g, const Real eps,
-                   const std::shared_ptr<Secant<Real> > &secant,
+                   const ROL::SharedPointer<Secant<Real> > &secant,
                    const bool useSecantPrecond, const bool useSecantHessVec)
     : TrustRegionModel<Real>::TrustRegionModel(obj,x,g,false),
       secant_(secant), useSecantPrecond_(useSecantPrecond), useSecantHessVec_(useSecantHessVec), eps_(eps) {
@@ -92,8 +92,8 @@ public:
   }
 
   Real value( const Vector<Real> &s, Real &tol ) {
-    const std::shared_ptr<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
-    const std::shared_ptr<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
+    const ROL::SharedPointer<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
+    const ROL::SharedPointer<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
     hessVec(*dual_,s,s,tol);
     dual_->scale(static_cast<Real>(0.5));
     // Remove active components of gradient
@@ -105,8 +105,8 @@ public:
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &s, Real &tol ) {
-    const std::shared_ptr<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
-    const std::shared_ptr<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
+    const ROL::SharedPointer<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
+    const ROL::SharedPointer<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
     // Apply (reduced) hessian to direction s
     hessVec(g,s,s,tol);
     // Remove active components of gradient
@@ -117,8 +117,8 @@ public:
   }
 
   void hessVec( Vector<Real> &Hv, const Vector<Real> &v, const Vector<Real> &s, Real &tol ) {
-    const std::shared_ptr<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
-    const std::shared_ptr<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
+    const ROL::SharedPointer<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
+    const ROL::SharedPointer<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
     // Set vnew to v
     prim_->set(v);
     // Remove elements of vnew corresponding to binding set
@@ -143,8 +143,8 @@ public:
   }
 
   void invHessVec( Vector<Real> &Hv, const Vector<Real> &v, const Vector<Real> &s, Real &tol ) {
-    const std::shared_ptr<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
-    const std::shared_ptr<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
+    const ROL::SharedPointer<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
+    const ROL::SharedPointer<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
     // Set vnew to v
     dual_->set(v);
     // Remove elements of vnew corresponding to binding set
@@ -169,8 +169,8 @@ public:
   }
 
   void precond( Vector<Real> &Mv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-    const std::shared_ptr<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
-    const std::shared_ptr<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
+    const ROL::SharedPointer<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
+    const ROL::SharedPointer<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
     // Set vnew to v
     dual_->set(v);
     // Remove elements of vnew corresponding to binding set
@@ -196,22 +196,22 @@ public:
 
   void dualTransform( Vector<Real> &tv, const Vector<Real> &v ) {
     // Compute T(v) = P_I(v) where P_I is the projection onto the inactive indices
-    const std::shared_ptr<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
-    const std::shared_ptr<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
+    const ROL::SharedPointer<const Vector<Real> > gc = TrustRegionModel<Real>::getGradient();
+    const ROL::SharedPointer<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
     tv.set(v);
     bnd_->pruneActive(tv,*gc,*xc,eps_);
   }
 
   void primalTransform( Vector<Real> &tv, const Vector<Real> &v ) {
     // Compute T(v) = P( x + v ) - x where P is the projection onto the feasible set
-    const std::shared_ptr<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
+    const ROL::SharedPointer<const Vector<Real> > xc = TrustRegionModel<Real>::getIterate();
     tv.set(*xc);
     tv.plus(v);
     bnd_->project(tv);
     tv.axpy(static_cast<Real>(-1),*xc);
   }
 
-  const std::shared_ptr<BoundConstraint<Real> > getBoundConstraint(void) const {
+  const ROL::SharedPointer<BoundConstraint<Real> > getBoundConstraint(void) const {
     return bnd_;
   }
 

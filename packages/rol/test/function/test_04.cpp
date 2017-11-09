@@ -92,34 +92,34 @@ int main(int argc, char *argv[]) {
     RealT nl    = 1.0;   // Nonlinearity parameter (1 = Burgers, 0 = linear).
     RealT cH1   = 1.0;   // Scale for derivative term in H1 norm.
     RealT cL2   = 0.0;   // Scale for mass term in H1 norm.
-    std::shared_ptr<BurgersFEM<RealT> > fem
-      = std::make_shared<BurgersFEM<RealT>>(nx,nl,cH1,cL2);
+    ROL::SharedPointer<BurgersFEM<RealT> > fem
+      = ROL::makeShared<BurgersFEM<RealT>>(nx,nl,cH1,cL2);
     fem->test_inverse_mass(*outStream);
     fem->test_inverse_H1(*outStream);
     /*************************************************************************/
     /************* INITIALIZE SIMOPT CONSTRAINT ******************************/
     /*************************************************************************/
     bool hess = true;
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
-      = std::make_shared<Constraint_BurgersControl<RealT>>(fem,hess);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con
+      = ROL::makeShared<Constraint_BurgersControl<RealT>>(fem,hess);
     /*************************************************************************/
     /************* INITIALIZE VECTOR STORAGE *********************************/
     /*************************************************************************/
     // INITIALIZE CONTROL VECTORS
-    std::shared_ptr<std::vector<RealT> > z_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 0.0);
-    std::shared_ptr<ROL::Vector<RealT> > zp
-      = std::make_shared<PrimalControlVector>(z_rcp,fem);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > zp
+      = ROL::makeShared<PrimalControlVector>(z_rcp,fem);
     // INITIALIZE STATE VECTORS
-    std::shared_ptr<std::vector<RealT> > u_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<ROL::Vector<RealT> > up
-      = std::make_shared<PrimalStateVector>(u_rcp,fem);
+    ROL::SharedPointer<std::vector<RealT> > u_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > up
+      = ROL::makeShared<PrimalStateVector>(u_rcp,fem);
     // INITIALIZE CONSTRAINT VECTORS
-    std::shared_ptr<std::vector<RealT> > c_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<ROL::Vector<RealT> > cp
-      = std::make_shared<PrimalConstraintVector>(c_rcp,fem);
+    ROL::SharedPointer<std::vector<RealT> > c_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > cp
+      = ROL::makeShared<PrimalConstraintVector>(c_rcp,fem);
     /*************************************************************************/
     /************* CHECK DERIVATIVES AND CONSISTENCY *************************/
     /*************************************************************************/

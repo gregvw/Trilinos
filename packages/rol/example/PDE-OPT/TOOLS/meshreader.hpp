@@ -78,14 +78,14 @@ private:
   int numFacesPerCell_;
   int numNodesPerFace_;
 
-  std::shared_ptr<shards::CellTopology> cellTopo_;
+  ROL::SharedPointer<shards::CellTopology> cellTopo_;
 
-  std::shared_ptr<Intrepid::FieldContainer<Real> > meshNodes_;
-  std::shared_ptr<Intrepid::FieldContainer<int> >  meshCellToNodeMap_;
-  std::shared_ptr<Intrepid::FieldContainer<int> >  meshCellToEdgeMap_;
-  std::shared_ptr<Intrepid::FieldContainer<int> >  meshCellToFaceMap_;
+  ROL::SharedPointer<Intrepid::FieldContainer<Real> > meshNodes_;
+  ROL::SharedPointer<Intrepid::FieldContainer<int> >  meshCellToNodeMap_;
+  ROL::SharedPointer<Intrepid::FieldContainer<int> >  meshCellToEdgeMap_;
+  ROL::SharedPointer<Intrepid::FieldContainer<int> >  meshCellToFaceMap_;
 
-  std::shared_ptr<std::vector<std::vector<std::vector<int> > > >  meshSideSets_;
+  ROL::SharedPointer<std::vector<std::vector<std::vector<int> > > >  meshSideSets_;
 
 public:
 
@@ -148,16 +148,16 @@ public:
 
     } // end parse header
 
-    cellTopo_ = std::make_shared<shards::CellTopology( shards::getCellTopologyData<shards::Hexahedron<8> >>() );
+    cellTopo_ = ROL::makeShared<shards::CellTopology( shards::getCellTopologyData<shards::Hexahedron<8> >>() );
 
     // Set up internal storage.
     numNodesPerCell_ = cellTopo_->getVertexCount();
     numFacesPerCell_ = cellTopo_->getFaceCount();
     numEdgesPerCell_ = cellTopo_->getEdgeCount();
     numNodesPerFace_ = cellTopo_->getVertexCount(2,0);
-    meshNodes_ = std::make_shared<Intrepid::FieldContainer<Real>>(numNodes_, spaceDim_);
+    meshNodes_ = ROL::makeShared<Intrepid::FieldContainer<Real>>(numNodes_, spaceDim_);
     Intrepid::FieldContainer<Real> &nodes = *meshNodes_;
-    meshCellToNodeMap_ = std::make_shared<Intrepid::FieldContainer<int>>(numCells_, numNodesPerCell_);
+    meshCellToNodeMap_ = ROL::makeShared<Intrepid::FieldContainer<int>>(numCells_, numNodesPerCell_);
     Intrepid::FieldContainer<int> &ctn = *meshCellToNodeMap_;
 
     // Parse node coordinates.
@@ -264,7 +264,7 @@ public:
 
 
     // Parse side sets.
-    meshSideSets_ = std::make_shared<std::vector<std::vector<std::vector<int> > >>(numSideSets_);
+    meshSideSets_ = ROL::makeShared<std::vector<std::vector<std::vector<int> > >>(numSideSets_);
     for (int ss=0; ss<numSideSets_; ++ss) {
       (*meshSideSets_)[ss].resize(numFacesPerCell_);
     }
@@ -382,27 +382,27 @@ public:
   }
 
 
-  std::shared_ptr<Intrepid::FieldContainer<Real> > getNodes() const {
+  ROL::SharedPointer<Intrepid::FieldContainer<Real> > getNodes() const {
     return meshNodes_;
   }
 
 
-  std::shared_ptr<Intrepid::FieldContainer<int> > getCellToNodeMap() const {
+  ROL::SharedPointer<Intrepid::FieldContainer<int> > getCellToNodeMap() const {
     return meshCellToNodeMap_;
   }
 
 
-  std::shared_ptr<Intrepid::FieldContainer<int> > getCellToEdgeMap() const {
+  ROL::SharedPointer<Intrepid::FieldContainer<int> > getCellToEdgeMap() const {
     return meshCellToEdgeMap_;
   }
 
 
-  std::shared_ptr<Intrepid::FieldContainer<int> > getCellToFaceMap() const {
+  ROL::SharedPointer<Intrepid::FieldContainer<int> > getCellToFaceMap() const {
     return meshCellToFaceMap_;
   }
 
 
-  std::shared_ptr<std::vector<std::vector<std::vector<int> > > > getSideSets (
+  ROL::SharedPointer<std::vector<std::vector<std::vector<int> > > > getSideSets (
       const bool verbose = false,
       std::ostream & outStream = std::cout) const {
     if (verbose) {
@@ -444,7 +444,7 @@ public:
   } // getNumSideSets
 
   void computeCellToEdgeMap() {
-    meshCellToEdgeMap_ = std::make_shared<Intrepid::FieldContainer<int>>(numCells_, numEdgesPerCell_);
+    meshCellToEdgeMap_ = ROL::makeShared<Intrepid::FieldContainer<int>>(numCells_, numEdgesPerCell_);
     Intrepid::FieldContainer<int> &cte = *meshCellToEdgeMap_;
     Intrepid::FieldContainer<int> &ctn = *meshCellToNodeMap_;
     std::set<int> edgenodes;
@@ -480,7 +480,7 @@ public:
   }
 
   void computeCellToFaceMap() {
-    meshCellToFaceMap_ = std::make_shared<Intrepid::FieldContainer<int>>(numCells_, numFacesPerCell_);
+    meshCellToFaceMap_ = ROL::makeShared<Intrepid::FieldContainer<int>>(numCells_, numFacesPerCell_);
     Intrepid::FieldContainer<int> &ctf = *meshCellToFaceMap_;
     Intrepid::FieldContainer<int> &ctn = *meshCellToNodeMap_;
     std::set<int> facenodes;

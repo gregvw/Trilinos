@@ -104,12 +104,12 @@ public:
 int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
@@ -125,56 +125,56 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
     int probDim = parlist->sublist("Problem").get("Problem Dimension",2);
-    std::shared_ptr<MeshManager<RealT> > meshMgr;
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr;
     if (probDim == 1) {
-      meshMgr = std::make_shared<MeshManager_Interval<RealT>>(*parlist);
+      meshMgr = ROL::makeShared<MeshManager_Interval<RealT>>(*parlist);
     } else if (probDim == 2) {
-      meshMgr = std::make_shared<MeshManager_Rectangle<RealT>>(*parlist);
+      meshMgr = ROL::makeShared<MeshManager_Rectangle<RealT>>(*parlist);
     } else if (probDim == 3) {
-      meshMgr = std::make_shared<MeshReader<RealT>>(*parlist);
+      meshMgr = ROL::makeShared<MeshReader<RealT>>(*parlist);
     }
     else {
       TEUCHOS_TEST_FOR_EXCEPTION(true, std::invalid_argument,
         ">>> PDE-OPT/poisson/example_01.cpp: Problem dim is not 1, 2 or 3!");
     }
     // Initialize PDE describe Poisson's equation
-    std::shared_ptr<PDE_Poisson<RealT> > pde
-      = std::make_shared<PDE_Poisson<RealT>>(*parlist);
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
-      = std::make_shared<Linear_PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
+    ROL::SharedPointer<PDE_Poisson<RealT> > pde
+      = ROL::makeShared<PDE_Poisson<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con
+      = ROL::makeShared<Linear_PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    std::shared_ptr<Linear_PDE_Constraint<RealT> > pdecon
-      = std::dynamic_pointer_cast<Linear_PDE_Constraint<RealT> >(con);
-    std::shared_ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
+    ROL::SharedPointer<Linear_PDE_Constraint<RealT> > pdecon
+      = ROL::dynamicPointerCast<Linear_PDE_Constraint<RealT> >(con);
+    ROL::SharedPointer<Assembler<RealT> > assembler = pdecon->getAssembler();
     // Initialize quadratic objective function
-    std::vector<std::shared_ptr<QoI<RealT> > > qoi_vec(2,nullptr);
-    qoi_vec[0] = std::make_shared<QoI_L2Tracking_Poisson<RealT>(pde->getFE>());
-    qoi_vec[1] = std::make_shared<QoI_L2Penalty_Poisson<RealT>(pde->getFE>());
+    std::vector<ROL::SharedPointer<QoI<RealT> > > qoi_vec(2,ROL::nullPointer);
+    qoi_vec[0] = ROL::makeShared<QoI_L2Tracking_Poisson<RealT>(pde->getFE>());
+    qoi_vec[1] = ROL::makeShared<QoI_L2Penalty_Poisson<RealT>(pde->getFE>());
     RealT alpha = parlist->sublist("Problem").get("Control penalty parameter",1e-2);
     std::vector<RealT> wt(2); wt[0] = static_cast<RealT>(1); wt[1] = alpha;
-    std::shared_ptr<ROL::Objective_SimOpt<RealT> > obj
-      = std::make_shared<PDE_Objective<RealT>>(qoi_vec,wt,assembler);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > obj
+      = ROL::makeShared<PDE_Objective<RealT>>(qoi_vec,wt,assembler);
 
     // Create state vector and set to zeroes
-    std::shared_ptr<Tpetra::MultiVector<> > u_rcp, z_rcp, p_rcp, r_rcp;
-    std::shared_ptr<ROL::Vector<RealT> > up, zp, pp, rp;
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp, z_rcp, p_rcp, r_rcp;
+    ROL::SharedPointer<ROL::Vector<RealT> > up, zp, pp, rp;
     u_rcp  = assembler->createStateVector();   u_rcp->putScalar(0.0);
     z_rcp  = assembler->createControlVector(); z_rcp->putScalar(0.0);
     p_rcp  = assembler->createStateVector();   p_rcp->putScalar(0.0);
     r_rcp  = assembler->createStateVector();   r_rcp->putScalar(0.0);
-    up  = std::make_shared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
-    zp  = std::make_shared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler);
-    pp  = std::make_shared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler);
-    rp  = std::make_shared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler);
+    up  = ROL::makeShared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
+    zp  = ROL::makeShared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler);
+    pp  = ROL::makeShared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler);
+    rp  = ROL::makeShared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler);
 
     // Initialize reduced objective function
-    std::shared_ptr<ROL::Reduced_Objective_SimOpt<RealT> > robj
-      = std::make_shared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, pp);
+    ROL::SharedPointer<ROL::Reduced_Objective_SimOpt<RealT> > robj
+      = ROL::makeShared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, up, zp, pp);
 
     // Build optimization problem and check derivatives
     ROL::OptimizationProblem<RealT> optProb(robj,zp);
@@ -192,12 +192,12 @@ int main(int argc, char *argv[]) {
     // Compute solution error
     RealT tol(1.e-8);
     con->solve(*rp,*up,*zp,tol);
-    std::shared_ptr<Solution<RealT> > usol
-      = std::make_shared<stateSolution<RealT>>();
+    ROL::SharedPointer<Solution<RealT> > usol
+      = ROL::makeShared<stateSolution<RealT>>();
     RealT uerr = assembler->computeStateError(u_rcp,usol);
     *outStream << "State Error: " << uerr << std::endl;
-    std::shared_ptr<Solution<RealT> > zsol
-      = std::make_shared<controlSolution<RealT>>(alpha);
+    ROL::SharedPointer<Solution<RealT> > zsol
+      = ROL::makeShared<controlSolution<RealT>>(alpha);
     RealT zerr = assembler->computeControlError(z_rcp,zsol);
     *outStream << "Control Error: " << zerr << std::endl;
 

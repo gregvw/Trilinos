@@ -110,15 +110,15 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Build vectors
     unsigned dim = 4;
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > x = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > x = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
     setRandomVector(*x_rcp);
-    std::shared_ptr<std::vector<RealT> > d_rcp = std::make_shared<std::vector<RealT>>(dim,0.0);
-    std::shared_ptr<ROL::Vector<RealT> > d = std::make_shared<ROL::StdVector<RealT>>(d_rcp);
+    ROL::SharedPointer<std::vector<RealT> > d_rcp = ROL::makeShared<std::vector<RealT>>(dim,0.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > d = ROL::makeShared<ROL::StdVector<RealT>>(d_rcp);
     setRandomVector(*d_rcp);
     // Build objective function
-    std::shared_ptr<ROL::StdObjective<RealT> > obj =
-      std::make_shared<ObjectiveFunctionTest06<RealT>>();
+    ROL::SharedPointer<ROL::StdObjective<RealT> > obj =
+      ROL::makeShared<ObjectiveFunctionTest06<RealT>>();
     // Test parametrized objective functions
     *outStream << "Check Derivatives of StdObjective\n";
     obj->checkGradient(*x,*d,true,*outStream);

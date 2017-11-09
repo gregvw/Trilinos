@@ -60,22 +60,22 @@ template <class Real>
 class ReducedHessian : public LinearOperator<Real> {
 private:
   const ExperimentDesignObjective<Real> edo_;
-  std::shared_ptr<const Vector<Real> > w_;
+  ROL::SharedPointer<const Vector<Real> > w_;
 
 public:
 
-  ReducedHessian(const ExperimentDesignObjective<Real> & edo, std::shared_ptr<const Vector<Real> > w) : edo_(edo), w_(w) {}
+  ReducedHessian(const ExperimentDesignObjective<Real> & edo, ROL::SharedPointer<const Vector<Real> > w) : edo_(edo), w_(w) {}
 
   void apply( Vector<Real> &hv, const Vector<Real> &v, Real &tol ) const {
     Real mytol(1e-8);
-    std::shared_ptr<Vector<Real> > Bv = edo_.getConstraintVec()->clone();
-    std::shared_ptr<Vector<Real> > AiBv = edo_.getStateVec()->clone();
-    std::shared_ptr<Vector<Real> > QAiBv = edo_.getObservationVec()->clone();
-    std::shared_ptr<Vector<Real> > WQAiBv = (edo_.getObservationVec()->dual()).clone();
-    std::shared_ptr<Vector<Real> > QtWQAiBv = (edo_.getStateVec()->dual()).clone();
-    std::shared_ptr<Vector<Real> > AitQtWQAiBv = (edo_.getConstraintVec()->dual()).clone();
+    ROL::SharedPointer<Vector<Real> > Bv = edo_.getConstraintVec()->clone();
+    ROL::SharedPointer<Vector<Real> > AiBv = edo_.getStateVec()->clone();
+    ROL::SharedPointer<Vector<Real> > QAiBv = edo_.getObservationVec()->clone();
+    ROL::SharedPointer<Vector<Real> > WQAiBv = (edo_.getObservationVec()->dual()).clone();
+    ROL::SharedPointer<Vector<Real> > QtWQAiBv = (edo_.getStateVec()->dual()).clone();
+    ROL::SharedPointer<Vector<Real> > AitQtWQAiBv = (edo_.getConstraintVec()->dual()).clone();
 
-    std::shared_ptr<Vector<Real> > BtAitQtWQAiBv = (edo_.getControlVec()->dual()).clone();
+    ROL::SharedPointer<Vector<Real> > BtAitQtWQAiBv = (edo_.getControlVec()->dual()).clone();
 
     edo_.getConstraint()->applyJacobian_2(*Bv, v, *(edo_.getStateVec()), *(edo_.getControlVec()), mytol);
     edo_.getConstraint()->applyInverseJacobian_1(*AiBv, *Bv, *(edo_.getStateVec()), *(edo_.getControlVec()), mytol);
@@ -111,15 +111,15 @@ public:
 template <class Real>
 class ExperimentDesignObjective : public Objective<Real> {
 private:
-  std::shared_ptr<Objective_SimOpt<Real> > obj_;            // objective function used for the conventional inverse problem 
-  std::shared_ptr<Constraint_SimOpt<Real> > con_;   // constraint function used for the conventional inverse problems
-  std::shared_ptr<Vector<Real> > state_;                    // state vector, used for cloning
-  std::shared_ptr<Vector<Real> > adjoint_;                  // adjoint vector, used for cloning
-  std::shared_ptr<Vector<Real> > control_;                  // control vector, used for cloning
-  std::shared_ptr<Vector<Real> > constraint_;               // constraint vector, used for cloning
-  std::shared_ptr<Vector<Real> > observation_;              // observation vector, used for cloning
-  std::vector<std::shared_ptr<Vector<Real> > > training_;   // training-set vectors used in OED
-  std::shared_ptr<Vector<Real> > rand01_;                   // a vector of 0 and 1 entries occurring with probability 1/2
+  ROL::SharedPointer<Objective_SimOpt<Real> > obj_;            // objective function used for the conventional inverse problem 
+  ROL::SharedPointer<Constraint_SimOpt<Real> > con_;   // constraint function used for the conventional inverse problems
+  ROL::SharedPointer<Vector<Real> > state_;                    // state vector, used for cloning
+  ROL::SharedPointer<Vector<Real> > adjoint_;                  // adjoint vector, used for cloning
+  ROL::SharedPointer<Vector<Real> > control_;                  // control vector, used for cloning
+  ROL::SharedPointer<Vector<Real> > constraint_;               // constraint vector, used for cloning
+  ROL::SharedPointer<Vector<Real> > observation_;              // observation vector, used for cloning
+  std::vector<ROL::SharedPointer<Vector<Real> > > training_;   // training-set vectors used in OED
+  ROL::SharedPointer<Vector<Real> > rand01_;                   // a vector of 0 and 1 entries occurring with probability 1/2
 
   Real cgabstol_;   // CG absolute tolerance to solve reduced-Hessian subproblems
   Real cgreltol_;   // CG relative tolerance to solve reduced-Hessian subproblems
@@ -129,16 +129,16 @@ private:
   Real beta_;       // sparsity regularization factor
 
 public:
-  ExperimentDesignObjective(const std::shared_ptr<Objective_SimOpt<Real> > &obj,
-                            const std::shared_ptr<Constraint_SimOpt<Real> > &con,
-                            const std::shared_ptr<Vector<Real> > &state,
-                            const std::shared_ptr<Vector<Real> > &adjoint,
-                            const std::shared_ptr<Vector<Real> > &control,
-                            const std::shared_ptr<Vector<Real> > &constraint,
-                            const std::shared_ptr<Vector<Real> > &observation,
-                            const std::vector<std::shared_ptr<Vector<Real> > > &training,
-                            const std::shared_ptr<Vector<Real> > &rand01,
-                            const std::shared_ptr<Teuchos::ParameterList> &parlist) :
+  ExperimentDesignObjective(const ROL::SharedPointer<Objective_SimOpt<Real> > &obj,
+                            const ROL::SharedPointer<Constraint_SimOpt<Real> > &con,
+                            const ROL::SharedPointer<Vector<Real> > &state,
+                            const ROL::SharedPointer<Vector<Real> > &adjoint,
+                            const ROL::SharedPointer<Vector<Real> > &control,
+                            const ROL::SharedPointer<Vector<Real> > &constraint,
+                            const ROL::SharedPointer<Vector<Real> > &observation,
+                            const std::vector<ROL::SharedPointer<Vector<Real> > > &training,
+                            const ROL::SharedPointer<Vector<Real> > &rand01,
+                            const ROL::SharedPointer<Teuchos::ParameterList> &parlist) :
     obj_(obj), con_(con), state_(state), adjoint_(adjoint),
     control_(control), constraint_(constraint), observation_(observation),
     training_(training), rand01_(rand01) {
@@ -151,13 +151,13 @@ public:
   }
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<Vector<Real> > Mtrain = (control_->dual()).clone();
-    std::shared_ptr<Vector<Real> > CinvMtrain = control_->clone();
-    std::shared_ptr<Vector<Real> > Vx = observation_->dual().clone();
-    std::shared_ptr<Vector<Real> > QtVx = state_->dual().clone();
-    std::shared_ptr<Vector<Real> > AitQtVx = constraint_->dual().clone();
-    std::shared_ptr<Vector<Real> > BtAitQtVx = control_->dual().clone();
-    std::shared_ptr<Vector<Real> > CinvBtAitQtVx = control_->clone();
+    ROL::SharedPointer<Vector<Real> > Mtrain = (control_->dual()).clone();
+    ROL::SharedPointer<Vector<Real> > CinvMtrain = control_->clone();
+    ROL::SharedPointer<Vector<Real> > Vx = observation_->dual().clone();
+    ROL::SharedPointer<Vector<Real> > QtVx = state_->dual().clone();
+    ROL::SharedPointer<Vector<Real> > AitQtVx = constraint_->dual().clone();
+    ROL::SharedPointer<Vector<Real> > BtAitQtVx = control_->dual().clone();
+    ROL::SharedPointer<Vector<Real> > CinvBtAitQtVx = control_->clone();
 
     Real mytol(1e-8);
     // Initialize sum of bias, variance and sparse regularization.
@@ -207,13 +207,13 @@ public:
   }
 
   // Access functions.
-  std::shared_ptr<Vector<Real> > getStateVec() const { return state_; }
-  std::shared_ptr<Vector<Real> > getAdjointVec() const { return adjoint_; }
-  std::shared_ptr<Vector<Real> > getControlVec() const { return control_; }
-  std::shared_ptr<Vector<Real> > getObservationVec() const { return observation_; }
-  std::shared_ptr<Vector<Real> > getConstraintVec() const { return constraint_; }
-  std::shared_ptr<Objective_SimOpt<Real> > getObjective() const { return obj_; }
-  std::shared_ptr<Constraint_SimOpt<Real> > getConstraint() const { return con_; }
+  ROL::SharedPointer<Vector<Real> > getStateVec() const { return state_; }
+  ROL::SharedPointer<Vector<Real> > getAdjointVec() const { return adjoint_; }
+  ROL::SharedPointer<Vector<Real> > getControlVec() const { return control_; }
+  ROL::SharedPointer<Vector<Real> > getObservationVec() const { return observation_; }
+  ROL::SharedPointer<Vector<Real> > getConstraintVec() const { return constraint_; }
+  ROL::SharedPointer<Objective_SimOpt<Real> > getObjective() const { return obj_; }
+  ROL::SharedPointer<Constraint_SimOpt<Real> > getConstraint() const { return con_; }
 
 private:
 

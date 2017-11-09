@@ -78,25 +78,25 @@ class HouseholderReflector : public LinearOperator<Real> {
   
 private:
 
-  const std::shared_ptr<const V> x_;
-  const std::shared_ptr<const V> y_;
+  const ROL::SharedPointer<const V> x_;
+  const ROL::SharedPointer<const V> y_;
 
-  std::shared_ptr<V> u_;
+  ROL::SharedPointer<V> u_;
 
 public:
   
-  HouseholderReflector( const std::shared_ptr<const Vector<Real> > &x, 
-                        const std::shared_ptr<const Vector<Real> > &y) : x_(x), y_(y), u_(x->clone()) {}
+  HouseholderReflector( const ROL::SharedPointer<const Vector<Real> > &x, 
+                        const ROL::SharedPointer<const Vector<Real> > &y) : x_(x), y_(y), u_(x->clone()) {}
   
 
-  HouseholderReflector( const std::shared_ptr<const Vector<Real> > &x,
-                        const std::shared_ptr<const Vector<Real> > &y,
-                        std::shared_ptr<Vector<Real> > &scratch ) : x_(x), y_(y), u_(scratch) {}
+  HouseholderReflector( const ROL::SharedPointer<const Vector<Real> > &x,
+                        const ROL::SharedPointer<const Vector<Real> > &y,
+                        ROL::SharedPointer<Vector<Real> > &scratch ) : x_(x), y_(y), u_(scratch) {}
 
-  HouseholderReflector( const std::shared_ptr<const Vector<Real> > &x ) : x_(x), y_(x->basis(0)), u_(x->clone()) {}
+  HouseholderReflector( const ROL::SharedPointer<const Vector<Real> > &x ) : x_(x), y_(x->basis(0)), u_(x->clone()) {}
   
-  HouseholderReflector( const std::shared_ptr<const Vector<Real> > &x,
-                        std::shared_ptr<Vector<Real> > &scratch ) : x_(x), y_(x->basis(0)), u_(scratch) {}
+  HouseholderReflector( const ROL::SharedPointer<const Vector<Real> > &x,
+                        ROL::SharedPointer<Vector<Real> > &scratch ) : x_(x), y_(x->basis(0)), u_(scratch) {}
   
                       
 

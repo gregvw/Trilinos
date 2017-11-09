@@ -54,18 +54,18 @@ namespace ROL {
 template <class Real>
 class AlmostSureConstraint : public Constraint<Real> {
 private:
-  const std::shared_ptr<SampleGenerator<Real> > sampler_;
-  const std::shared_ptr<Constraint<Real> >      con_;
+  const ROL::SharedPointer<SampleGenerator<Real> > sampler_;
+  const ROL::SharedPointer<Constraint<Real> >      con_;
 
-  std::shared_ptr<Vector<Real> >                scratch1_;
-  std::shared_ptr<Vector<Real> >                scratch2_;
+  ROL::SharedPointer<Vector<Real> >                scratch1_;
+  ROL::SharedPointer<Vector<Real> >                scratch2_;
   bool                                       isInitialized_;
 
 public:
   virtual ~AlmostSureConstraint() {}
 
-  AlmostSureConstraint(const std::shared_ptr<SampleGenerator<Real> > &sampler,
-                       const std::shared_ptr<Constraint<Real> > &con)
+  AlmostSureConstraint(const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
+                       const ROL::SharedPointer<Constraint<Real> > &con)
     : sampler_(sampler), con_(con), isInitialized_(false) {}
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {}

@@ -68,20 +68,20 @@ namespace ROL {
 template <class Real>
 class LinearConstraint : public Constraint<Real> {
 private:
-  const std::shared_ptr<const LinearOperator<Real> > A_;
-  const std::shared_ptr<const LinearOperator<Real> > Atrans_;
-  const std::shared_ptr<const Vector<Real> > b_;
+  const ROL::SharedPointer<const LinearOperator<Real> > A_;
+  const ROL::SharedPointer<const LinearOperator<Real> > Atrans_;
+  const ROL::SharedPointer<const Vector<Real> > b_;
   bool  isSymmetric_;
 public:
   // Nonsymmetric case
-  LinearConstraint( const std::shared_ptr<const LinearOperator<Real> > &A,
-                            const std::shared_ptr<const LinearOperator<Real> > &Atrans,
-                            const std::shared_ptr<const Vector<Real> &b ) :
+  LinearConstraint( const ROL::SharedPointer<const LinearOperator<Real> > &A,
+                            const ROL::SharedPointer<const LinearOperator<Real> > &Atrans,
+                            const ROL::SharedPointer<const Vector<Real> &b ) :
       A_(A), Atrans_(Atrans), b_(b), isSymmetric_(false) {
   }
   // Symmetric case
-  LinearConstraint( const std::shared_ptr<const LinearOperator<Real> > &A,
-                            const std::shared_ptr<const Vector<Real> &b ) : 
+  LinearConstraint( const ROL::SharedPointer<const LinearOperator<Real> > &A,
+                            const ROL::SharedPointer<const Vector<Real> &b ) : 
       A_(A), Atrans_(A), b_(b), isSymmetric_(true) {
   }
 

@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
     // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
     int iprint     = argc - 1;
-    std::shared_ptr<std::ostream> outStream;
+    ROL::SharedPointer<std::ostream> outStream;
     Teuchos::oblackholestream bhs; // outputs nothing
     if (iprint > 0)
         outStream = &std::cout, false;
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
         int dim = 10; // Set problem dimension. 
 
         // Load optimizer parameters form XML file
-        std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+        ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
         std::string paramfile = "parameters.xml";
         Teuchos::updateParametersFromXmlFile(paramfile,parlist.ptr());
 
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
         Algorithm<RealT> algo("Line Search",*parlist);
 
         // Iteration vector.
-        std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+        ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
         // Set Initial Guess
         for (int i=0; i<dim; i++) {
             (*x_rcp)[i]   = 2;
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
         algo.run(x, obj, true, *outStream);
 
         // Get true solution.
-        std::shared_ptr<std::vector<RealT> > xtrue_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+        ROL::SharedPointer<std::vector<RealT> > xtrue_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
         StdVector<RealT> xtrue(xtrue_rcp);
         
         // Compute error.

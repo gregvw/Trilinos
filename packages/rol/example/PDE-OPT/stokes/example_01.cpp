@@ -69,12 +69,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
@@ -90,43 +90,43 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    std::shared_ptr<MeshManager<RealT> > meshMgr
-      = std::make_shared<MeshManager_Stokes<RealT>>(*parlist);
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr
+      = ROL::makeShared<MeshManager_Stokes<RealT>>(*parlist);
     // Initialize PDE describing Navier-Stokes equations.
-    std::shared_ptr<PDE_Stokes<RealT> > pde
-      = std::make_shared<PDE_Stokes<RealT>>(*parlist);
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con
-      = std::make_shared<Linear_PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
+    ROL::SharedPointer<PDE_Stokes<RealT> > pde
+      = ROL::makeShared<PDE_Stokes<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con
+      = ROL::makeShared<Linear_PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    std::shared_ptr<Linear_PDE_Constraint<RealT> > pdecon
-      = std::dynamic_pointer_cast<Linear_PDE_Constraint<RealT> >(con);
-    std::shared_ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
+    ROL::SharedPointer<Linear_PDE_Constraint<RealT> > pdecon
+      = ROL::dynamicPointerCast<Linear_PDE_Constraint<RealT> >(con);
+    ROL::SharedPointer<Assembler<RealT> > assembler = pdecon->getAssembler();
     con->setSolveParameters(*parlist);
     pdecon->outputTpetraData();
 
     // Create state vector and set to zeroes
-    std::shared_ptr<Tpetra::MultiVector<> > u_rcp, r_rcp, z_rcp;
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp, r_rcp, z_rcp;
     u_rcp  = assembler->createStateVector();     u_rcp->randomize();
     r_rcp  = assembler->createResidualVector();  r_rcp->randomize();
     z_rcp  = assembler->createControlVector();   z_rcp->putScalar(0);
-    std::shared_ptr<ROL::Vector<RealT> > up, rp, zp;
-    up  = std::make_shared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
-    rp  = std::make_shared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler);
-    zp  = std::make_shared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::Vector<RealT> > up, rp, zp;
+    up  = ROL::makeShared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
+    rp  = ROL::makeShared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler);
+    zp  = ROL::makeShared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler);
 
     // Run derivative checks
     bool checkDeriv = parlist->sublist("Problem").get("Check derivatives",false);
     if ( checkDeriv ) {
-      std::shared_ptr<Tpetra::MultiVector<> > p_rcp, du_rcp;
+      ROL::SharedPointer<Tpetra::MultiVector<> > p_rcp, du_rcp;
       p_rcp  = assembler->createStateVector();     p_rcp->randomize();
       du_rcp = assembler->createStateVector();     du_rcp->randomize();
-      std::shared_ptr<ROL::Vector<RealT> > pp, dup;
-      pp  = std::make_shared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler);
-      dup = std::make_shared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler);
+      ROL::SharedPointer<ROL::Vector<RealT> > pp, dup;
+      pp  = ROL::makeShared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler);
+      dup = ROL::makeShared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler);
 
       *outStream << std::endl << "Check Jacobian_1 of Constraint" << std::endl;
       con->checkApplyJacobian_1(*up,*zp,*dup,*rp,true,*outStream);

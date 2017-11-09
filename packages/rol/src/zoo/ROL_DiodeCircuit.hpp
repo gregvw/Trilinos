@@ -44,9 +44,9 @@ private:
   /// Thermal voltage (constant)
   Real Vth_; 
   /// Vector of measured currents in DC analysis (data)
-  std::shared_ptr<std::vector<Real> > Imeas_;
+  ROL::SharedPointer<std::vector<Real> > Imeas_;
   /// Vector of source voltages in DC analysis (input) 
-  std::shared_ptr<std::vector<Real> > Vsrc_; 
+  ROL::SharedPointer<std::vector<Real> > Vsrc_; 
   /// If true, use Lambert-W function to solve circuit, else use Newton's method.
   bool lambertw_; 
   /// Percentage of noise to add to measurements; if 0.0 - no noise.
@@ -80,8 +80,8 @@ public:
                          bool use_adjoint, int use_hessvec)
     : Vth_(Vth), lambertw_(lambertw), use_adjoint_(use_adjoint), use_hessvec_(use_hessvec) {
     int n  = (Vsrc_max-Vsrc_min)/Vsrc_step + 1;
-    Vsrc_  = std::make_shared<std::vector<Real>>(n,0.0);
-    Imeas_ = std::make_shared<std::vector<Real>>(n,0.0);
+    Vsrc_  = ROL::makeShared<std::vector<Real>>(n,0.0);
+    Imeas_ = ROL::makeShared<std::vector<Real>>(n,0.0);
     std::ofstream output ("Measurements.dat");
     Real left = 0.0, right = 1.0;
     // Generate problem data
@@ -135,8 +135,8 @@ public:
     } // count number of lines
     input_file.clear(); // reset to beginning of file
     input_file.seekg(0,std::ios::beg); 
-    Vsrc_  = std::make_shared<std::vector<Real>>(dim,0.0);
-    Imeas_ = std::make_shared<std::vector<Real>>(dim,0.0);
+    Vsrc_  = ROL::makeShared<std::vector<Real>>(dim,0.0);
+    Imeas_ = ROL::makeShared<std::vector<Real>>(dim,0.0);
     Real Vsrc, Imeas;
     std::cout << "Using input file to generate data." << "\n";
     for( int i = 0; i < dim; i++ ){
@@ -156,8 +156,8 @@ public:
   //! Solve circuit given optimization parameters Is and Rs
   void solve_circuit(Vector<Real> &I, const Vector<Real> &S){
     
-    std::shared_ptr<vector> Ip = getVector(I);
-    std::shared_ptr<const vector> Sp = getVector(S);
+    ROL::SharedPointer<vector> Ip = getVector(I);
+    ROL::SharedPointer<const vector> Sp = getVector(S);
 
     uint n = Ip->size();
     
@@ -187,10 +187,10 @@ public:
    */
   Real value(const Vector<Real> &S, Real &tol){
       
-    std::shared_ptr<const vector> Sp = getVector(S);
+    ROL::SharedPointer<const vector> Sp = getVector(S);
     uint n = Imeas_->size();
-    STDV I( std::make_shared<vector>(n,0.0) );
-    std::shared_ptr<vector> Ip = getVector(I);
+    STDV I( ROL::makeShared<vector>(n,0.0) );
+    ROL::SharedPointer<vector> Ip = getVector(I);
 
     // Solve state equation
     solve_circuit(I,S);
@@ -206,21 +206,21 @@ public:
   void gradient(Vector<Real> &g, const Vector<Real> &S, Real &tol){
 
       
-    std::shared_ptr<vector> gp = getVector(g);
-    std::shared_ptr<const vector> Sp = getVector(S);
+    ROL::SharedPointer<vector> gp = getVector(g);
+    ROL::SharedPointer<const vector> Sp = getVector(S);
     
     uint n = Imeas_->size();
     
-    STDV I( std::make_shared<vector>(n,0.0) );
-    std::shared_ptr<vector> Ip = getVector(I);
+    STDV I( ROL::makeShared<vector>(n,0.0) );
+    ROL::SharedPointer<vector> Ip = getVector(I);
     
     // Solve state equation      
     solve_circuit(I,S);
     
     if ( use_adjoint_ ) {      
       // Compute the gradient of the reduced objective function using adjoint computation
-      STDV lambda( std::make_shared<vector>(n,0.0) );
-      std::shared_ptr<vector> lambdap = getVector(lambda);
+      STDV lambda( ROL::makeShared<vector>(n,0.0) );
+      ROL::SharedPointer<vector> lambdap = getVector(lambda);
       
       // Solve adjoint equation
       solve_adjoint(lambda,I,S);
@@ -234,14 +234,14 @@ public:
     }
     else {
       // Compute the gradient of the reduced objective function using sensitivities
-      STDV sensIs( std::make_shared<vector>(n,0.0) );
-      STDV sensRs( std::make_shared<vector>(n,0.0) );
+      STDV sensIs( ROL::makeShared<vector>(n,0.0) );
+      STDV sensRs( ROL::makeShared<vector>(n,0.0) );
       // Solve sensitivity equations
       solve_sensitivity_Is(sensIs,I,S);
       solve_sensitivity_Rs(sensRs,I,S);
       
-      std::shared_ptr<vector> sensIsp = getVector(sensIs);
-      std::shared_ptr<vector> sensRsp = getVector(sensRs);
+      ROL::SharedPointer<vector> sensIsp = getVector(sensIs);
+      ROL::SharedPointer<vector> sensRsp = getVector(sensRs);
       
       // Write sensitivities into file
       std::ofstream output ("Sensitivities.dat");
@@ -275,26 +275,26 @@ public:
       Objective<Real>::hessVec(hv, v, S, tol);
     }
     else if ( use_hessvec_ == 1 ) {
-      std::shared_ptr<vector> hvp = getVector(hv);
-      std::shared_ptr<const vector> vp = getVector(v);
-      std::shared_ptr<const vector> Sp = getVector(S);
+      ROL::SharedPointer<vector> hvp = getVector(hv);
+      ROL::SharedPointer<const vector> vp = getVector(v);
+      ROL::SharedPointer<const vector> Sp = getVector(S);
       
       uint n = Imeas_->size();
       
-      STDV I( std::make_shared<vector>(n,0.0) );
-      std::shared_ptr<vector> Ip = getVector(I);
+      STDV I( ROL::makeShared<vector>(n,0.0) );
+      ROL::SharedPointer<vector> Ip = getVector(I);
       
       // Solve state equation      
       solve_circuit(I,S);
       
-      STDV lambda( std::make_shared<vector>(n,0.0) );
-      std::shared_ptr<vector> lambdap = getVector(lambda);
+      STDV lambda( ROL::makeShared<vector>(n,0.0) );
+      ROL::SharedPointer<vector> lambdap = getVector(lambda);
       
       // Solve adjoint equation
       solve_adjoint(lambda,I,S);
       
-      STDV w( std::make_shared<vector>(n,0.0) );
-      std::shared_ptr<vector> wp = getVector(w);
+      STDV w( ROL::makeShared<vector>(n,0.0) );
+      ROL::SharedPointer<vector> wp = getVector(w);
       
       // Solve state sensitivity equation
       for ( uint i = 0; i < n; i++ ){
@@ -303,8 +303,8 @@ public:
                    / diodeI((*Ip)[i],(*Vsrc_)[i],(*Sp)[0],(*Sp)[1]);
       }
       
-      STDV p( std::make_shared<vector>(n,0.0) );
-      std::shared_ptr<vector> pp = getVector(p);
+      STDV p( ROL::makeShared<vector>(n,0.0) );
+      ROL::SharedPointer<vector> pp = getVector(p);
       
       // Solve for p
       for ( uint j = 0; j < n; j++ ) {
@@ -329,27 +329,27 @@ public:
     }
     else if ( use_hessvec_ == 2 ) {
       //Gauss-Newton approximation
-      std::shared_ptr<vector> hvp = getVector(hv);
-      std::shared_ptr<const vector> vp = getVector(v);
-      std::shared_ptr<const vector> Sp = getVector(S);
+      ROL::SharedPointer<vector> hvp = getVector(hv);
+      ROL::SharedPointer<const vector> vp = getVector(v);
+      ROL::SharedPointer<const vector> Sp = getVector(S);
       
       uint n = Imeas_->size();
 
-      STDV I( std::make_shared<vector>(n,0.0) );
-      std::shared_ptr<vector> Ip = getVector(I);
+      STDV I( ROL::makeShared<vector>(n,0.0) );
+      ROL::SharedPointer<vector> Ip = getVector(I);
 
       // Solve state equation                                                                                
       solve_circuit(I,S);
 
       // Compute sensitivities
-      STDV sensIs( std::make_shared<vector>(n,0.0) );
-      STDV sensRs( std::make_shared<vector>(n,0.0) );
+      STDV sensIs( ROL::makeShared<vector>(n,0.0) );
+      STDV sensRs( ROL::makeShared<vector>(n,0.0) );
 
       // Solve sensitivity equations                                                                          
       solve_sensitivity_Is(sensIs,I,S);
       solve_sensitivity_Rs(sensRs,I,S);
-      std::shared_ptr<vector> sensIsp = getVector(sensIs);
-      std::shared_ptr<vector> sensRsp = getVector(sensRs);
+      ROL::SharedPointer<vector> sensIsp = getVector(sensIs);
+      ROL::SharedPointer<vector> sensRsp = getVector(sensRs);
       
       // Compute approximate Hessian
       Real H11 = 0.0; Real H12 = 0.0; Real H22 = 0.0;
@@ -380,7 +380,7 @@ public:
     ---
    */
   void generate_plot(Real Is_lo, Real Is_up, Real Is_step, Real Rs_lo, Real Rs_up, Real Rs_step){
-    std::shared_ptr<std::vector<Real> > S_rcp = std::make_shared<std::vector<Real>>(2,0.0);
+    ROL::SharedPointer<std::vector<Real> > S_rcp = ROL::makeShared<std::vector<Real>>(2,0.0);
     StdVector<Real> S(S_rcp);
     std::ofstream output ("Objective.dat");
 
@@ -407,7 +407,7 @@ public:
 
 private:
 
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
       using Teuchos::getConst;
     try { 
       return dynamic_cast<const STDV&>(getConst(x)).getVector();
@@ -422,7 +422,7 @@ private:
     }
   }
 
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     
     try {
       return dynamic_cast<STDV&>(x).getVector(); 
@@ -686,9 +686,9 @@ private:
   void solve_adjoint(Vector<Real> &lambda, const Vector<Real> &I, const Vector<Real> &S){
     
     
-    std::shared_ptr<vector> lambdap = getVector(lambda);
-    std::shared_ptr<const vector> Ip = getVector(I);
-    std::shared_ptr<const vector> Sp = getVector(S);
+    ROL::SharedPointer<vector> lambdap = getVector(lambda);
+    ROL::SharedPointer<const vector> Ip = getVector(I);
+    ROL::SharedPointer<const vector> Sp = getVector(S);
     
     uint n = Ip->size();
     for ( uint i = 0; i < n; i++ ){
@@ -707,9 +707,9 @@ private:
   void solve_sensitivity_Is(Vector<Real> &sens, const Vector<Real> &I, const Vector<Real> &S){
 
     
-    std::shared_ptr<vector> sensp = getVector(sens);
-    std::shared_ptr<const vector> Ip = getVector(I);
-    std::shared_ptr<const vector> Sp = getVector(S);     
+    ROL::SharedPointer<vector> sensp = getVector(sens);
+    ROL::SharedPointer<const vector> Ip = getVector(I);
+    ROL::SharedPointer<const vector> Sp = getVector(S);     
     
     uint n = Ip->size();
     for ( uint i = 0; i < n; i++ ) {
@@ -728,9 +728,9 @@ private:
   void solve_sensitivity_Rs(Vector<Real> &sens, const Vector<Real> &I, const Vector<Real> &S){
          
     
-    std::shared_ptr<vector> sensp = getVector(sens);
-    std::shared_ptr<const vector> Ip = getVector(I);
-    std::shared_ptr<const vector> Sp = getVector(S);
+    ROL::SharedPointer<vector> sensp = getVector(sens);
+    ROL::SharedPointer<const vector> Ip = getVector(I);
+    ROL::SharedPointer<const vector> Sp = getVector(S);
     
     uint n = Ip->size();
     for ( uint i = 0; i < n; i++ ) {
@@ -742,12 +742,12 @@ private:
 
 
   // template<class Real>
-  // void getDiodeCircuit( std::shared_ptr<Objective<Real> > &obj, Vector<Real> &x0, Vector<Real> &x ) {
+  // void getDiodeCircuit( ROL::SharedPointer<Objective<Real> > &obj, Vector<Real> &x0, Vector<Real> &x ) {
   //   // Cast Initial Guess and Solution Vectors                                     
-  //   std::shared_ptr<std::vector<Real> > x0p =
-  //     std::const_pointer_cast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real>&>(x0)).getVector());
-  //   std::shared_ptr<std::vector<Real> > xp =
-  //     std::const_pointer_cast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real>&>(x)).getVector());
+  //   ROL::SharedPointer<std::vector<Real> > x0p =
+  //     ROL::constPointerCast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real>&>(x0)).getVector());
+  //   ROL::SharedPointer<std::vector<Real> > xp =
+  //     ROL::constPointerCast<std::vector<Real> >((dynamic_cast<PrimalScaledStdVector<Real>&>(x)).getVector());
 
   //   int n = xp->size();
 
@@ -757,7 +757,7 @@ private:
   //   xp->resize(n);
 
   //   // Instantiate Objective Function                                                                              
-  //   obj = std::make_shared<Objective_DiodeCircuit<Real>>(0.02585,0.0,1.0,1.e-2);
+  //   obj = ROL::makeShared<Objective_DiodeCircuit<Real>>(0.02585,0.0,1.0,1.e-2);
   //   //ROL::Objective_DiodeCircuit<Real> obj(0.02585,0.0,1.0,1.e-2);
 
   //   // Get Initial Guess

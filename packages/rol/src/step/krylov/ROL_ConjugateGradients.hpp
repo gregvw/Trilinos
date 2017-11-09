@@ -60,10 +60,10 @@ class ConjugateGradients : public Krylov<Real> {
 
   bool isInitialized_;
   bool useInexact_;
-  std::shared_ptr<Vector<Real> > r_;
-  std::shared_ptr<Vector<Real> > v_;
-  std::shared_ptr<Vector<Real> > p_;
-  std::shared_ptr<Vector<Real> > Ap_;
+  ROL::SharedPointer<Vector<Real> > r_;
+  ROL::SharedPointer<Vector<Real> > v_;
+  ROL::SharedPointer<Vector<Real> > p_;
+  ROL::SharedPointer<Vector<Real> > Ap_;
 
 public:
   ConjugateGradients(Real absTol = 1.e-4, Real relTol = 1.e-2, unsigned maxit = 100, bool useInexact = false)

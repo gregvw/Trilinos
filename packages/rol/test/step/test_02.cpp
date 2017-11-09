@@ -84,17 +84,17 @@ int main(int argc, char *argv[]) {
       *outStream << std::endl << std::endl << ROL::ETestObjectivesToString(objFunc) << std::endl << std::endl;
 
       // Set Up Optimization Problem
-      std::shared_ptr<ROL::Vector<RealT> > x0, z;
-      std::shared_ptr<ROL::Objective<RealT> > obj = nullptr;
+      ROL::SharedPointer<ROL::Vector<RealT> > x0, z;
+      ROL::SharedPointer<ROL::Objective<RealT> > obj = ROL::nullPointer;
       ROL::getTestObjectives<RealT>(obj,x0,z,objFunc);
-      std::shared_ptr<ROL::Vector<RealT> > x = x0->clone();
+      ROL::SharedPointer<ROL::Vector<RealT> > x = x0->clone();
 
       // Get Dimension of Problem
       int dim = x0->dimension();
       parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 5*dim);
 
       // Error Vector
-      std::shared_ptr<ROL::Vector<RealT> > e = x0->clone();
+      ROL::SharedPointer<ROL::Vector<RealT> > e = x0->clone();
       e->zero();
 
       for ( ROL::ETrustRegion tr = ROL::TRUSTREGION_CAUCHYPOINT; tr < ROL::TRUSTREGION_LAST; tr++ ) {

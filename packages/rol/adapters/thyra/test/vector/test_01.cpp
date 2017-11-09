@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -80,12 +80,12 @@ int main(int argc, char *argv[]) {
 
     int dim = 100; 
 
-    std::shared_ptr<Thyra::VectorSpaceBase<RealT> > euclidean = Thyra::defaultSpmdVectorSpace<RealT>(dim);   
+    ROL::SharedPointer<Thyra::VectorSpaceBase<RealT> > euclidean = Thyra::defaultSpmdVectorSpace<RealT>(dim);   
 
-    // Create std::shared_ptrs to Thyra::Vectors
-    std::shared_ptr<Thyra::VectorBase<RealT> > x_rcp = Thyra::createMember<RealT>(euclidean);
-    std::shared_ptr<Thyra::VectorBase<RealT> > y_rcp = Thyra::createMember<RealT>(euclidean);
-    std::shared_ptr<Thyra::VectorBase<RealT> > z_rcp = Thyra::createMember<RealT>(euclidean);
+    // Create ROL::SharedPointers to Thyra::Vectors
+    ROL::SharedPointer<Thyra::VectorBase<RealT> > x_rcp = Thyra::createMember<RealT>(euclidean);
+    ROL::SharedPointer<Thyra::VectorBase<RealT> > y_rcp = Thyra::createMember<RealT>(euclidean);
+    ROL::SharedPointer<Thyra::VectorBase<RealT> > z_rcp = Thyra::createMember<RealT>(euclidean);
 
     // Create ROL::ThyraVectors
   
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 
     // Basis tests.
     // set x to first basis vector
-    std::shared_ptr<ROL::Vector<RealT> > zp = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > zp = x.clone();
     zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";

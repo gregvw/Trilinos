@@ -78,15 +78,15 @@ int main(int argc, char *argv[]) {
 
   try {
 
-    std::shared_ptr<V>    x     = ROL::ZOO::getInitialGuess_HS24<RealT>();
-    std::shared_ptr<V>    xs    = ROL::ZOO::getSolution_HS24<RealT>();
-    std::shared_ptr<V>    inmul = ROL::ZOO::getInequalityMultiplier_HS24<RealT>();
+    ROL::SharedPointer<V>    x     = ROL::ZOO::getInitialGuess_HS24<RealT>();
+    ROL::SharedPointer<V>    xs    = ROL::ZOO::getSolution_HS24<RealT>();
+    ROL::SharedPointer<V>    inmul = ROL::ZOO::getInequalityMultiplier_HS24<RealT>();
 
-    std::shared_ptr<BC>   bnd   = ROL::ZOO::getBoundConstraint_HS24<RealT>();
-    std::shared_ptr<OBJ>  obj   = ROL::ZOO::getObjective_HS24<RealT>();
-    std::shared_ptr<INEQ> incon = ROL::ZOO::getInequalityConstraint_HS24<RealT>();
+    ROL::SharedPointer<BC>   bnd   = ROL::ZOO::getBoundConstraint_HS24<RealT>();
+    ROL::SharedPointer<OBJ>  obj   = ROL::ZOO::getObjective_HS24<RealT>();
+    ROL::SharedPointer<INEQ> incon = ROL::ZOO::getInequalityConstraint_HS24<RealT>();
 
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
 
     std::string stepname = "Interior Point";
 
@@ -113,15 +113,15 @@ int main(int argc, char *argv[]) {
     // Define Optimization Problem
     ROL::OptimizationProblem<RealT> problem( obj, x, bnd, incon, inmul, parlist );
 
-    std::shared_ptr<V> d = x->clone();
+    ROL::SharedPointer<V> d = x->clone();
     RandomizeVector(*d);
 
 //    problem.checkObjectiveGradient(*d);
 //    problem.checkObjectiveHessVec(*d);
 
     // Define algorithm.
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;
-    algo = std::make_shared<ROL::Algorithm<RealT>>(stepname,*parlist);
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>(stepname,*parlist);
 
     algo->run(problem,true,*outStream);
 

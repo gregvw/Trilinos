@@ -31,6 +31,13 @@ APPEND_SET(HEADERS
 )
 
 #
+# compatibility headers
+#
+
+SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/compatibility)
+INCLUDE_DIRECTORIES(${DIR})
+APPEND_GLOB(HEADERS ${DIR}/*.hpp)
+#
 # vector headers
 #
 

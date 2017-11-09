@@ -56,9 +56,9 @@ namespace ROL {
 
 template<class Real>
 struct SecantState {
-  std::shared_ptr<Vector<Real> >               iterate;
-  std::vector<std::shared_ptr<Vector<Real> > > iterDiff; // Step Storage
-  std::vector<std::shared_ptr<Vector<Real> > > gradDiff; // Gradient Storage
+  ROL::SharedPointer<Vector<Real> >               iterate;
+  std::vector<ROL::SharedPointer<Vector<Real> > > iterDiff; // Step Storage
+  std::vector<ROL::SharedPointer<Vector<Real> > > gradDiff; // Gradient Storage
   std::vector<Real>                         product;  // Step-Gradient Inner Product Storage
   std::vector<Real>                         product2; // Step-Gradient Inner Product Storage
   int storage;                                        // Storage Size
@@ -70,7 +70,7 @@ template<class Real>
 class Secant : public LinearOperator<Real> {
 private:
 
-  std::shared_ptr<SecantState<Real> > state_; // Secant State
+  ROL::SharedPointer<SecantState<Real> > state_; // Secant State
   bool isInitialized_;
 
 public:
@@ -79,14 +79,14 @@ public:
 
   // Constructor
   Secant( int M = 10 ) : isInitialized_(false) {
-    state_ = std::make_shared<SecantState<Real>>(); 
+    state_ = ROL::makeShared<SecantState<Real>>(); 
     state_->storage = M;
     state_->current = -1;
     state_->iter    = 0;
   }
 
-  std::shared_ptr<SecantState<Real> >& get_state() { return state_; }
-  const std::shared_ptr<SecantState<Real> >& get_state() const { return state_; }
+  ROL::SharedPointer<SecantState<Real> >& get_state() { return state_; }
+  const ROL::SharedPointer<SecantState<Real> >& get_state() const { return state_; }
 
   // Update Secant Approximation
   virtual void updateStorage( const Vector<Real> &x,  const Vector<Real> &grad,
@@ -99,7 +99,7 @@ public:
     }
     state_->iterate->set(x);
     state_->iter = iter;
-    std::shared_ptr<Vector<Real> > gradDiff = grad.clone();
+    ROL::SharedPointer<Vector<Real> > gradDiff = grad.clone();
     gradDiff->set(grad);
     gradDiff->axpy(-one,gp);
 
@@ -147,9 +147,9 @@ public:
 
   // Test Secant Approximations 
   void test( const Vector<Real> &x, const Vector<Real> &s ) const {
-    std::shared_ptr<Vector<Real> > vec  = x.clone();
-    std::shared_ptr<Vector<Real> > Hvec = x.clone();
-    std::shared_ptr<Vector<Real> > Bvec = x.clone();
+    ROL::SharedPointer<Vector<Real> > vec  = x.clone();
+    ROL::SharedPointer<Vector<Real> > Hvec = x.clone();
+    ROL::SharedPointer<Vector<Real> > Bvec = x.clone();
     Real one(1);
   
     // Print BHv -> Should be v

@@ -76,8 +76,8 @@ int main(int argc, char *argv[]) {
     parlist.sublist("Scalar Minimization").set("Type","Brent's");
     parlist.sublist("Scalar Minimization").sublist("Brent's").set("Tolerance",1.e-10);
     parlist.sublist("Scalar Minimization").sublist("Brent's").set("Iteration Limit",1000);
-    std::shared_ptr<ROL::ScalarMinimizationTest<RealT> > smt
-      = std::make_shared<ROL::ScalarMinimizationTest01<RealT>>(parlist);
+    ROL::SharedPointer<ROL::ScalarMinimizationTest<RealT> > smt
+      = ROL::makeShared<ROL::ScalarMinimizationTest01<RealT>>(parlist);
     *outStream << "\nBrent's Method\n";
     bool flag = smt->test(*outStream);
     errorFlag += (flag ? 0 : 1);
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     parlist.sublist("Scalar Minimization").set("Type","Bisection");
     parlist.sublist("Scalar Minimization").sublist("Bisection").set("Tolerance",1.e-10);
     parlist.sublist("Scalar Minimization").sublist("Bisection").set("Iteration Limit",1000);
-    smt = std::make_shared<ROL::ScalarMinimizationTest01<RealT>>(parlist);
+    smt = ROL::makeShared<ROL::ScalarMinimizationTest01<RealT>>(parlist);
     *outStream << "\nBisection Method\n";
     flag = smt->test(*outStream);
     errorFlag += (flag ? 0 : 1);
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     parlist.sublist("Scalar Minimization").set("Type","Golden Section");
     parlist.sublist("Scalar Minimization").sublist("Golden Section").set("Tolerance",1.e-10);
     parlist.sublist("Scalar Minimization").sublist("Golden Section").set("Iteration Limit",1000);
-    smt = std::make_shared<ROL::ScalarMinimizationTest01<RealT>>(parlist);
+    smt = ROL::makeShared<ROL::ScalarMinimizationTest01<RealT>>(parlist);
     *outStream << "\nGolden Section Method\n";
     flag = smt->test(*outStream);
     errorFlag += (flag ? 0 : 1);

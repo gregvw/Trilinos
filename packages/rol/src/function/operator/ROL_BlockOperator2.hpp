@@ -65,25 +65,25 @@ class BlockOperator2 : public LinearOperator<Real> {
 
 private:
 
-  std::shared_ptr<OP> bkop_;
-  std::shared_ptr<std::vector<std::shared_ptr<OP> > > ops_;
+  ROL::SharedPointer<OP> bkop_;
+  ROL::SharedPointer<std::vector<ROL::SharedPointer<OP> > > ops_;
 
 public:   
 
-  BlockOperator2( std::shared_ptr<OP> &a11, std::shared_ptr<OP> &a12,
-                  std::shared_ptr<OP> &a21, std::shared_ptr<OP> &a22 ) {
+  BlockOperator2( ROL::SharedPointer<OP> &a11, ROL::SharedPointer<OP> &a12,
+                  ROL::SharedPointer<OP> &a21, ROL::SharedPointer<OP> &a22 ) {
 
     using std::vector;
     
     
 
-    ops_ = std::make_shared<vector<std::shared_ptr<OP> >>();
+    ops_ = ROL::makeShared<vector<ROL::SharedPointer<OP> >>();
     ops_->push_back(a11);
     ops_->push_back(a12);
     ops_->push_back(a21);
     ops_->push_back(a22);
             
-    bkop_ = std::make_shared<BlockOperator<Real>>(ops_);
+    bkop_ = ROL::makeShared<BlockOperator<Real>>(ops_);
  
   }
 
@@ -101,7 +101,7 @@ public:
 
   } 
 
-  std::shared_ptr<LinearOperator<Real> > getOperator( int row, int col ) const {
+  ROL::SharedPointer<LinearOperator<Real> > getOperator( int row, int col ) const {
     int dex = 2*row+col;
     if( 0<=dex && dex<=3 ) {
       return (*ops_)[dex];

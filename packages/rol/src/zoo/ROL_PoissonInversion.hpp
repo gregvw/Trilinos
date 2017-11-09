@@ -85,12 +85,12 @@ private:
   Real eps_;
   int  reg_type_;
 
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
     
     return dynamic_cast<const SV&>(x).getVector();
   }
   
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     
     return dynamic_cast<SV&>(x).getVector();
   }
@@ -106,7 +106,7 @@ public:
   Real reg_value(const Vector<Real> &z) {
     
 
-    std::shared_ptr<const vector> zp = getVector(z);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     Real val = 0.0;
     for (uint i = 0; i < nz_; i++) {
@@ -133,16 +133,16 @@ public:
       g.scale(alpha_*hz_);    
     } 
     else if ( reg_type_ == 1 ) {
-      std::shared_ptr<const vector> zp = getVector(z);
-      std::shared_ptr<vector >      gp = getVector(g);
+      ROL::SharedPointer<const vector> zp = getVector(z);
+      ROL::SharedPointer<vector >      gp = getVector(g);
 
       for (uint i = 0; i < nz_; i++) {
         (*gp)[i] = alpha_ * hz_ * (*zp)[i]/std::sqrt(std::pow((*zp)[i],2.0)+eps_);
       }
     }
     else if ( reg_type_ == 0 ) {
-      std::shared_ptr<const vector> zp = getVector(z);
-      std::shared_ptr<vector>       gp = getVector(g);
+      ROL::SharedPointer<const vector> zp = getVector(z);
+      ROL::SharedPointer<vector>       gp = getVector(g);
 
       Real diff = 0.0;
       for (uint i = 0; i < nz_; i++) {
@@ -173,18 +173,18 @@ public:
       hv.scale(alpha_*hz_);
     }
     else if ( reg_type_ == 1 ) {
-      std::shared_ptr<const vector> zp  = getVector(z);
-      std::shared_ptr<const vector> vp  = getVector(v);
-      std::shared_ptr<vector>       hvp = getVector(hv);
+      ROL::SharedPointer<const vector> zp  = getVector(z);
+      ROL::SharedPointer<const vector> vp  = getVector(v);
+      ROL::SharedPointer<vector>       hvp = getVector(hv);
 
       for (uint i = 0; i < nz_; i++) {
         (*hvp)[i] = alpha_*hz_*(*vp)[i]*eps_/std::pow(std::pow((*zp)[i],2.0)+eps_,3.0/2.0);
       }
     }
     else if ( reg_type_ == 0 ) {
-      std::shared_ptr<const vector> zp  = getVector(z);
-      std::shared_ptr<const vector> vp  = getVector(v);
-      std::shared_ptr<vector>       hvp = getVector(hv);
+      ROL::SharedPointer<const vector> zp  = getVector(z);
+      ROL::SharedPointer<const vector> vp  = getVector(v);
+      ROL::SharedPointer<vector>       hvp = getVector(hv);
 
       Real diff1 = 0.0;
       Real diff2 = 0.0;
@@ -214,8 +214,8 @@ public:
   void apply_mass(Vector<Real> &Mf, const Vector<Real> &f ) {
 
     
-    std::shared_ptr<const vector> fp  = getVector(f);
-    std::shared_ptr<vector>       Mfp = getVector(Mf);
+    ROL::SharedPointer<const vector> fp  = getVector(f);
+    ROL::SharedPointer<vector>       Mfp = getVector(Mf);
 
     for (uint i = 0; i < nu_; i++) {
       if ( i == 0 ) {
@@ -233,9 +233,9 @@ public:
   void solve_poisson(Vector<Real> &u, const Vector<Real> &z, Vector<Real> &b) {
 
     
-    std::shared_ptr<const vector> zp = getVector(z);
-    std::shared_ptr<vector>       up = getVector(u);
-    std::shared_ptr<vector>       bp = getVector(b);
+    ROL::SharedPointer<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector>       up = getVector(u);
+    ROL::SharedPointer<vector>       bp = getVector(b);
 
     // Get Diagonal and Off-Diagonal Entries of PDE Jacobian
     vector d(nu_,1.0);
@@ -266,10 +266,10 @@ public:
 
     
     
-    std::shared_ptr<const vector> zp  = getVector(z);
-    std::shared_ptr<const vector> up  = getVector(u);
-    std::shared_ptr<const vector> dp  = getVector(d);
-    std::shared_ptr<vector>       Bdp = getVector(Bd);
+    ROL::SharedPointer<const vector> zp  = getVector(z);
+    ROL::SharedPointer<const vector> up  = getVector(u);
+    ROL::SharedPointer<const vector> dp  = getVector(d);
+    ROL::SharedPointer<vector>       Bdp = getVector(Bd);
 
     for (uint i = 0; i < nu_; i++) {
       if ( i == 0 ) {
@@ -291,10 +291,10 @@ public:
                                                const Vector<Real> &d,  const Vector<Real> &u ) {
     
 
-    std::shared_ptr<const vector> zp  = getVector(z);
-    std::shared_ptr<const vector> up  = getVector(u);
-    std::shared_ptr<const vector> dp  = getVector(d);
-    std::shared_ptr<vector>       Bdp = getVector(Bd);
+    ROL::SharedPointer<const vector> zp  = getVector(z);
+    ROL::SharedPointer<const vector> up  = getVector(u);
+    ROL::SharedPointer<const vector> dp  = getVector(d);
+    ROL::SharedPointer<vector>       Bdp = getVector(Bd);
 
     for (uint i = 0; i < nz_; i++) {
       if ( i == 0 ) {
@@ -312,11 +312,11 @@ public:
   void apply_transposed_linearized_control_operator_2( Vector<Real> &Bd, const Vector<Real> &z, const Vector<Real> &v,
                                                  const Vector<Real> &d,  const Vector<Real> &u ) {
     
-    std::shared_ptr<const vector> zp  = getVector(z);
-    std::shared_ptr<const vector> vp  = getVector(v);
-    std::shared_ptr<const vector> up  = getVector(u);
-    std::shared_ptr<const vector> dp  = getVector(d);
-    std::shared_ptr<vector>       Bdp = getVector(Bd);
+    ROL::SharedPointer<const vector> zp  = getVector(z);
+    ROL::SharedPointer<const vector> vp  = getVector(v);
+    ROL::SharedPointer<const vector> up  = getVector(u);
+    ROL::SharedPointer<const vector> dp  = getVector(d);
+    ROL::SharedPointer<vector>       Bdp = getVector(Bd);
 
     for (uint i = 0; i < nz_; i++) {
       if ( i == 0 ) {
@@ -340,7 +340,7 @@ public:
     Real k1 = 1.0;
     Real k2 = 2.0;
     // Right Hand Side
-    std::shared_ptr<vector> bp = std::make_shared<vector>(nu_, 0.0);
+    ROL::SharedPointer<vector> bp = ROL::makeShared<vector>(nu_, 0.0);
     for ( uint i = 0; i < nu_; i++ ) {
       if ( (Real)(i+1)*hu_ < 0.5 ) {
        (*bp)[i] = 2.0*k1*hu_;
@@ -363,14 +363,14 @@ public:
     
     
 
-    std::shared_ptr<const vector> up = getVector(u);
-    std::shared_ptr<vector> rp = std::make_shared<vector>(nu_,0.0);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<vector> rp = ROL::makeShared<vector>(nu_,0.0);
     SV res(rp);
 
     for ( uint i = 0; i < nu_; i++) {
       (*rp)[i] = -((*up)[i]-evaluate_target((Real)(i+1)*hu_));
     }
-    StdVector<Real> Mres( std::make_shared<std::vector<Real>>(nu_,0.0) );
+    StdVector<Real> Mres( ROL::makeShared<std::vector<Real>>(nu_,0.0) );
     apply_mass(Mres,res);
     solve_poisson(p,z,Mres);
   }
@@ -379,7 +379,7 @@ public:
                                         const Vector<Real> &u, const Vector<Real> &z) {
 
     
-    SV b( std::make_shared<vector>(nu_,0.0) );
+    SV b( ROL::makeShared<vector>(nu_,0.0) );
     apply_linearized_control_operator(b,z,v,u);
     solve_poisson(w,z,b);
   }
@@ -389,9 +389,9 @@ public:
 
     
 
-    SV res( std::make_shared<vector>(nu_,0.0) );
+    SV res( ROL::makeShared<vector>(nu_,0.0) );
     apply_mass(res,w);
-    SV res1( std::make_shared<vector>(nu_,0.0) );
+    SV res1( ROL::makeShared<vector>(nu_,0.0) );
     apply_linearized_control_operator(res1,z,v,p);
     res.axpy(-1.0,res1);
     solve_poisson(q,z,res);
@@ -404,20 +404,20 @@ public:
     
 
     // SOLVE STATE EQUATION
-    std::shared_ptr<vector> up = std::make_shared<vector>(nu_,0.0);
+    ROL::SharedPointer<vector> up = ROL::makeShared<vector>(nu_,0.0);
     SV u( up );
 
     solve_state_equation(u,z);
 
     // COMPUTE MISFIT
-    std::shared_ptr<vector> rp = std::make_shared<vector>(nu_,0.0);
+    ROL::SharedPointer<vector> rp = ROL::makeShared<vector>(nu_,0.0);
     SV res( rp );
 
     for ( uint i = 0; i < nu_; i++) {
       (*rp)[i] = ((*up)[i]-evaluate_target((Real)(i+1)*hu_));
     }
 
-    std::shared_ptr<V> Mres = res.clone();
+    ROL::SharedPointer<V> Mres = res.clone();
     apply_mass(*Mres,res);
     return 0.5*Mres->dot(res) + reg_value(z);
   } 
@@ -427,18 +427,18 @@ public:
      
 
     // SOLVE STATE EQUATION
-    SV u( std::make_shared<vector>(nu_,0.0) );
+    SV u( ROL::makeShared<vector>(nu_,0.0) );
     solve_state_equation(u,z);
 
     // SOLVE ADJOINT EQUATION
-    SV p( std::make_shared<std::vector<Real>>(nu_,0.0) );
+    SV p( ROL::makeShared<std::vector<Real>>(nu_,0.0) );
     solve_adjoint_equation(p,u,z);
 
     // Apply Transpose of Linearized Control Operator
     apply_transposed_linearized_control_operator(g,z,p,u);
    
     // Regularization gradient
-    SV g_reg( std::make_shared<vector>(nz_,0.0) );
+    SV g_reg( ROL::makeShared<vector>(nz_,0.0) );
     reg_gradient(g_reg,z); 
 
     // Build Gradient
@@ -450,26 +450,26 @@ public:
     
 
     // SOLVE STATE EQUATION
-    SV u( std::make_shared<vector>(nu_,0.0) );
+    SV u( ROL::makeShared<vector>(nu_,0.0) );
     solve_state_equation(u,z);
 
     // SOLVE ADJOINT EQUATION
-    SV p( std::make_shared<vector>(nu_,0.0) );
+    SV p( ROL::makeShared<vector>(nu_,0.0) );
     solve_adjoint_equation(p,u,z);
 
     // SOLVE STATE SENSITIVITY EQUATION
-    SV w( std::make_shared<vector>(nu_,0.0) );
+    SV w( ROL::makeShared<vector>(nu_,0.0) );
     solve_state_sensitivity_equation(w,v,u,z);
 
     // SOLVE ADJOINT SENSITIVITY EQUATION
-    SV q( std::make_shared<vector>(nu_,0.0) );
+    SV q( ROL::makeShared<vector>(nu_,0.0) );
     solve_adjoint_sensitivity_equation(q,w,v,p,u,z);
 
     // Apply Transpose of Linearized Control Operator
     apply_transposed_linearized_control_operator(hv,z,q,u);
   
     // Apply Transpose of Linearized Control Operator
-    SV tmp( std::make_shared<vector>(nz_,0.0) );
+    SV tmp( ROL::makeShared<vector>(nz_,0.0) );
     apply_transposed_linearized_control_operator(tmp,z,w,p);
     hv.axpy(-1.0,tmp); 
 
@@ -479,7 +479,7 @@ public:
     hv.plus(tmp);
 
     // Regularization hessVec
-    SV hv_reg( std::make_shared<vector>(nz_,0.0) );
+    SV hv_reg( ROL::makeShared<vector>(nz_,0.0) );
     reg_hessVec(hv_reg,v,z);
 
     // Build hessVec
@@ -493,7 +493,7 @@ public:
     
 
     // Cast hv and v vectors to std::vector.
-    std::shared_ptr<vector> hvp       = getVector(hv);
+    ROL::SharedPointer<vector> hvp       = getVector(hv);
 
     std::vector<Real> vp(*getVector(v));
 
@@ -541,21 +541,21 @@ public:
 };
 
 template<class Real>
-void getPoissonInversion( std::shared_ptr<Objective<Real> > &obj,
-                          std::shared_ptr<Vector<Real> >    &x0,
-                          std::shared_ptr<Vector<Real> >    &x ) {
+void getPoissonInversion( ROL::SharedPointer<Objective<Real> > &obj,
+                          ROL::SharedPointer<Vector<Real> >    &x0,
+                          ROL::SharedPointer<Vector<Real> >    &x ) {
   // Problem dimension
   int n = 128;
 
   // Get Initial Guess
-  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(n,0.0);
   for ( int i = 0; i < n; i++ ) {
     (*x0p)[i] = 1.5;
   }
-  x0 = std::make_shared<StdVector<Real>>(x0p);
+  x0 = ROL::makeShared<StdVector<Real>>(x0p);
 
   // Get Solution
-  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > xp = ROL::makeShared<std::vector<Real>>(n,0.0);
   Real h = 1.0/((Real)n+1), pt = 0.0, k1 = 1.0, k2 = 2.0;
   for( int i = 0; i < n; i++ ) {
     pt = (Real)(i+1)*h;
@@ -566,10 +566,10 @@ void getPoissonInversion( std::shared_ptr<Objective<Real> > &obj,
       (*xp)[i] = std::log(k2); 
     }
   }
-  x = std::make_shared<StdVector<Real>>(xp);
+  x = ROL::makeShared<StdVector<Real>>(xp);
 
   // Instantiate Objective Function
-  obj = std::make_shared<Objective_PoissonInversion<Real>>(n,1.e-6);
+  obj = ROL::makeShared<Objective_PoissonInversion<Real>>(n,1.e-6);
 }
 
 } // End ZOO Namespace

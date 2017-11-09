@@ -72,10 +72,10 @@ namespace ROL {
 template <class Real>
 class NonlinearLeastSquaresObjective : public Objective<Real> {
 private:
-  const std::shared_ptr<Constraint<Real> > con_;
+  const ROL::SharedPointer<Constraint<Real> > con_;
   const bool GaussNewtonHessian_;
 
-  std::shared_ptr<Vector<Real> > c1_, c2_, c1dual_, x_;
+  ROL::SharedPointer<Vector<Real> > c1_, c2_, c1dual_, x_;
 
 public:
   /** \brief Constructor. 
@@ -85,7 +85,7 @@ public:
       @param[in]          vec   is a constraint space vector used for cloning.
       @param[in]          GHN   is a flag dictating whether or not to use the Gauss-Newton Hessian.
   */
-  NonlinearLeastSquaresObjective(const std::shared_ptr<Constraint<Real> > &con,
+  NonlinearLeastSquaresObjective(const ROL::SharedPointer<Constraint<Real> > &con,
                                  const Vector<Real> &optvec,
                                  const Vector<Real> &convec,
                                  const bool GNH = false)

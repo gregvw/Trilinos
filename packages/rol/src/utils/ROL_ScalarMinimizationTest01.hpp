@@ -111,8 +111,8 @@ public:
     Real fx = 0, x = 0, A = 0, B = 0;
     int nfval = 0, ngrad = 0;
     bool flag = true;
-    std::shared_ptr<ScalarFunction<Real> > f
-      = std::make_shared<ScalarFunctionTest01>();
+    ROL::SharedPointer<ScalarFunction<Real> > f
+      = ROL::makeShared<ScalarFunctionTest01>();
 
     stream << "\nScalar Minimization Test 01\n";
     stream << "  ";

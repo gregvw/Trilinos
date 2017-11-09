@@ -46,7 +46,7 @@
 
 #include "ROL_Objective.hpp"
 #include "ROL_Vector.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 
 /** @ingroup func_group
     \class ROL::QuadraticObjective
@@ -69,13 +69,13 @@ namespace ROL {
 template <class Real>
 class QuadraticObjective : public Objective<Real> {
 private:
-  const std::shared_ptr<const LinearOperator<Real> > op_;
-  const std::shared_ptr<const Vector<Real> > vec_;
-  std::shared_ptr<Vector<Real> > tmp_;
+  const ROL::SharedPointer<const LinearOperator<Real> > op_;
+  const ROL::SharedPointer<const Vector<Real> > vec_;
+  ROL::SharedPointer<Vector<Real> > tmp_;
 
 public:
-  QuadraticObjective(const std::shared_ptr<const LinearOperator<Real> > &op,
-                  const std::shared_ptr<const Vector<Real> > &vec)
+  QuadraticObjective(const ROL::SharedPointer<const LinearOperator<Real> > &op,
+                  const ROL::SharedPointer<const Vector<Real> > &vec)
     : op_(op), vec_(vec) {
     tmp_ = vec_->dual().clone();
   }

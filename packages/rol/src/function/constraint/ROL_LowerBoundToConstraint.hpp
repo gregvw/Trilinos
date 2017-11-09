@@ -56,7 +56,7 @@ namespace ROL {
 template <class Real>
 class LowerBoundToConstraint : public Constraint<Real> {
 private:
-  std::shared_ptr<Vector<Real> > lo_;
+  ROL::SharedPointer<Vector<Real> > lo_;
 
 public:
   LowerBoundToConstraint(BoundConstraint<Real> &bnd) {

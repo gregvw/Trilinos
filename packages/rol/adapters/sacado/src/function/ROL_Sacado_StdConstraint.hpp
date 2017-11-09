@@ -148,7 +148,7 @@ void Sacado_StdConstraint<Real,Constr>::applyJacobianAD(vector<ScalarT> &jv, con
     int m = jv.size();
 
     // Create a vector of independent variables
-    std::shared_ptr<Fadvector> x_fad = std::make_shared<Fadvector>();
+    ROL::SharedPointer<Fadvector> x_fad = ROL::makeShared<Fadvector>();
 
     x_fad->reserve(n);
 
@@ -185,7 +185,7 @@ void Sacado_StdConstraint<Real,Constr>::applyAdjointJacobianAD(vector<ScalarT> &
     int m = u.size();
 
     // Create a vector of independent variables
-    std::shared_ptr<Fadvector> x_fad = std::make_shared<Fadvector>();
+    ROL::SharedPointer<Fadvector> x_fad = ROL::makeShared<Fadvector>();
 
     x_fad->reserve(n);
 
@@ -227,7 +227,7 @@ void Sacado_StdConstraint<Real,Constr>::applyAdjointHessianAD(vector<ScalarT> &a
   int n = x.size();
   
   // Create a vector of independent variables
-  std::shared_ptr<Fadvector> x_fad = std::make_shared<Fadvector>();
+  ROL::SharedPointer<Fadvector> x_fad = ROL::makeShared<Fadvector>();
 
   x_fad->reserve(n);
 

@@ -77,13 +77,13 @@ typedef H1VectorPrimal<RealT> DualConstraintVector;
 int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Teuchos::DefaultComm<int>::getComm();
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
   bool print = (iprint>0);
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (print)
     outStream = &std::cout, false;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
     outStream = &bhs, false;
     
   bool print0 = print && !comm->getRank();
-  std::shared_ptr<std::ostream> outStream0;
+  ROL::SharedPointer<std::ostream> outStream0;
   if (print0)
     outStream0 = &std::cout, false; 
   else
@@ -110,91 +110,91 @@ int main(int argc, char *argv[]) {
     RealT nl    = 1.0;   // Nonlinearity parameter (1 = Burgers, 0 = linear).
     RealT cH1   = 1.0;   // Scale for derivative term in H1 norm.
     RealT cL2   = 0.0;   // Scale for mass term in H1 norm.
-    std::shared_ptr<BurgersFEM<RealT> > fem
-      = std::make_shared<BurgersFEM<RealT>>(nx,nl,cH1,cL2);
+    ROL::SharedPointer<BurgersFEM<RealT> > fem
+      = ROL::makeShared<BurgersFEM<RealT>>(nx,nl,cH1,cL2);
     fem->test_inverse_mass(*outStream0);
     fem->test_inverse_H1(*outStream0);
     /*************************************************************************/
     /************* INITIALIZE SIMOPT OBJECTIVE FUNCTION **********************/
     /*************************************************************************/
-    std::shared_ptr<std::vector<RealT> > ud_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<ROL::Vector<RealT> > ud
-      = std::make_shared<L2VectorPrimal<RealT>>(ud_rcp,fem);
-    std::shared_ptr<ROL::Objective_SimOpt<RealT> > pobj
-      = std::make_shared<Objective_BurgersControl<RealT>>(fem,ud,alpha);
+    ROL::SharedPointer<std::vector<RealT> > ud_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > ud
+      = ROL::makeShared<L2VectorPrimal<RealT>>(ud_rcp,fem);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > pobj
+      = ROL::makeShared<Objective_BurgersControl<RealT>>(fem,ud,alpha);
     /*************************************************************************/
     /************* INITIALIZE SIMOPT EQUALITY CONSTRAINT *********************/
     /*************************************************************************/
     bool hess = true;
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > pcon
-      = std::make_shared<Constraint_BurgersControl<RealT>>(fem,hess);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > pcon
+      = ROL::makeShared<Constraint_BurgersControl<RealT>>(fem,hess);
     /*************************************************************************/
     /************* INITIALIZE VECTOR STORAGE *********************************/
     /*************************************************************************/
     // INITIALIZE CONTROL VECTORS
-    std::shared_ptr<std::vector<RealT> > z_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 1.0);
-    std::shared_ptr<std::vector<RealT> > gz_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 1.0);
-    std::shared_ptr<std::vector<RealT> > yz_rcp
-      = std::make_shared<std::vector<RealT>>(nx+2, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > gz_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > yz_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx+2, 1.0);
     for (int i=0; i<nx+2; i++) {
       (*yz_rcp)[i] = 2.0*random<RealT>(comm)-1.0;
     }
-    std::shared_ptr<ROL::Vector<RealT> > zp
-      = std::make_shared<PrimalControlVector>(z_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > gzp
-      = std::make_shared<DualControlVector>(gz_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > yzp
-      = std::make_shared<PrimalControlVector>(yz_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > zp
+      = ROL::makeShared<PrimalControlVector>(z_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > gzp
+      = ROL::makeShared<DualControlVector>(gz_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > yzp
+      = ROL::makeShared<PrimalControlVector>(yz_rcp,fem);
     RealT zvar = 0.0*random<RealT>(comm);
     RealT gvar = random<RealT>(comm);
     RealT yvar = random<RealT>(comm);
-    std::shared_ptr<Teuchos::ParameterList> hmcrlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> hmcrlist = ROL::makeShared<Teuchos::ParameterList>();
     hmcrlist->sublist("SOL").sublist("Risk Measure").set("Name","HMCR");
     ROL::RiskVector<RealT> z(hmcrlist,zp,zvar), g(hmcrlist,gzp,gvar), y(hmcrlist,yzp,yvar);
     // INITIALIZE STATE VECTORS
-    std::shared_ptr<std::vector<RealT> > u_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<std::vector<RealT> > gu_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<ROL::Vector<RealT> > up
-      = std::make_shared<PrimalStateVector>(u_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > gup
-      = std::make_shared<DualStateVector>(gu_rcp,fem);
+    ROL::SharedPointer<std::vector<RealT> > u_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > gu_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<ROL::Vector<RealT> > up
+      = ROL::makeShared<PrimalStateVector>(u_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > gup
+      = ROL::makeShared<DualStateVector>(gu_rcp,fem);
     // INITIALIZE CONSTRAINT VECTORS
-    std::shared_ptr<std::vector<RealT> > c_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
-    std::shared_ptr<std::vector<RealT> > l_rcp
-      = std::make_shared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > c_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > l_rcp
+      = ROL::makeShared<std::vector<RealT>>(nx, 1.0);
     for (int i=0; i<nx; i++) {
       (*l_rcp)[i] = random<RealT>(comm);
     }
-    std::shared_ptr<ROL::Vector<RealT> > cp
-      = std::make_shared<PrimalConstraintVector>(c_rcp,fem);
-    std::shared_ptr<ROL::Vector<RealT> > lp
-      = std::make_shared<DualConstraintVector>(l_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > cp
+      = ROL::makeShared<PrimalConstraintVector>(c_rcp,fem);
+    ROL::SharedPointer<ROL::Vector<RealT> > lp
+      = ROL::makeShared<DualConstraintVector>(l_rcp,fem);
     /*************************************************************************/
     /************* INITIALIZE SAMPLE GENERATOR *******************************/
     /*************************************************************************/
     int dim = 4, nSamp = 1000;
     std::vector<RealT> tmp(2,0.0); tmp[0] = -1.0; tmp[1] = 1.0;
     std::vector<std::vector<RealT> > bounds(dim,tmp);
-    std::shared_ptr<ROL::BatchManager<RealT> > bman
-      = std::make_shared<L2VectorBatchManager<RealT,int>>(comm);
-    std::shared_ptr<ROL::SampleGenerator<RealT> > sampler
+    ROL::SharedPointer<ROL::BatchManager<RealT> > bman
+      = ROL::makeShared<L2VectorBatchManager<RealT,int>>(comm);
+    ROL::SharedPointer<ROL::SampleGenerator<RealT> > sampler
       = Teuchos::rcp(new ROL::MonteCarloGenerator<RealT>(
           nSamp,bounds,bman,false,false,100));
     /*************************************************************************/
     /************* INITIALIZE RISK-AVERSE OBJECTIVE FUNCTION *****************/
     /*************************************************************************/
     bool storage = true, fdhess = false;
-    std::shared_ptr<ROL::Objective<RealT> > robj
+    ROL::SharedPointer<ROL::Objective<RealT> > robj
       = Teuchos::rcp(new ROL::Reduced_Objective_SimOpt<RealT>(
           pobj,pcon,up,zp,lp,gup,gzp,cp,storage,fdhess));
     RealT order = 2.0, prob = 0.95;
-    std::shared_ptr<ROL::Objective<RealT> > obj
+    ROL::SharedPointer<ROL::Objective<RealT> > obj
       = Teuchos::rcp(new ROL::HMCRObjective<RealT>(
           robj,order,prob,sampler,storage));
     /*************************************************************************/
@@ -231,8 +231,8 @@ int main(int argc, char *argv[]) {
     /*************************************************************************/
     // READ IN XML INPUT
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist
-      = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist
+      = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     // DEFINE ALGORITHM
     ROL::Algorithm<RealT> algo("Trust Region",*parlist,false);

@@ -63,10 +63,10 @@ template<class Real>
 class MultiVector {
 
     typedef Vector<Real>          V;       // Single vector
-    typedef std::shared_ptr<V>       PV;      // Pointer to a vector
+    typedef ROL::SharedPointer<V>       PV;      // Pointer to a vector
     typedef Teuchos::ArrayRCP<PV> APV;     // Array of pointers to vectors
     typedef MultiVector<Real>     MV;      // Instance of the base class
-    typedef std::shared_ptr<MV>      PMV;     // Pointer to an instance of the class
+    typedef ROL::SharedPointer<MV>      PMV;     // Pointer to an instance of the class
 
     public:
 

@@ -81,16 +81,16 @@ class OptStdVector : public ROL::Vector<Real> {
   typedef typename vector::size_type uint;
 
 private:
-std::shared_ptr<std::vector<Element> >  std_vec_;
-mutable std::shared_ptr<OptDualStdVector<Real> >  dual_vec_;
+ROL::SharedPointer<std::vector<Element> >  std_vec_;
+mutable ROL::SharedPointer<OptDualStdVector<Real> >  dual_vec_;
 
 public:
 
-OptStdVector(const std::shared_ptr<std::vector<Element> > & std_vec) : std_vec_(std_vec), dual_vec_(nullptr) {}
+OptStdVector(const ROL::SharedPointer<std::vector<Element> > & std_vec) : std_vec_(std_vec), dual_vec_(ROL::nullPointer) {}
 
 void plus( const ROL::Vector<Real> &x ) {
      
-  std::shared_ptr<const vector> xvalptr = dynamic_cast<const OptStdVector&>(x).getVector(); 
+  ROL::SharedPointer<const vector> xvalptr = dynamic_cast<const OptStdVector&>(x).getVector(); 
   uint dimension  = std_vec_->size();
   for (uint i=0; i<dimension; i++) {
     (*std_vec_)[i] += (*xvalptr)[i];
@@ -107,7 +107,7 @@ void scale( const Real alpha ) {
 Real dot( const ROL::Vector<Real> &x ) const {
   Real val = 0;
     
-  std::shared_ptr<const vector> xvalptr = dynamic_cast<const OptStdVector&>(x).getVector(); 
+  ROL::SharedPointer<const vector> xvalptr = dynamic_cast<const OptStdVector&>(x).getVector(); 
   uint dimension  = std_vec_->size();
   for (uint i=0; i<dimension; i++) {
     val += (*std_vec_)[i]*(*xvalptr)[i];
@@ -121,24 +121,24 @@ Real norm() const {
   return val;
 }
 
-std::shared_ptr<ROL::Vector<Real> > clone() const {
-  return std::make_shared<OptStdVector( Teuchos::std::make_shared<std::vector<Element>(std_vec_->size>>()) );
+ROL::SharedPointer<ROL::Vector<Real> > clone() const {
+  return ROL::makeShared<OptStdVector( Teuchos::ROL::makeShared<std::vector<Element>(std_vec_->size>>()) );
 }
 
-std::shared_ptr<const std::vector<Element> > getVector() const {
+ROL::SharedPointer<const std::vector<Element> > getVector() const {
   return std_vec_;
 }
 
-std::shared_ptr<std::vector<Element> > getVector() {
+ROL::SharedPointer<std::vector<Element> > getVector() {
   return std_vec_;
 }
 
-std::shared_ptr<ROL::Vector<Real> > basis( const int i ) const {
+ROL::SharedPointer<ROL::Vector<Real> > basis( const int i ) const {
     
-  std::shared_ptr<vector> e_rcp = std::make_shared<vector(std_vec_->size>(),0.0);
+  ROL::SharedPointer<vector> e_rcp = ROL::makeShared<vector(std_vec_->size>(),0.0);
   (*e_rcp)[i] = 1.0;
   
-  std::shared_ptr<V> e = std::make_shared<OptStdVector>( e_rcp );
+  ROL::SharedPointer<V> e = ROL::makeShared<OptStdVector>( e_rcp );
   
   return e;
 }
@@ -146,7 +146,7 @@ std::shared_ptr<ROL::Vector<Real> > basis( const int i ) const {
 int dimension() const {return static_cast<int>(std_vec_->size());}
 
 const ROL::Vector<Real> & dual() const {
-  dual_vec_ = std::make_shared<OptDualStdVector<Real>( Teuchos::std::make_shared<std::vector<Element>>>(*std_vec_) );
+  dual_vec_ = ROL::makeShared<OptDualStdVector<Real>( Teuchos::ROL::makeShared<std::vector<Element>>>(*std_vec_) );
   return *dual_vec_;
 }
 
@@ -163,16 +163,16 @@ class OptDualStdVector : public ROL::Vector<Real> {
   typedef typename vector::size_type uint;
 
 private:
-std::shared_ptr<std::vector<Element> >  std_vec_;
-mutable std::shared_ptr<OptStdVector<Real> >  dual_vec_;
+ROL::SharedPointer<std::vector<Element> >  std_vec_;
+mutable ROL::SharedPointer<OptStdVector<Real> >  dual_vec_;
 
 public:
 
-OptDualStdVector(const std::shared_ptr<std::vector<Element> > & std_vec) : std_vec_(std_vec), dual_vec_(nullptr) {}
+OptDualStdVector(const ROL::SharedPointer<std::vector<Element> > & std_vec) : std_vec_(std_vec), dual_vec_(ROL::nullPointer) {}
 
 void plus( const ROL::Vector<Real> &x ) {
       
-  std::shared_ptr<const vector> xvalptr = dynamic_cast<const OptDualStdVector&>(x).getVector(); 
+  ROL::SharedPointer<const vector> xvalptr = dynamic_cast<const OptDualStdVector&>(x).getVector(); 
 
   uint dimension  = std_vec_->size();
   for (uint i=0; i<dimension; i++) {
@@ -190,7 +190,7 @@ void scale( const Real alpha ) {
 Real dot( const ROL::Vector<Real> &x ) const {
   Real val = 0;
      
-  std::shared_ptr<const vector> xvalptr = dynamic_cast<const OptDualStdVector&>(x).getVector(); 
+  ROL::SharedPointer<const vector> xvalptr = dynamic_cast<const OptDualStdVector&>(x).getVector(); 
   uint dimension  = std_vec_->size();
   for (uint i=0; i<dimension; i++) {
     val += (*std_vec_)[i]*(*xvalptr)[i];
@@ -204,31 +204,31 @@ Real norm() const {
   return val;
 }
 
-std::shared_ptr<ROL::Vector<Real> > clone() const {
-  return std::make_shared<OptDualStdVector( Teuchos::std::make_shared<std::vector<Element>(std_vec_->size>>()) );
+ROL::SharedPointer<ROL::Vector<Real> > clone() const {
+  return ROL::makeShared<OptDualStdVector( Teuchos::ROL::makeShared<std::vector<Element>(std_vec_->size>>()) );
 }
 
-std::shared_ptr<const std::vector<Element> > getVector() const {
+ROL::SharedPointer<const std::vector<Element> > getVector() const {
   return std_vec_;
 }
 
-std::shared_ptr<std::vector<Element> > getVector() {
+ROL::SharedPointer<std::vector<Element> > getVector() {
   return std_vec_;
 }
 
-std::shared_ptr<ROL::Vector<Real> > basis( const int i ) const {
+ROL::SharedPointer<ROL::Vector<Real> > basis( const int i ) const {
     
-  std::shared_ptr<vector> e_rcp = std::make_shared<vector(std_vec_->size>(),0.0);
+  ROL::SharedPointer<vector> e_rcp = ROL::makeShared<vector(std_vec_->size>(),0.0);
   (*e_rcp)[i] = 1.0;
   
-  std::shared_ptr<V> e = std::make_shared<OptDualStdVector>( e_rcp );
+  ROL::SharedPointer<V> e = ROL::makeShared<OptDualStdVector>( e_rcp );
   return e;
 }
 
 int dimension() const {return std_vec_->size();}
 
 const ROL::Vector<Real> & dual() const {
-  dual_vec_ = std::make_shared<OptStdVector<Real>( Teuchos::std::make_shared<std::vector<Element>>>(*std_vec_) );
+  dual_vec_ = ROL::makeShared<OptStdVector<Real>( Teuchos::ROL::makeShared<std::vector<Element>>>(*std_vec_) );
   return *dual_vec_;
 }
 
@@ -248,7 +248,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -278,8 +278,8 @@ int main(int argc, char *argv[]) {
     ROL::Algorithm<RealT> algo(stepname,parlist);
 
     // Iteration Vector
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
-    std::shared_ptr<std::vector<RealT> > g_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > g_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     // Set Initial Guess
     for (int i=0; i<dim/2; i++) {
       (*x_rcp)[2*i]   = -1.2;
@@ -291,11 +291,11 @@ int main(int argc, char *argv[]) {
     OptStdVector<RealT> x(x_rcp); // Iteration Vector
     OptDualStdVector<RealT> g(g_rcp); // zeroed gradient vector in dual space
 
-    std::shared_ptr<std::vector<RealT> > aa_rcp = std::make_shared<std::vector<RealT>>(1, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > aa_rcp = ROL::makeShared<std::vector<RealT>>(1, 1.0);
     OptDualStdVector<RealT> av(aa_rcp);
-    std::shared_ptr<std::vector<RealT> > bb_rcp = std::make_shared<std::vector<RealT>>(1, 2.0);
+    ROL::SharedPointer<std::vector<RealT> > bb_rcp = ROL::makeShared<std::vector<RealT>>(1, 2.0);
     OptDualStdVector<RealT> bv(bb_rcp);
-    std::shared_ptr<std::vector<RealT> > cc_rcp = std::make_shared<std::vector<RealT>>(1, 3.0);
+    ROL::SharedPointer<std::vector<RealT> > cc_rcp = ROL::makeShared<std::vector<RealT>>(1, 3.0);
     OptDualStdVector<RealT> cv(cc_rcp);
     std::vector<RealT> std_vec_err = av.checkVector(bv,cv,true,*outStream);
 
@@ -303,7 +303,7 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> output = algo.run(x,g, obj, true, *outStream);
 
     // Get True Solution
-    std::shared_ptr<std::vector<RealT> > xtrue_rcp = std::make_shared<std::vector<RealT>>(dim, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > xtrue_rcp = ROL::makeShared<std::vector<RealT>>(dim, 1.0);
     OptStdVector<RealT> xtrue(xtrue_rcp); 
    
     // Compute Errors
@@ -315,7 +315,7 @@ int main(int argc, char *argv[]) {
     if ( relerr > sqrt(ROL::ROL_EPSILON<RealT>()) ) {
       errorFlag += 1;
     }
-    std::shared_ptr<std::vector<RealT> > vec_err_rcp = std::make_shared<std::vector<RealT>>(std_vec_err);
+    ROL::SharedPointer<std::vector<RealT> > vec_err_rcp = ROL::makeShared<std::vector<RealT>>(std_vec_err);
     ROL::StdVector<RealT> vec_err(vec_err_rcp);
     *outStream << std::scientific << "\n   Linear algebra error: " << vec_err.norm() << std::endl;
     if ( vec_err.norm() > 1e2*ROL::ROL_EPSILON<RealT>() ) {

@@ -63,16 +63,16 @@ class BlockOperator2Determinant : public LinearOperator<Real> {
  
 private:
 
-  std::shared_ptr<OP> A_, B_, C_, D_;
-  std::shared_ptr<V> scratch_;  
+  ROL::SharedPointer<OP> A_, B_, C_, D_;
+  ROL::SharedPointer<V> scratch_;  
 
 public:
 
-  BlockOperator2Determinant( std::shared_ptr<OP> &A, 
-                             std::shared_ptr<OP> &B, 
-                             std::shared_ptr<OP> &C, 
-                             std::shared_ptr<OP> &D,
-                             std::shared_ptr<V>  &scratch ) : 
+  BlockOperator2Determinant( ROL::SharedPointer<OP> &A, 
+                             ROL::SharedPointer<OP> &B, 
+                             ROL::SharedPointer<OP> &C, 
+                             ROL::SharedPointer<OP> &D,
+                             ROL::SharedPointer<V>  &scratch ) : 
     A_(A), B_(B), C_(C), D_(D), scratch_(scratch) {}
 
 

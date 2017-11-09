@@ -68,12 +68,12 @@ class BlockOperator2UnitLower : public LinearOperator<Real> {
 
 private:
 
-  std::shared_ptr<OP> C_;
+  ROL::SharedPointer<OP> C_;
 
 
 public:   
 
-  BlockOperator2UnitLower( std::shared_ptr<OP> &C ) : C_(C) {}
+  BlockOperator2UnitLower( ROL::SharedPointer<OP> &C ) : C_(C) {}
   }
 
   void apply( V &Hv, const V &v, Real &tol ) const {
@@ -82,10 +82,10 @@ public:
     PV &Hv_pv = dynamic_cast<PV&>(Hv);
     const PV &v_pv = dynamic_cast<const PV&>(v);
       
-    std::shared_ptr<V> Hv1 = Hv_pv.get(0);
-    std::shared_ptr<V> Hv2 = Hv_pv.get(1);
-    std::shared_ptr<const V> v1 = v_pv.get(0);
-    std::shared_ptr<const V> v2 = v_pv.get(1);
+    ROL::SharedPointer<V> Hv1 = Hv_pv.get(0);
+    ROL::SharedPointer<V> Hv2 = Hv_pv.get(1);
+    ROL::SharedPointer<const V> v1 = v_pv.get(0);
+    ROL::SharedPointer<const V> v2 = v_pv.get(1);
 
     Hv1->set(*v1);
     C_->apply(*Hv2,*v1,tol);
@@ -99,10 +99,10 @@ public:
     PV &Hv_pv = dynamic_cast<PV&>(Hv);
     const PV &v_pv = dynamic_cast<const PV&>(v);
       
-    std::shared_ptr<V> Hv1 = Hv_pv.get(0);
-    std::shared_ptr<V> Hv2 = Hv_pv.get(1);
-    std::shared_ptr<const V> v1 = v_pv.get(0);
-    std::shared_ptr<const V> v2 = v_pv.get(1);
+    ROL::SharedPointer<V> Hv1 = Hv_pv.get(0);
+    ROL::SharedPointer<V> Hv2 = Hv_pv.get(1);
+    ROL::SharedPointer<const V> v1 = v_pv.get(0);
+    ROL::SharedPointer<const V> v2 = v_pv.get(1);
  
     Hv1->set(*v1);
     C_->apply(*Hv2,*v1,tol);
@@ -111,7 +111,7 @@ public:
 
   } 
 
-  std::shared_ptr<LinearOperator<Real> > getOperator( int row, int col ) const {
+  ROL::SharedPointer<LinearOperator<Real> > getOperator( int row, int col ) const {
     if( row == 1 && col == 0 ) {
       return C_;
     } 

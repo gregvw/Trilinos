@@ -60,27 +60,27 @@
 #include "Intrepid_FunctionSpaceTools.hpp"
 #include "Intrepid_CellTools.hpp"
 
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 
 template <class Real>
 class PDE_Poisson : public PDE<Real> {
 private:
   // Finite element basis information
-  std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > basisPtr_;
-  std::vector<std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > basisPtrs_;
+  ROL::SharedPointer<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > basisPtr_;
+  std::vector<ROL::SharedPointer<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > basisPtrs_;
   // Cell cubature information
-  std::shared_ptr<Intrepid::Cubature<Real> > cellCub_;
+  ROL::SharedPointer<Intrepid::Cubature<Real> > cellCub_;
   // Cell node information
-  std::shared_ptr<Intrepid::FieldContainer<Real> > volCellNodes_;
-  std::vector<std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > > bdryCellNodes_;
+  ROL::SharedPointer<Intrepid::FieldContainer<Real> > volCellNodes_;
+  std::vector<std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > > bdryCellNodes_;
   std::vector<std::vector<std::vector<int> > > bdryCellLocIds_;
   // Finite element definition
-  std::shared_ptr<FE<Real> > fe_vol_;
+  ROL::SharedPointer<FE<Real> > fe_vol_;
   // Local degrees of freedom on boundary, for each side of the reference cell (first index).
   std::vector<std::vector<int> > fidx_;
   // Coordinates of degrees freedom on boundary cells.
   // Indexing:  [sideset number][local side id](cell number, value at dof)
-  std::vector<std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > > bdryCellDofValues_;
+  std::vector<std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > > bdryCellDofValues_;
 
   bool useStateRiesz_;
   bool useControlRiesz_;
@@ -102,7 +102,7 @@ private:
     return s1/(alpha_*coeff1*coeff2*pi*pi) + coeff2*pi*pi*s2;
   }
 
-  void computeRHS(std::shared_ptr<Intrepid::FieldContainer<Real> > &rhs) const {
+  void computeRHS(ROL::SharedPointer<Intrepid::FieldContainer<Real> > &rhs) const {
     // GET DIMENSIONS
     int c = fe_vol_->gradN()->dimension(0);
     int p = fe_vol_->gradN()->dimension(2);
@@ -134,20 +134,20 @@ public:
         ">>> PDE-OPT/poisson/pde_poisson.hpp: Basis order is not 1 or 2!");
     }
     if (probDim == 1) {
-      basisPtr_ = std::make_shared<Intrepid::Basis_HGRAD_LINE_Cn_FEM<Real, Intrepid::FieldContainer<Real> >>(basisOrder,Intrepid::POINTTYPE_EQUISPACED);
+      basisPtr_ = ROL::makeShared<Intrepid::Basis_HGRAD_LINE_Cn_FEM<Real, Intrepid::FieldContainer<Real> >>(basisOrder,Intrepid::POINTTYPE_EQUISPACED);
     } else if (probDim == 2) {
       if (basisOrder == 1) {
-        basisPtr_ = std::make_shared<Intrepid::Basis_HGRAD_QUAD_C1_FEM<Real, Intrepid::FieldContainer<Real> >>();
+        basisPtr_ = ROL::makeShared<Intrepid::Basis_HGRAD_QUAD_C1_FEM<Real, Intrepid::FieldContainer<Real> >>();
       }
       else if (basisOrder == 2) {
-        basisPtr_ = std::make_shared<Intrepid::Basis_HGRAD_QUAD_C2_FEM<Real, Intrepid::FieldContainer<Real> >>();
+        basisPtr_ = ROL::makeShared<Intrepid::Basis_HGRAD_QUAD_C2_FEM<Real, Intrepid::FieldContainer<Real> >>();
       }
     } else if (probDim == 3) {
       if (basisOrder == 1) {
-        basisPtr_ = std::make_shared<Intrepid::Basis_HGRAD_HEX_C1_FEM<Real, Intrepid::FieldContainer<Real> >>();
+        basisPtr_ = ROL::makeShared<Intrepid::Basis_HGRAD_HEX_C1_FEM<Real, Intrepid::FieldContainer<Real> >>();
       }
       else if (basisOrder == 2) {
-        basisPtr_ = std::make_shared<Intrepid::Basis_HGRAD_HEX_C2_FEM<Real, Intrepid::FieldContainer<Real> >>();
+        basisPtr_ = ROL::makeShared<Intrepid::Basis_HGRAD_HEX_C2_FEM<Real, Intrepid::FieldContainer<Real> >>();
       }
     }
     basisPtrs_.clear(); basisPtrs_.push_back(basisPtr_);
@@ -161,31 +161,31 @@ public:
     alpha_           = parlist.sublist("Problem").get("Control penalty parameter",1e-2);
   }
 
-  void residual(std::shared_ptr<Intrepid::FieldContainer<Real> > & res,
-                const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void residual(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & res,
+                const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
     int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
     int d = cellCub_->getDimension();
     // INITIALIZE RESIDUAL
-    res = std::make_shared<Intrepid::FieldContainer<Real>>(c, f);
+    res = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, f);
     // COMPUTE STIFFNESS TERM
-    std::shared_ptr<Intrepid::FieldContainer<Real> > gradU_eval
-      = std::make_shared<Intrepid::FieldContainer<Real>>(c, p, d);
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > gradU_eval
+      = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, p, d);
     fe_vol_->evaluateGradient(gradU_eval, u_coeff);
     Intrepid::FunctionSpaceTools::integrate<Real>(*res, *gradU_eval, *(fe_vol_->gradNdetJ()), Intrepid::COMP_CPP, false);
     // COMPUTE RHS
-    std::shared_ptr<Intrepid::FieldContainer<Real> > rhs
-      = std::make_shared<Intrepid::FieldContainer<Real>>(c, p);
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > rhs
+      = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, p);
     computeRHS(rhs);
     Intrepid::FunctionSpaceTools::integrate<Real>(*res, *rhs, *(fe_vol_->NdetJ()), Intrepid::COMP_CPP, true);
     // ADD CONTROL TERM TO RESIDUAL
-    if ( z_coeff != nullptr ) {
-      std::shared_ptr<Intrepid::FieldContainer<Real> > valZ_eval =
-        std::make_shared<Intrepid::FieldContainer<Real>>(c, p);
+    if ( z_coeff != ROL::nullPointer ) {
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > valZ_eval =
+        ROL::makeShared<Intrepid::FieldContainer<Real>>(c, p);
       fe_vol_->evaluateValue(valZ_eval, z_coeff);
       Intrepid::RealSpaceTools<Real>::scale(*valZ_eval,static_cast<Real>(-1));
       Intrepid::FunctionSpaceTools::integrate<Real>(*res, *valZ_eval, *(fe_vol_->NdetJ()), Intrepid::COMP_CPP, true);
@@ -210,15 +210,15 @@ public:
     }
   }
 
-  void Jacobian_1(std::shared_ptr<Intrepid::FieldContainer<Real> > & jac,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                  const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void Jacobian_1(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & jac,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                  const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
     int f = basisPtr_->getCardinality();
     // INITILAIZE JACOBIAN
-    jac = std::make_shared<Intrepid::FieldContainer<Real>>(c, f, f);
+    jac = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, f, f);
     // COMPUTE STIFFNESS TERM
     Intrepid::FunctionSpaceTools::integrate<Real>(*jac, *(fe_vol_->gradN()), *(fe_vol_->gradNdetJ()), Intrepid::COMP_CPP, false);
     // APPLY DIRICHLET CONDITIONS
@@ -244,16 +244,16 @@ public:
     }
   }
 
-  void Jacobian_2(std::shared_ptr<Intrepid::FieldContainer<Real> > & jac,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                  const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
-    if ( z_coeff != nullptr ) {
+  void Jacobian_2(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & jac,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                  const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
+    if ( z_coeff != ROL::nullPointer ) {
       // GET DIMENSIONS
       int c = u_coeff->dimension(0);
       int f = basisPtr_->getCardinality();
       // INITIALIZE JACOBIAN
-      jac = std::make_shared<Intrepid::FieldContainer<Real>>(c, f, f);
+      jac = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, f, f);
       // ADD CONTROL TERM
       Intrepid::FunctionSpaceTools::integrate<Real>(*jac, *(fe_vol_->N()), *(fe_vol_->NdetJ()), Intrepid::COMP_CPP, false);
       Intrepid::RealSpaceTools<Real>::scale(*jac,static_cast<Real>(-1));
@@ -283,39 +283,39 @@ public:
     }
   }
 
-  void Hessian_11(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & l_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                  const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void Hessian_11(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & l_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                  const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::Zero(">>> (PDE_Poisson::Hessian_11): Hessian is zero.");
   }
 
-  void Hessian_12(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & l_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                  const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void Hessian_12(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & l_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                  const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::Zero(">>> (PDE_Poisson::Hessian_12): Hessian is zero.");
   }
 
-  void Hessian_21(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & l_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                  const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void Hessian_21(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & l_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                  const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::Zero(">>> (PDE_Poisson::Hessian_21): Hessian is zero.");
   }
 
-  void Hessian_22(std::shared_ptr<Intrepid::FieldContainer<Real> > & hess,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & l_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
-                  const std::shared_ptr<const Intrepid::FieldContainer<Real> > & z_coeff = nullptr,
-                  const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void Hessian_22(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & hess,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & l_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::SharedPointer<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPointer,
+                  const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     throw Exception::Zero(">>> (PDE_Poisson::Hessian_22): Hessian is zero.");
   }
 
-  void RieszMap_1(std::shared_ptr<Intrepid::FieldContainer<Real> > & riesz) {
+  void RieszMap_1(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & riesz) {
     // Optionally disable Riesz map ...
     if (!useStateRiesz_) {
       throw Exception::NotImplemented(">>> (PDE_Poisson::RieszMap_1): Not implemented.");
@@ -326,12 +326,12 @@ public:
     int c = fe_vol_->N()->dimension(0);
     int f = fe_vol_->N()->dimension(1);
     // INITILAIZE JACOBIAN
-    riesz = std::make_shared<Intrepid::FieldContainer<Real>>(c, f, f);
+    riesz = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, f, f);
     *riesz = *fe_vol_->stiffMat();
     Intrepid::RealSpaceTools<Real>::add(*riesz,*(fe_vol_->massMat()));
   }
 
-  void RieszMap_2(std::shared_ptr<Intrepid::FieldContainer<Real> > & riesz) {
+  void RieszMap_2(ROL::SharedPointer<Intrepid::FieldContainer<Real> > & riesz) {
     // Optionally disable Riesz map ...
     if (!useControlRiesz_) {
       throw Exception::NotImplemented(">>> (PDE_Poisson::RieszMap_2): Not implemented.");
@@ -342,22 +342,22 @@ public:
     int c = fe_vol_->N()->dimension(0);
     int f = fe_vol_->N()->dimension(1);
     // INITILAIZE JACOBIAN
-    riesz = std::make_shared<Intrepid::FieldContainer<Real>>(c, f, f);
+    riesz = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, f, f);
     *riesz = *fe_vol_->massMat();
   }
 
-  std::vector<std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > getFields() {
+  std::vector<ROL::SharedPointer<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > getFields() {
     return basisPtrs_;
   }
 
-  void setCellNodes(const std::shared_ptr<Intrepid::FieldContainer<Real> > &volCellNodes,
-                    const std::vector<std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > > &bdryCellNodes,
+  void setCellNodes(const ROL::SharedPointer<Intrepid::FieldContainer<Real> > &volCellNodes,
+                    const std::vector<std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > > &bdryCellNodes,
                     const std::vector<std::vector<std::vector<int> > > &bdryCellLocIds) {
     volCellNodes_ = volCellNodes;
     bdryCellNodes_ = bdryCellNodes;
     bdryCellLocIds_ = bdryCellLocIds;
     // Finite element definition.
-    fe_vol_ = std::make_shared<FE<Real>>(volCellNodes_,basisPtr_,cellCub_);
+    fe_vol_ = ROL::makeShared<FE<Real>>(volCellNodes_,basisPtr_,cellCub_);
     // Set local boundary DOFs.
     fidx_ = fe_vol_->getBoundaryDofs();
     // Compute Dirichlet values at DOFs.
@@ -370,9 +370,9 @@ public:
       for (int j=0; j<numLocSides; ++j) {
         int c = bdryCellLocIds_[i][j].size();
         int f = basisPtr_->getCardinality();
-        bdryCellDofValues_[i][j] = std::make_shared<Intrepid::FieldContainer<Real>>(c, f);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > coords =
-          std::make_shared<Intrepid::FieldContainer<Real>>(c, f, d);
+        bdryCellDofValues_[i][j] = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, f);
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > coords =
+          ROL::makeShared<Intrepid::FieldContainer<Real>>(c, f, d);
         if (c > 0) {
           fe_vol_->computeDofCoords(coords, bdryCellNodes_[i][j]);
         }
@@ -389,7 +389,7 @@ public:
     }
   }
 
-  const std::shared_ptr<FE<Real> > getFE(void) const {
+  const ROL::SharedPointer<FE<Real> > getFE(void) const {
     return fe_vol_;
   }
 

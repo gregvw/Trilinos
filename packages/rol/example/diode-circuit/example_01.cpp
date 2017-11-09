@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
   try {
     
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     RealT V_th      = parlist->get("Thermal Voltage", 0.02585);
@@ -107,16 +107,16 @@ int main(int argc, char *argv[]) {
     bool plot           = parlist->get("Generate Plot Data",false);
     RealT noise         = parlist->get("Measurement Noise",0.0);
 
-    std::shared_ptr< ROL::ZOO::Objective_DiodeCircuit<RealT> > obj;
+    ROL::SharedPointer< ROL::ZOO::Objective_DiodeCircuit<RealT> > obj;
             
     if(datatype){
       // Get objective with data from file
       std::ifstream input_file("diode_forTimur.cir.dat");
-      obj = std::make_shared<ROL::ZOO::Objective_DiodeCircuit<RealT>>(V_th,input_file,use_lambertw,noise,use_adjoint,use_hessvec);
+      obj = ROL::makeShared<ROL::ZOO::Objective_DiodeCircuit<RealT>>(V_th,input_file,use_lambertw,noise,use_adjoint,use_hessvec);
     }
     else{
       // Generate data and get objective
-      obj = std::make_shared<ROL::ZOO::Objective_DiodeCircuit<RealT>>(V_th,lo_Vsrc,up_Vsrc,step_Vsrc,true_Is,true_Rs,use_lambertw,noise,use_adjoint,use_hessvec);
+      obj = ROL::makeShared<ROL::ZOO::Objective_DiodeCircuit<RealT>>(V_th,lo_Vsrc,up_Vsrc,step_Vsrc,true_Is,true_Rs,use_lambertw,noise,use_adjoint,use_hessvec);
     }
 
     
@@ -133,18 +133,18 @@ int main(int argc, char *argv[]) {
     ROL::Algorithm<RealT> algo(stepname, *parlist);
 
     // Iteration Vector
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     // Set Initial Guess
     (*x_rcp)[0] = init_Is; /// Is
     (*x_rcp)[1] = init_Rs; /// Rs
     // Scaling Vector
-    std::shared_ptr<std::vector<RealT> > scaling_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > scaling_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     (*scaling_rcp)[0] = 1e24; /// Is
     (*scaling_rcp)[1] = 1e01; /// Rs
     ROL::PrimalScaledStdVector<RealT> x(x_rcp,scaling_rcp);
 
     RealT tol = 1.e-12;
-    std::shared_ptr<std::vector<RealT> > g0_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);;
+    ROL::SharedPointer<std::vector<RealT> > g0_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);;
     ROL::DualScaledStdVector<RealT> g0p(g0_rcp,scaling_rcp);
     (*obj).gradient(g0p,x,tol);
     *outStream << std::scientific <<  "Initial gradient = " << (*g0_rcp)[0] << " " << (*g0_rcp)[1] << "\n";
@@ -158,20 +158,20 @@ int main(int argc, char *argv[]) {
 
     /// Define constraints on Is and Rs.
     // Bound vectors.
-    std::shared_ptr<std::vector<RealT> > IsRs_lower_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > IsRs_lower_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     (*IsRs_lower_rcp)[0] = lo_Is; /// Is lower bound
     (*IsRs_lower_rcp)[1] = lo_Rs; /// Rs lower bound
-    std::shared_ptr<std::vector<RealT> > IsRs_upper_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > IsRs_upper_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     (*IsRs_upper_rcp)[0] = up_Is; /// Is upper bound
     (*IsRs_upper_rcp)[1] = up_Rs; /// Rs upper bound
-    std::shared_ptr<ROL::PrimalScaledStdVector<RealT> > lo_IsRs = std::make_shared<ROL::PrimalScaledStdVector<RealT>>(IsRs_lower_rcp, scaling_rcp);
-    std::shared_ptr<ROL::PrimalScaledStdVector<RealT> > up_IsRs = std::make_shared<ROL::PrimalScaledStdVector<RealT>>(IsRs_upper_rcp, scaling_rcp);
+    ROL::SharedPointer<ROL::PrimalScaledStdVector<RealT> > lo_IsRs = ROL::makeShared<ROL::PrimalScaledStdVector<RealT>>(IsRs_lower_rcp, scaling_rcp);
+    ROL::SharedPointer<ROL::PrimalScaledStdVector<RealT> > up_IsRs = ROL::makeShared<ROL::PrimalScaledStdVector<RealT>>(IsRs_upper_rcp, scaling_rcp);
     // Bound constraint.
     ROL::Bounds<RealT> con2(lo_IsRs, up_IsRs, scale);
 
     // Gradient and Hessian check
     // direction for gradient check
-    std::shared_ptr<std::vector<RealT> > d_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > d_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     RealT left = 0.0, right = 1.0;
     RealT Is_scale = pow(10,int(log10(init_Is)));
     RealT Rs_scale = pow(10,int(log10(init_Rs)));
@@ -185,14 +185,14 @@ int main(int argc, char *argv[]) {
     // Run Algorithm
     algo.run(x, *obj, con2, true, *outStream);
     
-    std::shared_ptr<std::vector<RealT> > gf_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > gf_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     ROL::DualScaledStdVector<RealT> gfp(gf_rcp,scaling_rcp);
     (*obj).gradient(gfp,x,tol);
      *outStream << std::scientific << "Final gradient = " << (*gf_rcp)[0] << " " << (*gf_rcp)[1] << "\n";
      *outStream << std::scientific << "Norm of Gradient = " << gfp.norm() << "\n";
     
     // Get True Solution
-    std::shared_ptr<std::vector<RealT> > xtrue_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > xtrue_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     (*xtrue_rcp)[0] = true_Is;
     (*xtrue_rcp)[1] = true_Rs;
     ROL::PrimalScaledStdVector<RealT> xtrue(xtrue_rcp,scaling_rcp);

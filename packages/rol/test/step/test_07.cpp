@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
   typedef std::vector<RealT>            vec;
   typedef ROL::StdVector<RealT>         SV;
-  typedef std::shared_ptr<ROL::Vector<RealT> >      std::shared_ptrV;
+  typedef ROL::SharedPointer<ROL::Vector<RealT> >      ROL::SharedPointerV;
 
 //  typedef ROL::PartitionedVector<RealT> PV;
 
@@ -83,32 +83,32 @@ int main(int argc, char *argv[]) {
     int ci_dim = 4;    // Dimension of inequality constraint
 
     // Exact solution
-    std::shared_ptr<vec> x_exact_rcp = std::make_shared<vec>(xopt_dim,0.0);
+    ROL::SharedPointer<vec> x_exact_rcp = ROL::makeShared<vec>(xopt_dim,0.0);
     (*x_exact_rcp)[xopt_dim-1] = 1.0;
 
-    std::shared_ptr<vec> xopt_rcp = std::make_shared<vec>(xopt_dim,0.0); // Optimization variables
+    ROL::SharedPointer<vec> xopt_rcp = ROL::makeShared<vec>(xopt_dim,0.0); // Optimization variables
 
-    std::shared_ptr<vec> le_rcp  = std::make_shared<vec>(ce_dim,0.0);    // Equality multiplier
-    std::shared_ptr<vec> li_rcp  = std::make_shared<vec>(ci_dim,0.0);    // Inequality multiplier
+    ROL::SharedPointer<vec> le_rcp  = ROL::makeShared<vec>(ce_dim,0.0);    // Equality multiplier
+    ROL::SharedPointer<vec> li_rcp  = ROL::makeShared<vec>(ci_dim,0.0);    // Inequality multiplier
 
     // Feasible initial guess
     (*xopt_rcp)[0] = 0.1;
     (*xopt_rcp)[1] = 0.7;
     (*xopt_rcp)[2] = 0.2;
 
-    std::shared_ptrV xopt = std::make_shared<SV>(xopt_rcp);
-    std::shared_ptrV le  = std::make_shared<SV>(le_rcp);
-    std::shared_ptrV li  = std::make_shared<SV>(li_rcp);
+    ROL::SharedPointerV xopt = ROL::makeShared<SV>(xopt_rcp);
+    ROL::SharedPointerV le  = ROL::makeShared<SV>(le_rcp);
+    ROL::SharedPointerV li  = ROL::makeShared<SV>(li_rcp);
 
     using ROL::ZOO::Objective_HS32;
     using ROL::ZOO::EqualityConstraint_HS32;
     using ROL::ZOO::InequalityConstraint_HS32;
 
-    std::shared_ptr<ROL::Objective<RealT> > obj_hs32 = std::make_shared<Objective_HS32<RealT>>();
-    std::shared_ptr<ROL::EqualityConstraint<RealT> > eqcon_hs32 = std::make_shared<EqualityConstraint_HS32<RealT>>();
-    std::shared_ptr<ROL::InequalityConstraint<RealT> > incon_hs32 = std::make_shared<InequalityConstraint_HS32<RealT>>();
+    ROL::SharedPointer<ROL::Objective<RealT> > obj_hs32 = ROL::makeShared<Objective_HS32<RealT>>();
+    ROL::SharedPointer<ROL::EqualityConstraint<RealT> > eqcon_hs32 = ROL::makeShared<EqualityConstraint_HS32<RealT>>();
+    ROL::SharedPointer<ROL::InequalityConstraint<RealT> > incon_hs32 = ROL::makeShared<InequalityConstraint_HS32<RealT>>();
 
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     std::string stepname = "Interior Point";
 
     RealT mu = 0.1;            // Initial penalty parameter
@@ -134,8 +134,8 @@ int main(int argc, char *argv[]) {
     ROL::OptimizationProblem<RealT> problem( obj_hs32, xopt, eqcon_hs32, le, incon_hs32, li, parlist);
 
     // Define algorithm.
-    std::shared_ptr<ROL::Algorithm<RealT> > algo;
-    algo = std::make_shared<ROL::Algorithm<RealT>>(stepname,*parlist);
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>(stepname,*parlist);
 
     algo->run(problem,true,*outStream);
 

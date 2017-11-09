@@ -199,7 +199,7 @@ norm() const
 //
 //
 template<typename T, minitensor::Index N>
-std::shared_ptr<Vector<T>>
+ROL::SharedPointer<Vector<T>>
 MiniTensorVector<T, N>::
 clone() const
 {
@@ -209,8 +209,8 @@ clone() const
   minitensor::Vector<T, N>
   val(dim, minitensor::Filler::ZEROS);
 
-  std::shared_ptr<MiniTensorVector>
-  e = std::make_shared<MiniTensorVector>(val);
+  ROL::SharedPointer<MiniTensorVector>
+  e = ROL::makeShared<MiniTensorVector>(val);
 
   return e;
 }
@@ -241,7 +241,7 @@ getVector()
 //
 //
 template<typename T, minitensor::Index N>
-std::shared_ptr<Vector<T>>
+ROL::SharedPointer<Vector<T>>
 MiniTensorVector<T, N>::
 basis(int const i) const
 {
@@ -253,8 +253,8 @@ basis(int const i) const
 
   val(i) = 1.0;
 
-  std::shared_ptr<MiniTensorVector>
-  e = std::make_shared<MiniTensorVector>(val);
+  ROL::SharedPointer<MiniTensorVector>
+  e = ROL::makeShared<MiniTensorVector>(val);
 
   return e;
 }

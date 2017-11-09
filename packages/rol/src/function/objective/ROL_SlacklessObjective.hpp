@@ -58,13 +58,13 @@ namespace ROL {
 template<class Real> 
 class SlacklessObjective : public Objective<Real> {
 private: 
-  std::shared_ptr<Objective<Real> > obj_;
+  ROL::SharedPointer<Objective<Real> > obj_;
 
-  std::shared_ptr<Vector<Real> > getOpt( Vector<Real> &xs ) {
+  ROL::SharedPointer<Vector<Real> > getOpt( Vector<Real> &xs ) {
     return dynamic_cast<PartitionedVector<Real>&>(xs).get(0);
   }
 
-  std::shared_ptr<const Vector<Real> > getOpt( const Vector<Real> &xs ) {
+  ROL::SharedPointer<const Vector<Real> > getOpt( const Vector<Real> &xs ) {
     return dynamic_cast<const PartitionedVector<Real>&>(xs).get(0);
   }
 
@@ -78,7 +78,7 @@ private:
   } 
 
 public:
-  SlacklessObjective( const std::shared_ptr<Objective<Real> > &obj ) : obj_(obj) {}
+  SlacklessObjective( const ROL::SharedPointer<Objective<Real> > &obj ) : obj_(obj) {}
   ~SlacklessObjective() {}
  
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {

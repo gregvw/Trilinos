@@ -53,8 +53,8 @@
 template <class Real>
 class QoI_GinzburgLandau_StateTracking_ex01 : public QoI_GinzburgLandau_StateTracking<Real> {
 public:
-  QoI_GinzburgLandau_StateTracking_ex01(const std::shared_ptr<FE<Real> > &fe,
-                                        const std::shared_ptr<FieldHelper<Real> > &fieldHelper,
+  QoI_GinzburgLandau_StateTracking_ex01(const ROL::SharedPointer<FE<Real> > &fe,
+                                        const ROL::SharedPointer<FieldHelper<Real> > &fieldHelper,
                                         Teuchos::ParameterList &parlist)
     : QoI_GinzburgLandau_StateTracking<Real>(fe,fieldHelper,parlist) {
     QoI_GinzburgLandau_StateTracking<Real>::computeTarget();

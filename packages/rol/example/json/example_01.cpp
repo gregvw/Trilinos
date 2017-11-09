@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -102,21 +102,21 @@ int main(int argc, char *argv[]) {
     std::string stepname = "Trust Region"; // can we obtain this from parlist?  or jsonFile?
 
     ROL::StepFactory<RealT> stepFactory;
-    std::shared_ptr<ROL::Step<RealT> > step = stepFactory.getStep(stepname, parlist);
+    ROL::SharedPointer<ROL::Step<RealT> > step = stepFactory.getStep(stepname, parlist);
 
     // Define Status Test
     RealT gtol  = parlist.get("Gradient Tolerance",1e-12); 
     RealT stol  = parlist.get("Step Tolerance",1e-14);  
     int   maxit = parlist.get("Maximum Number of Iterations",100); 
-    std::shared_ptr<ROL::StatusTest<RealT> > status = std::make_shared<ROL::StatusTest<RealT>>(gtol, stol, maxit);           
+    ROL::SharedPointer<ROL::StatusTest<RealT> > status = ROL::makeShared<ROL::StatusTest<RealT>>(gtol, stol, maxit);           
 
     ROL::Algorithm<RealT> algo(step,status,false);
 
-    std::shared_ptr<std::vector<RealT> > x_rcp = std::make_shared<std::vector<RealT>>(dim, 1.0);
-    std::shared_ptr<std::vector<RealT> > k_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > k_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
 
     ROL::StdVector<RealT> x(x_rcp);
-    std::shared_ptr<ROL::Vector<RealT> > k = std::make_shared<ROL::StdVector<RealT>>(k_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > k = ROL::makeShared<ROL::StdVector<RealT>>(k_rcp);
 
     for(int i=0;i<dim;++i) {
         (*k_rcp)[i] = i+1.0;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
     algo.run(x, obj, true, *outStream);
 
     // Get True Solution
-    std::shared_ptr<std::vector<RealT> > xtrue_rcp = std::make_shared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > xtrue_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     ROL::StdVector<RealT> xtrue(xtrue_rcp);
 
     // Compute Error

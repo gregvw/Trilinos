@@ -99,51 +99,51 @@ int main(int argc, char *argv[]) {
     int cdim = 3;
 
     // Optimization vector
-    std::shared_ptr<V> x  = std::make_shared<StdV>(std::make_shared<std::vector<RealT>>(xdim));
-    std::shared_ptr<V> c  = std::make_shared<StdV>(std::make_shared<std::vector<RealT>>(cdim));
-    std::shared_ptr<V> e0 = c->basis(0);
-    std::shared_ptr<V> e1 = c->basis(1);
-    std::shared_ptr<V> e2 = c->basis(2);
+    ROL::SharedPointer<V> x  = ROL::makeShared<StdV>(ROL::makeShared<std::vector<RealT>>(xdim));
+    ROL::SharedPointer<V> c  = ROL::makeShared<StdV>(ROL::makeShared<std::vector<RealT>>(cdim));
+    ROL::SharedPointer<V> e0 = c->basis(0);
+    ROL::SharedPointer<V> e1 = c->basis(1);
+    ROL::SharedPointer<V> e2 = c->basis(2);
 
     // Exact solution
-    std::shared_ptr<V> sol   = x->clone();
-    std::shared_ptr<V> error = x->clone();
+    ROL::SharedPointer<V> sol   = x->clone();
+    ROL::SharedPointer<V> error = x->clone();
 
-    std::shared_ptr<Obj> obj = nullptr;
-    std::shared_ptr<Con> con = nullptr;
+    ROL::SharedPointer<Obj> obj = ROL::nullPointer;
+    ROL::SharedPointer<Con> con = ROL::nullPointer;
 
     ROL::ZOO::getSimpleEqConstrained<RealT,StdV,StdV,StdV,StdV>( obj, con, *x, *sol );
 
     error->set(*sol);
 
     // Extract constraint components to make objectives
-    std::shared_ptr<Obj> obj_0 = std::make_shared<ROL::ObjectiveFromConstraint<RealT>>( con, *e0 );
-    std::shared_ptr<Obj> obj_1 = std::make_shared<ROL::ObjectiveFromConstraint<RealT>>( con, *e1 );
-    std::shared_ptr<Obj> obj_2 = std::make_shared<ROL::ObjectiveFromConstraint<RealT>>( con, *e2 );
+    ROL::SharedPointer<Obj> obj_0 = ROL::makeShared<ROL::ObjectiveFromConstraint<RealT>>( con, *e0 );
+    ROL::SharedPointer<Obj> obj_1 = ROL::makeShared<ROL::ObjectiveFromConstraint<RealT>>( con, *e1 );
+    ROL::SharedPointer<Obj> obj_2 = ROL::makeShared<ROL::ObjectiveFromConstraint<RealT>>( con, *e2 );
 
     // Create separate constraints from the objectives
-    std::shared_ptr<Con> con_0 = std::make_shared<ROL::ConstraintFromObjective<RealT>>( obj_0 );
-    std::shared_ptr<Con> con_1 = std::make_shared<ROL::ConstraintFromObjective<RealT>>( obj_1 );
-    std::shared_ptr<Con> con_2 = std::make_shared<ROL::ConstraintFromObjective<RealT>>( obj_2 );
+    ROL::SharedPointer<Con> con_0 = ROL::makeShared<ROL::ConstraintFromObjective<RealT>>( obj_0 );
+    ROL::SharedPointer<Con> con_1 = ROL::makeShared<ROL::ConstraintFromObjective<RealT>>( obj_1 );
+    ROL::SharedPointer<Con> con_2 = ROL::makeShared<ROL::ConstraintFromObjective<RealT>>( obj_2 );
 
-    std::vector<std::shared_ptr<Con> > con_array;
+    std::vector<ROL::SharedPointer<Con> > con_array;
     con_array.push_back(con_0);
     con_array.push_back(con_1);
     con_array.push_back(con_2);
 
     // Lagrange multipliers
-    std::shared_ptr<V> l0 = std::make_shared<ScalarV>(0);
-    std::shared_ptr<V> l1 = std::make_shared<ScalarV>(0);
-    std::shared_ptr<V> l2 = std::make_shared<ScalarV>(0);
+    ROL::SharedPointer<V> l0 = ROL::makeShared<ScalarV>(0);
+    ROL::SharedPointer<V> l1 = ROL::makeShared<ScalarV>(0);
+    ROL::SharedPointer<V> l2 = ROL::makeShared<ScalarV>(0);
 
-    std::vector<std::shared_ptr<V> > l_array;
+    std::vector<ROL::SharedPointer<V> > l_array;
     l_array.push_back(l0);
     l_array.push_back(l1);
     l_array.push_back(l2);
 
     ROL::OptimizationProblem<RealT> opt( obj,             // Objective
                                          x,               // Optimization vector
-                                         nullptr,   // No bound constraint
+                                         ROL::nullPointer,   // No bound constraint
                                          con_array,       // Array of scalar equality constraints
                                          l_array);        // Array of scalar lagrange multipliers
 

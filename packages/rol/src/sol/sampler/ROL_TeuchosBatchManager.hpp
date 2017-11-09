@@ -45,7 +45,7 @@
 #define ROLTEUCHOSBATCHMANAGER_HPP
 
 #include "ROL_BatchManager.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 #include "Teuchos_Comm.hpp"
 #include "Teuchos_CommHelpers.hpp"
 
@@ -54,10 +54,10 @@ namespace ROL {
 template<class Real, class Ordinal>
 class TeuchosBatchManager : public BatchManager<Real> {
 private:
-  const std::shared_ptr<const Teuchos::Comm<Ordinal> > comm_;
+  const ROL::SharedPointer<const Teuchos::Comm<Ordinal> > comm_;
 
 public:
-  TeuchosBatchManager(const std::shared_ptr<const Teuchos::Comm<Ordinal> > &comm)
+  TeuchosBatchManager(const ROL::SharedPointer<const Teuchos::Comm<Ordinal> > &comm)
     : comm_(comm) {}
 
   int batchID(void) {

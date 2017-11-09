@@ -52,27 +52,27 @@
 template <class Real>
 class FractionalConstraint : public ROL::Constraint_SimOpt<Real> {
 private:
-  const std::shared_ptr<PDE<Real> > pde_local_;
-  const std::shared_ptr<PDE<Real> > pde_cylinder_;
+  const ROL::SharedPointer<PDE<Real> > pde_local_;
+  const ROL::SharedPointer<PDE<Real> > pde_cylinder_;
 
-  std::shared_ptr<Assembler<Real> > assembler_local_;
-  std::shared_ptr<Assembler<Real> > assembler_cylinder_;
+  ROL::SharedPointer<Assembler<Real> > assembler_local_;
+  ROL::SharedPointer<Assembler<Real> > assembler_cylinder_;
 
-  std::shared_ptr<Tpetra::CrsMatrix<> > Klocal_, Blocal_, Mlocal_;
-  std::shared_ptr<Tpetra::CrsMatrix<> > Kcylinder_, Mcylinder_;
-  std::shared_ptr<Tpetra::MultiVector<> > Flocal_;
+  ROL::SharedPointer<Tpetra::CrsMatrix<> > Klocal_, Blocal_, Mlocal_;
+  ROL::SharedPointer<Tpetra::CrsMatrix<> > Kcylinder_, Mcylinder_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > Flocal_;
 
-  std::shared_ptr<ROL::Krylov<Real> > krylov_;
+  ROL::SharedPointer<ROL::Krylov<Real> > krylov_;
 
-  std::shared_ptr<FractionalOperator<Real> >        A_;
-  std::shared_ptr<FractionalControlOperator<Real> > B_;
-  std::shared_ptr<FractionalPreconditioner<Real> >  M_;
-  std::shared_ptr<FractionalVector<Real> >          Vec_;
+  ROL::SharedPointer<FractionalOperator<Real> >        A_;
+  ROL::SharedPointer<FractionalControlOperator<Real> > B_;
+  ROL::SharedPointer<FractionalPreconditioner<Real> >  M_;
+  ROL::SharedPointer<FractionalVector<Real> >          Vec_;
 
-  std::shared_ptr<Tpetra::MultiVector<> > ulocal_;
-  std::shared_ptr<Tpetra::MultiVector<> > zlocal_;
-  std::shared_ptr<Tpetra::MultiVector<> > ucylinder_;
-  std::shared_ptr<Tpetra::MultiVector<> > zcylinder_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > ulocal_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > zlocal_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > ucylinder_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > zcylinder_;
 
   Teuchos::ParameterList parlist_;
 
@@ -90,29 +90,29 @@ private:
       assembler_cylinder_->assemblePDEJacobian1(Kcylinder_,pde_cylinder_,ucylinder_,zcylinder_);
       assembler_cylinder_->assemblePDERieszMap1(Mcylinder_,pde_cylinder_);
       // Create fractional operator and vector
-      A_   = std::make_shared<FractionalOperator<Real>>(Klocal_,Mlocal_,Kcylinder_,Mcylinder_);
-      B_   = std::make_shared<FractionalControlOperator<Real>(Blocal_,Mcylinder_->getGlobalNumCols>());
-      M_   = std::make_shared<FractionalPreconditioner<Real>>(Klocal_,Mlocal_,Kcylinder_,Mcylinder_,parlist_);
+      A_   = ROL::makeShared<FractionalOperator<Real>>(Klocal_,Mlocal_,Kcylinder_,Mcylinder_);
+      B_   = ROL::makeShared<FractionalControlOperator<Real>(Blocal_,Mcylinder_->getGlobalNumCols>());
+      M_   = ROL::makeShared<FractionalPreconditioner<Real>>(Klocal_,Mlocal_,Kcylinder_,Mcylinder_,parlist_);
 
       isAssembled_ = true;
     }
-    std::shared_ptr<const Tpetra::MultiVector<> > zf
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zf
       = dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z).getVector(); 
     assembler_local_->assemblePDEResidual(Flocal_,pde_local_,ulocal_,zf);
-    Vec_ = std::make_shared<FractionalVector<Real>(Flocal_,Klocal_->getRowMap(),Mcylinder_->getGlobalNumCols>(),fracPower_);
+    Vec_ = ROL::makeShared<FractionalVector<Real>(Flocal_,Klocal_->getRowMap(),Mcylinder_->getGlobalNumCols>(),fracPower_);
   }
 
 public:
-  FractionalConstraint(const std::shared_ptr<PDE<Real> >                & pde_local,
-                       const std::shared_ptr<MeshManager<Real> >        & mesh_local,
-                       const std::shared_ptr<const Teuchos::Comm<int> > & comm_local,
-                       const std::shared_ptr<PDE<Real> >                & pde_cylinder,
-                       const std::shared_ptr<MeshManager<Real> >        & mesh_cylinder,
-                       const std::shared_ptr<const Teuchos::Comm<int> > & comm_cylinder,
+  FractionalConstraint(const ROL::SharedPointer<PDE<Real> >                & pde_local,
+                       const ROL::SharedPointer<MeshManager<Real> >        & mesh_local,
+                       const ROL::SharedPointer<const Teuchos::Comm<int> > & comm_local,
+                       const ROL::SharedPointer<PDE<Real> >                & pde_cylinder,
+                       const ROL::SharedPointer<MeshManager<Real> >        & mesh_cylinder,
+                       const ROL::SharedPointer<const Teuchos::Comm<int> > & comm_cylinder,
                        Teuchos::ParameterList                        & parlist,
                        std::ostream                                  & outStream = std::cout)
     : pde_local_(pde_local), pde_cylinder_(pde_cylinder), parlist_(parlist), isAssembled_(false) {
-    assembler_local_ = std::make_shared<Assembler<Real>(pde_local_->getFields(>(),
+    assembler_local_ = ROL::makeShared<Assembler<Real>(pde_local_->getFields(>(),
                                                         mesh_local,
                                                         comm_local,
                                                         parlist,
@@ -120,7 +120,7 @@ public:
     assembler_local_->setCellNodes(*pde_local_);
     ulocal_  = assembler_local_->createStateVector();
     zlocal_  = assembler_local_->createControlVector();
-    assembler_cylinder_ = std::make_shared<Assembler<Real>(pde_cylinder_->getFields(>(),
+    assembler_cylinder_ = ROL::makeShared<Assembler<Real>(pde_cylinder_->getFields(>(),
                                                            mesh_cylinder,
                                                            comm_cylinder,
                                                            parlist,
@@ -196,11 +196,11 @@ public:
     ahwv.zero();
   }
 
-  std::shared_ptr<Assembler<Real> > getLocalAssembler(void) const {
+  ROL::SharedPointer<Assembler<Real> > getLocalAssembler(void) const {
     return assembler_local_;
   }
 
-  std::shared_ptr<Assembler<Real> > getCylinderAssembler(void) const {
+  ROL::SharedPointer<Assembler<Real> > getCylinderAssembler(void) const {
     return assembler_cylinder_;
   }
 };

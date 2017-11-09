@@ -61,11 +61,11 @@ void Constraint<Real>::applyJacobian(Vector<Real> &jv,
   //Real h = 2.0/(v.norm()*v.norm())*tol;
 
   // Compute constraint at x.
-  std::shared_ptr<Vector<Real> > c = jv.clone();
+  ROL::SharedPointer<Vector<Real> > c = jv.clone();
   this->value(*c,x,ctol);
 
   // Compute perturbation x + h*v.
-  std::shared_ptr<Vector<Real> > xnew = x.clone();
+  ROL::SharedPointer<Vector<Real> > xnew = x.clone();
   xnew->set(x);
   xnew->axpy(h,v);
   this->update(*xnew);
@@ -104,11 +104,11 @@ void Constraint<Real>::applyAdjointJacobian(Vector<Real> &ajv,
   const Real one(1);
   Real h(0), ctol = std::sqrt(ROL_EPSILON<Real>());
 
-  std::shared_ptr<Vector<Real> > xnew = x.clone();
-  std::shared_ptr<Vector<Real> > ex   = x.clone();
-  std::shared_ptr<Vector<Real> > eajv = ajv.clone();
-  std::shared_ptr<Vector<Real> > cnew = dualv.clone();  // in general, should be in the constraint space
-  std::shared_ptr<Vector<Real> > c0   = dualv.clone();  // in general, should be in the constraint space
+  ROL::SharedPointer<Vector<Real> > xnew = x.clone();
+  ROL::SharedPointer<Vector<Real> > ex   = x.clone();
+  ROL::SharedPointer<Vector<Real> > eajv = ajv.clone();
+  ROL::SharedPointer<Vector<Real> > cnew = dualv.clone();  // in general, should be in the constraint space
+  ROL::SharedPointer<Vector<Real> > c0   = dualv.clone();  // in general, should be in the constraint space
   this->value(*c0,x,ctol);
   
   ajv.zero();
@@ -140,11 +140,11 @@ void Constraint<Real>::applyHessian(Vector<Real> &huv,
   //Real h = 2.0/(v.norm()*v.norm())*tol;
 
   // Compute constraint Jacobian at x.
-  std::shared_ptr<Vector<Real> > ju = huv.clone();
+  ROL::SharedPointer<Vector<Real> > ju = huv.clone();
   this->applyJacobian(*ju,u,x,jtol);
 
   // Compute new step x + h*v.
-  std::shared_ptr<Vector<Real> > xnew = x.clone();
+  ROL::SharedPointer<Vector<Real> > xnew = x.clone();
   xnew->set(x);
   xnew->axpy(h,v);
   this->update(*xnew);
@@ -169,11 +169,11 @@ void Constraint<Real>::applyAdjointHessian(Vector<Real> &huv,
   Real h = std::max(static_cast<Real>(1),x.norm()/v.norm())*tol;
 
   // Compute constraint Jacobian at x.
-  std::shared_ptr<Vector<Real> > aju = huv.clone();
+  ROL::SharedPointer<Vector<Real> > aju = huv.clone();
   applyAdjointJacobian(*aju,u,x,tol);
 
   // Compute new step x + h*v.
-  std::shared_ptr<Vector<Real> > xnew = x.clone();
+  ROL::SharedPointer<Vector<Real> > xnew = x.clone();
   xnew->set(x);
   xnew->axpy(h,v);
   update(*xnew);
@@ -212,19 +212,19 @@ std::vector<Real> Constraint<Real>::solveAugmentedSystem(Vector<Real> &v1,
   v1.zero(); v2.zero();
 
   // Allocate static memory.
-  std::shared_ptr<Vector<Real> > r1 = b1.clone();
-  std::shared_ptr<Vector<Real> > r2 = b2.clone();
-  std::shared_ptr<Vector<Real> > z1 = v1.clone();
-  std::shared_ptr<Vector<Real> > z2 = v2.clone();
-  std::shared_ptr<Vector<Real> > w1 = b1.clone();
-  std::shared_ptr<Vector<Real> > w2 = b2.clone();
-  std::vector<std::shared_ptr<Vector<Real> > > V1;
-  std::vector<std::shared_ptr<Vector<Real> > > V2;
-  std::shared_ptr<Vector<Real> > V2temp = b2.clone();
-  std::vector<std::shared_ptr<Vector<Real> > > Z1;
-  std::vector<std::shared_ptr<Vector<Real> > > Z2;
-  std::shared_ptr<Vector<Real> > w1temp = b1.clone();
-  std::shared_ptr<Vector<Real> > Z2temp = v2.clone();
+  ROL::SharedPointer<Vector<Real> > r1 = b1.clone();
+  ROL::SharedPointer<Vector<Real> > r2 = b2.clone();
+  ROL::SharedPointer<Vector<Real> > z1 = v1.clone();
+  ROL::SharedPointer<Vector<Real> > z2 = v2.clone();
+  ROL::SharedPointer<Vector<Real> > w1 = b1.clone();
+  ROL::SharedPointer<Vector<Real> > w2 = b2.clone();
+  std::vector<ROL::SharedPointer<Vector<Real> > > V1;
+  std::vector<ROL::SharedPointer<Vector<Real> > > V2;
+  ROL::SharedPointer<Vector<Real> > V2temp = b2.clone();
+  std::vector<ROL::SharedPointer<Vector<Real> > > Z1;
+  std::vector<ROL::SharedPointer<Vector<Real> > > Z2;
+  ROL::SharedPointer<Vector<Real> > w1temp = b1.clone();
+  ROL::SharedPointer<Vector<Real> > Z2temp = v2.clone();
 
   std::vector<Real> res(m+1, zero); 
   Teuchos::SerialDenseMatrix<int, Real> H(m+1,m);
@@ -402,19 +402,19 @@ std::vector<std::vector<Real> > Constraint<Real>::checkApplyJacobian(const Vecto
   oldFormatState.copyfmt(outStream);
 
   // Compute constraint value at x.
-  std::shared_ptr<Vector<Real> > c = jv.clone();
+  ROL::SharedPointer<Vector<Real> > c = jv.clone();
   this->update(x);
   this->value(*c, x, tol);
 
   // Compute (Jacobian at x) times (vector v).
-  std::shared_ptr<Vector<Real> > Jv = jv.clone();
+  ROL::SharedPointer<Vector<Real> > Jv = jv.clone();
   this->applyJacobian(*Jv, v, x, tol);
   Real normJv = Jv->norm();
 
   // Temporary vectors.
-  std::shared_ptr<Vector<Real> > cdif = jv.clone();
-  std::shared_ptr<Vector<Real> > cnew = jv.clone();
-  std::shared_ptr<Vector<Real> > xnew = x.clone();
+  ROL::SharedPointer<Vector<Real> > cdif = jv.clone();
+  ROL::SharedPointer<Vector<Real> > cnew = jv.clone();
+  ROL::SharedPointer<Vector<Real> > xnew = x.clone();
 
   for (int i=0; i<numSteps; i++) {
 
@@ -497,13 +497,13 @@ std::vector<std::vector<Real> > Constraint<Real>::checkApplyAdjointJacobian(cons
   Real eta = one;
 
   // Temporary vectors.
-  std::shared_ptr<Vector<Real> > c0   = c.clone();
-  std::shared_ptr<Vector<Real> > cnew = c.clone();
-  std::shared_ptr<Vector<Real> > xnew = x.clone();
-  std::shared_ptr<Vector<Real> > ajv0 = ajv.clone();
-  std::shared_ptr<Vector<Real> > ajv1 = ajv.clone();
-  std::shared_ptr<Vector<Real> > ex   = x.clone();
-  std::shared_ptr<Vector<Real> > eajv = ajv.clone();
+  ROL::SharedPointer<Vector<Real> > c0   = c.clone();
+  ROL::SharedPointer<Vector<Real> > cnew = c.clone();
+  ROL::SharedPointer<Vector<Real> > xnew = x.clone();
+  ROL::SharedPointer<Vector<Real> > ajv0 = ajv.clone();
+  ROL::SharedPointer<Vector<Real> > ajv1 = ajv.clone();
+  ROL::SharedPointer<Vector<Real> > ex   = x.clone();
+  ROL::SharedPointer<Vector<Real> > eajv = ajv.clone();
 
   // Save the format state of the original outStream.
   Teuchos::oblackholestream oldFormatState;
@@ -584,8 +584,8 @@ Real Constraint<Real>::checkAdjointConsistencyJacobian(const Vector<Real> &w,
                                                        std::ostream & outStream) {
   Real tol = ROL_EPSILON<Real>();
 
-  std::shared_ptr<Vector<Real> > Jv = dualw.clone();
-  std::shared_ptr<Vector<Real> > Jw = dualv.clone();
+  ROL::SharedPointer<Vector<Real> > Jv = dualw.clone();
+  ROL::SharedPointer<Vector<Real> > Jw = dualv.clone();
   
   applyJacobian(*Jv,v,x,tol);
   applyAdjointJacobian(*Jw,w,x,tol);
@@ -646,11 +646,11 @@ std::vector<std::vector<Real> > Constraint<Real>::checkApplyAdjointHessian(const
   std::vector<std::vector<Real> > ahuvCheck(numSteps, tmp);
 
   // Temporary vectors.
-  std::shared_ptr<Vector<Real> > AJdif = hv.clone();
-  std::shared_ptr<Vector<Real> > AJu = hv.clone();
-  std::shared_ptr<Vector<Real> > AHuv = hv.clone();
-  std::shared_ptr<Vector<Real> > AJnew = hv.clone();
-  std::shared_ptr<Vector<Real> > xnew = x.clone();
+  ROL::SharedPointer<Vector<Real> > AJdif = hv.clone();
+  ROL::SharedPointer<Vector<Real> > AJu = hv.clone();
+  ROL::SharedPointer<Vector<Real> > AHuv = hv.clone();
+  ROL::SharedPointer<Vector<Real> > AJnew = hv.clone();
+  ROL::SharedPointer<Vector<Real> > xnew = x.clone();
 
   // Save the format state of the original outStream.
   Teuchos::oblackholestream oldFormatState;

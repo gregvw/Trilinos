@@ -87,15 +87,15 @@ int main(int argc, char *argv[] ) {
 
     int dim = 10;
 
-    std::shared_ptr<vector> x_rcp = std::make_shared<vector>( dim, 0.0 );
-    std::shared_ptr<vector> k_rcp = std::make_shared<vector>( dim, 0.0 );
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>( dim, 0.0 );
+    ROL::SharedPointer<vector> k_rcp = ROL::makeShared<vector>( dim, 0.0 );
 
     for (int i=0; i<dim; i++) {
       (*x_rcp)[i]   = 2;
       (*k_rcp)[i]   = i+1.0;
     }
 
-    std::shared_ptr<V> k = std::make_shared<SV>(k_rcp);
+    ROL::SharedPointer<V> k = ROL::makeShared<SV>(k_rcp);
     SV x(x_rcp);
 
     ZOO::Objective_Zakharov<RealT> obj(k);
@@ -106,11 +106,11 @@ int main(int argc, char *argv[] ) {
     parlist.sublist("Scalar Minimization").sublist("Bisection").set("Tolerance",1.e-10);
     parlist.sublist("Scalar Minimization").sublist("Bisection").set("Iteration Limit",1000);
 
-    std::shared_ptr<ScalarMinimization<RealT> > sm = std::make_shared<BisectionScalarMinimization<RealT>>(parlist);
-    std::shared_ptr<LineSearch<RealT> > ls = std::make_shared<ScalarMinimizationLineSearch<RealT>>(parlist, sm);
-    std::shared_ptr<Step<RealT> > step = std::make_shared<LineSearchStep<RealT>>( parlist, ls );
+    ROL::SharedPointer<ScalarMinimization<RealT> > sm = ROL::makeShared<BisectionScalarMinimization<RealT>>(parlist);
+    ROL::SharedPointer<LineSearch<RealT> > ls = ROL::makeShared<ScalarMinimizationLineSearch<RealT>>(parlist, sm);
+    ROL::SharedPointer<Step<RealT> > step = ROL::makeShared<LineSearchStep<RealT>>( parlist, ls );
 
-    std::shared_ptr<StatusTest<RealT> > status = std::make_shared<StatusTest<RealT>>(parlist);
+    ROL::SharedPointer<StatusTest<RealT> > status = ROL::makeShared<StatusTest<RealT>>(parlist);
 
     Algorithm<RealT> algo( step, status, false );
 

@@ -93,21 +93,21 @@ int main(int argc, char *argv[]) {
     uint xdim = 4;
     uint cdim = 1;
 
-    std::shared_ptr<vector> x_exact_rcp = std::make_shared<vector>(xdim);
+    ROL::SharedPointer<vector> x_exact_rcp = ROL::makeShared<vector>(xdim);
     (*x_exact_rcp)[0] = 1.0;
     (*x_exact_rcp)[1] = 1.0;
 
-    std::shared_ptr<V> x     = std::make_shared<SV>(std::make_shared<vector>(xdim, 0.0) );
-    std::shared_ptr<V> d     = std::make_shared<SV>(std::make_shared<vector>(xdim, 0.0) );
-    std::shared_ptr<V> xtest = std::make_shared<SV>(std::make_shared<vector>(xdim, 0.0) );
+    ROL::SharedPointer<V> x     = ROL::makeShared<SV>(ROL::makeShared<vector>(xdim, 0.0) );
+    ROL::SharedPointer<V> d     = ROL::makeShared<SV>(ROL::makeShared<vector>(xdim, 0.0) );
+    ROL::SharedPointer<V> xtest = ROL::makeShared<SV>(ROL::makeShared<vector>(xdim, 0.0) );
 
-    std::shared_ptr<V> c1    = std::make_shared<SV>(std::make_shared<vector>(cdim, 1.0) );
-    std::shared_ptr<V> c2    = std::make_shared<SV>(std::make_shared<vector>(cdim, 1.0) );
-    std::shared_ptr<V> l1    = std::make_shared<SV>(std::make_shared<vector>(cdim, 1.0) );
-    std::shared_ptr<V> l2    = std::make_shared<SV>(std::make_shared<vector>(cdim, 1.0) );
+    ROL::SharedPointer<V> c1    = ROL::makeShared<SV>(ROL::makeShared<vector>(cdim, 1.0) );
+    ROL::SharedPointer<V> c2    = ROL::makeShared<SV>(ROL::makeShared<vector>(cdim, 1.0) );
+    ROL::SharedPointer<V> l1    = ROL::makeShared<SV>(ROL::makeShared<vector>(cdim, 1.0) );
+    ROL::SharedPointer<V> l2    = ROL::makeShared<SV>(ROL::makeShared<vector>(cdim, 1.0) );
 
-    std::shared_ptr<V> c    =  ROL::CreatePartitionedVector( c1, c2 );
-    std::shared_ptr<V> l    =  ROL::CreatePartitionedVector( l1, l2 );
+    ROL::SharedPointer<V> c    =  ROL::CreatePartitionedVector( c1, c2 );
+    ROL::SharedPointer<V> l    =  ROL::CreatePartitionedVector( l1, l2 );
 
 
 
@@ -119,12 +119,12 @@ int main(int argc, char *argv[]) {
     ROL::RandomizeVector(*d, -1.0, 1.0 );
     ROL::RandomizeVector(*xtest, -1.0, 1.0 );
 
-    std::shared_ptr<OBJ> obj  = std::make_shared<ROL::ZOO::Objective_HS39<RealT>>();
-    std::shared_ptr<EC>  con1 = std::make_shared<ROL::ZOO::Constraint_HS39a<RealT>>();
-    std::shared_ptr<EC>  con2 = std::make_shared<ROL::ZOO::Constraint_HS39b<RealT>>();
-    std::vector<std::shared_ptr<EC> > cvec(2); cvec[0] = con1; cvec[1] = con2;
+    ROL::SharedPointer<OBJ> obj  = ROL::makeShared<ROL::ZOO::Objective_HS39<RealT>>();
+    ROL::SharedPointer<EC>  con1 = ROL::makeShared<ROL::ZOO::Constraint_HS39a<RealT>>();
+    ROL::SharedPointer<EC>  con2 = ROL::makeShared<ROL::ZOO::Constraint_HS39b<RealT>>();
+    std::vector<ROL::SharedPointer<EC> > cvec(2); cvec[0] = con1; cvec[1] = con2;
 
-    std::shared_ptr<EC>  con = std::make_shared<ROL::Constraint_Partitioned<RealT>>(cvec);
+    ROL::SharedPointer<EC>  con = ROL::makeShared<ROL::Constraint_Partitioned<RealT>>(cvec);
 
     *outStream << "Checking objective" << std::endl;
     obj->checkGradient(*x,*d,true,*outStream);

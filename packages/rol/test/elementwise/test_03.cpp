@@ -87,19 +87,19 @@ int main(int argc, char *argv[]) {
     int dim = 5;
 
     // Upper bound vector
-    std::shared_ptr<vec> u_rcp = std::make_shared<vec>(dim,0.0);
+    ROL::SharedPointer<vec> u_rcp = ROL::makeShared<vec>(dim,0.0);
 
     // Lower bound vector
-    std::shared_ptr<vec> l_rcp = std::make_shared<vec>(dim,0.0);
+    ROL::SharedPointer<vec> l_rcp = ROL::makeShared<vec>(dim,0.0);
 
     // Gradient vectors
-    std::shared_ptr<vec> g1_rcp = std::make_shared<vec>(dim,1.0);
-    std::shared_ptr<vec> g2_rcp = std::make_shared<vec>(dim,-1.0);
+    ROL::SharedPointer<vec> g1_rcp = ROL::makeShared<vec>(dim,1.0);
+    ROL::SharedPointer<vec> g2_rcp = ROL::makeShared<vec>(dim,-1.0);
 
     // Test vectors
-    std::shared_ptr<vec> y_rcp  = std::make_shared<vec>(dim,0.0);
-    std::shared_ptr<vec> v_rcp  = std::make_shared<vec>(dim,0.0);
-    std::shared_ptr<vec> vs_rcp = std::make_shared<vec>(dim,0.0);
+    ROL::SharedPointer<vec> y_rcp  = ROL::makeShared<vec>(dim,0.0);
+    ROL::SharedPointer<vec> v_rcp  = ROL::makeShared<vec>(dim,0.0);
+    ROL::SharedPointer<vec> vs_rcp = ROL::makeShared<vec>(dim,0.0);
 
     (*y_rcp)[0] =  2.0;
     (*y_rcp)[1] = -4.0;
@@ -112,13 +112,13 @@ int main(int argc, char *argv[]) {
       (*l_rcp)[i] = -(i+1.0);
     }
 
-    std::shared_ptr<V> lp =  std::make_shared<SV>(l_rcp);
-    std::shared_ptr<V> up  = std::make_shared<SV>(u_rcp);
-    std::shared_ptr<V> yp  = std::make_shared<SV>(y_rcp);
-    std::shared_ptr<V> vp  = std::make_shared<SV>(v_rcp);
-    std::shared_ptr<V> vsp = std::make_shared<SV>(vs_rcp);
-    std::shared_ptr<V> g1p = std::make_shared<SV>(g1_rcp);
-    std::shared_ptr<V> g2p = std::make_shared<SV>(g2_rcp);
+    ROL::SharedPointer<V> lp =  ROL::makeShared<SV>(l_rcp);
+    ROL::SharedPointer<V> up  = ROL::makeShared<SV>(u_rcp);
+    ROL::SharedPointer<V> yp  = ROL::makeShared<SV>(y_rcp);
+    ROL::SharedPointer<V> vp  = ROL::makeShared<SV>(v_rcp);
+    ROL::SharedPointer<V> vsp = ROL::makeShared<SV>(vs_rcp);
+    ROL::SharedPointer<V> g1p = ROL::makeShared<SV>(g1_rcp);
+    ROL::SharedPointer<V> g2p = ROL::makeShared<SV>(g2_rcp);
 
 
     ROL::Bounds<RealT>     bc(lp,up);

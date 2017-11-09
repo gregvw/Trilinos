@@ -86,12 +86,12 @@ int main(int argc, char *argv[]) {
     int xdim = 5;
 
     // Optimization vector
-    std::shared_ptr<V> a  = std::make_shared<ROL::StdVector<RealT>>(std::make_shared<std::vector<RealT>>(xdim));
-    std::shared_ptr<V> c  = std::make_shared<ROL::SingletonVector<RealT>>( 0.0 );
+    ROL::SharedPointer<V> a  = ROL::makeShared<ROL::StdVector<RealT>>(ROL::makeShared<std::vector<RealT>>(xdim));
+    ROL::SharedPointer<V> c  = ROL::makeShared<ROL::SingletonVector<RealT>>( 0.0 );
 
-    std::shared_ptr<V> x = a->clone();
-    std::shared_ptr<V> d = x->clone();
-    std::shared_ptr<V> v = c->clone();
+    ROL::SharedPointer<V> x = a->clone();
+    ROL::SharedPointer<V> d = x->clone();
+    ROL::SharedPointer<V> v = c->clone();
 
     RealT b = 0.5;
 

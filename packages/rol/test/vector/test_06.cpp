@@ -94,19 +94,19 @@ int main(int argc, char *argv[]) {
     // Define algorithm.
     ROL::Algorithm<RealT> algo("Trust-Region",*parlist);
 
-    std::shared_ptr<vector> x_rcp = std::make_shared<vector>(dim,1.0);
-    std::shared_ptr<vector> k_rcp = std::make_shared<vector>(dim);
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>(dim,1.0);
+    ROL::SharedPointer<vector> k_rcp = ROL::makeShared<vector>(dim);
 
     for(int i=0;i<dim;++i) {
       (*k_rcp)[i] = 1.0 + i;
     }
 
-    std::shared_ptr<V> xs = std::make_shared<SV>(x_rcp);
-    std::shared_ptr<V> ks = std::make_shared<SV>(k_rcp);
+    ROL::SharedPointer<V> xs = ROL::makeShared<SV>(x_rcp);
+    ROL::SharedPointer<V> ks = ROL::makeShared<SV>(k_rcp);
 
     // Create ProfiledVector objects
     ROL::ProfiledVector<int,RealT> xpf(xs);
-    std::shared_ptr<V> kpf = std::make_shared<ROL::ProfiledVector<int,RealT>>(ks);
+    ROL::SharedPointer<V> kpf = ROL::makeShared<ROL::ProfiledVector<int,RealT>>(ks);
 
     ROL::ZOO::Objective_Zakharov<RealT> obj(kpf);
 

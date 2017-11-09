@@ -73,16 +73,16 @@ public:
 
   Real value( const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
+    ROL::SharedPointer<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
 
     return rt3_*(*xp)[0]*std::pow((*xp)[1],3)*((*xp)[0]-6)/81.0;
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
+    ROL::SharedPointer<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
 
-    std::shared_ptr<vector> gp = dynamic_cast<SV&>(g).getVector(); 
+    ROL::SharedPointer<vector> gp = dynamic_cast<SV&>(g).getVector(); 
 
     (*gp)[0] = 2*rt3_*std::pow((*xp)[1],3)*((*xp)[0]-3)/81.0;
     (*gp)[1] = rt3_*(*xp)[0]*std::pow((*xp)[1],2)*((*xp)[0]-6)/27.0;
@@ -92,9 +92,9 @@ public:
   
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
-    std::shared_ptr<const vector> vp = dynamic_cast<const SV&>(v).getVector(); 
-    std::shared_ptr<vector> hvp = dynamic_cast<SV&>(hv).getVector(); 
+    ROL::SharedPointer<const vector> xp = dynamic_cast<const SV&>(x).getVector(); 
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector(); 
+    ROL::SharedPointer<vector> hvp = dynamic_cast<SV&>(hv).getVector(); 
 
     Real a00 = pow((*xp)[1],3)/81.0;
     Real a01 = pow((*xp)[1],2)*((*xp)[0]-3)/27.0;
@@ -123,8 +123,8 @@ public:
 
   void value( Vector<Real> &c, const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> xp = dynamic_cast<const SV&>(x).getVector();
-    std::shared_ptr<vector> cp = dynamic_cast<SV&>(c).getVector();
+    ROL::SharedPointer<const vector> xp = dynamic_cast<const SV&>(x).getVector();
+    ROL::SharedPointer<vector> cp = dynamic_cast<SV&>(c).getVector();
 
     (*cp)[0] =  (*xp)[0]/rt3_ -      (*xp)[1];
     (*cp)[1] =  (*xp)[0]      + rt3_*(*xp)[1];
@@ -135,8 +135,8 @@ public:
   void applyJacobian( Vector<Real> &jv, const Vector<Real> &v,
                       const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> vp = dynamic_cast<const SV&>(v).getVector();
-    std::shared_ptr<vector> jvp = dynamic_cast<SV&>(jv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<vector> jvp = dynamic_cast<SV&>(jv).getVector();
 
     (*jvp)[0] =  (*vp)[0]/rt3_ -      (*vp)[1];
     (*jvp)[1] =  (*vp)[0]      + rt3_*(*vp)[1];
@@ -148,8 +148,8 @@ public:
   void applyAdjointJacobian( Vector<Real> &ajv, const Vector<Real> &v, 
                              const Vector<Real> &x, Real &tol ) {
 
-    std::shared_ptr<const vector> vp = dynamic_cast<const SV&>(v).getVector();
-    std::shared_ptr<vector> ajvp = dynamic_cast<SV&>(ajv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<vector> ajvp = dynamic_cast<SV&>(ajv).getVector();
 
     (*ajvp)[0] = rt3_*(*vp)[0]/3 + (*vp)[1] - (*vp)[2];
     (*ajvp)[1] = -(*vp)[0] + rt3_*(*vp)[1] - rt3_*(*vp)[2];
@@ -166,57 +166,57 @@ public:
 
 
 template<class Real> 
-std::shared_ptr<Objective<Real> > getObjective_HS24( void ) {
-  return std::make_shared<Objective_HS24<Real>>();
+ROL::SharedPointer<Objective<Real> > getObjective_HS24( void ) {
+  return ROL::makeShared<Objective_HS24<Real>>();
 }
 
 template<class Real> 
-std::shared_ptr<InequalityConstraint<Real> > getInequalityConstraint_HS24( void ) {
-  return std::make_shared<InequalityConstraint_HS24<Real>>();
+ROL::SharedPointer<InequalityConstraint<Real> > getInequalityConstraint_HS24( void ) {
+  return ROL::makeShared<InequalityConstraint_HS24<Real>>();
 }
 
 
 template<class Real> 
-std::shared_ptr<BoundConstraint<Real> > getBoundConstraint_HS24( void ) {
+ROL::SharedPointer<BoundConstraint<Real> > getBoundConstraint_HS24( void ) {
 
   // Lower bound is zero  
-  std::shared_ptr<std::vector<Real> > lp = std::make_shared<std::vector<Real>>(2,0.0);
+  ROL::SharedPointer<std::vector<Real> > lp = ROL::makeShared<std::vector<Real>>(2,0.0);
   
   // No upper bound
-  std::shared_ptr<std::vector<Real> > up = std::make_shared<std::vector<Real>(2,ROL_INF<Real>>());
+  ROL::SharedPointer<std::vector<Real> > up = ROL::makeShared<std::vector<Real>(2,ROL_INF<Real>>());
  
-  std::shared_ptr<Vector<Real> > l = std::make_shared<StdVector<Real>>(lp);
-  std::shared_ptr<Vector<Real> > u = std::make_shared<StdVector<Real>>(up);
+  ROL::SharedPointer<Vector<Real> > l = ROL::makeShared<StdVector<Real>>(lp);
+  ROL::SharedPointer<Vector<Real> > u = ROL::makeShared<StdVector<Real>>(up);
 
-  return std::make_shared<Bounds<Real>>(l,u);
+  return ROL::makeShared<Bounds<Real>>(l,u);
 
 }
 
 template<class Real> 
-std::shared_ptr<Vector<Real> > getInitialGuess_HS24( void ) {
+ROL::SharedPointer<Vector<Real> > getInitialGuess_HS24( void ) {
 
-  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(2);
+  ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(2);
   (*x0p)[0] = 1.0;
   (*x0p)[1] = 0.5;
 
-  return std::make_shared<StdVector<Real>>(x0p);
+  return ROL::makeShared<StdVector<Real>>(x0p);
 }
 
 template<class Real> 
-std::shared_ptr<Vector<Real> > getSolution_HS24( void ) {
+ROL::SharedPointer<Vector<Real> > getSolution_HS24( void ) {
 
-  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(2);
+  ROL::SharedPointer<std::vector<Real> > xp = ROL::makeShared<std::vector<Real>>(2);
   (*xp)[0] = 3.0;
   (*xp)[1] = std::sqrt(3.0);
 
-  return std::make_shared<StdVector<Real>>(xp);
+  return ROL::makeShared<StdVector<Real>>(xp);
 }
 
 template<class Real> 
-std::shared_ptr<Vector<Real> > getInequalityMultiplier_HS24( void ) {
+ROL::SharedPointer<Vector<Real> > getInequalityMultiplier_HS24( void ) {
   
-  std::shared_ptr<std::vector<Real> > lp = std::make_shared<std::vector<Real>>(3,0.0);
-  return std::make_shared<StdVector<Real>>(lp);
+  ROL::SharedPointer<std::vector<Real> > lp = ROL::makeShared<std::vector<Real>>(3,0.0);
+  return ROL::makeShared<StdVector<Real>>(lp);
 
 }
 

@@ -131,15 +131,15 @@ class ProfiledVector : public Vector<Real> {
   typedef Vector<Real>   V;
 
 private:
-  std::shared_ptr<Vector<Real> > v_;
+  ROL::SharedPointer<Vector<Real> > v_;
   static VectorFunctionCalls<Ordinal> functionCalls_;
 public:
 
-  ProfiledVector( const std::shared_ptr<Vector<Real> > &v ) {
+  ProfiledVector( const ROL::SharedPointer<Vector<Real> > &v ) {
     // Make sure that given vector is not itself a ProfiledVector to avoid recursion
-    std::shared_ptr<ProfiledVector> pv = nullptr;
-    pv = std::dynamic_pointer_cast<ProfiledVector>(v);
-    TEUCHOS_TEST_FOR_EXCEPTION( pv != nullptr, std::logic_error, "ProfiledVector class "
+    ROL::SharedPointer<ProfiledVector> pv = ROL::nullPointer;
+    pv = ROL::dynamicPointerCast<ProfiledVector>(v);
+    TEUCHOS_TEST_FOR_EXCEPTION( pv != ROL::nullPointer, std::logic_error, "ProfiledVector class "
     "cannot encapsulate a ProfiledVector object!");
 
     v_ = v;
@@ -152,7 +152,7 @@ public:
   }
 
   void plus( const Vector<Real> &x ) {
-    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
+    ROL::SharedPointer<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
 
     functionCalls_.plus_++;
     v_->plus(*xp);
@@ -164,7 +164,7 @@ public:
   }
 
   Real dot( const Vector<Real> &x ) const {
-    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
+    ROL::SharedPointer<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.dot_++;
     return v_->dot(*xp);
   }
@@ -174,13 +174,13 @@ public:
     return v_->norm();
   }
 
-  std::shared_ptr<Vector<Real> > clone() const {
+  ROL::SharedPointer<Vector<Real> > clone() const {
     functionCalls_.clone_++;
-    return std::make_shared<ProfiledVector>( v_->clone() );
+    return ROL::makeShared<ProfiledVector>( v_->clone() );
   }
 
   void axpy( const Real alpha, const Vector<Real> &x ) {
-    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
+    ROL::SharedPointer<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.axpy_++;
     return v_->axpy(alpha,*xp);
   }
@@ -190,9 +190,9 @@ public:
     v_->zero();
   }
 
-  std::shared_ptr<Vector<Real> > basis( const int i ) const {
+  ROL::SharedPointer<Vector<Real> > basis( const int i ) const {
     functionCalls_.basis_++;
-    return std::make_shared<ProfiledVector>( v_->basis(i) );
+    return ROL::makeShared<ProfiledVector>( v_->basis(i) );
   }
 
   int dimension() const {
@@ -201,22 +201,22 @@ public:
   }
 
   void set( const Vector<Real> &x ) {
-    std::shared_ptr<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
+    ROL::SharedPointer<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.set_++;
     v_->set(*xp);
   }
 
-  // TODO: determine the correct way to handle dual when v_ is a generic std::shared_ptr<ROL::Vector>
+  // TODO: determine the correct way to handle dual when v_ is a generic ROL::SharedPointer<ROL::Vector>
   const Vector<Real> & dual() const {
     functionCalls_.dual_++;
     return *this;
   }
 
-  std::shared_ptr<Vector<Real> > getVector() {
+  ROL::SharedPointer<Vector<Real> > getVector() {
     return v_;
   }
 
-  std::shared_ptr<const Vector<Real> > getVector() const {
+  ROL::SharedPointer<const Vector<Real> > getVector() const {
     return v_;
   }
 

@@ -73,42 +73,42 @@ namespace ROL {
 template<class Real>
 class OptimizationProblem {
 private:
-  std::shared_ptr<Objective<Real> >                     INPUT_obj_;
-  std::shared_ptr<Vector<Real> >                        INPUT_sol_;
-  std::shared_ptr<BoundConstraint<Real> >               INPUT_bnd_;
-  std::vector<std::shared_ptr<Constraint<Real> > >      INPUT_econ_;
-  std::vector<std::shared_ptr<Vector<Real> > >          INPUT_emul_;
-  std::vector<std::shared_ptr<Constraint<Real> > >      INPUT_icon_;
-  std::vector<std::shared_ptr<Vector<Real> > >          INPUT_imul_;
-  std::vector<std::shared_ptr<BoundConstraint<Real> > > INPUT_ibnd_;
+  ROL::SharedPointer<Objective<Real> >                     INPUT_obj_;
+  ROL::SharedPointer<Vector<Real> >                        INPUT_sol_;
+  ROL::SharedPointer<BoundConstraint<Real> >               INPUT_bnd_;
+  std::vector<ROL::SharedPointer<Constraint<Real> > >      INPUT_econ_;
+  std::vector<ROL::SharedPointer<Vector<Real> > >          INPUT_emul_;
+  std::vector<ROL::SharedPointer<Constraint<Real> > >      INPUT_icon_;
+  std::vector<ROL::SharedPointer<Vector<Real> > >          INPUT_imul_;
+  std::vector<ROL::SharedPointer<BoundConstraint<Real> > > INPUT_ibnd_;
 
-  std::shared_ptr<Objective<Real> >                     INTERMEDIATE_obj_;
-  std::shared_ptr<Vector<Real> >                        INTERMEDIATE_sol_;
-  std::shared_ptr<BoundConstraint<Real> >               INTERMEDIATE_bnd_;
-  std::vector<std::shared_ptr<Constraint<Real> > >      INTERMEDIATE_econ_;
-  std::vector<std::shared_ptr<Vector<Real> > >          INTERMEDIATE_emul_;
-  std::vector<std::shared_ptr<Constraint<Real> > >      INTERMEDIATE_icon_;
-  std::vector<std::shared_ptr<Vector<Real> > >          INTERMEDIATE_imul_;
-  std::vector<std::shared_ptr<BoundConstraint<Real> > > INTERMEDIATE_ibnd_;
+  ROL::SharedPointer<Objective<Real> >                     INTERMEDIATE_obj_;
+  ROL::SharedPointer<Vector<Real> >                        INTERMEDIATE_sol_;
+  ROL::SharedPointer<BoundConstraint<Real> >               INTERMEDIATE_bnd_;
+  std::vector<ROL::SharedPointer<Constraint<Real> > >      INTERMEDIATE_econ_;
+  std::vector<ROL::SharedPointer<Vector<Real> > >          INTERMEDIATE_emul_;
+  std::vector<ROL::SharedPointer<Constraint<Real> > >      INTERMEDIATE_icon_;
+  std::vector<ROL::SharedPointer<Vector<Real> > >          INTERMEDIATE_imul_;
+  std::vector<ROL::SharedPointer<BoundConstraint<Real> > > INTERMEDIATE_ibnd_;
 
-  std::shared_ptr<SampleGenerator<Real> >               vsampler_;
-  std::shared_ptr<SampleGenerator<Real> >               gsampler_;
-  std::shared_ptr<SampleGenerator<Real> >               hsampler_;
-  std::vector<std::shared_ptr<SampleGenerator<Real> > > exsampler_;
-  std::vector<std::shared_ptr<BatchManager<Real> > >    ecbman_;
-  std::vector<std::shared_ptr<SampleGenerator<Real> > > ixsampler_;
-  std::vector<std::shared_ptr<BatchManager<Real> > >    icbman_;
+  ROL::SharedPointer<SampleGenerator<Real> >               vsampler_;
+  ROL::SharedPointer<SampleGenerator<Real> >               gsampler_;
+  ROL::SharedPointer<SampleGenerator<Real> >               hsampler_;
+  std::vector<ROL::SharedPointer<SampleGenerator<Real> > > exsampler_;
+  std::vector<ROL::SharedPointer<BatchManager<Real> > >    ecbman_;
+  std::vector<ROL::SharedPointer<SampleGenerator<Real> > > ixsampler_;
+  std::vector<ROL::SharedPointer<BatchManager<Real> > >    icbman_;
 
-  std::shared_ptr<Teuchos::ParameterList>               parlistObj_;
-  std::vector<std::shared_ptr<Teuchos::ParameterList> > parlistCon_;
+  ROL::SharedPointer<Teuchos::ParameterList>               parlistObj_;
+  std::vector<ROL::SharedPointer<Teuchos::ParameterList> > parlistCon_;
 
-  std::shared_ptr<Objective<Real> >       obj_;
-  std::shared_ptr<Vector<Real> >          sol_;
-  std::shared_ptr<BoundConstraint<Real> > bnd_;
-  std::shared_ptr<Constraint<Real> >      con_;
-  std::shared_ptr<Vector<Real> >          mul_;
+  ROL::SharedPointer<Objective<Real> >       obj_;
+  ROL::SharedPointer<Vector<Real> >          sol_;
+  ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+  ROL::SharedPointer<Constraint<Real> >      con_;
+  ROL::SharedPointer<Vector<Real> >          mul_;
 
-  std::shared_ptr<ConstraintManager<Real> > conManager_;
+  ROL::SharedPointer<ConstraintManager<Real> > conManager_;
 
   EProblem problemType_;
 
@@ -119,22 +119,22 @@ private:
   std::vector<bool> needRiskLessIcon_;
   bool              isStochastic_;
 
-  void initialize( const std::shared_ptr<Objective<Real> >                     &obj,
-                   const std::shared_ptr<Vector<Real> >                        &x,
-                   const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                   const std::vector<std::shared_ptr<Constraint<Real> > >      &econ,
-                   const std::vector<std::shared_ptr<Vector<Real> > >          &emul,
-                   const std::vector<std::shared_ptr<Constraint<Real> > >      &icon,
-                   const std::vector<std::shared_ptr<Vector<Real> > >          &imul,
-                   const std::vector<std::shared_ptr<BoundConstraint<Real> > > &ibnd ) {
+  void initialize( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                   const ROL::SharedPointer<Vector<Real> >                        &x,
+                   const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                   const std::vector<ROL::SharedPointer<Constraint<Real> > >      &econ,
+                   const std::vector<ROL::SharedPointer<Vector<Real> > >          &emul,
+                   const std::vector<ROL::SharedPointer<Constraint<Real> > >      &icon,
+                   const std::vector<ROL::SharedPointer<Vector<Real> > >          &imul,
+                   const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &ibnd ) {
     if (!isInitialized_) {
       int esize = static_cast<int>(econ.size());
       int isize = static_cast<int>(icon.size());
-      std::vector<std::shared_ptr<Constraint<Real> > >      cvec;
-      std::vector<std::shared_ptr<Vector<Real> > >          lvec;
-      std::vector<std::shared_ptr<BoundConstraint<Real> > > bvec;
+      std::vector<ROL::SharedPointer<Constraint<Real> > >      cvec;
+      std::vector<ROL::SharedPointer<Vector<Real> > >          lvec;
+      std::vector<ROL::SharedPointer<BoundConstraint<Real> > > bvec;
       for (int i = 0; i < esize; ++i) {
-        if ( econ[i] != nullptr ) {
+        if ( econ[i] != ROL::nullPointer ) {
           if (isStochastic_) {
             cvec.push_back(setRiskLessCon(econ[i],needRiskLessEcon_[i]));
           }
@@ -142,11 +142,11 @@ private:
             cvec.push_back(econ[i]);
           }
           lvec.push_back(emul[i]);
-          bvec.push_back(nullptr);
+          bvec.push_back(ROL::nullPointer);
         }
       }
       for (int i = 0; i < isize; ++i) {
-        if ( icon[i] != nullptr ) {
+        if ( icon[i] != ROL::nullPointer ) {
           if (isStochastic_) {
             cvec.push_back(setRiskLessCon(icon[i],needRiskLessIcon_[i]));
           }
@@ -158,12 +158,12 @@ private:
         }
       }
 
-      conManager_ = std::make_shared<ConstraintManager<Real>>(cvec,lvec,bvec,x,bnd);
+      conManager_ = ROL::makeShared<ConstraintManager<Real>>(cvec,lvec,bvec,x,bnd);
       con_        = conManager_->getConstraint();
       mul_        = conManager_->getMultiplier();
       sol_        = conManager_->getOptVector();
       bnd_        = conManager_->getBoundConstraint();
-      std::shared_ptr<Objective<Real> > obj0;
+      ROL::SharedPointer<Objective<Real> > obj0;
       if (isStochastic_) {
         obj0 = setRiskLessObj(obj,needRiskLessObj_);
       }
@@ -171,14 +171,14 @@ private:
         obj0 = obj;
       }
       if ( conManager_->hasInequality() ) {
-        obj_      = std::make_shared<SlacklessObjective<Real>>(obj0);
+        obj_      = ROL::makeShared<SlacklessObjective<Real>>(obj0);
       }
       else {
         obj_      = obj0;
       }
 
       if ( conManager_->isNull() ) {
-        if( bnd_ == nullptr || !bnd_->isActivated() ) {  // Type-U
+        if( bnd_ == ROL::nullPointer || !bnd_->isActivated() ) {  // Type-U
           problemType_ = TYPE_U;
         }
         else { // Type-B
@@ -186,7 +186,7 @@ private:
         }
       }
       else {
-        if( bnd_ == nullptr || !bnd_->isActivated() ) { // Type-E
+        if( bnd_ == ROL::nullPointer || !bnd_->isActivated() ) { // Type-E
           problemType_ = TYPE_E;
         }
         else { // Type-EB
@@ -197,25 +197,25 @@ private:
     }
   }
 
-  const std::shared_ptr<Constraint<Real> > setRiskLessCon(const std::shared_ptr<Constraint<Real> > &con, const bool needRiskLess) const {
+  const ROL::SharedPointer<Constraint<Real> > setRiskLessCon(const ROL::SharedPointer<Constraint<Real> > &con, const bool needRiskLess) const {
     if (needRiskLess) {
-      return std::make_shared<RiskLessConstraint<Real>>(con);
+      return ROL::makeShared<RiskLessConstraint<Real>>(con);
     }
     else {
       return con;
     }
   }
 
-  const std::shared_ptr<Objective<Real> > setRiskLessObj(const std::shared_ptr<Objective<Real> > &obj, const bool needRiskLess) const {
+  const ROL::SharedPointer<Objective<Real> > setRiskLessObj(const ROL::SharedPointer<Objective<Real> > &obj, const bool needRiskLess) const {
     if (needRiskLess) {
-      return std::make_shared<RiskLessObjective<Real>>(obj);
+      return ROL::makeShared<RiskLessObjective<Real>>(obj);
     }
     else {
       return obj;
     }
   }
 
-  std::vector<Real> computeSampleMean(const std::shared_ptr<SampleGenerator<Real> > &sampler) const {
+  std::vector<Real> computeSampleMean(const ROL::SharedPointer<SampleGenerator<Real> > &sampler) const {
     // Compute mean value of inputs and set parameter in objective
     int dim = sampler->getMyPoint(0).size(), nsamp = sampler->numMySamples();
     std::vector<Real> loc(dim), mean(dim), pt(dim);
@@ -238,40 +238,40 @@ private:
       needRiskLessObj_ = true;
       needRiskLessEcon_.clear(); needRiskLessEcon_.resize(econSize,true);
       needRiskLessIcon_.clear(); needRiskLessIcon_.resize(iconSize,true);
-      parlistObj_ = nullptr;
-      parlistCon_.clear(); parlistCon_.resize(iconSize,nullptr);
+      parlistObj_ = ROL::nullPointer;
+      parlistCon_.clear(); parlistCon_.resize(iconSize,ROL::nullPointer);
 
-      exsampler_.clear(); exsampler_.resize(econSize,nullptr);
-      ecbman_.clear();    ecbman_.resize(econSize,nullptr);
+      exsampler_.clear(); exsampler_.resize(econSize,ROL::nullPointer);
+      ecbman_.clear();    ecbman_.resize(econSize,ROL::nullPointer);
 
-      ixsampler_.clear(); ixsampler_.resize(iconSize,nullptr);
-      icbman_.clear();    icbman_.resize(iconSize,nullptr);
+      ixsampler_.clear(); ixsampler_.resize(iconSize,ROL::nullPointer);
+      icbman_.clear();    icbman_.resize(iconSize,ROL::nullPointer);
 
       isStochastic_ = true;
     }
   }
 
-  void buildRiskVec(std::shared_ptr<Vector<Real> > &x) {
+  void buildRiskVec(ROL::SharedPointer<Vector<Real> > &x) {
     // Build risk vector and risk bound constraint
     INTERMEDIATE_sol_
-      = std::make_shared<RiskVector<Real>>(parlistObj_,parlistCon_,x);
-    if (parlistObj_ != nullptr) {
+      = ROL::makeShared<RiskVector<Real>>(parlistObj_,parlistCon_,x);
+    if (parlistObj_ != ROL::nullPointer) {
       Real statObj = parlistObj_->sublist("SOL").get("Initial Statistic",1.0);
-      std::dynamic_pointer_cast<RiskVector<Real> >(INTERMEDIATE_sol_)->setStatistic(statObj,0);
+      ROL::dynamicPointerCast<RiskVector<Real> >(INTERMEDIATE_sol_)->setStatistic(statObj,0);
     }
     int nc = INPUT_icon_.size();
     for (int i = 0; i < nc; ++i) {
-      if (parlistCon_[i] != nullptr) {
+      if (parlistCon_[i] != ROL::nullPointer) {
         Real statCon = parlistCon_[i]->sublist("SOL").get("Initial Statistic",1.0);
-        std::dynamic_pointer_cast<RiskVector<Real> >(INTERMEDIATE_sol_)->setStatistic(statCon,1,i);
+        ROL::dynamicPointerCast<RiskVector<Real> >(INTERMEDIATE_sol_)->setStatistic(statCon,1,i);
       }
     }
   }
 
-  void buildRiskBnd(std::shared_ptr<BoundConstraint<Real> > &bnd) {
-    if ( INPUT_bnd_ != nullptr ) {
+  void buildRiskBnd(ROL::SharedPointer<BoundConstraint<Real> > &bnd) {
+    if ( INPUT_bnd_ != ROL::nullPointer ) {
       INTERMEDIATE_bnd_
-        = std::make_shared<RiskBoundConstraint<Real>>(parlistObj_,parlistCon_,bnd);
+        = ROL::makeShared<RiskBoundConstraint<Real>>(parlistObj_,parlistCon_,bnd);
     }
   }
 
@@ -283,14 +283,14 @@ public:
    : isInitialized_(false), isStochastic_(false) {}
 
   // Complete option constructor [1]
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &econ,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &emul,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &icon,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &imul,
-                       const std::vector<std::shared_ptr<BoundConstraint<Real> > > &ibnd )
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &econ,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &emul,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &icon,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &imul,
+                       const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &ibnd )
     : INPUT_obj_(obj), INPUT_sol_(x), INPUT_bnd_(bnd),
       INPUT_econ_(econ), INPUT_emul_(emul),
       INPUT_icon_(icon), INPUT_imul_(imul), INPUT_ibnd_(ibnd),
@@ -299,43 +299,43 @@ public:
       INTERMEDIATE_icon_(icon), INTERMEDIATE_imul_(imul), INTERMEDIATE_ibnd_(ibnd),
       isInitialized_(false), isStochastic_(false) {}
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                       const std::shared_ptr<Constraint<Real> >                    &econ,
-                       const std::shared_ptr<Vector<Real> >                        &emul,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &icon,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &imul,
-                       const std::vector<std::shared_ptr<BoundConstraint<Real> > > &ibnd )
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                       const ROL::SharedPointer<Constraint<Real> >                    &econ,
+                       const ROL::SharedPointer<Vector<Real> >                        &emul,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &icon,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &imul,
+                       const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &ibnd )
     : INPUT_obj_(obj), INPUT_sol_(x), INPUT_bnd_(bnd),
       INPUT_icon_(icon), INPUT_imul_(imul), INPUT_ibnd_(ibnd),
       INTERMEDIATE_obj_(obj), INTERMEDIATE_sol_(x), INTERMEDIATE_bnd_(bnd),
       INTERMEDIATE_icon_(icon), INTERMEDIATE_imul_(imul), INTERMEDIATE_ibnd_(ibnd),
       isInitialized_(false), isStochastic_(false) {
-    std::vector<std::shared_ptr<Constraint<Real> > > econ0(1,econ);
-    std::vector<std::shared_ptr<Vector<Real> > >     emul0(1,emul);
+    std::vector<ROL::SharedPointer<Constraint<Real> > > econ0(1,econ);
+    std::vector<ROL::SharedPointer<Vector<Real> > >     emul0(1,emul);
     INPUT_econ_ = econ0;
     INPUT_emul_ = emul0;
     INTERMEDIATE_econ_ = econ0;
     INTERMEDIATE_emul_ = emul0;
   }
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &econ,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &emul,
-                       const std::shared_ptr<Constraint<Real> >                    &icon,
-                       const std::shared_ptr<Vector<Real> >                        &imul,
-                       const std::shared_ptr<BoundConstraint<Real> >               &ibnd )
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &econ,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &emul,
+                       const ROL::SharedPointer<Constraint<Real> >                    &icon,
+                       const ROL::SharedPointer<Vector<Real> >                        &imul,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &ibnd )
     : INPUT_obj_(obj), INPUT_sol_(x), INPUT_bnd_(bnd),
       INPUT_econ_(econ), INPUT_emul_(emul),
       INTERMEDIATE_obj_(obj), INTERMEDIATE_sol_(x), INTERMEDIATE_bnd_(bnd),
       INTERMEDIATE_econ_(econ), INTERMEDIATE_emul_(emul),
       isInitialized_(false), isStochastic_(false) {
-    std::vector<std::shared_ptr<Constraint<Real> > >      icon0(1,icon);
-    std::vector<std::shared_ptr<Vector<Real> > >          imul0(1,imul);
-    std::vector<std::shared_ptr<BoundConstraint<Real> > > ibnd0(1,ibnd);
+    std::vector<ROL::SharedPointer<Constraint<Real> > >      icon0(1,icon);
+    std::vector<ROL::SharedPointer<Vector<Real> > >          imul0(1,imul);
+    std::vector<ROL::SharedPointer<BoundConstraint<Real> > > ibnd0(1,ibnd);
     INPUT_icon_ = icon0;
     INPUT_imul_ = imul0;
     INPUT_ibnd_ = ibnd0;
@@ -344,22 +344,22 @@ public:
     INTERMEDIATE_ibnd_ = ibnd0;
   }
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                       const std::shared_ptr<Constraint<Real> >                    &econ,
-                       const std::shared_ptr<Vector<Real> >                        &emul,
-                       const std::shared_ptr<Constraint<Real> >                    &icon,
-                       const std::shared_ptr<Vector<Real> >                        &imul,
-                       const std::shared_ptr<BoundConstraint<Real> >               &ibnd )
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                       const ROL::SharedPointer<Constraint<Real> >                    &econ,
+                       const ROL::SharedPointer<Vector<Real> >                        &emul,
+                       const ROL::SharedPointer<Constraint<Real> >                    &icon,
+                       const ROL::SharedPointer<Vector<Real> >                        &imul,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &ibnd )
     : INPUT_obj_(obj), INPUT_sol_(x), INPUT_bnd_(bnd),
       INTERMEDIATE_obj_(obj), INTERMEDIATE_sol_(x), INTERMEDIATE_bnd_(bnd),
       isInitialized_(false), isStochastic_(false) {
-    std::vector<std::shared_ptr<Constraint<Real> > >      econ0(1,econ);
-    std::vector<std::shared_ptr<Vector<Real> > >          emul0(1,emul);
-    std::vector<std::shared_ptr<Constraint<Real> > >      icon0(1,icon);
-    std::vector<std::shared_ptr<Vector<Real> > >          imul0(1,imul);
-    std::vector<std::shared_ptr<BoundConstraint<Real> > > ibnd0(1,ibnd);
+    std::vector<ROL::SharedPointer<Constraint<Real> > >      econ0(1,econ);
+    std::vector<ROL::SharedPointer<Vector<Real> > >          emul0(1,emul);
+    std::vector<ROL::SharedPointer<Constraint<Real> > >      icon0(1,icon);
+    std::vector<ROL::SharedPointer<Vector<Real> > >          imul0(1,imul);
+    std::vector<ROL::SharedPointer<BoundConstraint<Real> > > ibnd0(1,ibnd);
     INPUT_econ_ = econ0;
     INPUT_emul_ = emul0;
     INPUT_icon_ = icon0;
@@ -373,117 +373,117 @@ public:
   }
 
   // No bound constuctor [2]
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &econ,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &emul,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &icon,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &imul,
-                       const std::vector<std::shared_ptr<BoundConstraint<Real> > > &ibnd )
-    : OptimizationProblem( obj, x, nullptr, econ, emul, icon, imul, ibnd ) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &econ,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &emul,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &icon,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &imul,
+                       const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &ibnd )
+    : OptimizationProblem( obj, x, ROL::nullPointer, econ, emul, icon, imul, ibnd ) {}
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<Constraint<Real> >                    &econ,
-                       const std::shared_ptr<Vector<Real> >                        &emul,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &icon,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &imul,
-                       const std::vector<std::shared_ptr<BoundConstraint<Real> > > &ibnd )
-    : OptimizationProblem( obj, x, nullptr, econ, emul, icon, imul, ibnd) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<Constraint<Real> >                    &econ,
+                       const ROL::SharedPointer<Vector<Real> >                        &emul,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &icon,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &imul,
+                       const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &ibnd )
+    : OptimizationProblem( obj, x, ROL::nullPointer, econ, emul, icon, imul, ibnd) {}
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &econ,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &emul,
-                       const std::shared_ptr<Constraint<Real> >                    &icon,
-                       const std::shared_ptr<Vector<Real> >                        &imul,
-                       const std::shared_ptr<BoundConstraint<Real> >               &ibnd )
-    : OptimizationProblem( obj, x, nullptr, econ, emul, icon, imul, ibnd) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &econ,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &emul,
+                       const ROL::SharedPointer<Constraint<Real> >                    &icon,
+                       const ROL::SharedPointer<Vector<Real> >                        &imul,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &ibnd )
+    : OptimizationProblem( obj, x, ROL::nullPointer, econ, emul, icon, imul, ibnd) {}
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<Constraint<Real> >                    &econ,
-                       const std::shared_ptr<Vector<Real> >                        &emul,
-                       const std::shared_ptr<Constraint<Real> >                    &icon,
-                       const std::shared_ptr<Vector<Real> >                        &imul,
-                       const std::shared_ptr<BoundConstraint<Real> >               &ibnd )
-    : OptimizationProblem( obj, x, nullptr, econ, emul, icon, imul, ibnd) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<Constraint<Real> >                    &econ,
+                       const ROL::SharedPointer<Vector<Real> >                        &emul,
+                       const ROL::SharedPointer<Constraint<Real> >                    &icon,
+                       const ROL::SharedPointer<Vector<Real> >                        &imul,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &ibnd )
+    : OptimizationProblem( obj, x, ROL::nullPointer, econ, emul, icon, imul, ibnd) {}
 
   // No inequality constraint [3]
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &econ,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &emul )
-    : OptimizationProblem( obj, x, bnd, econ, emul, nullptr, nullptr, nullptr ) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &econ,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &emul )
+    : OptimizationProblem( obj, x, bnd, econ, emul, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer ) {}
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                       const std::shared_ptr<Constraint<Real> >                    &econ,
-                       const std::shared_ptr<Vector<Real> >                        &emul )
-    : OptimizationProblem( obj, x, bnd, econ, emul, nullptr, nullptr, nullptr) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                       const ROL::SharedPointer<Constraint<Real> >                    &econ,
+                       const ROL::SharedPointer<Vector<Real> >                        &emul )
+    : OptimizationProblem( obj, x, bnd, econ, emul, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer) {}
 
   // No equality constraint [4]
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &icon,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &imul,
-                       const std::vector<std::shared_ptr<BoundConstraint<Real> > > &ibnd )
-    : OptimizationProblem( obj, x, bnd, nullptr, nullptr, icon, imul, ibnd ) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &icon,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &imul,
+                       const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &ibnd )
+    : OptimizationProblem( obj, x, bnd, ROL::nullPointer, ROL::nullPointer, icon, imul, ibnd ) {}
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd,
-                       const std::shared_ptr<Constraint<Real> >                    &icon,
-                       const std::shared_ptr<Vector<Real> >                        &imul,
-                       const std::shared_ptr<BoundConstraint<Real> >               &ibnd )
-    : OptimizationProblem( obj, x, bnd, nullptr, nullptr, icon, imul, ibnd) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd,
+                       const ROL::SharedPointer<Constraint<Real> >                    &icon,
+                       const ROL::SharedPointer<Vector<Real> >                        &imul,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &ibnd )
+    : OptimizationProblem( obj, x, bnd, ROL::nullPointer, ROL::nullPointer, icon, imul, ibnd) {}
 
   // No inequality or bound constraint [5]
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &econ,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &emul )
-    : OptimizationProblem( obj, x, nullptr, econ, emul, nullptr, nullptr, nullptr ) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &econ,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &emul )
+    : OptimizationProblem( obj, x, ROL::nullPointer, econ, emul, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer ) {}
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<Constraint<Real> >                    &econ,
-                       const std::shared_ptr<Vector<Real> >                        &emul )
-    : OptimizationProblem( obj, x, nullptr, econ, emul, nullptr, nullptr, nullptr) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<Constraint<Real> >                    &econ,
+                       const ROL::SharedPointer<Vector<Real> >                        &emul )
+    : OptimizationProblem( obj, x, ROL::nullPointer, econ, emul, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer) {}
 
   // No equality or bound constraint [6]
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::vector<std::shared_ptr<Constraint<Real> > >      &icon,
-                       const std::vector<std::shared_ptr<Vector<Real> > >          &imul,
-                       const std::vector<std::shared_ptr<BoundConstraint<Real> > > &ibnd )
-    : OptimizationProblem( obj, x, nullptr, nullptr, nullptr, icon, imul, ibnd ) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const std::vector<ROL::SharedPointer<Constraint<Real> > >      &icon,
+                       const std::vector<ROL::SharedPointer<Vector<Real> > >          &imul,
+                       const std::vector<ROL::SharedPointer<BoundConstraint<Real> > > &ibnd )
+    : OptimizationProblem( obj, x, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer, icon, imul, ibnd ) {}
 
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<Constraint<Real> >                    &icon,
-                       const std::shared_ptr<Vector<Real> >                        &imul,
-                       const std::shared_ptr<BoundConstraint<Real> >               &ibnd )
-    : OptimizationProblem( obj, x, nullptr, nullptr, nullptr, icon, imul, ibnd) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<Constraint<Real> >                    &icon,
+                       const ROL::SharedPointer<Vector<Real> >                        &imul,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &ibnd )
+    : OptimizationProblem( obj, x, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer, icon, imul, ibnd) {}
 
   // Bound constrained problem [7]
-  OptimizationProblem( const std::shared_ptr<Objective<Real> >                     &obj,
-                       const std::shared_ptr<Vector<Real> >                        &x,
-                       const std::shared_ptr<BoundConstraint<Real> >               &bnd )
-    : OptimizationProblem( obj, x, bnd, nullptr, nullptr, nullptr, nullptr, nullptr ) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> >                     &obj,
+                       const ROL::SharedPointer<Vector<Real> >                        &x,
+                       const ROL::SharedPointer<BoundConstraint<Real> >               &bnd )
+    : OptimizationProblem( obj, x, bnd, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer ) {}
 
   // Unconstrained problem [8]
-  OptimizationProblem( const std::shared_ptr<Objective<Real> > &obj,
-                       const std::shared_ptr<Vector<Real> >    &x ) :
-     OptimizationProblem( obj, x, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr ) {}
+  OptimizationProblem( const ROL::SharedPointer<Objective<Real> > &obj,
+                       const ROL::SharedPointer<Vector<Real> >    &x ) :
+     OptimizationProblem( obj, x, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer, ROL::nullPointer ) {}
 
   /* Get methods */
 
-  virtual std::shared_ptr<Objective<Real> > getObjective(void) {
-    if ( INTERMEDIATE_obj_ == nullptr ) {
+  virtual ROL::SharedPointer<Objective<Real> > getObjective(void) {
+    if ( INTERMEDIATE_obj_ == ROL::nullPointer ) {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::getObjective: No objective inputed!");
     }
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
@@ -492,8 +492,8 @@ public:
     return obj_;
   }
 
-  virtual std::shared_ptr<Vector<Real> > getSolutionVector(void) {
-    if ( INTERMEDIATE_sol_ == nullptr ) {
+  virtual ROL::SharedPointer<Vector<Real> > getSolutionVector(void) {
+    if ( INTERMEDIATE_sol_ == ROL::nullPointer ) {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::getSolutionVector: No solution vector inputed!");
     }
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
@@ -502,21 +502,21 @@ public:
     return sol_;
   }
 
-  virtual std::shared_ptr<BoundConstraint<Real> > getBoundConstraint(void) {
+  virtual ROL::SharedPointer<BoundConstraint<Real> > getBoundConstraint(void) {
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
                INTERMEDIATE_econ_,INTERMEDIATE_emul_,
                INTERMEDIATE_icon_,INTERMEDIATE_imul_,INTERMEDIATE_ibnd_);
     return bnd_;
   }
 
-  virtual std::shared_ptr<Constraint<Real> > getConstraint(void) {
+  virtual ROL::SharedPointer<Constraint<Real> > getConstraint(void) {
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
                INTERMEDIATE_econ_,INTERMEDIATE_emul_,
                INTERMEDIATE_icon_,INTERMEDIATE_imul_,INTERMEDIATE_ibnd_);
     return con_;
   }
 
-  virtual std::shared_ptr<Vector<Real> > getMultiplierVector(void) {
+  virtual ROL::SharedPointer<Vector<Real> > getMultiplierVector(void) {
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
                INTERMEDIATE_econ_,INTERMEDIATE_emul_,
                INTERMEDIATE_icon_,INTERMEDIATE_imul_,INTERMEDIATE_ibnd_);
@@ -543,14 +543,14 @@ public:
 
       @param[in]    sampler  is the SampleGenerator defining the distribution of the auxiliary parameter
   */
-  void setMeanValueObjective(const std::shared_ptr<SampleGenerator<Real> > &sampler) {
+  void setMeanValueObjective(const ROL::SharedPointer<SampleGenerator<Real> > &sampler) {
     initStochastic();
     // Set objective function samplers
     vsampler_ = sampler;
     gsampler_ = sampler;
     hsampler_ = sampler;
     // Construct risk-averse/probabilistic objective function
-    if ( vsampler_ == nullptr ) {
+    if ( vsampler_ == ROL::nullPointer ) {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::setMeanValueObjective: Objective function value sampler is null!");
     }
     else {
@@ -577,28 +577,28 @@ public:
       @param[in]    hsampler  is the SampleGenerator defining the distribution of the auxiliary parameter for the Hessian
       @param[in]    storage   whether or not to store the sampled value and gradient
   */
-  void setRiskNeutralObjective(const std::shared_ptr<SampleGenerator<Real> > &vsampler,
-                               const std::shared_ptr<SampleGenerator<Real> > &gsampler = nullptr,
-                               const std::shared_ptr<SampleGenerator<Real> > &hsampler = nullptr,
+  void setRiskNeutralObjective(const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
+                               const ROL::SharedPointer<SampleGenerator<Real> > &gsampler = ROL::nullPointer,
+                               const ROL::SharedPointer<SampleGenerator<Real> > &hsampler = ROL::nullPointer,
                                const bool storage = true) {
     initStochastic();
     // Set objective function samplers
     vsampler_ = vsampler;
     gsampler_ = gsampler;
     hsampler_ = hsampler;
-    if ( gsampler == nullptr ) {
+    if ( gsampler == ROL::nullPointer ) {
       gsampler_ = vsampler_;
     }
-    if ( hsampler == nullptr ) {
+    if ( hsampler == ROL::nullPointer ) {
       hsampler_ = gsampler_;
     }
     // Construct risk-averse/probabilistic objective function
-    if ( vsampler_ == nullptr ) {
+    if ( vsampler_ == ROL::nullPointer ) {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::setRiskNeutralObjective: Objective function value sampler is null!");
     }
     else {
       INTERMEDIATE_obj_
-        = std::make_shared<RiskNeutralObjective<Real>>(INPUT_obj_,vsampler_,gsampler_,hsampler_,storage);
+        = ROL::makeShared<RiskNeutralObjective<Real>>(INPUT_obj_,vsampler_,gsampler_,hsampler_,storage);
     }
     // Set vector and bound constraint
     buildRiskVec(INPUT_sol_);
@@ -620,29 +620,29 @@ public:
       @param[in]    hsampler  is the SampleGenerator defining the distribution of the auxiliary parameter for the Hessian
   */
   void setRiskAverseObjective(Teuchos::ParameterList &parlist,
-                              const std::shared_ptr<SampleGenerator<Real> > &vsampler,
-                              const std::shared_ptr<SampleGenerator<Real> > &gsampler = nullptr,
-                              const std::shared_ptr<SampleGenerator<Real> > &hsampler = nullptr) {
+                              const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
+                              const ROL::SharedPointer<SampleGenerator<Real> > &gsampler = ROL::nullPointer,
+                              const ROL::SharedPointer<SampleGenerator<Real> > &hsampler = ROL::nullPointer) {
     initStochastic();
     // Set objective function samplers
     vsampler_ = vsampler;
     gsampler_ = gsampler;
     hsampler_ = hsampler;
-    if ( gsampler == nullptr ) {
+    if ( gsampler == ROL::nullPointer ) {
       gsampler_ = vsampler_;
     }
-    if ( hsampler == nullptr ) {
+    if ( hsampler == ROL::nullPointer ) {
       hsampler_ = gsampler_;
     }
     // Construct risk-averse/probabilistic objective function
-    if ( vsampler_ == nullptr ) {
+    if ( vsampler_ == ROL::nullPointer ) {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::setRiskAverseObjective: Objective function value sampler is null!");
     }
     else {
       needRiskLessObj_ = false;
       parlistObj_.reset(&parlist, [](Teuchos::ParameterList*){});
       INTERMEDIATE_obj_
-        = std::make_shared<RiskAverseObjective<Real>>(INPUT_obj_,parlist,vsampler_,gsampler_,hsampler_);
+        = ROL::makeShared<RiskAverseObjective<Real>>(INPUT_obj_,parlist,vsampler_,gsampler_,hsampler_);
     }
     // Set vector and bound constraint
     buildRiskVec(INPUT_sol_);
@@ -652,9 +652,9 @@ public:
   }
 
   void setStochasticObjective(Teuchos::ParameterList &parlist,
-                              const std::shared_ptr<SampleGenerator<Real> > &vsampler,
-                              const std::shared_ptr<SampleGenerator<Real> > &gsampler = nullptr,
-                              const std::shared_ptr<SampleGenerator<Real> > &hsampler = nullptr) {
+                              const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
+                              const ROL::SharedPointer<SampleGenerator<Real> > &gsampler = ROL::nullPointer,
+                              const ROL::SharedPointer<SampleGenerator<Real> > &hsampler = ROL::nullPointer) {
     // Determine Stochastic Objective Type
     std::string type = parlist.sublist("SOL").get("Stochastic Component Type","Risk Neutral");
     if ( type == "Risk Neutral" ) {
@@ -678,10 +678,10 @@ public:
   }
 
   /* Equality Constraint */
-  void setMeanValueEquality(const std::shared_ptr<SampleGenerator<Real> > &sampler, const int index = 0) {
+  void setMeanValueEquality(const ROL::SharedPointer<SampleGenerator<Real> > &sampler, const int index = 0) {
     initStochastic();
     exsampler_[index] = sampler;
-    if ( INPUT_econ_[index] != nullptr && sampler != nullptr ) {
+    if ( INPUT_econ_[index] != ROL::nullPointer && sampler != ROL::nullPointer ) {
       std::vector<Real> mean = computeSampleMean(sampler);
       INTERMEDIATE_econ_[index] = INPUT_econ_[index];
       INTERMEDIATE_econ_[index]->setParameter(mean);
@@ -697,17 +697,17 @@ public:
     isInitialized_ = false;
   }
 
-  void setRiskNeutralEquality(const std::shared_ptr<SampleGenerator<Real> > &xsampler,
-                              const std::shared_ptr<BatchManager<Real> >    &cbman,
+  void setRiskNeutralEquality(const ROL::SharedPointer<SampleGenerator<Real> > &xsampler,
+                              const ROL::SharedPointer<BatchManager<Real> >    &cbman,
                               const int index = 0) {
     initStochastic();
     exsampler_[index] = xsampler;
     ecbman_[index]    = cbman;
-    if ( INPUT_econ_[index] != nullptr
-         &&        xsampler != nullptr
-         &&           cbman != nullptr ) {
+    if ( INPUT_econ_[index] != ROL::nullPointer
+         &&        xsampler != ROL::nullPointer
+         &&           cbman != ROL::nullPointer ) {
       INTERMEDIATE_econ_[index]
-        = std::make_shared<RiskNeutralConstraint<Real>>(INPUT_econ_[index],xsampler,cbman);
+        = ROL::makeShared<RiskNeutralConstraint<Real>>(INPUT_econ_[index],xsampler,cbman);
       INTERMEDIATE_emul_[index] = INPUT_emul_[index];
     }
     else {
@@ -720,21 +720,21 @@ public:
     isInitialized_ = false;
   }
 
-  void setAlmostSureEquality(const std::shared_ptr<SampleGenerator<Real> > &sampler,
+  void setAlmostSureEquality(const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
                              const int index = 0) {
     initStochastic();
     exsampler_[index] = sampler;
-    if ( INPUT_econ_[index] != nullptr && sampler != nullptr ) {
+    if ( INPUT_econ_[index] != ROL::nullPointer && sampler != ROL::nullPointer ) {
       int nsamp = sampler->numMySamples();
       INTERMEDIATE_econ_[index]
-        = std::make_shared<AlmostSureConstraint<Real>>(sampler,INPUT_econ_[index]);
-      std::vector<std::shared_ptr<Vector<Real> > > emul(nsamp,nullptr);
+        = ROL::makeShared<AlmostSureConstraint<Real>>(sampler,INPUT_econ_[index]);
+      std::vector<ROL::SharedPointer<Vector<Real> > > emul(nsamp,ROL::nullPointer);
       for (int j = 0; j < nsamp; ++j) {
         emul[j] = INPUT_emul_[index]->clone();
         emul[j]->set(*INPUT_emul_[index]);
       }
       INTERMEDIATE_emul_[index]
-        = std::make_shared<DualSimulatedVector<Real>>(emul, sampler->getBatchManager(), sampler);
+        = ROL::makeShared<DualSimulatedVector<Real>>(emul, sampler->getBatchManager(), sampler);
     }
     else {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::SetAlmostSureEquality: Either SampleGenerator or Constraint is NULL!");
@@ -748,15 +748,15 @@ public:
 
 
   void setStochasticEquality(std::vector<Teuchos::ParameterList> &parlist,
-                             const std::vector<std::shared_ptr<SampleGenerator<Real> > > &xsampler,
-                             const std::vector<std::shared_ptr<BatchManager<Real> > > &cbman) {
+                             const std::vector<ROL::SharedPointer<SampleGenerator<Real> > > &xsampler,
+                             const std::vector<ROL::SharedPointer<BatchManager<Real> > > &cbman) {
     initStochastic();
     int nc = static_cast<int>(INPUT_econ_.size());
     if ( nc != static_cast<int>(xsampler.size()) || nc != static_cast<int>(cbman.size()) ) {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::setStochasticEquality: Constraint vector and SampleGenerator vector are not the same size!");
     }
     for (int i = 0; i < nc; ++i) {
-      if (xsampler[i] != nullptr) {
+      if (xsampler[i] != ROL::nullPointer) {
         std::string type = parlist[i].sublist("SOL").get("Stochastic Component Type","Risk Neutral");
         if ( type == "Risk Neutral" ) {
           setRiskNeutralEquality(xsampler[i],cbman[i],i);
@@ -784,20 +784,20 @@ public:
   }
 
   void setStochasticEquality(Teuchos::ParameterList &parlist,
-                             const std::shared_ptr<SampleGenerator<Real> > &xsampler,
-                             const std::shared_ptr<BatchManager<Real> > &cbman) {
+                             const ROL::SharedPointer<SampleGenerator<Real> > &xsampler,
+                             const ROL::SharedPointer<BatchManager<Real> > &cbman) {
     std::vector<Teuchos::ParameterList> cparlist(1,parlist);
-    std::vector<std::shared_ptr<SampleGenerator<Real> > > cxsampler(1,xsampler);
-    std::vector<std::shared_ptr<SampleGenerator<Real> > > ccbman(1,cbman);
+    std::vector<ROL::SharedPointer<SampleGenerator<Real> > > cxsampler(1,xsampler);
+    std::vector<ROL::SharedPointer<SampleGenerator<Real> > > ccbman(1,cbman);
     setStochasticEquality(cparlist,cxsampler,ccbman);
   }
 
   /* Inequality constraint */
-  void setMeanValueInequality(const std::shared_ptr<SampleGenerator<Real> > &sampler,
+  void setMeanValueInequality(const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
                               const int index = 0) {
     initStochastic();
     ixsampler_[index] = sampler;
-    if ( INPUT_icon_[index] != nullptr && sampler != nullptr ) {
+    if ( INPUT_icon_[index] != ROL::nullPointer && sampler != ROL::nullPointer ) {
       std::vector<Real> mean = computeSampleMean(sampler);
       INTERMEDIATE_icon_[index] = INPUT_icon_[index];
       INTERMEDIATE_icon_[index]->setParameter(mean);
@@ -814,17 +814,17 @@ public:
     isInitialized_ = false;
   }
 
-  void setRiskNeutralInequality(const std::shared_ptr<SampleGenerator<Real> > &xsampler,
-                                const std::shared_ptr<BatchManager<Real> >    &cbman,
+  void setRiskNeutralInequality(const ROL::SharedPointer<SampleGenerator<Real> > &xsampler,
+                                const ROL::SharedPointer<BatchManager<Real> >    &cbman,
                                 const int index = 0) {
     initStochastic();
     ixsampler_[index] = xsampler;
     icbman_[index]    = cbman;
-    if ( INPUT_icon_[index] != nullptr
-         &&    xsampler     != nullptr
-         &&       cbman     != nullptr ) {
+    if ( INPUT_icon_[index] != ROL::nullPointer
+         &&    xsampler     != ROL::nullPointer
+         &&       cbman     != ROL::nullPointer ) {
       INTERMEDIATE_icon_[index]
-        = std::make_shared<RiskNeutralConstraint<Real>>(INPUT_icon_[index],xsampler,cbman);
+        = ROL::makeShared<RiskNeutralConstraint<Real>>(INPUT_icon_[index],xsampler,cbman);
       INTERMEDIATE_ibnd_[index] = INPUT_ibnd_[index];
       INTERMEDIATE_imul_[index] = INPUT_imul_[index];
     }
@@ -839,15 +839,15 @@ public:
   }
 
   void setRiskAverseInequality(Teuchos::ParameterList &parlist,
-                               const std::shared_ptr<SampleGenerator<Real> > &sampler,
+                               const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
                                const int index = 0) {
     initStochastic();
     ixsampler_[index] = sampler;
-    if ( INPUT_icon_[index] != nullptr && sampler != nullptr ) {
+    if ( INPUT_icon_[index] != ROL::nullPointer && sampler != ROL::nullPointer ) {
       needRiskLessIcon_[index] = false;
       parlistCon_[index].reset(&parlist, [](Teuchos::ParameterList*){});
       INTERMEDIATE_icon_[index]
-        = std::make_shared<RiskAverseConstraint<Real>>(INPUT_icon_[index],sampler,parlist,index);
+        = ROL::makeShared<RiskAverseConstraint<Real>>(INPUT_icon_[index],sampler,parlist,index);
       INTERMEDIATE_ibnd_[index] = INPUT_ibnd_[index];
       INTERMEDIATE_imul_[index] = INPUT_imul_[index];
     }
@@ -861,23 +861,23 @@ public:
     isInitialized_ = false;
   }
 
-  void setAlmostSureInequality(const std::shared_ptr<SampleGenerator<Real> > &sampler,
+  void setAlmostSureInequality(const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
                                const int index = 0) {
     initStochastic();
     ixsampler_[index] = sampler;
-    if ( INPUT_icon_[index] != nullptr && sampler != nullptr ) {
+    if ( INPUT_icon_[index] != ROL::nullPointer && sampler != ROL::nullPointer ) {
       int nsamp = sampler->numMySamples();
       INTERMEDIATE_icon_[index]
-        = std::make_shared<AlmostSureConstraint<Real>>(sampler, INPUT_icon_[index]);
-      std::vector<std::shared_ptr<Vector<Real> > > imul(nsamp,nullptr);
+        = ROL::makeShared<AlmostSureConstraint<Real>>(sampler, INPUT_icon_[index]);
+      std::vector<ROL::SharedPointer<Vector<Real> > > imul(nsamp,ROL::nullPointer);
       for (int j = 0; j < nsamp; ++j) {
         imul[j] = INPUT_imul_[index]->clone();
         imul[j]->set(*INPUT_imul_[index]);
       }
       INTERMEDIATE_imul_[index]
-        = std::make_shared<DualSimulatedVector<Real>>(imul, sampler->getBatchManager(), sampler);
+        = ROL::makeShared<DualSimulatedVector<Real>>(imul, sampler->getBatchManager(), sampler);
       INTERMEDIATE_ibnd_[index]
-        = std::make_shared<SimulatedBoundConstraint<Real>>(sampler, INPUT_ibnd_[index]);
+        = ROL::makeShared<SimulatedBoundConstraint<Real>>(sampler, INPUT_ibnd_[index]);
     }
     else {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::SetAlmostSureInequality: Either Constraint or SampleGenerator is NULL!");
@@ -890,15 +890,15 @@ public:
   }
 
   void setStochasticInequality(std::vector<Teuchos::ParameterList> &parlist,
-                               const std::vector<std::shared_ptr<SampleGenerator<Real> > > &xsampler,
-                               const std::vector<std::shared_ptr<BatchManager<Real> > >    &cbman) {
+                               const std::vector<ROL::SharedPointer<SampleGenerator<Real> > > &xsampler,
+                               const std::vector<ROL::SharedPointer<BatchManager<Real> > >    &cbman) {
     initStochastic();
     int nc = static_cast<int>(INPUT_icon_.size());
     if ( nc != static_cast<int>(xsampler.size()) || nc != static_cast<int>(cbman.size()) ) {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::setStochasticInequality: Constraint vector and SampleGenerator vector are not the same size!");
     }
     for (int i = 0; i < nc; ++i) {
-      if ( xsampler[i] != nullptr ) {
+      if ( xsampler[i] != ROL::nullPointer ) {
         std::string type = parlist[i].sublist("SOL").get("Stochastic Component Type","Risk Neutral");
         if ( type == "Risk Neutral" ) {
           setRiskNeutralInequality(xsampler[i],cbman[i],i);
@@ -930,11 +930,11 @@ public:
   }
 
   void setStochasticInequality(Teuchos::ParameterList &parlist,
-                               const std::shared_ptr<SampleGenerator<Real> > &xsampler,
-                               const std::shared_ptr<BatchManager<Real> > &cbman) {
+                               const ROL::SharedPointer<SampleGenerator<Real> > &xsampler,
+                               const ROL::SharedPointer<BatchManager<Real> > &cbman) {
     std::vector<Teuchos::ParameterList> cparlist(1,parlist);
-    std::vector<std::shared_ptr<SampleGenerator<Real> > > cxsampler(1,xsampler);
-    std::vector<std::shared_ptr<BatchManager<Real> > > ccbman(1,cbman);
+    std::vector<ROL::SharedPointer<SampleGenerator<Real> > > cxsampler(1,xsampler);
+    std::vector<ROL::SharedPointer<BatchManager<Real> > > ccbman(1,cbman);
     setStochasticInequality(cparlist,cxsampler,ccbman);
   }
 
@@ -944,7 +944,7 @@ public:
       @param[in]    index  is the inequality constraint index
   */
   Real getSolutionStatistic(int comp = 0, int index = 0) {
-    std::shared_ptr<Teuchos::ParameterList> parlist;
+    ROL::SharedPointer<Teuchos::ParameterList> parlist;
     if (comp == 0) {
       parlist = parlistObj_;
     }
@@ -958,7 +958,7 @@ public:
     else {
       throw Exception::NotImplemented(">>> ROL::OptimizationProblem::getSolutionStatistic: Component must be either 0 or 1!");
     }
-    if (parlist != nullptr) {
+    if (parlist != ROL::nullPointer) {
       const RiskVector<Real> x
         = dynamic_cast<const RiskVector<Real>&>(
           dynamic_cast<const Vector<Real>&>(*INTERMEDIATE_sol_));
@@ -1015,7 +1015,7 @@ public:
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
                INTERMEDIATE_econ_,INTERMEDIATE_emul_,
                INTERMEDIATE_icon_,INTERMEDIATE_imul_,INTERMEDIATE_ibnd_);
-    if (obj_ != nullptr) {
+    if (obj_ != ROL::nullPointer) {
       outStream << "\nPerforming OptimizationProblem diagnostics." << std::endl << std::endl;
 
       outStream << "Checking vector operations in optimization vector space X." << std::endl;
@@ -1032,7 +1032,7 @@ public:
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
                INTERMEDIATE_econ_,INTERMEDIATE_emul_,
                INTERMEDIATE_icon_,INTERMEDIATE_imul_,INTERMEDIATE_ibnd_);
-    if (obj_ != nullptr) {
+    if (obj_ != ROL::nullPointer) {
       outStream << "\nPerforming OptimizationProblem diagnostics." << std::endl << std::endl;
 
       outStream << "Checking objective function." << std::endl;
@@ -1049,7 +1049,7 @@ public:
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
                INTERMEDIATE_econ_,INTERMEDIATE_emul_,
                INTERMEDIATE_icon_,INTERMEDIATE_imul_,INTERMEDIATE_ibnd_);
-    if(con_ != nullptr) {
+    if(con_ != ROL::nullPointer) {
       outStream << "\nPerforming OptimizationProblem diagnostics." << std::endl << std::endl;
 
       outStream << "Checking vector operations in constraint multiplier space C*." << std::endl;
@@ -1068,7 +1068,7 @@ public:
     initialize(INTERMEDIATE_obj_,INTERMEDIATE_sol_,INTERMEDIATE_bnd_,
                INTERMEDIATE_econ_,INTERMEDIATE_emul_,
                INTERMEDIATE_icon_,INTERMEDIATE_imul_,INTERMEDIATE_ibnd_);
-    if(con_ != nullptr) {
+    if(con_ != ROL::nullPointer) {
       outStream << "\nPerforming OptimizationProblem diagnostics." << std::endl << std::endl;
 
       outStream << "Checking equality constraint." << std::endl;
@@ -1086,7 +1086,7 @@ public:
                INTERMEDIATE_econ_,INTERMEDIATE_emul_,
                INTERMEDIATE_icon_,INTERMEDIATE_imul_,INTERMEDIATE_ibnd_);
 
-    std::shared_ptr<Vector<Real> > x, y, u, v;
+    ROL::SharedPointer<Vector<Real> > x, y, u, v;
     try {
       x = sol_->clone(); RandomizeVector(*x);
       y = sol_->clone(); RandomizeVector(*y);
@@ -1100,8 +1100,8 @@ public:
 //      throw Exception::NotImplemented(">>> ROL::OptimizationProblem::check: Elementwise is not implemented for optimization space vectors");
     }
 
-    if(con_ != nullptr) {
-      std::shared_ptr<Vector<Real> > c, l, w, q;
+    if(con_ != ROL::nullPointer) {
+      ROL::SharedPointer<Vector<Real> > c, l, w, q;
       try {
         c = mul_->dual().clone(); RandomizeVector(*c);
         l = mul_->clone();        RandomizeVector(*l);

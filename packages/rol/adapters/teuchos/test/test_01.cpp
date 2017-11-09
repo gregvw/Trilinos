@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 
     // Basis tests.
     // set x to first basis vector
-    std::shared_ptr<V> zp = x.basis(0);
+    ROL::SharedPointer<V> zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";
     if ( std::abs(znorm-1.0) > errtol ) {

@@ -66,10 +66,10 @@ namespace ROL {
 template <class Real>
 class TrustRegionModel : public Objective<Real> {
 private:
-  std::shared_ptr<Objective<Real> > obj_;
-  std::shared_ptr<const Vector<Real> > x_, g_;
-  std::shared_ptr<Vector<Real> > dual_;
-  std::shared_ptr<Secant<Real> > secant_;
+  ROL::SharedPointer<Objective<Real> > obj_;
+  ROL::SharedPointer<const Vector<Real> > x_, g_;
+  ROL::SharedPointer<Vector<Real> > dual_;
+  ROL::SharedPointer<Secant<Real> > secant_;
 
   const bool useSecantPrecond_;
   const bool useSecantHessVec_;
@@ -79,22 +79,22 @@ public:
   virtual ~TrustRegionModel() {}
 
   TrustRegionModel(Objective<Real> &obj, const Vector<Real> &x, const Vector<Real> &g, const bool init = true)
-    : secant_(nullptr), useSecantPrecond_(false), useSecantHessVec_(false) {
-    obj_.reset(&obj, [](Objective<Real>*){});
-    x_.reset(&x, [](const Vector<Real>*){});
-    g_.reset(&g, [](const Vector<Real>*){});
+    : secant_(ROL::nullPointer), useSecantPrecond_(false), useSecantHessVec_(false) {
+    obj_ = ROL::makeSharedFromRef(obj);
+    x_   = ROL::makeSharedFromRef(x);
+    g_   = ROL::makeSharedFromRef(g);
     if ( init ) {
       dual_ = g.clone();
     }
   }
 
   TrustRegionModel(Objective<Real> &obj, const Vector<Real> &x, const Vector<Real> &g,
-                   const std::shared_ptr<Secant<Real> > &secant,
+                   const ROL::SharedPointer<Secant<Real> > &secant,
                    const bool useSecantPrecond, const bool useSecantHessVec)
     : secant_(secant), useSecantPrecond_(useSecantPrecond), useSecantHessVec_(useSecantHessVec) {
-    obj_.reset(&obj, [](Objective<Real>*){});
-    x_.reset(&x, [](const Vector<Real>*){});
-    g_.reset(&g, [](const Vector<Real>*){});
+    obj_ = ROL::makeSharedFromRef(obj);
+    x_   = ROL::makeSharedFromRef(x);
+    g_   = ROL::makeSharedFromRef(g);
     dual_ = g.clone();
   }
 
@@ -159,20 +159,20 @@ public:
 
   virtual void updateActualReduction(Real &ared, const Vector<Real> &s) {}
 
-  virtual const std::shared_ptr<const Vector<Real> > getGradient(void) const {
+  virtual const ROL::SharedPointer<const Vector<Real> > getGradient(void) const {
     return g_;
   }
 
-  virtual const std::shared_ptr<const Vector<Real> > getIterate(void) const {
+  virtual const ROL::SharedPointer<const Vector<Real> > getIterate(void) const {
     return x_;
   }
 
-  virtual const std::shared_ptr<Objective<Real> > getObjective(void) const {
+  virtual const ROL::SharedPointer<Objective<Real> > getObjective(void) const {
     return obj_;
   }
 
-  virtual const std::shared_ptr<BoundConstraint<Real> > getBoundConstraint(void) const {
-    return nullptr;
+  virtual const ROL::SharedPointer<BoundConstraint<Real> > getBoundConstraint(void) const {
+    return ROL::nullPointer;
   }
 
   virtual void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {}

@@ -61,12 +61,12 @@ template <class Real>
 class EpetraMultiVector : public Vector<Real> {
 private:
 
-  std::shared_ptr<Epetra_MultiVector>  epetra_vec_;
+  ROL::SharedPointer<Epetra_MultiVector>  epetra_vec_;
 
 public:
   virtual ~EpetraMultiVector() {}
 
-  EpetraMultiVector(const std::shared_ptr<Epetra_MultiVector> & epetra_vec) : epetra_vec_(epetra_vec) {}
+  EpetraMultiVector(const ROL::SharedPointer<Epetra_MultiVector> & epetra_vec) : epetra_vec_(epetra_vec) {}
 
   /** \brief Compute \f$y \leftarrow x + y\f$ where \f$y = \mbox{*this}\f$.
   */
@@ -100,9 +100,9 @@ public:
 
   /** \brief Clone to make a new (uninitialized) vector.
   */
-  std::shared_ptr<Vector<Real> > clone() const{
+  ROL::SharedPointer<Vector<Real> > clone() const{
     return Teuchos::rcp(new EpetraMultiVector( 
-  	     std::make_shared<Epetra_MultiVector(epetra_vec_->Map(),epetra_vec_->NumVectors>(),false)) );
+  	     ROL::makeShared<Epetra_MultiVector(epetra_vec_->Map(),epetra_vec_->NumVectors>(),false)) );
   }
 
   /** \brief Compute \f$y \leftarrow \alpha x + y\f$ where \f$y = \mbox{*this}\f$.
@@ -129,16 +129,16 @@ public:
     epetra_vec_->Scale(1.0,*ex.getVector());
   }
 
-  std::shared_ptr<const Epetra_MultiVector> getVector() const {
+  ROL::SharedPointer<const Epetra_MultiVector> getVector() const {
     return this->epetra_vec_;
   }
 
-  std::shared_ptr<Epetra_MultiVector> getVector() {
+  ROL::SharedPointer<Epetra_MultiVector> getVector() {
     return this->epetra_vec_;
   }
 
-  std::shared_ptr<Vector<Real> > basis( const int i ) const {
-    std::shared_ptr<EpetraMultiVector> e = std::make_shared<EpetraMultiVector( Teuchos::std::make_shared<Epetra_MultiVector(epetra_vec_->Map(),epetra_vec_->NumVectors>>(),true));
+  ROL::SharedPointer<Vector<Real> > basis( const int i ) const {
+    ROL::SharedPointer<EpetraMultiVector> e = ROL::makeShared<EpetraMultiVector( Teuchos::ROL::makeShared<Epetra_MultiVector(epetra_vec_->Map(),epetra_vec_->NumVectors>>(),true));
     const Epetra_BlockMap & domainMap = e->getVector()->Map();
 
     Epetra_Map linearMap(domainMap.NumGlobalElements(), domainMap.NumMyElements(), 0, domainMap.Comm());

@@ -80,12 +80,12 @@ class MeanVariance : public RiskMeasure<Real> {
   typedef typename std::vector<Real>::size_type uint;
 private:
 
-  std::shared_ptr<PositiveFunction<Real> > positiveFunction_;
+  ROL::SharedPointer<PositiveFunction<Real> > positiveFunction_;
 
-  std::shared_ptr<Vector<Real> > dualVector1_;
-  std::shared_ptr<Vector<Real> > dualVector2_;
-  std::shared_ptr<Vector<Real> > dualVector3_;
-  std::shared_ptr<Vector<Real> > dualVector4_;
+  ROL::SharedPointer<Vector<Real> > dualVector1_;
+  ROL::SharedPointer<Vector<Real> > dualVector2_;
+  ROL::SharedPointer<Vector<Real> > dualVector3_;
+  ROL::SharedPointer<Vector<Real> > dualVector4_;
 
   std::vector<Real> order_;
   std::vector<Real> coeff_;
@@ -93,8 +93,8 @@ private:
 
   std::vector<Real> weights_;
   std::vector<Real> value_storage_;
-  std::vector<std::shared_ptr<Vector<Real> > > gradient_storage_;
-  std::vector<std::shared_ptr<Vector<Real> > > hessvec_storage_;
+  std::vector<ROL::SharedPointer<Vector<Real> > > gradient_storage_;
+  std::vector<ROL::SharedPointer<Vector<Real> > > hessvec_storage_;
   std::vector<Real> gradvec_storage_;
 
   bool firstReset_;
@@ -110,7 +110,7 @@ private:
       TEUCHOS_TEST_FOR_EXCEPTION((coeff_[i] < zero), std::invalid_argument,
         ">>> ERROR (ROL::MeanVariance): Element of coefficient array out of range!");
     }
-    TEUCHOS_TEST_FOR_EXCEPTION(positiveFunction_ == nullptr, std::invalid_argument,
+    TEUCHOS_TEST_FOR_EXCEPTION(positiveFunction_ == ROL::nullPointer, std::invalid_argument,
       ">>> ERROR (ROL::MeanVariance): PositiveFunction pointer is null!");
   }
 
@@ -125,7 +125,7 @@ public:
       with a single variance.
   */
   MeanVariance( const Real order, const Real coeff,
-                const std::shared_ptr<PositiveFunction<Real> > &pf )
+                const ROL::SharedPointer<PositiveFunction<Real> > &pf )
     : RiskMeasure<Real>(), positiveFunction_(pf), firstReset_(true) {
     order_.clear(); order_.push_back(order);
     coeff_.clear(); coeff_.push_back(coeff);
@@ -144,7 +144,7 @@ public:
   */
   MeanVariance( const std::vector<Real> &order,
                 const std::vector<Real> &coeff, 
-                const std::shared_ptr<PositiveFunction<Real> > &pf )
+                const ROL::SharedPointer<PositiveFunction<Real> > &pf )
     : RiskMeasure<Real>(), positiveFunction_(pf), firstReset_(true) {
     order_.clear(); coeff_.clear();
     for ( uint i = 0; i < order.size(); i++ ) {
@@ -182,10 +182,10 @@ public:
     // Build (approximate) positive function
     std::string type = list.get<std::string>("Deviation Type");
     if ( type == "Upper" ) {
-      positiveFunction_ = std::make_shared<PlusFunction<Real>>(list);
+      positiveFunction_ = ROL::makeShared<PlusFunction<Real>>(list);
     }
     else if ( type == "Absolute" ) {
-      positiveFunction_ = std::make_shared<AbsoluteValue<Real>>(list);
+      positiveFunction_ = ROL::makeShared<AbsoluteValue<Real>>(list);
     }
     else {
       TEUCHOS_TEST_FOR_EXCEPTION(true, std::invalid_argument,
@@ -196,7 +196,7 @@ public:
     NumMoments_ = order.size();
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
     RiskMeasure<Real>::reset(x0,x);
     if ( firstReset_ ) {
       dualVector1_ = (x0->dual()).clone();
@@ -214,10 +214,10 @@ public:
     weights_.clear();
   }
     
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
-             std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0 = std::const_pointer_cast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
+    v0 = ROL::constPointerCast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
            dynamic_cast<const Vector<Real>&>(v)).getVector());
   } 
   
@@ -251,7 +251,7 @@ public:
     RiskMeasure<Real>::g_->axpy(weight,g);
     value_storage_.push_back(val);
     gradient_storage_.push_back(g.clone());
-    typename std::vector<std::shared_ptr<Vector<Real> > >::iterator it = gradient_storage_.end();
+    typename std::vector<ROL::SharedPointer<Vector<Real> > >::iterator it = gradient_storage_.end();
     it--;
     (*it)->set(g);
     weights_.push_back(weight);    
@@ -291,7 +291,7 @@ public:
     RiskMeasure<Real>::hv_->axpy(weight,hv);
     value_storage_.push_back(val);
     gradient_storage_.push_back(g.clone());
-    typename std::vector<std::shared_ptr<Vector<Real> > >::iterator it = gradient_storage_.end();
+    typename std::vector<ROL::SharedPointer<Vector<Real> > >::iterator it = gradient_storage_.end();
     it--;
     (*it)->set(g);
     gradvec_storage_.push_back(gv);

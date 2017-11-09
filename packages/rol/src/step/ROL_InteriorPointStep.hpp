@@ -62,19 +62,19 @@ typedef Constraint_Partitioned<Real>            IPCON;
 
 private:
 
-  std::shared_ptr<StatusTest<Real> >       status_;
-  std::shared_ptr<Step<Real> >             step_;
-  std::shared_ptr<IPOBJ>                   ipobj_;
-  std::shared_ptr<IPCON>                   ipcon_;
-  std::shared_ptr<Algorithm<Real> >        algo_;
-  std::shared_ptr<Teuchos::ParameterList>  parlist_;
-  std::shared_ptr<BoundConstraint<Real> >  bnd_;
+  ROL::SharedPointer<StatusTest<Real> >       status_;
+  ROL::SharedPointer<Step<Real> >             step_;
+  ROL::SharedPointer<IPOBJ>                   ipobj_;
+  ROL::SharedPointer<IPCON>                   ipcon_;
+  ROL::SharedPointer<Algorithm<Real> >        algo_;
+  ROL::SharedPointer<Teuchos::ParameterList>  parlist_;
+  ROL::SharedPointer<BoundConstraint<Real> >  bnd_;
 
   // Storage
-  std::shared_ptr<Vector<Real> > x_;
-  std::shared_ptr<Vector<Real> > g_;
-  std::shared_ptr<Vector<Real> > l_;
-  std::shared_ptr<Vector<Real> > c_;
+  ROL::SharedPointer<Vector<Real> > x_;
+  ROL::SharedPointer<Vector<Real> > g_;
+  ROL::SharedPointer<Vector<Real> > l_;
+  ROL::SharedPointer<Vector<Real> > c_;
 
   Real mu_;      // Barrier parameter
   Real mumin_;   // Minimal value of barrier parameter
@@ -102,15 +102,15 @@ public:
 
   InteriorPointStep(Teuchos::ParameterList &parlist) :
     Step<Real>(),
-    status_(nullptr),
-    step_(nullptr),
-    ipobj_(nullptr),
-    ipcon_(nullptr),
-    algo_(nullptr),
-    x_(nullptr),
-    g_(nullptr),
-    l_(nullptr),
-    c_(nullptr),
+    status_(ROL::nullPointer),
+    step_(ROL::nullPointer),
+    ipobj_(ROL::nullPointer),
+    ipcon_(ROL::nullPointer),
+    algo_(ROL::nullPointer),
+    x_(ROL::nullPointer),
+    g_(ROL::nullPointer),
+    l_(ROL::nullPointer),
+    c_(ROL::nullPointer),
     hasEquality_(false) {
 
     using Teuchos::ParameterList;
@@ -146,7 +146,7 @@ public:
                    AlgorithmState<Real> &algo_state ) {
     hasEquality_ = true;
 
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
     state->constraintVec = c.clone();
@@ -202,7 +202,7 @@ public:
                    AlgorithmState<Real> &algo_state ) {
     bnd.projectInterior(x);
 
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
 
@@ -230,7 +230,7 @@ public:
     algo_state.nfval += ipobj_->getNumberFunctionEvaluations();
     algo_state.ngrad += ipobj_->getNumberGradientEvaluations();
 
-    bnd_ = std::make_shared<BoundConstraint<Real>>();
+    bnd_ = ROL::makeShared<BoundConstraint<Real>>();
     bnd_->deactivate();
   }
 
@@ -249,7 +249,7 @@ public:
     ipcon_.reset(&dynamic_cast<IPCON&>(con), [](IPCON*){});
 
     // Create the algorithm
-    algo_ = std::make_shared<Algorithm<Real>>("Composite Step",*parlist_,false);
+    algo_ = ROL::makeShared<Algorithm<Real>>("Composite Step",*parlist_,false);
 
     //  Run the algorithm
     x_->set(x);
@@ -280,7 +280,7 @@ public:
     ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
 
     // Create the algorithm
-    algo_ = std::make_shared<Algorithm<Real>>("Trust Region",*parlist_,false);
+    algo_ = ROL::makeShared<Algorithm<Real>>("Trust Region",*parlist_,false);
 
     //  Run the algorithm
     x_->set(x);
@@ -311,7 +311,7 @@ public:
       ipobj_->updatePenalty(mu_);
     }
 
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
 
     // Update optimization vector
     x.plus(s);
@@ -354,7 +354,7 @@ public:
                AlgorithmState<Real>  &algo_state ) {
     update(x,l,s,obj,con,algo_state);
 
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     x_->set(x);
     x_->axpy(static_cast<Real>(-1),state->gradientVec->dual());
     bnd.project(*x_);
@@ -376,7 +376,7 @@ public:
       ipobj_->updatePenalty(mu_);
     }
 
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
 
     // Update optimization vector
     x.plus(s);

@@ -56,35 +56,35 @@ template<class Real>
 class Objective_PDEOPT_Poisson : public ROL::Objective_SimOpt<Real> {
 private:
 
-  std::shared_ptr<PoissonData<Real> > data_;
-  std::shared_ptr<Tpetra::MultiVector<> > vecWeights_;
+  ROL::SharedPointer<PoissonData<Real> > data_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > vecWeights_;
   Real alpha_;
 
 public:
 
-  Objective_PDEOPT_Poisson(const std::shared_ptr<PoissonData<Real> > &data,
-                           const std::shared_ptr<Tpetra::MultiVector<> > &vecWeights,
-                           const std::shared_ptr<Teuchos::ParameterList> &parlist) {
+  Objective_PDEOPT_Poisson(const ROL::SharedPointer<PoissonData<Real> > &data,
+                           const ROL::SharedPointer<Tpetra::MultiVector<> > &vecWeights,
+                           const ROL::SharedPointer<Teuchos::ParameterList> &parlist) {
     data_ = data;
     vecWeights_ = vecWeights;
     alpha_ = parlist->sublist("Problem").get("Penalty parameter", 1e-2);
   }
 
   Real value(const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<const Tpetra::MultiVector<> > up =
+    ROL::SharedPointer<const Tpetra::MultiVector<> > up =
       (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(u)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp =
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp =
       (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
 
     Teuchos::Array<Real> dotvalU(1, 0);
     Teuchos::Array<Real> dotvalZ(1, 0);
 
     // Set difference vector diffp to up.
-    std::shared_ptr<Tpetra::MultiVector<> > diffp =
-      std::make_shared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
+    ROL::SharedPointer<Tpetra::MultiVector<> > diffp =
+      ROL::makeShared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
     // Temporary matvec vector.
-    std::shared_ptr<Tpetra::MultiVector<> > matvecp =
-      std::make_shared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
+    ROL::SharedPointer<Tpetra::MultiVector<> > matvecp =
+      ROL::makeShared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
 
     // (u-ud)
     diffp->update(-1.0, *(data_->getVecUd()), 1.0);
@@ -105,14 +105,14 @@ public:
   }
 
   void gradient_1(ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > gp =
+    ROL::SharedPointer<Tpetra::MultiVector<> > gp =
       (dynamic_cast<ROL::TpetraMultiVector<Real>&>(g)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > up =
+    ROL::SharedPointer<const Tpetra::MultiVector<> > up =
       (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(u)).getVector();
 
     // Set difference vector diffp to up.
-    std::shared_ptr<Tpetra::MultiVector<> > diffp =
-      std::make_shared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
+    ROL::SharedPointer<Tpetra::MultiVector<> > diffp =
+      ROL::makeShared<Tpetra::MultiVector<>>(*up, Teuchos::Copy);
     // (u-ud)
     diffp->update(-1.0, *(data_->getVecUd()), 1.0);
     // M*(u-ud)
@@ -122,9 +122,9 @@ public:
   }
 
   void gradient_2(ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > gp =
+    ROL::SharedPointer<Tpetra::MultiVector<> > gp =
       (dynamic_cast<ROL::TpetraMultiVector<Real>&>(g)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp =
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp =
       (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
 
     // alpha * R*z
@@ -134,9 +134,9 @@ public:
 
   void hessVec_11(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                   const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > hvp =
+    ROL::SharedPointer<Tpetra::MultiVector<> > hvp =
       (dynamic_cast<ROL::TpetraMultiVector<Real>&>(hv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp =
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp =
       (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
 
     // M*v
@@ -147,7 +147,7 @@ public:
 
   void hessVec_12(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                   const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > hvp =
+    ROL::SharedPointer<Tpetra::MultiVector<> > hvp =
       (dynamic_cast<ROL::TpetraMultiVector<Real>&>(hv)).getVector();
 
     // zero
@@ -156,7 +156,7 @@ public:
 
   void hessVec_21(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                   const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > hvp =
+    ROL::SharedPointer<Tpetra::MultiVector<> > hvp =
       (dynamic_cast<ROL::TpetraMultiVector<Real>&>(hv)).getVector();
 
     // zero
@@ -165,9 +165,9 @@ public:
 
   void hessVec_22(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
                   const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > hvp =
+    ROL::SharedPointer<Tpetra::MultiVector<> > hvp =
       (dynamic_cast<ROL::TpetraMultiVector<Real>&>(hv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp =
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp =
       (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
 
     // alpha * R*v

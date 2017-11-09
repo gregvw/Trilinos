@@ -77,11 +77,11 @@ int main(int argc, char *argv[]) {
     auto parlist = Teuchos::getParametersFromXmlFile( filename);
 
     // Setup optimization problem
-    std::shared_ptr<ROL::Vector<RealT> > x0, z;
-    std::shared_ptr<ROL::Objective<RealT> > obj;
-    std::shared_ptr<ROL::BoundConstraint<RealT> > bnd;
+    ROL::SharedPointer<ROL::Vector<RealT> > x0, z;
+    ROL::SharedPointer<ROL::Objective<RealT> > obj;
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd;
     ROL::getTestObjectives<RealT>(obj,bnd,x0,z,ROL::TESTOPTPROBLEM_HS1);
-    std::shared_ptr<ROL::Vector<RealT> > x = x0->clone(); x->set(*x0);
+    ROL::SharedPointer<ROL::Vector<RealT> > x = x0->clone(); x->set(*x0);
     ROL::OptimizationProblem<RealT> optProblem(obj,x,bnd);
 
     // Get Dimension of Problem
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     optProblem.check(*outStream);
 
     // Error Vector
-    std::shared_ptr<ROL::Vector<RealT> > e = x0->clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > e = x0->clone();
     e->zero();
 
     // Setup optimization solver

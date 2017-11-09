@@ -56,7 +56,7 @@ template<class Real>
 class BackTracking : public LineSearch<Real> {
 private:
   Real rho_;
-  std::shared_ptr<Vector<Real> > xnew_; 
+  ROL::SharedPointer<Vector<Real> > xnew_; 
 
 public:
 

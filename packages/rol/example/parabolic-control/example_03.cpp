@@ -89,11 +89,11 @@ private:
 /********** BEGIN PRIVATE MEMBER FUNCTION DECLARATION **********/
 /***************************************************************/
 
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
     return dynamic_cast<const SV&>(x).getVector();
   }
  
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     return dynamic_cast<SV&>(x).getVector();
   }
 
@@ -488,7 +488,7 @@ public:
   Real value( const ROL::Vector<Real> &z, Real &tol ) {
 
     
-    std::shared_ptr<const vector> zp = getVector(z);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     // SOLVE STATE EQUATION
     std::vector<std::vector<Real> > U;
@@ -529,8 +529,8 @@ public:
   void gradient( ROL::Vector<Real> &g, const ROL::Vector<Real> &z, Real &tol ) {
 
     
-    std::shared_ptr<const vector> zp = getVector(z);
-    std::shared_ptr<vector> gp = getVector(g);
+    ROL::SharedPointer<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> gp = getVector(g);
 
     // SOLVE STATE EQUATION
     std::vector<std::vector<Real> > U;
@@ -546,9 +546,9 @@ public:
 
   void hessVec( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &z, Real &tol ) {
     
-    std::shared_ptr<const vector> zp = getVector(z);
-    std::shared_ptr<const vector> vp = getVector(v);
-    std::shared_ptr<vector> hvp = getVector(hv);
+    ROL::SharedPointer<const vector> zp = getVector(z);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<vector> hvp = getVector(hv);
 
     // SOLVE STATE EQUATION
     std::vector<std::vector<Real> > U;
@@ -587,7 +587,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -607,8 +607,8 @@ int main(int argc, char *argv[]) {
     RealT eps   = 5.e-1; // Set conductivity 
     Objective_ParabolicControl<RealT> obj(alpha,eps,nx,nt,T);
     // Initialize iteration vectors.
-    std::shared_ptr<vector> x_rcp = std::make_shared<vector>(nt, 1.0);
-    std::shared_ptr<vector> y_rcp = std::make_shared<vector>(nt, 0.0);
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>(nt, 1.0);
+    ROL::SharedPointer<vector> y_rcp = ROL::makeShared<vector>(nt, 0.0);
     for (uint i=0; i<nt; i++) {
       (*x_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
       (*y_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
@@ -620,17 +620,17 @@ int main(int argc, char *argv[]) {
     obj.checkHessVec(x,y,true,*outStream);
 
     // Initialize Constraints
-    std::shared_ptr<vector> l_rcp = std::make_shared<vector>( nt, 0.0 );
-    std::shared_ptr<vector> u_rcp = std::make_shared<vector>( nt, 1.0 );
+    ROL::SharedPointer<vector> l_rcp = ROL::makeShared<vector>( nt, 0.0 );
+    ROL::SharedPointer<vector> u_rcp = ROL::makeShared<vector>( nt, 1.0 );
 
-    std::shared_ptr<V> lo = std::make_shared<SV>( l_rcp );
-    std::shared_ptr<V> up = std::make_shared<SV>( u_rcp );
+    ROL::SharedPointer<V> lo = ROL::makeShared<SV>( l_rcp );
+    ROL::SharedPointer<V> up = ROL::makeShared<SV>( u_rcp );
 
     ROL::Bounds<RealT> icon(lo,up);
 
     // Primal dual active set.
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     // Krylov parameters.
     parlist->sublist("General").sublist("Krylov").set("Absolute Tolerance",1.e-8);
@@ -646,7 +646,7 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Step Tolerance",1.e-14);
     parlist->sublist("Status Test").set("Iteration Limit",100);
     // Define algorithm.
-    std::shared_ptr<ROL::Algorithm<RealT> > algo = std::make_shared<ROL::Algorithm<RealT>>("Primal Dual Active Set",*parlist,false);
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo = ROL::makeShared<ROL::Algorithm<RealT>>("Primal Dual Active Set",*parlist,false);
     // Run algorithm.
     x.zero();
     algo->run(x, obj, icon, true, *outStream);
@@ -662,7 +662,7 @@ int main(int argc, char *argv[]) {
     // re-load parameters
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     // Set algorithm.
-    algo = std::make_shared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
     // Run Algorithm
     y.zero();
     algo->run(y, obj, icon, true, *outStream);
@@ -674,7 +674,7 @@ int main(int argc, char *argv[]) {
     }
     file_tr.close();
    
-    std::shared_ptr<V> diff = x.clone();
+    ROL::SharedPointer<V> diff = x.clone();
     diff->set(x);
     diff->axpy(-1.0,y);
     RealT error = diff->norm()/std::sqrt((RealT)nt-1.0);

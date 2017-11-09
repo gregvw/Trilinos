@@ -72,12 +72,12 @@ int main(int argc, char *argv[]) {
     int dim = 10;
 
     // Create Tpetra::MultiVectors (single vectors)
-    std::shared_ptr<std::vector<ElementT> > x_rcp
-      = std::make_shared<std::vector<ElementT>>(dim);
-    std::shared_ptr<std::vector<ElementT> > y_rcp
-      = std::make_shared<std::vector<ElementT>>(dim);
-    std::shared_ptr<std::vector<ElementT> > W_rcp
-      = std::make_shared<std::vector<ElementT>>(dim,static_cast<ElementT>(2));
+    ROL::SharedPointer<std::vector<ElementT> > x_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > y_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > W_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim,static_cast<ElementT>(2));
 
     // Random elements
     for (int i = 0; i < dim; i++) {
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clone z from x, deep copy x into z, norm of z
-    std::shared_ptr<ROL::Vector<RealT> > z = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > z = x.clone();
     z->set(x);
     RealT znorm = z->norm();
     outStream << "\nNorm of ROL::Vector z (clone of x): " << znorm << "\n";
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
       outStream << "---> POSSIBLE ERROR ABOVE!\n";
       errorFlag++;
     }
-    std::shared_ptr<ROL::Vector<RealT> > w = y.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > w = y.clone();
     w = y.clone();
     w->set(y);
     RealT wnorm = w->norm();
@@ -142,12 +142,12 @@ int main(int argc, char *argv[]) {
     }
 
     // Standard tests.
-    std::shared_ptr<std::vector<ElementT> > x1_rcp
-      = std::make_shared<std::vector<ElementT>>(dim);
-    std::shared_ptr<std::vector<ElementT> > y1_rcp
-      = std::make_shared<std::vector<ElementT>>(dim);
-    std::shared_ptr<std::vector<ElementT> > z1_rcp
-      = std::make_shared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > x1_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > y1_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > z1_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
 
     // Random elements
     for (int i = 0; i < dim; i++) {
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
     ROL::PrimalScaledStdVector<RealT,ElementT> y1(y1_rcp,W_rcp);
     ROL::PrimalScaledStdVector<RealT,ElementT> z1(z1_rcp,W_rcp);
 
-    auto consistency = std::make_shared<std::vector<RealT>>(x1.checkVector(y1, z1, true, outStream));
+    auto consistency = ROL::makeShared<std::vector<RealT>>(x1.checkVector(y1, z1, true, outStream));
     ROL::StdVector<RealT> checkvec(consistency);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;

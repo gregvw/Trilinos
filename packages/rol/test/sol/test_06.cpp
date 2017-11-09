@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
   auto teuchos_comm = Teuchos::DefaultComm<int>::getComm();
-  std::shared_ptr<const Teuchos::Comm<int>> comm(&*teuchos_comm, [](const Teuchos::Comm<int>*){});
+  ROL::SharedPointer<const Teuchos::Comm<int>> comm(&*teuchos_comm, [](const Teuchos::Comm<int>*){});
 
   int iprint = argc - 1;
   Teuchos::oblackholestream bhs; // outputs nothing
@@ -71,64 +71,64 @@ int main(int argc, char *argv[]) {
 
   try {
     // Batch manager
-    std::shared_ptr<ROL::BatchManager<RealT> > bman =
-      std::make_shared<ROL::TeuchosBatchManager<RealT,int>>(comm);
+    ROL::SharedPointer<ROL::BatchManager<RealT> > bman =
+      ROL::makeShared<ROL::TeuchosBatchManager<RealT,int>>(comm);
 
     // Dimension of the optimization vector
     int dimension = 5, numMyAtoms = 10;
     int size = dimension*numMyAtoms;
 
     // Create batch std vectors
-    std::shared_ptr<std::vector<RealT> > b1_rcp = std::make_shared<std::vector<RealT>>(size);
-    std::shared_ptr<std::vector<RealT> > b2_rcp = std::make_shared<std::vector<RealT>>(size);
-    std::shared_ptr<std::vector<RealT> > b3_rcp = std::make_shared<std::vector<RealT>>(size);
+    ROL::SharedPointer<std::vector<RealT> > b1_rcp = ROL::makeShared<std::vector<RealT>>(size);
+    ROL::SharedPointer<std::vector<RealT> > b2_rcp = ROL::makeShared<std::vector<RealT>>(size);
+    ROL::SharedPointer<std::vector<RealT> > b3_rcp = ROL::makeShared<std::vector<RealT>>(size);
     for (int i = 0; i < size; ++i) {
       (*b1_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
       (*b2_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
       (*b3_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
     }
-    std::shared_ptr<ROL::BatchStdVector<RealT> > b1
-      = std::make_shared<ROL::BatchStdVector<RealT>>(b1_rcp,bman);
-    std::shared_ptr<ROL::BatchStdVector<RealT> > b2
-      = std::make_shared<ROL::BatchStdVector<RealT>>(b2_rcp,bman);
-    std::shared_ptr<ROL::BatchStdVector<RealT> > b3
-      = std::make_shared<ROL::BatchStdVector<RealT>>(b3_rcp,bman);
+    ROL::SharedPointer<ROL::BatchStdVector<RealT> > b1
+      = ROL::makeShared<ROL::BatchStdVector<RealT>>(b1_rcp,bman);
+    ROL::SharedPointer<ROL::BatchStdVector<RealT> > b2
+      = ROL::makeShared<ROL::BatchStdVector<RealT>>(b2_rcp,bman);
+    ROL::SharedPointer<ROL::BatchStdVector<RealT> > b3
+      = ROL::makeShared<ROL::BatchStdVector<RealT>>(b3_rcp,bman);
 
     // Create atom vectors
-    std::shared_ptr<std::vector<RealT> > a1_rcp = std::make_shared<std::vector<RealT>>(size);
-    std::shared_ptr<std::vector<RealT> > a2_rcp = std::make_shared<std::vector<RealT>>(size);
-    std::shared_ptr<std::vector<RealT> > a3_rcp = std::make_shared<std::vector<RealT>>(size);
-    std::shared_ptr<std::vector<RealT> > aW_rcp = std::make_shared<std::vector<RealT>>(size);
+    ROL::SharedPointer<std::vector<RealT> > a1_rcp = ROL::makeShared<std::vector<RealT>>(size);
+    ROL::SharedPointer<std::vector<RealT> > a2_rcp = ROL::makeShared<std::vector<RealT>>(size);
+    ROL::SharedPointer<std::vector<RealT> > a3_rcp = ROL::makeShared<std::vector<RealT>>(size);
+    ROL::SharedPointer<std::vector<RealT> > aW_rcp = ROL::makeShared<std::vector<RealT>>(size);
     for (int i = 0; i < size; ++i) {
       (*a1_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
       (*a2_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
       (*a3_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
       (*aW_rcp)[i] = static_cast<RealT>(2);
     }
-    std::shared_ptr<ROL::PrimalAtomVector<RealT> > a1
-      = std::make_shared<ROL::PrimalAtomVector<RealT>>(a1_rcp,bman,numMyAtoms,dimension,aW_rcp);
-    std::shared_ptr<ROL::PrimalAtomVector<RealT> > a2
-      = std::make_shared<ROL::PrimalAtomVector<RealT>>(a2_rcp,bman,numMyAtoms,dimension,aW_rcp);
-    std::shared_ptr<ROL::PrimalAtomVector<RealT> > a3
-      = std::make_shared<ROL::PrimalAtomVector<RealT>>(a3_rcp,bman,numMyAtoms,dimension,aW_rcp);
+    ROL::SharedPointer<ROL::PrimalAtomVector<RealT> > a1
+      = ROL::makeShared<ROL::PrimalAtomVector<RealT>>(a1_rcp,bman,numMyAtoms,dimension,aW_rcp);
+    ROL::SharedPointer<ROL::PrimalAtomVector<RealT> > a2
+      = ROL::makeShared<ROL::PrimalAtomVector<RealT>>(a2_rcp,bman,numMyAtoms,dimension,aW_rcp);
+    ROL::SharedPointer<ROL::PrimalAtomVector<RealT> > a3
+      = ROL::makeShared<ROL::PrimalAtomVector<RealT>>(a3_rcp,bman,numMyAtoms,dimension,aW_rcp);
 
     // Create probability vectors
-    std::shared_ptr<std::vector<RealT> > p1_rcp = std::make_shared<std::vector<RealT>>(numMyAtoms);
-    std::shared_ptr<std::vector<RealT> > p2_rcp = std::make_shared<std::vector<RealT>>(numMyAtoms);
-    std::shared_ptr<std::vector<RealT> > p3_rcp = std::make_shared<std::vector<RealT>>(numMyAtoms);
-    std::shared_ptr<std::vector<RealT> > pW_rcp = std::make_shared<std::vector<RealT>>(numMyAtoms);
+    ROL::SharedPointer<std::vector<RealT> > p1_rcp = ROL::makeShared<std::vector<RealT>>(numMyAtoms);
+    ROL::SharedPointer<std::vector<RealT> > p2_rcp = ROL::makeShared<std::vector<RealT>>(numMyAtoms);
+    ROL::SharedPointer<std::vector<RealT> > p3_rcp = ROL::makeShared<std::vector<RealT>>(numMyAtoms);
+    ROL::SharedPointer<std::vector<RealT> > pW_rcp = ROL::makeShared<std::vector<RealT>>(numMyAtoms);
     for (int i = 0; i < numMyAtoms; ++i) {
       (*p1_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
       (*p2_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
       (*p3_rcp)[i] = static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX);
       (*pW_rcp)[i] = static_cast<RealT>(2);
     }
-    std::shared_ptr<ROL::PrimalProbabilityVector<RealT> > p1
-      = std::make_shared<ROL::PrimalProbabilityVector<RealT>>(p1_rcp,bman,pW_rcp);
-    std::shared_ptr<ROL::PrimalProbabilityVector<RealT> > p2
-      = std::make_shared<ROL::PrimalProbabilityVector<RealT>>(p2_rcp,bman,pW_rcp);
-    std::shared_ptr<ROL::PrimalProbabilityVector<RealT> > p3
-      = std::make_shared<ROL::PrimalProbabilityVector<RealT>>(p3_rcp,bman,pW_rcp);
+    ROL::SharedPointer<ROL::PrimalProbabilityVector<RealT> > p1
+      = ROL::makeShared<ROL::PrimalProbabilityVector<RealT>>(p1_rcp,bman,pW_rcp);
+    ROL::SharedPointer<ROL::PrimalProbabilityVector<RealT> > p2
+      = ROL::makeShared<ROL::PrimalProbabilityVector<RealT>>(p2_rcp,bman,pW_rcp);
+    ROL::SharedPointer<ROL::PrimalProbabilityVector<RealT> > p3
+      = ROL::makeShared<ROL::PrimalProbabilityVector<RealT>>(p3_rcp,bman,pW_rcp);
 
     // Create SROM vectors
     ROL::SROMVector<RealT> x1(p1,a1);
@@ -137,25 +137,25 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistencyBMAN = b1->checkVector(*b2, *b3, true, outStream);
-    auto q = std::shared_ptr<std::vector<RealT>>(&consistencyBMAN, [](std::vector<RealT>*){});
+    auto q = ROL::SharedPointer<std::vector<RealT>>(&consistencyBMAN, [](std::vector<RealT>*){});
     ROL::StdVector<RealT> checkvecBMAN(q);
     if (checkvecBMAN.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
     std::vector<RealT> consistencyAtom = a1->checkVector(*a2, *a3, true, outStream);
-    q = std::shared_ptr<std::vector<RealT>>(&consistencyAtom, [](std::vector<RealT>*){});
+    q = ROL::SharedPointer<std::vector<RealT>>(&consistencyAtom, [](std::vector<RealT>*){});
     ROL::StdVector<RealT> checkvecAtom(q);
     if (checkvecAtom.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
     std::vector<RealT> consistencyProb = p1->checkVector(*p2, *p3, true, outStream);
-    q = std::shared_ptr<std::vector<RealT>>(&consistencyProb, [](std::vector<RealT>*){});
+    q = ROL::SharedPointer<std::vector<RealT>>(&consistencyProb, [](std::vector<RealT>*){});
     ROL::StdVector<RealT> checkvecProb(q);
     if (checkvecProb.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
     std::vector<RealT> consistencySROM = x1.checkVector(x2, x3, true, outStream);
-    q = std::shared_ptr<std::vector<RealT>>(&consistencySROM, [](std::vector<RealT>*){});
+    q = ROL::SharedPointer<std::vector<RealT>>(&consistencySROM, [](std::vector<RealT>*){});
     ROL::StdVector<RealT> checkvecSROM(q);
     if (checkvecSROM.norm() > std::sqrt(errtol)) {
       errorFlag++;
@@ -167,9 +167,9 @@ int main(int argc, char *argv[]) {
     RealT sqrt2 = static_cast<RealT>(std::sqrt(2.));
 
     // Create batch std vectors
-    std::shared_ptr<std::vector<RealT> > b_rcp = std::make_shared<std::vector<RealT>>(size,1);
-    std::shared_ptr<ROL::BatchStdVector<RealT> > b
-      = std::make_shared<ROL::BatchStdVector<RealT>>(b_rcp,bman);
+    ROL::SharedPointer<std::vector<RealT> > b_rcp = ROL::makeShared<std::vector<RealT>>(size,1);
+    ROL::SharedPointer<ROL::BatchStdVector<RealT> > b
+      = ROL::makeShared<ROL::BatchStdVector<RealT>>(b_rcp,bman);
     RealT bnorm = b->norm();
     outStream << "BatchStdVector Norm Error:          "
               << std::abs(bnorm - anorm) << std::endl;
@@ -178,18 +178,18 @@ int main(int argc, char *argv[]) {
     }
 
     // Create atom vectors
-    std::shared_ptr<std::vector<RealT> > ap_rcp = std::make_shared<std::vector<RealT>>(size,1);
-    std::shared_ptr<ROL::PrimalAtomVector<RealT> > ap
-      = std::make_shared<ROL::PrimalAtomVector<RealT>>(ap_rcp,bman,numMyAtoms,dimension,aW_rcp);
+    ROL::SharedPointer<std::vector<RealT> > ap_rcp = ROL::makeShared<std::vector<RealT>>(size,1);
+    ROL::SharedPointer<ROL::PrimalAtomVector<RealT> > ap
+      = ROL::makeShared<ROL::PrimalAtomVector<RealT>>(ap_rcp,bman,numMyAtoms,dimension,aW_rcp);
     RealT apnorm = ap->norm();
     outStream << "PrimalAtomVector Norm Error:        "
               << std::abs(apnorm - sqrt2*anorm) << std::endl;
     if ( std::abs(apnorm - sqrt2*anorm) > std::sqrt(errtol) ) {
       errorFlag++;
     }
-    std::shared_ptr<std::vector<RealT> > ad_rcp = std::make_shared<std::vector<RealT>>(size,1);
-    std::shared_ptr<ROL::DualAtomVector<RealT> > ad
-      = std::make_shared<ROL::DualAtomVector<RealT>>(ad_rcp,bman,numMyAtoms,dimension,aW_rcp);
+    ROL::SharedPointer<std::vector<RealT> > ad_rcp = ROL::makeShared<std::vector<RealT>>(size,1);
+    ROL::SharedPointer<ROL::DualAtomVector<RealT> > ad
+      = ROL::makeShared<ROL::DualAtomVector<RealT>>(ad_rcp,bman,numMyAtoms,dimension,aW_rcp);
     RealT adnorm = ad->norm();
     outStream << "DualAtomVector Norm Error:          "
               << std::abs(adnorm - anorm/sqrt2) << std::endl;
@@ -198,18 +198,18 @@ int main(int argc, char *argv[]) {
     }
 
     // Create probability vectors
-    std::shared_ptr<std::vector<RealT> > pp_rcp = std::make_shared<std::vector<RealT>>(numMyAtoms,1);
-    std::shared_ptr<ROL::PrimalProbabilityVector<RealT> > pp
-      = std::make_shared<ROL::PrimalProbabilityVector<RealT>>(pp_rcp,bman,pW_rcp);
+    ROL::SharedPointer<std::vector<RealT> > pp_rcp = ROL::makeShared<std::vector<RealT>>(numMyAtoms,1);
+    ROL::SharedPointer<ROL::PrimalProbabilityVector<RealT> > pp
+      = ROL::makeShared<ROL::PrimalProbabilityVector<RealT>>(pp_rcp,bman,pW_rcp);
     RealT ppnorm = pp->norm();
     outStream << "PrimalProbabilityVector Norm Error: "
               << std::abs(ppnorm - sqrt2*pnorm) << std::endl;
     if ( std::abs(ppnorm - sqrt2*pnorm) > std::sqrt(errtol) ) {
       errorFlag++;
     }
-    std::shared_ptr<std::vector<RealT> > pd_rcp = std::make_shared<std::vector<RealT>>(numMyAtoms,1);
-    std::shared_ptr<ROL::DualProbabilityVector<RealT> > pd
-      = std::make_shared<ROL::DualProbabilityVector<RealT>>(pd_rcp,bman,pW_rcp);
+    ROL::SharedPointer<std::vector<RealT> > pd_rcp = ROL::makeShared<std::vector<RealT>>(numMyAtoms,1);
+    ROL::SharedPointer<ROL::DualProbabilityVector<RealT> > pd
+      = ROL::makeShared<ROL::DualProbabilityVector<RealT>>(pd_rcp,bman,pW_rcp);
     RealT pdnorm = pd->norm();
     outStream << "DualProbabilityVector Norm Error:   "
               << std::abs(pdnorm - pnorm/sqrt2) << std::endl;

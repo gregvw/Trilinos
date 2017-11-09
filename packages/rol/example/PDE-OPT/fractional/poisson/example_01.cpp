@@ -73,43 +73,43 @@
 typedef double RealT;
 
 template<class Real>
-void checkDerivatives(const std::shared_ptr<ROL::Constraint_SimOpt<Real> > & con,
+void checkDerivatives(const ROL::SharedPointer<ROL::Constraint_SimOpt<Real> > & con,
                       std::ostream & outStream = std::cout) {
   // Cast the constraint and get the assembler.
-  std::shared_ptr<Linear_PDE_Constraint<Real> > pdecon
-    = std::dynamic_pointer_cast<Linear_PDE_Constraint<Real> >(con);
-  std::shared_ptr<Assembler<Real> > assembler = pdecon->getAssembler();
-  std::shared_ptr<PDE<Real> > pde = pdecon->getPDE();
+  ROL::SharedPointer<Linear_PDE_Constraint<Real> > pdecon
+    = ROL::dynamicPointerCast<Linear_PDE_Constraint<Real> >(con);
+  ROL::SharedPointer<Assembler<Real> > assembler = pdecon->getAssembler();
+  ROL::SharedPointer<PDE<Real> > pde = pdecon->getPDE();
   // Create state vector and set to zeroes
-  std::shared_ptr<Tpetra::MultiVector<> > u_rcp = assembler->createStateVector();
+  ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp = assembler->createStateVector();
   u_rcp->randomize();
-  std::shared_ptr<ROL::Vector<Real> > up
-    = std::make_shared<PDE_PrimalSimVector<Real>>(u_rcp,pde,assembler);
+  ROL::SharedPointer<ROL::Vector<Real> > up
+    = ROL::makeShared<PDE_PrimalSimVector<Real>>(u_rcp,pde,assembler);
   // Create control vector and set to ones
-  std::shared_ptr<Tpetra::MultiVector<> > z_rcp = assembler->createControlVector();
+  ROL::SharedPointer<Tpetra::MultiVector<> > z_rcp = assembler->createControlVector();
   z_rcp->randomize();
-  std::shared_ptr<ROL::Vector<Real> > zp
-    = std::make_shared<PDE_PrimalOptVector<Real>>(z_rcp,pde,assembler);
+  ROL::SharedPointer<ROL::Vector<Real> > zp
+    = ROL::makeShared<PDE_PrimalOptVector<Real>>(z_rcp,pde,assembler);
   // Create residual vector and set to zeros
-  std::shared_ptr<Tpetra::MultiVector<> > r_rcp = assembler->createResidualVector();
+  ROL::SharedPointer<Tpetra::MultiVector<> > r_rcp = assembler->createResidualVector();
   r_rcp->putScalar(0.0);
-  std::shared_ptr<ROL::Vector<Real> > rp
-    = std::make_shared<PDE_DualSimVector<Real>>(r_rcp,pde,assembler);
+  ROL::SharedPointer<ROL::Vector<Real> > rp
+    = ROL::makeShared<PDE_DualSimVector<Real>>(r_rcp,pde,assembler);
   // Create multiplier vector and set to zeros
-  std::shared_ptr<Tpetra::MultiVector<> > p_rcp = assembler->createStateVector();
+  ROL::SharedPointer<Tpetra::MultiVector<> > p_rcp = assembler->createStateVector();
   p_rcp->putScalar(0.0);
-  std::shared_ptr<ROL::Vector<Real> > pp
-    = std::make_shared<PDE_PrimalSimVector<Real>>(p_rcp,pde,assembler);
+  ROL::SharedPointer<ROL::Vector<Real> > pp
+    = ROL::makeShared<PDE_PrimalSimVector<Real>>(p_rcp,pde,assembler);
   // Create state direction vector and set to random
-  std::shared_ptr<Tpetra::MultiVector<> > du_rcp = assembler->createStateVector();
+  ROL::SharedPointer<Tpetra::MultiVector<> > du_rcp = assembler->createStateVector();
   du_rcp->randomize();
-  std::shared_ptr<ROL::Vector<Real> > dup
-    = std::make_shared<PDE_PrimalSimVector<Real>>(du_rcp,pde,assembler);
+  ROL::SharedPointer<ROL::Vector<Real> > dup
+    = ROL::makeShared<PDE_PrimalSimVector<Real>>(du_rcp,pde,assembler);
   // Create control direction vector and set to random
-  std::shared_ptr<Tpetra::MultiVector<> > dz_rcp = assembler->createControlVector();
+  ROL::SharedPointer<Tpetra::MultiVector<> > dz_rcp = assembler->createControlVector();
   dz_rcp->randomize();
-  std::shared_ptr<ROL::Vector<Real> > dzp
-    = std::make_shared<PDE_PrimalOptVector<Real>>(dz_rcp,pde,assembler);
+  ROL::SharedPointer<ROL::Vector<Real> > dzp
+    = ROL::makeShared<PDE_PrimalOptVector<Real>>(dz_rcp,pde,assembler);
   // Create ROL SimOpt vectors
   ROL::Vector_SimOpt<Real> x(up,zp);
   ROL::Vector_SimOpt<Real> d(dup,dzp);
@@ -124,12 +124,12 @@ void checkDerivatives(const std::shared_ptr<ROL::Constraint_SimOpt<Real> > & con
 int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     // Set parameters for cylidner mesh
@@ -170,62 +170,62 @@ int main(int argc, char *argv[]) {
 
     /*** Initialize main data structure. ***/
     // Initialize PDE describe Poisson's equation
-    std::shared_ptr<MeshManager<RealT> > meshMgr_local
-      = std::make_shared<MeshManager_Rectangle<RealT>>(*parlist);
-    std::shared_ptr<PDE_Fractional_Poisson_Local<RealT> > pde_local
-      = std::make_shared<PDE_Fractional_Poisson_Local<RealT>>(*parlist);
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con_local
-      = std::make_shared<Linear_PDE_Constraint<RealT>>(pde_local,meshMgr_local,comm,*parlist,*outStream);
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr_local
+      = ROL::makeShared<MeshManager_Rectangle<RealT>>(*parlist);
+    ROL::SharedPointer<PDE_Fractional_Poisson_Local<RealT> > pde_local
+      = ROL::makeShared<PDE_Fractional_Poisson_Local<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con_local
+      = ROL::makeShared<Linear_PDE_Constraint<RealT>>(pde_local,meshMgr_local,comm,*parlist,*outStream);
     // Initialize PDE describe Poisson's equation
-    std::shared_ptr<MeshManager<RealT> > meshMgr_cylinder
-      = std::make_shared<MeshManager_Fractional_Cylinder<RealT>>(*parlist);
-    std::shared_ptr<PDE_Fractional_Poisson_Cylinder<RealT> > pde_cylinder
-      = std::make_shared<PDE_Fractional_Poisson_Cylinder<RealT>>(*parlist);
-    std::shared_ptr<ROL::Constraint_SimOpt<RealT> > con_cylinder
-      = std::make_shared<Linear_PDE_Constraint<RealT>>(pde_cylinder,meshMgr_cylinder,comm,*parlist,*outStream);
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr_cylinder
+      = ROL::makeShared<MeshManager_Fractional_Cylinder<RealT>>(*parlist);
+    ROL::SharedPointer<PDE_Fractional_Poisson_Cylinder<RealT> > pde_cylinder
+      = ROL::makeShared<PDE_Fractional_Poisson_Cylinder<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con_cylinder
+      = ROL::makeShared<Linear_PDE_Constraint<RealT>>(pde_cylinder,meshMgr_cylinder,comm,*parlist,*outStream);
 
     // Check derivatives.
     checkDerivatives<RealT>(con_cylinder, *outStream);
     checkDerivatives<RealT>(con_local, *outStream);
 
     // Build fractional problem.
-    std::shared_ptr<ROL::LinearOperator<RealT> > A
-      = std::make_shared<FractionalOperator<RealT>>(pde_local,meshMgr_local,pde_cylinder,meshMgr_cylinder,comm,*parlist,*outStream);
-    std::shared_ptr<ROL::LinearOperator<RealT> > M
-      = std::make_shared<FractionalPreconditioner<RealT>>(pde_local,meshMgr_local,pde_cylinder,meshMgr_cylinder,comm,*parlist,*outStream);
+    ROL::SharedPointer<ROL::LinearOperator<RealT> > A
+      = ROL::makeShared<FractionalOperator<RealT>>(pde_local,meshMgr_local,pde_cylinder,meshMgr_cylinder,comm,*parlist,*outStream);
+    ROL::SharedPointer<ROL::LinearOperator<RealT> > M
+      = ROL::makeShared<FractionalPreconditioner<RealT>>(pde_local,meshMgr_local,pde_cylinder,meshMgr_cylinder,comm,*parlist,*outStream);
     FractionalVector<RealT> F(pde_local,meshMgr_local,pde_cylinder,meshMgr_cylinder,comm,*parlist,*outStream);
-    const std::shared_ptr<const ROL::Vector<RealT> > Fvec = F.get();
+    const ROL::SharedPointer<const ROL::Vector<RealT> > Fvec = F.get();
 
     // Test preconditioner
     RealT tol(1e-8);
-    std::shared_ptr<ROL::Vector<RealT> > PFvec = Fvec->clone();
-    std::shared_ptr<ROL::Vector<RealT> > PPFvec = Fvec->clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > PFvec = Fvec->clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > PPFvec = Fvec->clone();
     M->applyInverse(*PFvec,*Fvec,tol);
     M->apply(*PPFvec,*PFvec,tol);
     PPFvec->axpy(static_cast<RealT>(-1),*Fvec);
     *outStream << "Preconditioner error: " << PPFvec->norm() << std::endl;
 
     // Build CG object.
-    //std::shared_ptr<ROL::Krylov<RealT> > solver = std::make_shared<ROL::BelosKrylov<RealT>>(*parlist);
-    std::shared_ptr<ROL::Krylov<RealT> > solver = ROL::KrylovFactory<RealT>(*parlist);
+    //ROL::SharedPointer<ROL::Krylov<RealT> > solver = ROL::makeShared<ROL::BelosKrylov<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Krylov<RealT> > solver = ROL::KrylovFactory<RealT>(*parlist);
 
     // Run CG
     int iter(0), flag(0);
-    std::shared_ptr<ROL::Vector<RealT> > Xvec = Fvec->clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > Xvec = Fvec->clone();
     solver->run(*Xvec,*A,*Fvec,*M,iter,flag);
     *outStream << "GMRES Iterations: " << iter << "  GMRES Flag: " << flag << std::endl;
 
-    std::shared_ptr<ROL::Vector<RealT> > Rvec = Fvec->clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > Rvec = Fvec->clone();
     A->apply(*Rvec,*Xvec,tol);
     Rvec->axpy(static_cast<RealT>(-1),*Fvec);
     *outStream << "GMRES Residual: " << Rvec->norm() << std::endl;
 
     // Print solution
-    std::shared_ptr<Linear_PDE_Constraint<RealT> > pdecon
-      = std::dynamic_pointer_cast<Linear_PDE_Constraint<RealT> >(con_local);
+    ROL::SharedPointer<Linear_PDE_Constraint<RealT> > pdecon
+      = ROL::dynamicPointerCast<Linear_PDE_Constraint<RealT> >(con_local);
     pdecon->printMeshData(*outStream);
-    std::shared_ptr<const Tpetra::MultiVector<> > Xrcp
-      = std::dynamic_pointer_cast<const ROL::TpetraMultiVector<RealT> >(Xvec)->getVector();
+    ROL::SharedPointer<const Tpetra::MultiVector<> > Xrcp
+      = ROL::dynamicPointerCast<const ROL::TpetraMultiVector<RealT> >(Xvec)->getVector();
     Teuchos::Array<size_t> col(1,0);
     pdecon->outputTpetraVector(Xrcp->subView(col()),"state.txt");
 

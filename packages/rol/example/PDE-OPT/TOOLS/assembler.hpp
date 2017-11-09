@@ -74,32 +74,32 @@
 #ifdef ROL_TIMERS
 namespace ROL {
   namespace PDEOPT {
-    std::shared_ptr<Teuchos::Time> AssemblePDEResidual       = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Residual");
-    std::shared_ptr<Teuchos::Time> AssemblePDEJacobian1      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Jacobian1");
-    std::shared_ptr<Teuchos::Time> AssemblePDEJacobian2      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Jacobian2");
-    std::shared_ptr<Teuchos::Time> AssemblePDEJacobian3      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Jacobian3");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian11      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian11");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian12      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian12");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian13      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian13");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian21      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian21");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian22      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian22");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian23      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian23");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian31      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian31");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian32      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian32");
-    std::shared_ptr<Teuchos::Time> AssemblePDEHessian33      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian33");
-    std::shared_ptr<Teuchos::Time> AssembleQOIValue          = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI Value");
-    std::shared_ptr<Teuchos::Time> AssembleQOIGradient1      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI Gradient1");
-    std::shared_ptr<Teuchos::Time> AssembleQOIGradient2      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI Gradient2");
-    std::shared_ptr<Teuchos::Time> AssembleQOIGradient3      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI Gradient3");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec11      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec11");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec12      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec12");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec13      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec13");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec21      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec21");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec22      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec22");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec23      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec23");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec31      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec31");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec32      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec32");
-    std::shared_ptr<Teuchos::Time> AssembleQOIHessVec33      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec33");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEResidual       = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Residual");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEJacobian1      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Jacobian1");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEJacobian2      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Jacobian2");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEJacobian3      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Jacobian3");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian11      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian11");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian12      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian12");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian13      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian13");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian21      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian21");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian22      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian22");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian23      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian23");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian31      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian31");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian32      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian32");
+    ROL::SharedPointer<Teuchos::Time> AssemblePDEHessian33      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble PDE Hessian33");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIValue          = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI Value");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIGradient1      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI Gradient1");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIGradient2      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI Gradient2");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIGradient3      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI Gradient3");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec11      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec11");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec12      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec12");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec13      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec13");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec21      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec21");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec22      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec22");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec23      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec23");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec31      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec31");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec32      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec32");
+    ROL::SharedPointer<Teuchos::Time> AssembleQOIHessVec33      = Teuchos::TimeMonitor::getNewCounter("ROL::PDEOPT: Assemble QOI HessVec33");
   }
 }
 #endif
@@ -123,71 +123,71 @@ class Assembler {
 
 private:
   // Timers
-//  std::shared_ptr<Teuchos::Time::Time> timerSolverFactorization_;
-//  std::shared_ptr<Teuchos::Time::Time> timerSolverSubstitution_;
-//  std::shared_ptr<Teuchos::Time::Time> timerAssemblyNonlinear_;
-//  std::shared_ptr<Teuchos::Time::Time> timerSolverUpdate_;
+//  ROL::SharedPointer<Teuchos::Time::Time> timerSolverFactorization_;
+//  ROL::SharedPointer<Teuchos::Time::Time> timerSolverSubstitution_;
+//  ROL::SharedPointer<Teuchos::Time::Time> timerAssemblyNonlinear_;
+//  ROL::SharedPointer<Teuchos::Time::Time> timerSolverUpdate_;
 
   // Set in Constructor.
   bool verbose_;
   bool isJ1Transposed_, isJ2Transposed_;
 
   // Set in SetCommunicator.
-  std::shared_ptr<const Teuchos::Comm<int> > comm_;
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm_;
   int myRank_, numProcs_;
 
   // Set in SetBasis.
-  std::vector<std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > basisPtrs_;
+  std::vector<ROL::SharedPointer<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > basisPtrs_;
 
   // Set in SetDiscretization.
-  std::shared_ptr<MeshManager<Real> > meshMgr_;
-  std::shared_ptr<DofManager<Real> >  dofMgr_;
+  ROL::SharedPointer<MeshManager<Real> > meshMgr_;
+  ROL::SharedPointer<DofManager<Real> >  dofMgr_;
 
   // Set in SetParallelStructure.
   int numCells_;
   Teuchos::Array<int> myCellIds_;
   Teuchos::Array<int> cellOffsets_;
-  std::shared_ptr<const Tpetra::Map<> > myOverlapStateMap_;
-  std::shared_ptr<const Tpetra::Map<> > myUniqueStateMap_;
-  std::shared_ptr<const Tpetra::Map<> > myOverlapControlMap_;
-  std::shared_ptr<const Tpetra::Map<> > myUniqueControlMap_;
-  std::shared_ptr<const Tpetra::Map<> > myOverlapResidualMap_;
-  std::shared_ptr<const Tpetra::Map<> > myUniqueResidualMap_;
-  std::shared_ptr<Tpetra::CrsGraph<> >  matJ1Graph_;
-  std::shared_ptr<Tpetra::CrsGraph<> >  matJ2Graph_;
-  std::shared_ptr<Tpetra::CrsGraph<> >  matR1Graph_;
-  std::shared_ptr<Tpetra::CrsGraph<> >  matR2Graph_;
-  std::shared_ptr<Tpetra::CrsGraph<> >  matH11Graph_;
-  std::shared_ptr<Tpetra::CrsGraph<> >  matH12Graph_;
-  std::shared_ptr<Tpetra::CrsGraph<> >  matH21Graph_;
-  std::shared_ptr<Tpetra::CrsGraph<> >  matH22Graph_;
+  ROL::SharedPointer<const Tpetra::Map<> > myOverlapStateMap_;
+  ROL::SharedPointer<const Tpetra::Map<> > myUniqueStateMap_;
+  ROL::SharedPointer<const Tpetra::Map<> > myOverlapControlMap_;
+  ROL::SharedPointer<const Tpetra::Map<> > myUniqueControlMap_;
+  ROL::SharedPointer<const Tpetra::Map<> > myOverlapResidualMap_;
+  ROL::SharedPointer<const Tpetra::Map<> > myUniqueResidualMap_;
+  ROL::SharedPointer<Tpetra::CrsGraph<> >  matJ1Graph_;
+  ROL::SharedPointer<Tpetra::CrsGraph<> >  matJ2Graph_;
+  ROL::SharedPointer<Tpetra::CrsGraph<> >  matR1Graph_;
+  ROL::SharedPointer<Tpetra::CrsGraph<> >  matR2Graph_;
+  ROL::SharedPointer<Tpetra::CrsGraph<> >  matH11Graph_;
+  ROL::SharedPointer<Tpetra::CrsGraph<> >  matH12Graph_;
+  ROL::SharedPointer<Tpetra::CrsGraph<> >  matH21Graph_;
+  ROL::SharedPointer<Tpetra::CrsGraph<> >  matH22Graph_;
 
   // Set in SetCellNodes.
-  std::shared_ptr<Intrepid::FieldContainer<Real> > volCellNodes_;
-  std::shared_ptr<std::vector<std::vector<std::vector<int> > > >  bdryCellIds_;
-  //std::vector<std::vector<std::shared_ptr<Intrepid::FieldContainer<int> > > >  bdryCellLocIds_;
+  ROL::SharedPointer<Intrepid::FieldContainer<Real> > volCellNodes_;
+  ROL::SharedPointer<std::vector<std::vector<std::vector<int> > > >  bdryCellIds_;
+  //std::vector<std::vector<ROL::SharedPointer<Intrepid::FieldContainer<int> > > >  bdryCellLocIds_;
   std::vector<std::vector<std::vector<int> > >  bdryCellLocIds_;
-  std::vector<std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > > bdryCellNodes_;
+  std::vector<std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > > bdryCellNodes_;
 
   // Finite element vectors and matrices for PDE.
-  std::shared_ptr<Tpetra::MultiVector<> > pde_vecR_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > pde_vecJ3_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > pde_vecH13_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > pde_vecH23_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > pde_vecR_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > pde_vecJ3_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > pde_vecH13_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > pde_vecH23_overlap_;
 
   // Finite element vectors and matrices for QoI.
-  std::shared_ptr<Tpetra::MultiVector<> > qoi_vecG1_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > qoi_vecG2_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > qoi_vecH11_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > qoi_vecH12_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > qoi_vecH13_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > qoi_vecH21_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > qoi_vecH22_overlap_;
-  std::shared_ptr<Tpetra::MultiVector<> > qoi_vecH23_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > qoi_vecG1_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > qoi_vecG2_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > qoi_vecH11_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > qoi_vecH12_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > qoi_vecH13_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > qoi_vecH21_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > qoi_vecH22_overlap_;
+  ROL::SharedPointer<Tpetra::MultiVector<> > qoi_vecH23_overlap_;
 
 private:
 
-  void setCommunicator(const std::shared_ptr<const Teuchos::Comm<int> > &comm,
+  void setCommunicator(const ROL::SharedPointer<const Teuchos::Comm<int> > &comm,
                        Teuchos::ParameterList &parlist,
                        std::ostream &outStream = std::cout) {
     comm_ = comm;
@@ -205,7 +205,7 @@ private:
   }
 
   void setBasis(
-         const std::vector<std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > &basisPtrs,
+         const std::vector<ROL::SharedPointer<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > &basisPtrs,
          Teuchos::ParameterList &parlist,
          std::ostream &outStream = std::cout) {
     basisPtrs_ = basisPtrs;
@@ -215,16 +215,16 @@ private:
   }
 
   void setDiscretization(Teuchos::ParameterList &parlist,
-                         const std::shared_ptr<MeshManager<Real> > &meshMgr = nullptr,
+                         const ROL::SharedPointer<MeshManager<Real> > &meshMgr = ROL::nullPointer,
                          std::ostream &outStream = std::cout) {
-    if ( meshMgr != nullptr ) {
+    if ( meshMgr != ROL::nullPointer ) {
       // Use MeshManager object if supplied
       meshMgr_ = meshMgr;
     }
     else {
       // Otherwise construct MeshManager objective from parameter list
     }
-    dofMgr_ = std::make_shared<DofManager<Real>>(meshMgr_,basisPtrs_);
+    dofMgr_ = ROL::makeShared<DofManager<Real>>(meshMgr_,basisPtrs_);
     if (verbose_ && myRank_==0) {
       outStream << "Initialized discretization (MeshManager and DofManager)." << std::endl;
     }
@@ -312,12 +312,12 @@ private:
     /****************************************/
     /*** Assemble global graph structure. ***/
     /****************************************/
-    matJ1Graph_ = std::make_shared<Tpetra::CrsGraph<>>(myUniqueStateMap_, 0);
-    Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
+    matJ1Graph_ = ROL::makeShared<Tpetra::CrsGraph<>>(myUniqueStateMap_, 0);
+    Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
     for (int i=0; i<numCells_; ++i) {
       for (int j=0; j<numLocalDofs; ++j) {
         matJ1Graph_->insertGlobalIndices(cellDofs(myCellIds_[i],j),
-          cellDofsArraystd::shared_ptr(myCellIds_[i]*numLocalDofs, numLocalDofs));
+          cellDofsArrayROL::SharedPointer(myCellIds_[i]*numLocalDofs, numLocalDofs));
       }
     }
     matJ1Graph_->fillComplete();
@@ -339,7 +339,7 @@ private:
     shards::CellTopology cellType = basisPtrs_[0]->getBaseCellTopology();
     int spaceDim = cellType.getDimension();
     int numNodesPerCell = cellType.getNodeCount();
-    volCellNodes_ = std::make_shared<Intrepid::FieldContainer<Real>>(numCells_, numNodesPerCell, spaceDim);
+    volCellNodes_ = ROL::makeShared<Intrepid::FieldContainer<Real>>(numCells_, numNodesPerCell, spaceDim);
     Intrepid::FieldContainer<Real> &nodes = *meshMgr_->getNodes();
     Intrepid::FieldContainer<int>  &ctn   = *meshMgr_->getCellToNodeMap();
     for (int i=0; i<numCells_; ++i) {
@@ -371,7 +371,7 @@ private:
             }
             int myNumCellsSide = bdryCellLocIds_[i][j].size();
             if (myNumCellsSide > 0) {
-              bdryCellNodes_[i][j] = std::make_shared<Intrepid::FieldContainer<Real>>(myNumCellsSide, numNodesPerCell, spaceDim);
+              bdryCellNodes_[i][j] = ROL::makeShared<Intrepid::FieldContainer<Real>>(myNumCellsSide, numNodesPerCell, spaceDim);
             }
             for (int k=0; k<myNumCellsSide; ++k) {
               for (int l=0; l<numNodesPerCell; ++l) {
@@ -399,19 +399,19 @@ private:
     }
   }
 
-  void getCoeffFromStateVector(std::shared_ptr<Intrepid::FieldContainer<Real> > &xcoeff,
-                               const std::shared_ptr<const Tpetra::MultiVector<> > &x) const {
-    if ( x != nullptr ) {
+  void getCoeffFromStateVector(ROL::SharedPointer<Intrepid::FieldContainer<Real> > &xcoeff,
+                               const ROL::SharedPointer<const Tpetra::MultiVector<> > &x) const {
+    if ( x != ROL::nullPointer ) {
       // Perform import onto myOverlapMap
-      std::shared_ptr<Tpetra::MultiVector<> > xshared =
-        std::make_shared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
+      ROL::SharedPointer<Tpetra::MultiVector<> > xshared =
+        ROL::makeShared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
       Tpetra::Import<> importer(myUniqueStateMap_, myOverlapStateMap_);
       xshared->doImport(*x,importer,Tpetra::REPLACE);
       // Populate xcoeff
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int lfs = dofMgr_->getLocalFieldSize();
-      xcoeff = std::make_shared<Intrepid::FieldContainer<Real>>(numCells_, lfs);
-      Teuchos::Arraystd::shared_ptr<const Real> xdata = xshared->get1dView();
+      xcoeff = ROL::makeShared<Intrepid::FieldContainer<Real>>(numCells_, lfs);
+      Teuchos::ArrayROL::SharedPointer<const Real> xdata = xshared->get1dView();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<lfs; ++j) {
           (*xcoeff)(i,j) = xdata[xshared->getMap()->getLocalElement(cellDofs(myCellIds_[i],j))];
@@ -420,23 +420,23 @@ private:
       dofMgr_->transformToIntrepidPattern(xcoeff);
     }
     else {
-      xcoeff = nullptr;
+      xcoeff = ROL::nullPointer;
     }
   }
 
-  void getCoeffFromControlVector(std::shared_ptr<Intrepid::FieldContainer<Real> > &xcoeff,
-                                 const std::shared_ptr<const Tpetra::MultiVector<> > &x) const {
-    if ( x != nullptr ) {
+  void getCoeffFromControlVector(ROL::SharedPointer<Intrepid::FieldContainer<Real> > &xcoeff,
+                                 const ROL::SharedPointer<const Tpetra::MultiVector<> > &x) const {
+    if ( x != ROL::nullPointer ) {
       // Perform import onto myOverlapMap
-      std::shared_ptr<Tpetra::MultiVector<> > xshared =
-        std::make_shared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
+      ROL::SharedPointer<Tpetra::MultiVector<> > xshared =
+        ROL::makeShared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
       Tpetra::Import<> importer(myUniqueControlMap_, myOverlapControlMap_);
       xshared->doImport(*x,importer,Tpetra::REPLACE);
       // Populate xcoeff
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int lfs = dofMgr_->getLocalFieldSize();
-      xcoeff = std::make_shared<Intrepid::FieldContainer<Real>>(numCells_, lfs);
-      Teuchos::Arraystd::shared_ptr<const Real> xdata = xshared->get1dView();
+      xcoeff = ROL::makeShared<Intrepid::FieldContainer<Real>>(numCells_, lfs);
+      Teuchos::ArrayROL::SharedPointer<const Real> xdata = xshared->get1dView();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<lfs; ++j) {
           (*xcoeff)(i,j) = xdata[xshared->getMap()->getLocalElement(cellDofs(myCellIds_[i],j))];
@@ -445,7 +445,7 @@ private:
       dofMgr_->transformToIntrepidPattern(xcoeff);
     }
     else {
-      xcoeff = nullptr;
+      xcoeff = ROL::nullPointer;
     }
   }
 
@@ -454,22 +454,22 @@ public:
   virtual ~Assembler() {}
 
   // Constuctor: Discretization set from ParameterList
-  Assembler(const std::vector<std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > &basisPtrs,
-          const std::shared_ptr<const Teuchos::Comm<int> > &comm,
+  Assembler(const std::vector<ROL::SharedPointer<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > &basisPtrs,
+          const ROL::SharedPointer<const Teuchos::Comm<int> > &comm,
           Teuchos::ParameterList &parlist,
           std::ostream &outStream = std::cout)
     : isJ1Transposed_(false), isJ2Transposed_(false) {
     setCommunicator(comm,parlist,outStream);
     setBasis(basisPtrs,parlist,outStream);
-    setDiscretization(parlist,nullptr,outStream);
+    setDiscretization(parlist,ROL::nullPointer,outStream);
     setParallelStructure(parlist,outStream);
     setCellNodes(outStream);
   }
 
   // Constructor: Discretization set from MeshManager input
-  Assembler(const std::vector<std::shared_ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > &basisPtrs,
-          const std::shared_ptr<MeshManager<Real> > &meshMgr,
-          const std::shared_ptr<const Teuchos::Comm<int> > &comm,
+  Assembler(const std::vector<ROL::SharedPointer<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > &basisPtrs,
+          const ROL::SharedPointer<MeshManager<Real> > &meshMgr,
+          const ROL::SharedPointer<const Teuchos::Comm<int> > &comm,
           Teuchos::ParameterList &parlist,
           std::ostream &outStream = std::cout)
     : isJ1Transposed_(false), isJ2Transposed_(false) {
@@ -489,20 +489,20 @@ public:
   /***************************************************************************/
   /* PDE assembly routines                                                   */
   /***************************************************************************/
-  void assemblePDEResidual(std::shared_ptr<Tpetra::MultiVector<> > &r,
-                           const std::shared_ptr<PDE<Real> > &pde,
-                           const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                           const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                           const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEResidual(ROL::SharedPointer<Tpetra::MultiVector<> > &r,
+                           const ROL::SharedPointer<PDE<Real> > &pde,
+                           const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                           const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                           const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEResidual);
     #endif
     // Initialize residual vectors if not done so
-    if ( r == nullptr ) { // Unique components of residual vector
-      r = std::make_shared<Tpetra::MultiVector<>>(myUniqueResidualMap_, 1, true);
+    if ( r == ROL::nullPointer ) { // Unique components of residual vector
+      r = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueResidualMap_, 1, true);
     }
-    if ( pde_vecR_overlap_ == nullptr ) { // Overlapping components of residual vector
-      pde_vecR_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapResidualMap_, 1, true);
+    if ( pde_vecR_overlap_ == ROL::nullPointer ) { // Overlapping components of residual vector
+      pde_vecR_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapResidualMap_, 1, true);
     }
     // Set residual vectors to zero
     r->scale(static_cast<Real>(0));
@@ -511,11 +511,11 @@ public:
     Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
     int numLocalDofs = cellDofs.dimension(1);
     // Initialize res container
-    std::shared_ptr<Intrepid::FieldContainer<Real> > res;
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > res;
     // Get u_coeff from u and z_coeff from z
-    std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
     getCoeffFromStateVector(u_coeff,u);
-    std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
     getCoeffFromControlVector(z_coeff,z);
     // Compute PDE residual
     pde->residual(res,u_coeff,z_coeff,z_param);
@@ -533,27 +533,27 @@ public:
     r->doExport(*pde_vecR_overlap_, exporter, Tpetra::ADD);              // from the overlap map to the unique map
   }
 
-  void assemblePDEJacobian1(std::shared_ptr<Tpetra::CrsMatrix<> > &J1,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEJacobian1(ROL::SharedPointer<Tpetra::CrsMatrix<> > &J1,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEJacobian1);
     #endif
     try {
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Compute PDE Jacobian
-      std::shared_ptr<Intrepid::FieldContainer<Real> > jac;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > jac;
       pde->Jacobian_1(jac,u_coeff,z_coeff,z_param); // Throw if not implemented or is zero
       dofMgr_->transformToFieldPattern(jac);
       // Initialize Jacobian matrices
-      if ( J1 == nullptr ) {
-        J1 = std::make_shared<Tpetra::CrsMatrix<>>(matJ1Graph_);
+      if ( J1 == ROL::nullPointer ) {
+        J1 = ROL::makeShared<Tpetra::CrsMatrix<>>(matJ1Graph_);
       }
       // Zero PDE Jacobian
       J1->resumeFill(); J1->setAllToScalar(static_cast<Real>(0));
@@ -561,13 +561,13 @@ public:
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int numLocalDofs = cellDofs.dimension(1);
       int numLocalMatEntries = numLocalDofs * numLocalDofs;
-      Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
-      Teuchos::Arraystd::shared_ptr<const Real> jacArraystd::shared_ptr = jac->getData();
+      Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
+      Teuchos::ArrayROL::SharedPointer<const Real> jacArrayROL::SharedPointer = jac->getData();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<numLocalDofs; ++j) {
           J1->sumIntoGlobalValues(cellDofs(myCellIds_[i],j),
-                                  cellDofsArraystd::shared_ptr(myCellIds_[i] * numLocalDofs, numLocalDofs),
-                                  jacArraystd::shared_ptr(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
+                                  cellDofsArrayROL::SharedPointer(myCellIds_[i] * numLocalDofs, numLocalDofs),
+                                  jacArrayROL::SharedPointer(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
         }
       }
       J1->fillComplete();
@@ -581,27 +581,27 @@ public:
     }
   }
 
-  void assemblePDEJacobian2(std::shared_ptr<Tpetra::CrsMatrix<> > &J2,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEJacobian2(ROL::SharedPointer<Tpetra::CrsMatrix<> > &J2,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEJacobian2);
     #endif
     try {
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Compute PDE Jacobian
-      std::shared_ptr<Intrepid::FieldContainer<Real> > jac;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > jac;
       pde->Jacobian_2(jac,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(jac);
       // Initialize Jacobian matrices
-      if ( J2 == nullptr ) {
-        J2 = std::make_shared<Tpetra::CrsMatrix<>>(matJ2Graph_);
+      if ( J2 == ROL::nullPointer ) {
+        J2 = ROL::makeShared<Tpetra::CrsMatrix<>>(matJ2Graph_);
       }
       // Zero PDE Jacobian
       J2->resumeFill(); J2->setAllToScalar(static_cast<Real>(0));
@@ -609,13 +609,13 @@ public:
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int numLocalDofs = cellDofs.dimension(1);
       int numLocalMatEntries = numLocalDofs * numLocalDofs;
-      Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
-      Teuchos::Arraystd::shared_ptr<const Real> jacArraystd::shared_ptr = jac->getData();
+      Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
+      Teuchos::ArrayROL::SharedPointer<const Real> jacArrayROL::SharedPointer = jac->getData();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<numLocalDofs; ++j) {
           J2->sumIntoGlobalValues(cellDofs(myCellIds_[i],j),
-                                  cellDofsArraystd::shared_ptr(myCellIds_[i] * numLocalDofs, numLocalDofs),
-                                  jacArraystd::shared_ptr(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
+                                  cellDofsArrayROL::SharedPointer(myCellIds_[i] * numLocalDofs, numLocalDofs),
+                                  jacArrayROL::SharedPointer(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
         }
       }
       J2->fillComplete();
@@ -629,23 +629,23 @@ public:
     }
   }
 
-  void assemblePDEJacobian3(std::shared_ptr<Tpetra::MultiVector<> > &J3,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEJacobian3(ROL::SharedPointer<Tpetra::MultiVector<> > &J3,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEJacobian3);
     #endif
-    if ( z_param != nullptr ) {
+    if ( z_param != ROL::nullPointer ) {
       try {
         int size = static_cast<int>(z_param->size());
         // Initialize res
-        std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > jac(size);
+        std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > jac(size);
         // Get u_coeff from u and z_coeff from z
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
         // Compute PDE local Jacobian wrt parametric controls
         pde->Jacobian_3(jac,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
@@ -653,11 +653,11 @@ public:
           dofMgr_->transformToFieldPattern(jac[i]);
         }
         // Initialize Jacobian storage if not done so already
-        if (J3 == nullptr) {
-          J3 = std::make_shared<Tpetra::MultiVector<>>(myUniqueResidualMap_, size, true);
+        if (J3 == ROL::nullPointer) {
+          J3 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueResidualMap_, size, true);
         }
-        if ( pde_vecJ3_overlap_ == nullptr) {
-          pde_vecJ3_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapResidualMap_, size, true);
+        if ( pde_vecJ3_overlap_ == ROL::nullPointer) {
+          pde_vecJ3_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapResidualMap_, size, true);
         }
         // Assemble PDE Jacobian wrt parametric controls
         J3->scale(static_cast<Real>(0));
@@ -690,30 +690,30 @@ public:
     }
   }
 
-  void assemblePDEHessian11(std::shared_ptr<Tpetra::CrsMatrix<> > &H11,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian11(ROL::SharedPointer<Tpetra::CrsMatrix<> > &H11,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian11);
     #endif
     try {
-      std::shared_ptr<Intrepid::FieldContainer<Real> > hess; 
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > hess; 
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > l_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > l_coeff = ROL::nullPointer;
       getCoeffFromStateVector(l_coeff,l);
       // Compute PDE Hessian
       pde->Hessian_11(hess,l_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(hess);
       // Initialize Hessian storage if not done so already
-      if ( H11 == nullptr ) {
-        H11 = std::make_shared<Tpetra::CrsMatrix<>>(matH11Graph_);
+      if ( H11 == ROL::nullPointer ) {
+        H11 = ROL::makeShared<Tpetra::CrsMatrix<>>(matH11Graph_);
       }
       // Zero Hessian
       H11->resumeFill(); H11->setAllToScalar(static_cast<Real>(0));
@@ -721,13 +721,13 @@ public:
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int numLocalDofs = cellDofs.dimension(1);
       int numLocalMatEntries = numLocalDofs * numLocalDofs;
-      Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
-      Teuchos::Arraystd::shared_ptr<const Real> hessArraystd::shared_ptr = hess->getData();
+      Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
+      Teuchos::ArrayROL::SharedPointer<const Real> hessArrayROL::SharedPointer = hess->getData();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<numLocalDofs; ++j) {
           H11->sumIntoGlobalValues(cellDofs(myCellIds_[i],j),
-                                   cellDofsArraystd::shared_ptr(myCellIds_[i] * numLocalDofs, numLocalDofs),
-                                   hessArraystd::shared_ptr(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
+                                   cellDofsArrayROL::SharedPointer(myCellIds_[i] * numLocalDofs, numLocalDofs),
+                                   hessArrayROL::SharedPointer(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
         }
       }
       H11->fillComplete();
@@ -740,30 +740,30 @@ public:
     }
   }
 
-  void assemblePDEHessian12(std::shared_ptr<Tpetra::CrsMatrix<> > &H12,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian12(ROL::SharedPointer<Tpetra::CrsMatrix<> > &H12,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian12);
     #endif
     try {
-      std::shared_ptr<Intrepid::FieldContainer<Real> > hess;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > hess;
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > l_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > l_coeff = ROL::nullPointer;
       getCoeffFromStateVector(l_coeff,l);
       // Compute PDE Hessian
       pde->Hessian_12(hess,l_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(hess);
       // Initialize Hessian storage if not done so already
-      if ( H12 == nullptr ) {
-        H12 = std::make_shared<Tpetra::CrsMatrix<>>(matH12Graph_);
+      if ( H12 == ROL::nullPointer ) {
+        H12 = ROL::makeShared<Tpetra::CrsMatrix<>>(matH12Graph_);
       }
       // Zero Hessian
       H12->resumeFill(); H12->setAllToScalar(static_cast<Real>(0));
@@ -771,13 +771,13 @@ public:
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int numLocalDofs = cellDofs.dimension(1);
       int numLocalMatEntries = numLocalDofs * numLocalDofs;
-      Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
-      Teuchos::Arraystd::shared_ptr<const Real> hessArraystd::shared_ptr = hess->getData();
+      Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
+      Teuchos::ArrayROL::SharedPointer<const Real> hessArrayROL::SharedPointer = hess->getData();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<numLocalDofs; ++j) {
           H12->sumIntoGlobalValues(cellDofs(myCellIds_[i],j),
-                                           cellDofsArraystd::shared_ptr(myCellIds_[i] * numLocalDofs, numLocalDofs),
-                                           hessArraystd::shared_ptr(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
+                                           cellDofsArrayROL::SharedPointer(myCellIds_[i] * numLocalDofs, numLocalDofs),
+                                           hessArrayROL::SharedPointer(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
         }
       }
       H12->fillComplete();
@@ -790,26 +790,26 @@ public:
     }
   }
 
-  void assemblePDEHessian13(std::shared_ptr<Tpetra::MultiVector<> > &H13,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian13(ROL::SharedPointer<Tpetra::MultiVector<> > &H13,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian13);
     #endif
-    if ( z_param != nullptr ) {
+    if ( z_param != ROL::nullPointer ) {
       try {
         int size = static_cast<int>(z_param->size());
         // Initialize local hessian
-        std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > hess(size);
+        std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > hess(size);
         // Get u_coeff from u, z_coeff from z and l_coeff from l
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > l_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > l_coeff = ROL::nullPointer;
         getCoeffFromStateVector(l_coeff,l);
         // Compute PDE local Jacobian wrt parametric controls
         pde->Hessian_13(hess,l_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
@@ -817,11 +817,11 @@ public:
           dofMgr_->transformToFieldPattern(hess[i]);
         }
         // Initialize Jacobian storage if not done so already
-        if (H13 == nullptr) {
-          H13 = std::make_shared<Tpetra::MultiVector<>>(myUniqueStateMap_, size, true);
+        if (H13 == ROL::nullPointer) {
+          H13 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueStateMap_, size, true);
         }
-        if ( pde_vecH13_overlap_ == nullptr) {
-          pde_vecH13_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapStateMap_, size, true);
+        if ( pde_vecH13_overlap_ == ROL::nullPointer) {
+          pde_vecH13_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapStateMap_, size, true);
         }
         // Assemble PDE Jacobian wrt parametric controls
         H13->scale(static_cast<Real>(0));
@@ -854,30 +854,30 @@ public:
     }
   }
 
-  void assemblePDEHessian21(std::shared_ptr<Tpetra::CrsMatrix<> > &H21,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian21(ROL::SharedPointer<Tpetra::CrsMatrix<> > &H21,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian21);
     #endif
     try {
-      std::shared_ptr<Intrepid::FieldContainer<Real> > hess;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > hess;
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > l_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > l_coeff = ROL::nullPointer;
       getCoeffFromStateVector(l_coeff,l);
       // Compute PDE Hessian
       pde->Hessian_21(hess,l_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(hess);
       // Initialize Hessian storage if not done so already
-      if ( H21 == nullptr ) {
-        H21 = std::make_shared<Tpetra::CrsMatrix<>>(matH21Graph_);
+      if ( H21 == ROL::nullPointer ) {
+        H21 = ROL::makeShared<Tpetra::CrsMatrix<>>(matH21Graph_);
       }
       // Zero Hessian
       H21->resumeFill(); H21->setAllToScalar(static_cast<Real>(0));
@@ -885,13 +885,13 @@ public:
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int numLocalDofs = cellDofs.dimension(1);
       int numLocalMatEntries = numLocalDofs * numLocalDofs;
-      Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
-      Teuchos::Arraystd::shared_ptr<const Real> hessArraystd::shared_ptr = hess->getData();
+      Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
+      Teuchos::ArrayROL::SharedPointer<const Real> hessArrayROL::SharedPointer = hess->getData();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<numLocalDofs; ++j) {
           H21->sumIntoGlobalValues(cellDofs(myCellIds_[i],j),
-                                   cellDofsArraystd::shared_ptr(myCellIds_[i] * numLocalDofs, numLocalDofs),
-                                   hessArraystd::shared_ptr(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
+                                   cellDofsArrayROL::SharedPointer(myCellIds_[i] * numLocalDofs, numLocalDofs),
+                                   hessArrayROL::SharedPointer(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
         }
       }
       H21->fillComplete();
@@ -904,30 +904,30 @@ public:
     }
   }
 
-  void assemblePDEHessian22(std::shared_ptr<Tpetra::CrsMatrix<> > &H22,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian22(ROL::SharedPointer<Tpetra::CrsMatrix<> > &H22,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian22);
     #endif
     try {
-      std::shared_ptr<Intrepid::FieldContainer<Real> > hess;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > hess;
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > l_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > l_coeff = ROL::nullPointer;
       getCoeffFromStateVector(l_coeff,l);
       // Compute PDE Hessian
       pde->Hessian_22(hess,l_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(hess);
       // Initialize Hessian storage if not done so already
-      if ( H22 == nullptr ) {
-        H22 = std::make_shared<Tpetra::CrsMatrix<>>(matH22Graph_);
+      if ( H22 == ROL::nullPointer ) {
+        H22 = ROL::makeShared<Tpetra::CrsMatrix<>>(matH22Graph_);
       }
       // Zero Hessian
       H22->resumeFill(); H22->setAllToScalar(static_cast<Real>(0));
@@ -935,13 +935,13 @@ public:
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int numLocalDofs = cellDofs.dimension(1);
       int numLocalMatEntries = numLocalDofs * numLocalDofs;
-      Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
-      Teuchos::Arraystd::shared_ptr<const Real> hessArraystd::shared_ptr = hess->getData();
+      Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
+      Teuchos::ArrayROL::SharedPointer<const Real> hessArrayROL::SharedPointer = hess->getData();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<numLocalDofs; ++j) {
           H22->sumIntoGlobalValues(cellDofs(myCellIds_[i],j),
-                                   cellDofsArraystd::shared_ptr(myCellIds_[i] * numLocalDofs, numLocalDofs),
-                                   hessArraystd::shared_ptr(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
+                                   cellDofsArrayROL::SharedPointer(myCellIds_[i] * numLocalDofs, numLocalDofs),
+                                   hessArrayROL::SharedPointer(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
         }
       }
       H22->fillComplete();
@@ -954,26 +954,26 @@ public:
     }
   }
 
-  void assemblePDEHessian23(std::shared_ptr<Tpetra::MultiVector<> > &H23,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian23(ROL::SharedPointer<Tpetra::MultiVector<> > &H23,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian23);
     #endif
-    if ( z_param != nullptr ) {
+    if ( z_param != ROL::nullPointer ) {
       try {
         int size = static_cast<int>(z_param->size());
         // Initialize local hessian
-        std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > hess(size);
+        std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > hess(size);
         // Get u_coeff from u, z_coeff from z and l_coeff from l
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > l_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > l_coeff = ROL::nullPointer;
         getCoeffFromStateVector(l_coeff,l);
         // Compute PDE local Jacobian wrt parametric controls
         pde->Hessian_23(hess,l_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
@@ -981,11 +981,11 @@ public:
           dofMgr_->transformToFieldPattern(hess[i]);
         }
         // Initialize Jacobian storage if not done so already
-        if (H23 == nullptr) {
-          H23 = std::make_shared<Tpetra::MultiVector<>>(myUniqueControlMap_, size, true);
+        if (H23 == ROL::nullPointer) {
+          H23 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueControlMap_, size, true);
         }
-        if ( pde_vecH23_overlap_ == nullptr) {
-          pde_vecH23_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapControlMap_, size, true);
+        if ( pde_vecH23_overlap_ == ROL::nullPointer) {
+          pde_vecH23_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapControlMap_, size, true);
         }
         // Assemble PDE Jacobian wrt parametric controls
         H23->scale(static_cast<Real>(0));
@@ -1018,51 +1018,51 @@ public:
     }
   }
 
-  void assemblePDEHessian31(std::shared_ptr<Tpetra::MultiVector<> > &H31,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian31(ROL::SharedPointer<Tpetra::MultiVector<> > &H31,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian31);
     #endif
     assemblePDEHessian13(H31,pde,l,u,z,z_param);
   }
 
-  void assemblePDEHessian32(std::shared_ptr<Tpetra::MultiVector<> > &H32,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian32(ROL::SharedPointer<Tpetra::MultiVector<> > &H32,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian32);
     #endif
     assemblePDEHessian23(H32,pde,l,u,z,z_param);
   }
 
-  void assemblePDEHessian33(std::shared_ptr<std::vector<std::vector<Real> > > &H33,
-                            const std::shared_ptr<PDE<Real> > &pde,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &l,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assemblePDEHessian33(ROL::SharedPointer<std::vector<std::vector<Real> > > &H33,
+                            const ROL::SharedPointer<PDE<Real> > &pde,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &l,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssemblePDEHessian33);
     #endif
-    if ( z_param != nullptr ) {
+    if ( z_param != ROL::nullPointer ) {
       try {
         int size = static_cast<int>(z_param->size());
         // Initialize local hessian
-        std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > tmp(size,nullptr);
-        std::vector<std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > > hess(size,tmp);
+        std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > tmp(size,ROL::nullPointer);
+        std::vector<std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > > hess(size,tmp);
         // Get u_coeff from u, z_coeff from z and l_coeff from l
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > l_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > l_coeff = ROL::nullPointer;
         getCoeffFromStateVector(l_coeff,l);
         // Compute PDE local Jacobian wrt parametric controls
         pde->Hessian_33(hess,l_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
@@ -1072,9 +1072,9 @@ public:
           }
         }
         // Initialize Jacobian storage if not done so already
-        if (H33 == nullptr) {
+        if (H33 == ROL::nullPointer) {
           std::vector<Real> col(size,static_cast<Real>(0));
-          H33 = std::make_shared<std::vector<std::vector<Real> >>(size,col);
+          H33 = ROL::makeShared<std::vector<std::vector<Real> >>(size,col);
         }
         // Assemble PDE Jacobian wrt parametric controls
         int cnt = 0, matSize = static_cast<int>(0.5*static_cast<Real>((size+1)*size));
@@ -1119,26 +1119,26 @@ public:
   /***************************************************************************/
   /* QoI assembly routines                                                   */
   /***************************************************************************/
-  Real assembleQoIValue(const std::shared_ptr<QoI<Real> > &qoi,
-                        const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                        const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                        const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  Real assembleQoIValue(const ROL::SharedPointer<QoI<Real> > &qoi,
+                        const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                        const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                        const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIValue);
     #endif
     Real val(0);
     try {
       // Integrate obj object
-      std::shared_ptr<Intrepid::FieldContainer<Real> > locVal;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > locVal;
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Get OBJ_CELL value
       val = qoi->value(locVal,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
       // Assembly
-      if ( locVal != nullptr ) {
+      if ( locVal != ROL::nullPointer ) {
         Real myval(0), gval(0);
         for (int i=0; i<numCells_; ++i) {
           myval += (*locVal)(i);
@@ -1156,30 +1156,30 @@ public:
     return val;
   }
 
-  void assembleQoIGradient1(std::shared_ptr<Tpetra::MultiVector<> > &g1,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIGradient1(ROL::SharedPointer<Tpetra::MultiVector<> > &g1,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIGradient1);
     #endif
     try {
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Compute local gradient
-      std::shared_ptr<Intrepid::FieldContainer<Real> > locGrad;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > locGrad;
       qoi->gradient_1(locGrad,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(locGrad);
       // Initialize state QoI gradient vectors
-      if ( g1 == nullptr ) {
-        g1 = std::make_shared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
+      if ( g1 == ROL::nullPointer ) {
+        g1 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
       }
-      if ( qoi_vecG1_overlap_ == nullptr ) {
-        qoi_vecG1_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
+      if ( qoi_vecG1_overlap_ == ROL::nullPointer ) {
+        qoi_vecG1_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
       }
       // Assembly in to the overlap gradient
       g1->scale(static_cast<Real>(0));
@@ -1205,30 +1205,30 @@ public:
     }
   }
 
-  void assembleQoIGradient2(std::shared_ptr<Tpetra::MultiVector<> > &g2,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIGradient2(ROL::SharedPointer<Tpetra::MultiVector<> > &g2,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIGradient2);
     #endif
     try {
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Compute local gradient
-      std::shared_ptr<Intrepid::FieldContainer<Real> > locGrad;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > locGrad;
       qoi->gradient_2(locGrad,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(locGrad);
       // Initialize control gradient vectors
-      if ( g2 == nullptr ) {
-        g2 = std::make_shared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
+      if ( g2 == ROL::nullPointer ) {
+        g2 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
       }
-      if ( qoi_vecG2_overlap_ == nullptr ) {
-        qoi_vecG2_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
+      if ( qoi_vecG2_overlap_ == ROL::nullPointer ) {
+        qoi_vecG2_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
       }
       // Assembly in to the overlap gradient
       g2->scale(static_cast<Real>(0));
@@ -1254,27 +1254,27 @@ public:
     }
   }
 
-  void assembleQoIGradient3(std::shared_ptr<std::vector<Real> > &g3,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIGradient3(ROL::SharedPointer<std::vector<Real> > &g3,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIGradient3);
     #endif
-    if ( z_param != nullptr ) {
+    if ( z_param != ROL::nullPointer ) {
       const int size = z_param->size();
-      if ( g3 == nullptr ) {
-        g3 = std::make_shared<std::vector<Real>>(size,0);
+      if ( g3 == ROL::nullPointer ) {
+        g3 = ROL::makeShared<std::vector<Real>>(size,0);
       }
       try {
         g3->assign(size,0);
         // Initialize local gradient storage
-        std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > locGrad(size,nullptr);
+        std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > locGrad(size,ROL::nullPointer);
         // Get u_coeff from u and z_coeff from z
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
         // Compute gradient
         (*g3) = qoi->gradient_3(locGrad,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
@@ -1284,7 +1284,7 @@ public:
         // Assembly
         std::vector<Real> myGrad(size,0), globGrad(size,0);
         for (int j = 0; j < size; ++j) {
-          if ( locGrad[j] != nullptr ) {
+          if ( locGrad[j] != ROL::nullPointer ) {
             for (int i=0; i<numCells_; ++i) {
               myGrad[j] += (*locGrad[j])(i);
             }
@@ -1307,33 +1307,33 @@ public:
     }
   }
 
-  void assembleQoIHessVec11(std::shared_ptr<Tpetra::MultiVector<> > &H11,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIHessVec11(ROL::SharedPointer<Tpetra::MultiVector<> > &H11,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec11);
     #endif
     try {
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > locHess;
-      std::shared_ptr<Intrepid::FieldContainer<Real> > v_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > locHess;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > v_coeff = ROL::nullPointer;
       getCoeffFromStateVector(v_coeff,v);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Compute local gradient
       qoi->HessVec_11(locHess, v_coeff, u_coeff, z_coeff, z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(locHess);
       // Initialize state-state HessVec vectors
-      if ( H11 == nullptr ) {
-        H11 = std::make_shared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
+      if ( H11 == ROL::nullPointer ) {
+        H11 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
       }
-      if ( qoi_vecH11_overlap_ == nullptr ) {
-        qoi_vecH11_overlap_  = std::make_shared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
+      if ( qoi_vecH11_overlap_ == ROL::nullPointer ) {
+        qoi_vecH11_overlap_  = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
       }
       // Assembly in to the overlap gradient
       H11->scale(static_cast<Real>(0));
@@ -1359,33 +1359,33 @@ public:
     }
   }
 
-  void assembleQoIHessVec12(std::shared_ptr<Tpetra::MultiVector<> > &H12,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIHessVec12(ROL::SharedPointer<Tpetra::MultiVector<> > &H12,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec12);
     #endif
     try {
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > locHess;
-      std::shared_ptr<Intrepid::FieldContainer<Real> > v_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > locHess;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > v_coeff = ROL::nullPointer;
       getCoeffFromControlVector(v_coeff,v);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Compute local gradient
       qoi->HessVec_12(locHess, v_coeff, u_coeff, z_coeff, z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(locHess);
       // Initialize state-control HessVec vectors
-      if ( H12 == nullptr ) {
-        H12 = std::make_shared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
+      if ( H12 == ROL::nullPointer ) {
+        H12 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
       }
-      if ( qoi_vecH12_overlap_ == nullptr ) {
-        qoi_vecH12_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
+      if ( qoi_vecH12_overlap_ == ROL::nullPointer ) {
+        qoi_vecH12_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
       }
       // Assembly in to the overlap gradient
       H12->scale(static_cast<Real>(0));
@@ -1411,32 +1411,32 @@ public:
     }
   }
 
-  void assembleQoIHessVec13(std::shared_ptr<Tpetra::MultiVector<> > &H13,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const std::vector<Real> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > &z_param = nullptr) {
+  void assembleQoIHessVec13(ROL::SharedPointer<Tpetra::MultiVector<> > &H13,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const std::vector<Real> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > &z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec13);
     #endif
-    if (z_param != nullptr) {
+    if (z_param != ROL::nullPointer) {
       try {
         // Get u_coeff from u and z_coeff from z
-        std::shared_ptr<Intrepid::FieldContainer<Real> > locHess;
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > locHess;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
         // Compute local gradient
         qoi->HessVec_13(locHess, v, u_coeff, z_coeff, z_param); // Throw if not implemented or zero
         dofMgr_->transformToFieldPattern(locHess);
         // Initialize state-control HessVec vectors
-        if ( H13 == nullptr ) {
-          H13 = std::make_shared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
+        if ( H13 == ROL::nullPointer ) {
+          H13 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
         }
-        if ( qoi_vecH13_overlap_ == nullptr ) {
-          qoi_vecH13_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
+        if ( qoi_vecH13_overlap_ == ROL::nullPointer ) {
+          qoi_vecH13_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapStateMap_, 1, true);
         }
         // Assembly in to the overlap gradient
         H13->scale(static_cast<Real>(0));
@@ -1466,33 +1466,33 @@ public:
     }
   }
 
-  void assembleQoIHessVec21(std::shared_ptr<Tpetra::MultiVector<> > &H21,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIHessVec21(ROL::SharedPointer<Tpetra::MultiVector<> > &H21,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec21);
     #endif
     try {
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > locHess;
-      std::shared_ptr<Intrepid::FieldContainer<Real> > v_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > locHess;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > v_coeff = ROL::nullPointer;
       getCoeffFromStateVector(v_coeff,v);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Compute local gradient
       qoi->HessVec_21(locHess, v_coeff, u_coeff, z_coeff, z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(locHess);
       // Initialize control-state HessVec vectors
-      if ( H21 == nullptr ) {
-        H21 = std::make_shared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
+      if ( H21 == ROL::nullPointer ) {
+        H21 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
       }
-      if ( qoi_vecH21_overlap_ == nullptr ) {
-        qoi_vecH21_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
+      if ( qoi_vecH21_overlap_ == ROL::nullPointer ) {
+        qoi_vecH21_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
       }
       // Assembly in to the overlap gradient
       H21->scale(static_cast<Real>(0));
@@ -1518,33 +1518,33 @@ public:
     }
   }
 
-  void assembleQoIHessVec22(std::shared_ptr<Tpetra::MultiVector<> > &H22,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIHessVec22(ROL::SharedPointer<Tpetra::MultiVector<> > &H22,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec22);
     #endif
     try {
       // Get u_coeff from u and z_coeff from z
-      std::shared_ptr<Intrepid::FieldContainer<Real> > locHess;
-      std::shared_ptr<Intrepid::FieldContainer<Real> > v_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > locHess;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > v_coeff = ROL::nullPointer;
       getCoeffFromControlVector(v_coeff,v);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
       getCoeffFromStateVector(u_coeff,u);
-      std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
       getCoeffFromControlVector(z_coeff,z);
       // Compute local gradient
       qoi->HessVec_22(locHess, v_coeff, u_coeff, z_coeff, z_param); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(locHess);
       // Initialize control-control HessVec vectors
-      if ( H22 == nullptr ) {
-        H22 = std::make_shared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
+      if ( H22 == ROL::nullPointer ) {
+        H22 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
       }
-      if ( qoi_vecH22_overlap_ == nullptr ) {
-        qoi_vecH22_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
+      if ( qoi_vecH22_overlap_ == ROL::nullPointer ) {
+        qoi_vecH22_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
       }
       // Assembly in to the overlap gradient
       H22->scale(static_cast<Real>(0));
@@ -1570,32 +1570,32 @@ public:
     }
   }
 
-  void assembleQoIHessVec23(std::shared_ptr<Tpetra::MultiVector<> > &H23,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const std::vector<Real> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIHessVec23(ROL::SharedPointer<Tpetra::MultiVector<> > &H23,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const std::vector<Real> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec23);
     #endif
-    if (z_param != nullptr) {
+    if (z_param != ROL::nullPointer) {
       try {
         // Get u_coeff from u and z_coeff from z
-        std::shared_ptr<Intrepid::FieldContainer<Real> > locHess;
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > locHess;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
         // Compute local gradient
         qoi->HessVec_23(locHess, v, u_coeff, z_coeff, z_param); // Throw if not implemented or zero
         dofMgr_->transformToFieldPattern(locHess);
         // Initialize control-control HessVec vectors
-        if ( H23 == nullptr ) {
-          H23 = std::make_shared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
+        if ( H23 == ROL::nullPointer ) {
+          H23 = ROL::makeShared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
         }
-        if ( qoi_vecH23_overlap_ == nullptr ) {
-          qoi_vecH23_overlap_ = std::make_shared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
+        if ( qoi_vecH23_overlap_ == ROL::nullPointer ) {
+          qoi_vecH23_overlap_ = ROL::makeShared<Tpetra::MultiVector<>>(myOverlapControlMap_, 1, true);
         }
         // Assembly in to the overlap gradient
         H23->scale(static_cast<Real>(0));
@@ -1626,30 +1626,30 @@ public:
 
   }
 
-  void assembleQoIHessVec31(std::shared_ptr<std::vector<Real> > &H31,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIHessVec31(ROL::SharedPointer<std::vector<Real> > &H31,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec31);
     #endif
-    if ( z_param != nullptr ) {
+    if ( z_param != ROL::nullPointer ) {
       const int size = z_param->size();
-      if ( H31 == nullptr ) {
-        H31 = std::make_shared<std::vector<Real>>(size,0);
+      if ( H31 == ROL::nullPointer ) {
+        H31 = ROL::makeShared<std::vector<Real>>(size,0);
       }
       try {
         H31->assign(size,0);
         // Initialize local gradient storage
-        std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > locHess(size,nullptr);
+        std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > locHess(size,ROL::nullPointer);
         // Get u_coeff from u and z_coeff from z
-        std::shared_ptr<Intrepid::FieldContainer<Real> > v_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > v_coeff = ROL::nullPointer;
         getCoeffFromStateVector(v_coeff,v);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
         // Compute gradient
         (*H31) = qoi->HessVec_31(locHess,v_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
@@ -1659,7 +1659,7 @@ public:
         // Assembly
         std::vector<Real> myHess(size,0), globHess(size,0);
         for (int j = 0; j < size; ++j) {
-          if ( locHess[j] != nullptr ) {
+          if ( locHess[j] != ROL::nullPointer ) {
             for (int i=0; i<numCells_; ++i) {
               myHess[j] += (*locHess[j])(i);
             }
@@ -1682,30 +1682,30 @@ public:
     }
   }
 
-  void assembleQoIHessVec32(std::shared_ptr<std::vector<Real> > &H32,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > & z_param = nullptr) {
+  void assembleQoIHessVec32(ROL::SharedPointer<std::vector<Real> > &H32,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > & z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec32);
     #endif
-    if ( z_param != nullptr ) {
+    if ( z_param != ROL::nullPointer ) {
       const int size = z_param->size();
-      if ( H32 == nullptr ) {
-        H32 = std::make_shared<std::vector<Real>>(size,0);
+      if ( H32 == ROL::nullPointer ) {
+        H32 = ROL::makeShared<std::vector<Real>>(size,0);
       }
       try {
         H32->assign(size,0);
         // Initialize local hessian times a vector storage
-        std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > locHess(size,nullptr);
+        std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > locHess(size,ROL::nullPointer);
         // Get u_coeff from u and z_coeff from z
-        std::shared_ptr<Intrepid::FieldContainer<Real> > v_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > v_coeff = ROL::nullPointer;
         getCoeffFromControlVector(v_coeff,v);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
         // Compute local hessian times a vector
         (*H32) = qoi->HessVec_32(locHess,v_coeff,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
@@ -1715,7 +1715,7 @@ public:
         // Assembly
         std::vector<Real> myHess(size,0), globHess(size,0);
         for (int j = 0; j < size; ++j) {
-          if ( locHess[j] != nullptr ) {
+          if ( locHess[j] != ROL::nullPointer ) {
             for (int i=0; i<numCells_; ++i) {
               myHess[j] += (*locHess[j])(i);
             }
@@ -1738,28 +1738,28 @@ public:
     }
   }
 
-  void assembleQoIHessVec33(std::shared_ptr<std::vector<Real> > &H33,
-                            const std::shared_ptr<QoI<Real> > &qoi,
-                            const std::shared_ptr<const std::vector<Real> > &v,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                            const std::shared_ptr<const Tpetra::MultiVector<> > &z = nullptr,
-                            const std::shared_ptr<const std::vector<Real> > &z_param = nullptr) {
+  void assembleQoIHessVec33(ROL::SharedPointer<std::vector<Real> > &H33,
+                            const ROL::SharedPointer<QoI<Real> > &qoi,
+                            const ROL::SharedPointer<const std::vector<Real> > &v,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                            const ROL::SharedPointer<const Tpetra::MultiVector<> > &z = ROL::nullPointer,
+                            const ROL::SharedPointer<const std::vector<Real> > &z_param = ROL::nullPointer) {
     #ifdef ROL_TIMERS
       Teuchos::TimeMonitor LocalTimer(*ROL::PDEOPT::AssembleQOIHessVec33);
     #endif
-    if ( z_param != nullptr ) {
+    if ( z_param != ROL::nullPointer ) {
       const int size = z_param->size();
-      if ( H33 == nullptr ) {
-        H33 = std::make_shared<std::vector<Real>>(size,0);
+      if ( H33 == ROL::nullPointer ) {
+        H33 = ROL::makeShared<std::vector<Real>>(size,0);
       }
       try {
         H33->assign(size,0);
         // Initialize local hessian times a vector storage
-        std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > locHess(size,nullptr);
+        std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > locHess(size,ROL::nullPointer);
         // Get u_coeff from u and z_coeff from z
-        std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff = ROL::nullPointer;
         getCoeffFromStateVector(u_coeff,u);
-        std::shared_ptr<Intrepid::FieldContainer<Real> > z_coeff = nullptr;
+        ROL::SharedPointer<Intrepid::FieldContainer<Real> > z_coeff = ROL::nullPointer;
         getCoeffFromControlVector(z_coeff,z);
         // Compute local hessian times a vector
         (*H33) = qoi->HessVec_33(locHess,v,u_coeff,z_coeff,z_param); // Throw if not implemented or zero
@@ -1769,7 +1769,7 @@ public:
         // Assembly
         std::vector<Real> myHess(size,0), globHess(size,0);
         for (int j = 0; j < size; ++j) {
-          if ( locHess[j] != nullptr ) {
+          if ( locHess[j] != ROL::nullPointer ) {
             for (int i=0; i<numCells_; ++i) {
               myHess[j] += (*locHess[j])(i);
             }
@@ -1799,29 +1799,29 @@ public:
   /***************************************************************************/
   /* Assemble and apply Riesz operator corresponding to simulation variables */
   /***************************************************************************/
-  void assemblePDERieszMap1(std::shared_ptr<Tpetra::CrsMatrix<> > &R1,
-                            const std::shared_ptr<PDE<Real> > &pde) {
+  void assemblePDERieszMap1(ROL::SharedPointer<Tpetra::CrsMatrix<> > &R1,
+                            const ROL::SharedPointer<PDE<Real> > &pde) {
     try {
       // Compute local state Riesz matrix
-      std::shared_ptr<Intrepid::FieldContainer<Real> > riesz;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > riesz;
       pde->RieszMap_1(riesz); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(riesz);
       // Initialize Riesz matrix if not done so already
-      if ( R1 == nullptr ) {
-      R1 = std::make_shared<Tpetra::CrsMatrix<>>(matR1Graph_);
+      if ( R1 == ROL::nullPointer ) {
+      R1 = ROL::makeShared<Tpetra::CrsMatrix<>>(matR1Graph_);
       }
       R1->resumeFill(); R1->setAllToScalar(static_cast<Real>(0));
       // Assemble Riesz matrix
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int numLocalDofs = cellDofs.dimension(1);
       int numLocalMatEntries = numLocalDofs * numLocalDofs;
-      Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
-      Teuchos::Arraystd::shared_ptr<const Real> rieszArraystd::shared_ptr = riesz->getData();
+      Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
+      Teuchos::ArrayROL::SharedPointer<const Real> rieszArrayROL::SharedPointer = riesz->getData();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<numLocalDofs; ++j) {
           R1->sumIntoGlobalValues(cellDofs(myCellIds_[i],j),
-                                      cellDofsArraystd::shared_ptr(myCellIds_[i] * numLocalDofs, numLocalDofs),
-                                      rieszArraystd::shared_ptr(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
+                                      cellDofsArrayROL::SharedPointer(myCellIds_[i] * numLocalDofs, numLocalDofs),
+                                      rieszArrayROL::SharedPointer(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
         }
       }
       R1->fillComplete();
@@ -1842,29 +1842,29 @@ public:
   /* Assemble and apply Riesz operator corresponding to optimization         */
   /* variables                                                               */
   /***************************************************************************/
-  void assemblePDERieszMap2(std::shared_ptr<Tpetra::CrsMatrix<> > &R2,
-                            const std::shared_ptr<PDE<Real> > &pde) {
+  void assemblePDERieszMap2(ROL::SharedPointer<Tpetra::CrsMatrix<> > &R2,
+                            const ROL::SharedPointer<PDE<Real> > &pde) {
     try {
       // Compute local control Riesz matrix
-      std::shared_ptr<Intrepid::FieldContainer<Real> > riesz;
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > riesz;
       pde->RieszMap_2(riesz); // Throw if not implemented or zero
       dofMgr_->transformToFieldPattern(riesz);
       // Initialize Riesz matrix if not done so already
-      if ( R2 == nullptr ) {
-        R2 = std::make_shared<Tpetra::CrsMatrix<>>(matR2Graph_);
+      if ( R2 == ROL::nullPointer ) {
+        R2 = ROL::makeShared<Tpetra::CrsMatrix<>>(matR2Graph_);
       }
       // Assemble Riesz matrix
       R2->resumeFill(); R2->setAllToScalar(static_cast<Real>(0));
       Intrepid::FieldContainer<int> &cellDofs = *(dofMgr_->getCellDofs());
       int numLocalDofs = cellDofs.dimension(1);
       int numLocalMatEntries = numLocalDofs * numLocalDofs;
-      Teuchos::Arraystd::shared_ptr<const int> cellDofsArraystd::shared_ptr = cellDofs.getData();
-      Teuchos::Arraystd::shared_ptr<const Real> rieszArraystd::shared_ptr = riesz->getData();
+      Teuchos::ArrayROL::SharedPointer<const int> cellDofsArrayROL::SharedPointer = cellDofs.getData();
+      Teuchos::ArrayROL::SharedPointer<const Real> rieszArrayROL::SharedPointer = riesz->getData();
       for (int i=0; i<numCells_; ++i) {
         for (int j=0; j<numLocalDofs; ++j) {
           R2->sumIntoGlobalValues(cellDofs(myCellIds_[i],j),
-                                      cellDofsArraystd::shared_ptr(myCellIds_[i] * numLocalDofs, numLocalDofs),
-                                      rieszArraystd::shared_ptr(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
+                                      cellDofsArrayROL::SharedPointer(myCellIds_[i] * numLocalDofs, numLocalDofs),
+                                      rieszArrayROL::SharedPointer(i*numLocalMatEntries+j*numLocalDofs, numLocalDofs));
         }
       }
       R2->fillComplete();
@@ -1884,18 +1884,18 @@ public:
   /***************************************************************************/
   /* Compute error routines.                                                 */
   /***************************************************************************/
-  Real computeStateError(const std::shared_ptr<const Tpetra::MultiVector<> > &soln,
-                         const std::shared_ptr<Solution<Real> > &trueSoln,
+  Real computeStateError(const ROL::SharedPointer<const Tpetra::MultiVector<> > &soln,
+                         const ROL::SharedPointer<Solution<Real> > &trueSoln,
                          const int cubDeg = 6,
-                         const std::shared_ptr<FieldHelper<Real> > &fieldHelper = nullptr) const {
+                         const ROL::SharedPointer<FieldHelper<Real> > &fieldHelper = ROL::nullPointer) const {
     Real totalError(0);
     // populate inCoeffs
-    std::shared_ptr<Intrepid::FieldContainer<Real> > inCoeffs0;
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > inCoeffs0;
     getCoeffFromStateVector(inCoeffs0, soln);
     // split fields
     int numFields = 1;
-    std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > inCoeffs;
-    if (fieldHelper != nullptr) {
+    std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > inCoeffs;
+    if (fieldHelper != ROL::nullPointer) {
       numFields = fieldHelper->numFields();
       fieldHelper->splitFieldCoeff(inCoeffs,inCoeffs0);
     }
@@ -1907,9 +1907,9 @@ public:
       // create fe object for error computation
       Intrepid::DefaultCubatureFactory<Real> cubFactory;
       shards::CellTopology cellType = basisPtrs_[fn]->getBaseCellTopology();
-      std::shared_ptr<Intrepid::Cubature<Real> > cellCub = cubFactory.create(cellType, cubDeg);
-      std::shared_ptr<FE<Real> > fe
-        = std::make_shared<FE<Real>>(volCellNodes_,basisPtrs_[fn],cellCub);
+      ROL::SharedPointer<Intrepid::Cubature<Real> > cellCub = cubFactory.create(cellType, cubDeg);
+      ROL::SharedPointer<FE<Real> > fe
+        = ROL::makeShared<FE<Real>>(volCellNodes_,basisPtrs_[fn],cellCub);
 
       // get dimensions
       int c = fe->gradN()->dimension(0);
@@ -1917,8 +1917,8 @@ public:
       int d = fe->gradN()->dimension(3);
 
       // evaluate input coefficients on fe basis
-      std::shared_ptr<Intrepid::FieldContainer<Real> > funcVals
-        = std::make_shared<Intrepid::FieldContainer<Real>>(c, p);
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > funcVals
+        = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, p);
       fe->evaluateValue(funcVals, inCoeffs[fn]);
 
       // subtract off true solution
@@ -1933,8 +1933,8 @@ public:
       }
 
       // compute norm squared of local error
-      std::shared_ptr<Intrepid::FieldContainer<Real> > normSquaredError
-        = std::make_shared<Intrepid::FieldContainer<Real>>(c);
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > normSquaredError
+        = ROL::makeShared<Intrepid::FieldContainer<Real>>(c);
       fe->computeIntegral(normSquaredError, funcVals, funcVals, false);
 
       Real localErrorSum(0);
@@ -1949,18 +1949,18 @@ public:
     return std::sqrt(totalError);
   }
 
-  Real computeControlError(const std::shared_ptr<const Tpetra::MultiVector<> > &soln,
-                           const std::shared_ptr<Solution<Real> > &trueSoln,
+  Real computeControlError(const ROL::SharedPointer<const Tpetra::MultiVector<> > &soln,
+                           const ROL::SharedPointer<Solution<Real> > &trueSoln,
                            const int cubDeg = 6,
-                           const std::shared_ptr<FieldHelper<Real> > &fieldHelper = nullptr) const {
+                           const ROL::SharedPointer<FieldHelper<Real> > &fieldHelper = ROL::nullPointer) const {
     Real totalError(0);
     // populate inCoeffs
-    std::shared_ptr<Intrepid::FieldContainer<Real> > inCoeffs0;
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > inCoeffs0;
     getCoeffFromControlVector(inCoeffs0, soln);
     // split fields
     int numFields = 1;
-    std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > inCoeffs;
-    if (fieldHelper != nullptr) {
+    std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > inCoeffs;
+    if (fieldHelper != ROL::nullPointer) {
       numFields = fieldHelper->numFields();
       fieldHelper->splitFieldCoeff(inCoeffs,inCoeffs0);
     }
@@ -1972,9 +1972,9 @@ public:
       // create fe object for error computation
       Intrepid::DefaultCubatureFactory<Real> cubFactory;
       shards::CellTopology cellType = basisPtrs_[fn]->getBaseCellTopology();
-      std::shared_ptr<Intrepid::Cubature<Real> > cellCub = cubFactory.create(cellType, cubDeg);
-      std::shared_ptr<FE<Real> > fe
-        = std::make_shared<FE<Real>>(volCellNodes_,basisPtrs_[fn],cellCub);
+      ROL::SharedPointer<Intrepid::Cubature<Real> > cellCub = cubFactory.create(cellType, cubDeg);
+      ROL::SharedPointer<FE<Real> > fe
+        = ROL::makeShared<FE<Real>>(volCellNodes_,basisPtrs_[fn],cellCub);
 
       // get dimensions
       int c = fe->gradN()->dimension(0);
@@ -1982,8 +1982,8 @@ public:
       int d = fe->gradN()->dimension(3);
 
       // evaluate input coefficients on fe basis
-      std::shared_ptr<Intrepid::FieldContainer<Real> > funcVals
-        = std::make_shared<Intrepid::FieldContainer<Real>>(c, p);
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > funcVals
+        = ROL::makeShared<Intrepid::FieldContainer<Real>>(c, p);
       fe->evaluateValue(funcVals, inCoeffs[fn]);
 
       // subtract off true solution
@@ -1998,8 +1998,8 @@ public:
       }
 
       // compute norm squared of local error
-      std::shared_ptr<Intrepid::FieldContainer<Real> > normSquaredError
-        = std::make_shared<Intrepid::FieldContainer<Real>>(c);
+      ROL::SharedPointer<Intrepid::FieldContainer<Real> > normSquaredError
+        = ROL::makeShared<Intrepid::FieldContainer<Real>>(c);
       fe->computeIntegral(normSquaredError, funcVals, funcVals, false);
 
       Real localErrorSum(0);
@@ -2021,8 +2021,8 @@ public:
   /* Output routines.                                                        */
   /***************************************************************************/
   void printMeshData(std::ostream &outStream) const {
-    std::shared_ptr<Intrepid::FieldContainer<Real> > nodesPtr = meshMgr_->getNodes();
-    std::shared_ptr<Intrepid::FieldContainer<int> >  cellToNodeMapPtr = meshMgr_->getCellToNodeMap();
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > nodesPtr = meshMgr_->getNodes();
+    ROL::SharedPointer<Intrepid::FieldContainer<int> >  cellToNodeMapPtr = meshMgr_->getCellToNodeMap();
     Intrepid::FieldContainer<Real>  &nodes = *nodesPtr;
     Intrepid::FieldContainer<int>   &cellToNodeMap = *cellToNodeMapPtr;
     if ( verbose_ && myRank_ == 0) {
@@ -2068,54 +2068,54 @@ public:
     }
   } // prinf function end
 
-  void outputTpetraVector(const std::shared_ptr<const Tpetra::MultiVector<> > &vec,
+  void outputTpetraVector(const ROL::SharedPointer<const Tpetra::MultiVector<> > &vec,
                           const std::string &filename) const {
     Tpetra::MatrixMarket::Writer< Tpetra::CrsMatrix<> > vecWriter;
     vecWriter.writeDenseFile(filename, vec);
   }
 
-  void serialPrintStateEdgeField(const std::shared_ptr<const Tpetra::MultiVector<> > &u,
-                                 const std::shared_ptr<FieldHelper<Real> > &fieldHelper,
+  void serialPrintStateEdgeField(const ROL::SharedPointer<const Tpetra::MultiVector<> > &u,
+                                 const ROL::SharedPointer<FieldHelper<Real> > &fieldHelper,
                                  const std::string &filename,
-                                 const std::shared_ptr<FE_CURL<Real> > &fe) const {
+                                 const ROL::SharedPointer<FE_CURL<Real> > &fe) const {
     const int c = fe->curlN()->dimension(0);
     const int f = fe->curlN()->dimension(1);
     const int p = 1, d = 3;
 
-    std::shared_ptr<Intrepid::FieldContainer<Real> > u_coeff;
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > u_coeff;
     getCoeffFromStateVector(u_coeff,u);
 
-    std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > U;
+    std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > U;
     fieldHelper->splitFieldCoeff(U, u_coeff);
     int numFields = U.size();
 
     // Transform cell center to physical
-    std::shared_ptr<Intrepid::FieldContainer<Real> > rx
-      = std::make_shared<Intrepid::FieldContainer<Real>>(p,d);
-    std::shared_ptr<Intrepid::FieldContainer<Real> > px
-      = std::make_shared<Intrepid::FieldContainer<Real>>(c,p,d);
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > rx
+      = ROL::makeShared<Intrepid::FieldContainer<Real>>(p,d);
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > px
+      = ROL::makeShared<Intrepid::FieldContainer<Real>>(c,p,d);
     fe->mapRefPointsToPhysical(px,rx);
     // Transform reference values into physical space.
-    std::shared_ptr<Intrepid::FieldContainer<Real> > cellJac
-      = std::make_shared<Intrepid::FieldContainer<Real>>(c,p,d,d);
-    std::shared_ptr<Intrepid::FieldContainer<Real> > cellJacInv
-      = std::make_shared<Intrepid::FieldContainer<Real>>(c,p,d,d);
-    std::shared_ptr<shards::CellTopology> cellTopo
-      = std::make_shared<shards::CellTopology(basisPtrs_[0]->getBaseCellTopology>());
-    std::shared_ptr<Intrepid::FieldContainer<Real> > valReference
-      = std::make_shared<Intrepid::FieldContainer<Real>>(f,p,d);
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > cellJac
+      = ROL::makeShared<Intrepid::FieldContainer<Real>>(c,p,d,d);
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > cellJacInv
+      = ROL::makeShared<Intrepid::FieldContainer<Real>>(c,p,d,d);
+    ROL::SharedPointer<shards::CellTopology> cellTopo
+      = ROL::makeShared<shards::CellTopology(basisPtrs_[0]->getBaseCellTopology>());
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > valReference
+      = ROL::makeShared<Intrepid::FieldContainer<Real>>(f,p,d);
     basisPtrs_[0]->getValues(*valReference,*rx,Intrepid::OPERATOR_VALUE);
-    std::shared_ptr<Intrepid::FieldContainer<Real> > valPhysical
-      = std::make_shared<Intrepid::FieldContainer<Real>>(c,f,p,d);
+    ROL::SharedPointer<Intrepid::FieldContainer<Real> > valPhysical
+      = ROL::makeShared<Intrepid::FieldContainer<Real>>(c,f,p,d);
     Intrepid::CellTools<Real>::setJacobian(*cellJac,*rx,*volCellNodes_,*cellTopo);
     Intrepid::CellTools<Real>::setJacobianInv(*cellJacInv, *cellJac);
     Intrepid::FunctionSpaceTools::HCURLtransformVALUE<Real>(*valPhysical,
                                                             *cellJacInv,
                                                             *valReference);
 
-    std::vector<std::shared_ptr<Intrepid::FieldContainer<Real> > > uval(numFields);
+    std::vector<ROL::SharedPointer<Intrepid::FieldContainer<Real> > > uval(numFields);
     for (int k = 0; k < numFields; ++k) {
-      uval[k] = std::make_shared<Intrepid::FieldContainer<Real>>(c,p,d);
+      uval[k] = ROL::makeShared<Intrepid::FieldContainer<Real>>(c,p,d);
       Intrepid::FunctionSpaceTools::evaluate<Real>(*uval[k], *U[k], *valPhysical);
     }
     // Print
@@ -2144,28 +2144,28 @@ public:
   /***************************************************************************/
   /* Vector generation routines.                                             */
   /***************************************************************************/
-  const std::shared_ptr<const Tpetra::Map<> > getStateMap(void) const {
+  const ROL::SharedPointer<const Tpetra::Map<> > getStateMap(void) const {
     return myUniqueStateMap_;
   }
 
-  const std::shared_ptr<const Tpetra::Map<> > getControlMap(void) const {
+  const ROL::SharedPointer<const Tpetra::Map<> > getControlMap(void) const {
     return myUniqueControlMap_;
   }
 
-  const std::shared_ptr<const Tpetra::Map<> > getResidualMap(void) const {
+  const ROL::SharedPointer<const Tpetra::Map<> > getResidualMap(void) const {
     return myUniqueResidualMap_;
   }
  
-  std::shared_ptr<Tpetra::MultiVector<> > createStateVector(void) const {
-    return std::make_shared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
+  ROL::SharedPointer<Tpetra::MultiVector<> > createStateVector(void) const {
+    return ROL::makeShared<Tpetra::MultiVector<>>(myUniqueStateMap_, 1, true);
   }
  
-  std::shared_ptr<Tpetra::MultiVector<> > createControlVector(void) const {
-    return std::make_shared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
+  ROL::SharedPointer<Tpetra::MultiVector<> > createControlVector(void) const {
+    return ROL::makeShared<Tpetra::MultiVector<>>(myUniqueControlMap_, 1, true);
   }
  
-  std::shared_ptr<Tpetra::MultiVector<> > createResidualVector(void) const {
-    return std::make_shared<Tpetra::MultiVector<>>(myUniqueResidualMap_, 1, true);
+  ROL::SharedPointer<Tpetra::MultiVector<> > createResidualVector(void) const {
+    return ROL::makeShared<Tpetra::MultiVector<>>(myUniqueResidualMap_, 1, true);
   }
   /***************************************************************************/
   /* End of vector generation routines.                                      */
@@ -2174,7 +2174,7 @@ public:
   /***************************************************************************/
   /* Accessor routines.                                                      */
   /***************************************************************************/
-  const std::shared_ptr<DofManager<Real> > getDofManager(void) const {
+  const ROL::SharedPointer<DofManager<Real> > getDofManager(void) const {
     return dofMgr_;
   }
 

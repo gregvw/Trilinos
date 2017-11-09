@@ -64,10 +64,10 @@ class CompositeStep : public Step<Real> {
 private:
 
   // Vectors used for cloning.
-  std::shared_ptr<Vector<Real> > xvec_;
-  std::shared_ptr<Vector<Real> > gvec_;
-  std::shared_ptr<Vector<Real> > cvec_;
-  std::shared_ptr<Vector<Real> > lvec_;
+  ROL::SharedPointer<Vector<Real> > xvec_;
+  ROL::SharedPointer<Vector<Real> > gvec_;
+  ROL::SharedPointer<Vector<Real> > cvec_;
+  ROL::SharedPointer<Vector<Real> > lvec_;
 
   // Diagnostic return flags for subalgorithms. 
   int flagCG_;
@@ -148,7 +148,7 @@ public:
   virtual ~CompositeStep() {}
 
   CompositeStep( Teuchos::ParameterList & parlist ) : Step<Real>() {
-    //std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    //ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     flagCG_ = 0;
     flagAC_ = 0;
     iterCG_ = 0;
@@ -209,8 +209,8 @@ public:
   void initialize( Vector<Real> &x, const Vector<Real> &g, Vector<Real> &l, const Vector<Real> &c,
                    Objective<Real> &obj, Constraint<Real> &con,
                    AlgorithmState<Real> &algo_state ) {
-    //std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    //ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
     state->constraintVec = c.clone();
@@ -220,8 +220,8 @@ public:
     lvec_ = l.clone();
     cvec_ = c.clone();
 
-    std::shared_ptr<Vector<Real> > ajl = gvec_->clone();
-    std::shared_ptr<Vector<Real> > gl  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ajl = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gl  = gvec_->clone();
 
     algo_state.nfval = 0;
     algo_state.ncval = 0;
@@ -252,23 +252,23 @@ public:
   void compute( Vector<Real> &s, const Vector<Real> &x, const Vector<Real> &l,
                 Objective<Real> &obj, Constraint<Real> &con,
                 AlgorithmState<Real> &algo_state ) {
-    //std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    //ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());
     Real f = 0.0;
-    std::shared_ptr<Vector<Real> > n   = xvec_->clone();
-    std::shared_ptr<Vector<Real> > c   = cvec_->clone();
-    std::shared_ptr<Vector<Real> > t   = xvec_->clone();
-    std::shared_ptr<Vector<Real> > tCP = xvec_->clone();
-    std::shared_ptr<Vector<Real> > g   = gvec_->clone();
-    std::shared_ptr<Vector<Real> > gf  = gvec_->clone();
-    std::shared_ptr<Vector<Real> > Wg  = xvec_->clone();
-    std::shared_ptr<Vector<Real> > ajl = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > n   = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > c   = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > t   = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > tCP = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > g   = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gf  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Wg  = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ajl = gvec_->clone();
 
     Real f_new = 0.0;
-    std::shared_ptr<Vector<Real> > l_new  = lvec_->clone();
-    std::shared_ptr<Vector<Real> > c_new  = cvec_->clone();
-    std::shared_ptr<Vector<Real> > g_new  = gvec_->clone();
-    std::shared_ptr<Vector<Real> > gf_new = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > l_new  = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > c_new  = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > g_new  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gf_new = gvec_->clone();
 
     // Evaluate objective ... should have been stored.
     f = obj.value(x, zerotol);
@@ -300,7 +300,7 @@ public:
   void update( Vector<Real> &x, Vector<Real> &l, const Vector<Real> &s,
                Objective<Real> &obj, Constraint<Real> &con,
                AlgorithmState<Real> &algo_state ) {
-    //std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    //ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
 
     Real zero(0);
     Real one(1);
@@ -313,10 +313,10 @@ public:
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());//zero;
     Real ratio(zero);
 
-    std::shared_ptr<Vector<Real> > g   = gvec_->clone();
-    std::shared_ptr<Vector<Real> > ajl = gvec_->clone();
-    std::shared_ptr<Vector<Real> > gl  = gvec_->clone();
-    std::shared_ptr<Vector<Real> > c   = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > g   = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ajl = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gl  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > c   = cvec_->clone();
 
     // Determine if the step gives sufficient reduction in the merit function,
     // update the trust-region radius.
@@ -352,7 +352,7 @@ public:
     algo_state.ngrad++;
     con.value(*c, x, zerotol);
 
-    std::shared_ptr<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->gradientVec->set(*gl);
     state->constraintVec->set(*c);
 
@@ -413,7 +413,7 @@ public:
   /** \brief Print iterate status.
   */
   std::string print( AlgorithmState<Real> & algo_state, bool pHeader = false ) const  {
-    //const std::shared_ptr<const StepState<Real> >& step_state = Step<Real>::getStepState();
+    //const ROL::SharedPointer<const StepState<Real> >& step_state = Step<Real>::getStepState();
 
     std::stringstream hist;
     hist << std::scientific << std::setprecision(6);
@@ -478,20 +478,20 @@ public:
     }
 
     /* Apply adjoint of constraint Jacobian to current multiplier. */
-    std::shared_ptr<Vector<Real> > ajl = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ajl = gvec_->clone();
     con.applyAdjointJacobian(*ajl, l, x, zerotol);
 
     /* Form right-hand side of the augmented system. */
-    std::shared_ptr<Vector<Real> > b1 = gvec_->clone();
-    std::shared_ptr<Vector<Real> > b2 = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > b1 = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > b2 = cvec_->clone();
     // b1 is the negative gradient of the Lagrangian
     b1->set(gf); b1->plus(*ajl); b1->scale(-one);
     // b2 is zero
     b2->zero();
 
     /* Declare left-hand side of augmented system. */
-    std::shared_ptr<Vector<Real> > v1 = xvec_->clone();
-    std::shared_ptr<Vector<Real> > v2 = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > v1 = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > v2 = lvec_->clone();
 
     /* Compute linear solver tolerance. */
     Real b1norm  = b1->norm();
@@ -546,11 +546,11 @@ public:
     std::vector<Real> augiters;
 
     /* Compute Cauchy step nCP. */
-    std::shared_ptr<Vector<Real> > nCP     = xvec_->clone();
-    std::shared_ptr<Vector<Real> > nCPdual = gvec_->clone();
-    std::shared_ptr<Vector<Real> > nN      = xvec_->clone();
-    std::shared_ptr<Vector<Real> > ctemp   = cvec_->clone();
-    std::shared_ptr<Vector<Real> > dualc0  = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > nCP     = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > nCPdual = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > nN      = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ctemp   = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > dualc0  = lvec_->clone();
     dualc0->set(c.dual());
     con.applyAdjointJacobian(*nCPdual, *dualc0, x, zerotol);
     nCP->set(nCPdual->dual());
@@ -586,8 +586,8 @@ public:
     nCPdual->set(nCP->dual());
     nCPdual->scale(-one);
     // Declare left-hand side of augmented system.
-    std::shared_ptr<Vector<Real> > dn = xvec_->clone();
-    std::shared_ptr<Vector<Real> > y  = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > dn = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > y  = lvec_->clone();
     // Solve augmented system.
     augiters = con.solveAugmentedSystem(*dn, *y, *nCPdual, *ctemp, x, tol);
     totalCallLS_++;
@@ -662,15 +662,15 @@ public:
     flagCG_ = 0;
     t.zero();
     tCP.zero();
-    std::shared_ptr<Vector<Real> > r     = gvec_->clone();
-    std::shared_ptr<Vector<Real> > pdesc = xvec_->clone();
-    std::shared_ptr<Vector<Real> > tprev = xvec_->clone();
-    std::shared_ptr<Vector<Real> > Wr    = xvec_->clone();
-    std::shared_ptr<Vector<Real> > Hp    = gvec_->clone();
-    std::shared_ptr<Vector<Real> > xtemp = xvec_->clone();
-    std::shared_ptr<Vector<Real> > gtemp = gvec_->clone();
-    std::shared_ptr<Vector<Real> > ltemp = lvec_->clone();
-    std::shared_ptr<Vector<Real> > czero = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > r     = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > pdesc = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > tprev = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Wr    = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Hp    = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > xtemp = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gtemp = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ltemp = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > czero = cvec_->clone();
     czero->zero();
     r->set(g);
     obj.hessVec(*gtemp, n, x, zerotol);
@@ -689,10 +689,10 @@ public:
     Real normt  = zero;
     std::vector<Real> normWr(maxiterCG_+1, zero);
 
-    std::vector<std::shared_ptr<Vector<Real > > >  p;    // stores search directions
-    std::vector<std::shared_ptr<Vector<Real > > >  Hps;  // stores duals of hessvec's applied to p's
-    std::vector<std::shared_ptr<Vector<Real > > >  rs;   // stores duals of residuals
-    std::vector<std::shared_ptr<Vector<Real > > >  Wrs;  // stores duals of projected residuals
+    std::vector<ROL::SharedPointer<Vector<Real > > >  p;    // stores search directions
+    std::vector<ROL::SharedPointer<Vector<Real > > >  Hps;  // stores duals of hessvec's applied to p's
+    std::vector<ROL::SharedPointer<Vector<Real > > >  rs;   // stores duals of residuals
+    std::vector<ROL::SharedPointer<Vector<Real > > >  Wrs;  // stores duals of projected residuals
 
     Real rptol(1e-12);
 
@@ -774,7 +774,7 @@ public:
       normWr[iterCG_-1] = Wr->norm();
 
       if (infoTS_) {
-        std::shared_ptr<Vector<Real> > ct = cvec_->clone();
+        ROL::SharedPointer<Vector<Real> > ct = cvec_->clone();
         con.applyJacobian(*ct, t, x, zerotol);
         Real linc = ct->norm();
         std::stringstream hist;
@@ -841,7 +841,7 @@ public:
       (p[iterCG_-1])->scale(-one);
       for (int j=1; j<iterCG_; j++) {
         Real scal = (p[iterCG_-1])->dot(*(Hps[j-1])) / (p[j-1])->dot(*(Hps[j-1]));
-        std::shared_ptr<Vector<Real> > pj = xvec_->clone();
+        ROL::SharedPointer<Vector<Real> > pj = xvec_->clone();
         pj->set(*p[j-1]);
         pj->scale(-scal);
         (p[iterCG_-1])->plus(*pj);
@@ -1014,21 +1014,21 @@ public:
     bool try_tCP = false;
     Real fdiff = zero;
 
-    std::shared_ptr<Vector<Real> > xtrial  = xvec_->clone();
-    std::shared_ptr<Vector<Real> > Jl      = gvec_->clone();
-    std::shared_ptr<Vector<Real> > gfJl    = gvec_->clone();
-    std::shared_ptr<Vector<Real> > Jnc     = cvec_->clone();
-    std::shared_ptr<Vector<Real> > t_orig  = xvec_->clone();
-    std::shared_ptr<Vector<Real> > t_dual  = gvec_->clone();
-    std::shared_ptr<Vector<Real> > Jt_orig = cvec_->clone();
-    std::shared_ptr<Vector<Real> > t_m_tCP = xvec_->clone();
-    std::shared_ptr<Vector<Real> > ltemp   = lvec_->clone();
-    std::shared_ptr<Vector<Real> > xtemp   = xvec_->clone();
-    std::shared_ptr<Vector<Real> > rt      = cvec_->clone();
-    std::shared_ptr<Vector<Real> > Hn      = gvec_->clone();
-    std::shared_ptr<Vector<Real> > Hto     = gvec_->clone();
-    std::shared_ptr<Vector<Real> > cxxvec  = gvec_->clone();
-    std::shared_ptr<Vector<Real> > czero   = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > xtrial  = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Jl      = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gfJl    = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Jnc     = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > t_orig  = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > t_dual  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Jt_orig = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > t_m_tCP = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ltemp   = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > xtemp   = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > rt      = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Hn      = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Hto     = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > cxxvec  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > czero   = cvec_->clone();
     czero->zero();
     Real Jnc_normsquared = zero;
     Real c_normsquared = zero;
@@ -1138,7 +1138,7 @@ public:
         // Computation of rpred.
         // change rpred = - ltemp->dot(*rt) - penalty_ * rt->dot(*rt) - two * penalty_ * rt->dot(*Jnc);
         rpred = - rt->dot(ltemp->dual()) - penalty_ * rt->dot(*rt) - two * penalty_ * rt->dot(*Jnc);
-        // change std::shared_ptr<Vector<Real> > lrt   = lvec_->clone();
+        // change ROL::SharedPointer<Vector<Real> > lrt   = lvec_->clone();
         //lrt->set(*rt);
         //rpred = - ltemp->dot(*rt) - penalty_ * std::pow(rt->norm(), 2) - two * penalty_ * lrt->dot(*Jnc);
         flag = 1;

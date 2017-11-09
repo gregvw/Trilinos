@@ -67,8 +67,8 @@ class ConstraintFromObjective : public Constraint<Real> {
 
 private:
 
-  const std::shared_ptr<Objective<Real> > obj_;
-  std::shared_ptr<V>                      dualVector_;
+  const ROL::SharedPointer<Objective<Real> > obj_;
+  ROL::SharedPointer<V>                      dualVector_;
   const Real                           offset_;
   bool                                 isDualInitialized_;
 
@@ -82,10 +82,10 @@ private:
 
 public:
 
-  ConstraintFromObjective( const std::shared_ptr<Objective<Real> > &obj, const Real offset = 0 ) :
-    obj_(obj), dualVector_(nullptr), offset_(offset), isDualInitialized_(false) {}
+  ConstraintFromObjective( const ROL::SharedPointer<Objective<Real> > &obj, const Real offset = 0 ) :
+    obj_(obj), dualVector_(ROL::nullPointer), offset_(offset), isDualInitialized_(false) {}
 
-  const std::shared_ptr<Objective<Real> > getObjective(void) const { return obj_; }
+  const ROL::SharedPointer<Objective<Real> > getObjective(void) const { return obj_; }
 
 
   void setParameter( const std::vector<Real> &param ) {

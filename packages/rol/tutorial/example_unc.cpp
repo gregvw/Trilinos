@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
 
   typedef double RealT;
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -111,12 +111,12 @@ int main(int argc, char *argv[]) {
     parlist.sublist("Step").set("Type","Trust Region");
     parlist.sublist("Step").sublist("Trust Region").set("Subproblem Solver","Truncated CG");
 
-    std::shared_ptr<std::vector<RealT> > x_rcp  = std::make_shared<std::vector<RealT>>(2);
-    std::shared_ptr<ROL::Vector<RealT> > x      = std::make_shared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<std::vector<RealT> > x_rcp  = ROL::makeShared<std::vector<RealT>>(2);
+    ROL::SharedPointer<ROL::Vector<RealT> > x      = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
     (*x_rcp)[0] = static_cast<RealT>(-3);
     (*x_rcp)[1] = static_cast<RealT>(-4);
 
-    std::shared_ptr<ROL::Objective<RealT> > obj = std::make_shared<ObjectiveRosenbrock<RealT>>();
+    ROL::SharedPointer<ROL::Objective<RealT> > obj = ROL::makeShared<ObjectiveRosenbrock<RealT>>();
 
     ROL::OptimizationProblem<RealT> problem( obj, x );
     problem.check(*outStream);

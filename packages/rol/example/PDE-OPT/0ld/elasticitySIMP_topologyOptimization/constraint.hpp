@@ -55,14 +55,14 @@ template<class Real>
 class EqualityConstraint_PDEOPT_ElasticitySIMP : public ROL::Constraint_SimOpt<Real> {
 private:
 
-  const std::shared_ptr<ElasticitySIMPOperators<Real> > data_;
-  const std::shared_ptr<DensityFilter<Real> > filter_;
+  const ROL::SharedPointer<ElasticitySIMPOperators<Real> > data_;
+  const ROL::SharedPointer<DensityFilter<Real> > filter_;
 
 public:
 
-  EqualityConstraint_PDEOPT_ElasticitySIMP(const std::shared_ptr<ElasticitySIMPOperators<Real> > &data,
-                                           const std::shared_ptr<DensityFilter<Real> > &filter,
-                                           const std::shared_ptr<Teuchos::ParameterList> &parlist)
+  EqualityConstraint_PDEOPT_ElasticitySIMP(const ROL::SharedPointer<ElasticitySIMPOperators<Real> > &data,
+                                           const ROL::SharedPointer<DensityFilter<Real> > &filter,
+                                           const ROL::SharedPointer<Teuchos::ParameterList> &parlist)
     : data_(data), filter_(filter) {}
 
   using ROL::Constraint_SimOpt<Real>::value;
@@ -71,11 +71,11 @@ public:
        const ROL::Vector<Real> &u,
        const ROL::Vector<Real> &z,
              Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > cp
+    ROL::SharedPointer<Tpetra::MultiVector<> > cp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(c)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > up
+    ROL::SharedPointer<const Tpetra::MultiVector<> > up
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(u)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
     
     data_->ApplyJacobian1ToVec(cp, up);
@@ -87,9 +87,9 @@ public:
              ROL::Vector<Real> &u,
        const ROL::Vector<Real> &z,
              Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > up
+    ROL::SharedPointer<Tpetra::MultiVector<> > up
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(u)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
     // Solve PDE    
     data_->ApplyInverseJacobian1ToVec(up, data_->getVecF(), false);
@@ -102,11 +102,11 @@ public:
                  const ROL::Vector<Real> &u,
                  const ROL::Vector<Real> &z,
                        Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > jvp
+    ROL::SharedPointer<Tpetra::MultiVector<> > jvp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(jv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
     
     data_->ApplyJacobian1ToVec(jvp, vp);
@@ -118,17 +118,17 @@ public:
                  const ROL::Vector<Real> &u,
                  const ROL::Vector<Real> &z,
                        Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > jvp
+    ROL::SharedPointer<Tpetra::MultiVector<> > jvp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(jv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > up
+    ROL::SharedPointer<const Tpetra::MultiVector<> > up
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(u)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
 
-    std::shared_ptr<Tpetra::MultiVector<> > Fvp
-      = std::make_shared<Tpetra::MultiVector<>(vp->getMap>(), 1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > Fvp
+      = ROL::makeShared<Tpetra::MultiVector<>(vp->getMap>(), 1);
     filter_->apply(Fvp, vp);
     data_->ApplyJacobian2ToVec (jvp, up, Fvp);
   }
@@ -139,11 +139,11 @@ public:
                         const ROL::Vector<Real> &u,
                         const ROL::Vector<Real> &z,
                               Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > ajvp
+    ROL::SharedPointer<Tpetra::MultiVector<> > ajvp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(ajv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
     
     data_->ApplyJacobian1ToVec(ajvp, vp);
@@ -155,17 +155,17 @@ public:
                         const ROL::Vector<Real> &u,
                         const ROL::Vector<Real> &z,
                               Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > ajvp
+    ROL::SharedPointer<Tpetra::MultiVector<> > ajvp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(ajv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > up
+    ROL::SharedPointer<const Tpetra::MultiVector<> > up
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(u)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
 
-    std::shared_ptr<Tpetra::MultiVector<> > tmp
-      = std::make_shared<Tpetra::MultiVector<>(ajvp->getMap>(), 1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > tmp
+      = ROL::makeShared<Tpetra::MultiVector<>(ajvp->getMap>(), 1);
     data_->ApplyAdjointJacobian2ToVec (tmp, up, vp);
     filter_->apply(ajvp, tmp);
   }
@@ -207,22 +207,22 @@ public:
                         const ROL::Vector<Real> &u,
                         const ROL::Vector<Real> &z,
                               Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > ahwvp
+    ROL::SharedPointer<Tpetra::MultiVector<> > ahwvp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(ahwv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > wp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > wp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(w)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > up
+    ROL::SharedPointer<const Tpetra::MultiVector<> > up
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(u)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
     
-    std::shared_ptr<Tpetra::MultiVector<> > Fvp
-      = std::make_shared<Tpetra::MultiVector<>(vp->getMap>(), 1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > Fvp
+      = ROL::makeShared<Tpetra::MultiVector<>(vp->getMap>(), 1);
     filter_->apply(Fvp, vp);
-    std::shared_ptr<Tpetra::MultiVector<> > tmp
-      = std::make_shared<Tpetra::MultiVector<>(ahwvp->getMap>(), 1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > tmp
+      = ROL::makeShared<Tpetra::MultiVector<>(ahwvp->getMap>(), 1);
     data_->ApplyAdjointHessian22ToVec (tmp, up, Fvp, wp);
     filter_->apply(ahwvp, tmp);
   }
@@ -233,11 +233,11 @@ public:
                         const ROL::Vector<Real> &u,
                         const ROL::Vector<Real> &z,
                               Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > ijvp
+    ROL::SharedPointer<Tpetra::MultiVector<> > ijvp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(ijv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
     
     data_->ApplyInverseJacobian1ToVec (ijvp, vp, false);
@@ -249,21 +249,21 @@ public:
                                const ROL::Vector<Real> &u,
                                const ROL::Vector<Real> &z,
                                      Real &tol) {
-    std::shared_ptr<Tpetra::MultiVector<> > iajvp
+    ROL::SharedPointer<Tpetra::MultiVector<> > iajvp
       = (dynamic_cast<ROL::TpetraMultiVector<Real>&>(iajv)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > vp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > vp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(v)).getVector();
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
     
     data_->ApplyInverseJacobian1ToVec (iajvp, vp, true);
   }
 
   void update_2(const ROL::Vector<Real> &z, bool flag = true, int iter = -1) {
-    std::shared_ptr<const Tpetra::MultiVector<> > zp
+    ROL::SharedPointer<const Tpetra::MultiVector<> > zp
       = (dynamic_cast<const ROL::TpetraMultiVector<Real>&>(z)).getVector();
-    std::shared_ptr<Tpetra::MultiVector<> > Fzp
-      = std::make_shared<Tpetra::MultiVector<>(zp->getMap>(), 1);
+    ROL::SharedPointer<Tpetra::MultiVector<> > Fzp
+      = ROL::makeShared<Tpetra::MultiVector<>(zp->getMap>(), 1);
     filter_->apply(Fzp, zp);
     data_->updateMaterialDensity(Fzp);
     data_->constructSolverWithNewMaterial();

@@ -48,7 +48,7 @@
 #include "ROL_Vector.hpp"
 #include "ROL_StdVector.hpp"
 
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 
 namespace ROL {
 
@@ -61,12 +61,12 @@ class Minimax3 : public Objective<Real> {
 
 private:
 
-  std::shared_ptr<const vector> getVector( const V& x ) {
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
     
     return dynamic_cast<const SV&>(x).getVector();
   }
 
-  std::shared_ptr<vector> getVector( V& x ) {
+  ROL::SharedPointer<vector> getVector( V& x ) {
     
     return dynamic_cast<SV&>(x).getVector();
   }
@@ -77,7 +77,7 @@ public:
   Real value(const Vector<Real> &x, Real &tol) {
    
     
-    std::shared_ptr<const vector> xp = getVector(x);
+    ROL::SharedPointer<const vector> xp = getVector(x);
 
     Real F  = std::pow((*xp)[0],2.0) + std::pow((*xp)[1],2.0) + 2.0*std::pow((*xp)[2],2.0) 
             + std::pow((*xp)[3],2.0) - 5.0*(*xp)[0] - 5.0*(*xp)[1] - 21.0*(*xp)[2] + 7.0*(*xp)[3];
@@ -94,8 +94,8 @@ public:
   void gradient(Vector<Real> &g, const Vector<Real> &x, Real &tol) {
 
     
-    std::shared_ptr<const vector> xp = getVector(x);
-    std::shared_ptr<vector> gp = getVector(g); 
+    ROL::SharedPointer<const vector> xp = getVector(x);
+    ROL::SharedPointer<vector> gp = getVector(g); 
 
     Real F  = std::pow((*xp)[0],2.0) + std::pow((*xp)[1],2.0) + 2.0*std::pow((*xp)[2],2.0) 
             + std::pow((*xp)[3],2.0) - 5.0*(*xp)[0] - 5.0*(*xp)[1] - 21.0*(*xp)[2] + 7.0*(*xp)[3];

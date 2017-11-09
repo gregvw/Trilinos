@@ -80,11 +80,11 @@ namespace ROL {
 template <class Real>
 class ScalarLinearConstraint : public Constraint<Real> {
 private:
-  const std::shared_ptr<Vector<Real> > a_; ///< Dual vector defining hyperplane
+  const ROL::SharedPointer<Vector<Real> > a_; ///< Dual vector defining hyperplane
   const Real b_;                        ///< Affine shift
 
 public:
-  ScalarLinearConstraint(const std::shared_ptr<Vector<Real> > &a,
+  ScalarLinearConstraint(const ROL::SharedPointer<Vector<Real> > &a,
                                      const Real b)
     : a_(a), b_(b) {}
 

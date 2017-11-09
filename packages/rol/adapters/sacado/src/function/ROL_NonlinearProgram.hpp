@@ -93,9 +93,9 @@ protected:
 
 private:
 
-  std::shared_ptr<vector<Real> > lp_;
-  std::shared_ptr<vector<Real> > up_;
-  std::shared_ptr<BND> bnd_;
+  ROL::SharedPointer<vector<Real> > lp_;
+  ROL::SharedPointer<vector<Real> > up_;
+  ROL::SharedPointer<BND> bnd_;
 
 protected:
 
@@ -119,12 +119,12 @@ protected:
 
   /* Set the lower bound to l */
   void setLower(Real l[]) {
-    lp_ = std::make_shared<vector<Real>(l, l+dimension_x>() );
+    lp_ = ROL::makeShared<vector<Real>(l, l+dimension_x>() );
   }
 
   /* Set the upper bound to u */
   void setUpper(Real u[]) {
-    up_ = std::make_shared<vector<Real>(u, u+dimension_x>() );
+    up_ = ROL::makeShared<vector<Real>(u, u+dimension_x>() );
   }
 
   /* \brief Call this function in your problem's constructor to turn 
@@ -134,79 +134,79 @@ protected:
   }
   
   /* \brief Return the objective function. */
-  virtual const std::shared_ptr<OBJ> getObjective() = 0;
+  virtual const ROL::SharedPointer<OBJ> getObjective() = 0;
 
   /* \brief Return the equality constraint. Do not overload if you 
             have no equality constraint. */
-  virtual const std::shared_ptr<CON> getEqualityConstraint() {
-    return nullptr;
+  virtual const ROL::SharedPointer<CON> getEqualityConstraint() {
+    return ROL::nullPointer;
   }
 
   /* \brief Return the equality constraint vector (used for cloning).
-            Returns a nullptr if there is no equality constraint */
-  const std::shared_ptr<V> getEqualityMultiplier() { 
+            Returns a ROL::nullPointer if there is no equality constraint */
+  const ROL::SharedPointer<V> getEqualityMultiplier() { 
     int n = dimension_ce();
     if( n > 0 ) {
-      std::shared_ptr<vector<Real> > l = std::make_shared<vector<Real>>(n,1.0);
-      return std::make_shared<SV>(l);
+      ROL::SharedPointer<vector<Real> > l = ROL::makeShared<vector<Real>>(n,1.0);
+      return ROL::makeShared<SV>(l);
     }
     else {
-      return nullptr;
+      return ROL::nullPointer;
     }
   }
 
   /* \brief Return the inequality constraint. Do not overload if you 
             have no inequality constraint. */
-  virtual const std::shared_ptr<CON> getInequalityConstraint() {
-    return nullptr;
+  virtual const ROL::SharedPointer<CON> getInequalityConstraint() {
+    return ROL::nullPointer;
   }
 
   /* \brief Return the inequality constraint vector (used for cloning). 
-            Returns a nullptr if there is no inequality constraint */
-  const std::shared_ptr<V> getInequalityMultiplier() {
+            Returns a ROL::nullPointer if there is no inequality constraint */
+  const ROL::SharedPointer<V> getInequalityMultiplier() {
     int n = dimension_ci();
     if( n > 0 ) {
-      std::shared_ptr<vector<Real> > l = std::make_shared<vector<Real>>(n,1.0);
-      return std::make_shared<SV>(l);
+      ROL::SharedPointer<vector<Real> > l = ROL::makeShared<vector<Real>>(n,1.0);
+      return ROL::makeShared<SV>(l);
     }
     else {
-      return nullptr;
+      return ROL::nullPointer;
     }
   }
 
   /* \brief Return the bounds on the inequality constraint.
-            Returns a nullptr if there is no inequality constraint */
-  const std::shared_ptr<BND> getInequalityBoundConstraint() {
+            Returns a ROL::nullPointer if there is no inequality constraint */
+  const ROL::SharedPointer<BND> getInequalityBoundConstraint() {
     int n = dimension_ci();
     if( n > 0 ) {
       const Real lval(0), uval(ROL_INF<Real>());
-      std::shared_ptr<V> l = Teuchos::rcp( new SV(
-                          std::make_shared<vector<Real>>(n,lval) ) );
-      std::shared_ptr<V> u = Teuchos::rcp( new SV(
-                          std::make_shared<vector<Real>>(n,uval) ) );
-      return std::make_shared<BND>(l,u);
+      ROL::SharedPointer<V> l = Teuchos::rcp( new SV(
+                          ROL::makeShared<vector<Real>>(n,lval) ) );
+      ROL::SharedPointer<V> u = Teuchos::rcp( new SV(
+                          ROL::makeShared<vector<Real>>(n,uval) ) );
+      return ROL::makeShared<BND>(l,u);
     }
     else {
-      return nullptr;
+      return ROL::nullPointer;
     }
   }
 
   /* \brief Create vector */
-  std::shared_ptr<V> createOptVector( const Real * const array ) {
-    std::shared_ptr<vector<Real> > x = 
-      std::make_shared<vector<Real>(array,array+dimension_x>());
-    return std::make_shared<SV>( x ); 
+  ROL::SharedPointer<V> createOptVector( const Real * const array ) {
+    ROL::SharedPointer<vector<Real> > x = 
+      ROL::makeShared<vector<Real>(array,array+dimension_x>());
+    return ROL::makeShared<SV>( x ); 
   }
 
-  // Create an std::shared_ptr to a std::vector with dimensionality of the optimization space
-//  std::shared_ptr<vector<Real> > createOptVector() {
+  // Create an ROL::SharedPointer to a std::vector with dimensionality of the optimization space
+//  ROL::SharedPointer<vector<Real> > createOptVector() {
 //    int n = dimension_x();
-//    std::shared_ptr<V> x = std::make_shared<vector<Real>>(n);
+//    ROL::SharedPointer<V> x = ROL::makeShared<vector<Real>>(n);
 //    return x;
 //  } 
 
   // Default deactivated bound
-  std::shared_ptr<BND> getBoundConstraint() {
+  ROL::SharedPointer<BND> getBoundConstraint() {
     return bnd_;
   }
 
@@ -223,19 +223,19 @@ public:
 
   NonlinearProgram(int n) {
      // Create lower and upper bounds of negative and positive infinity respectively
-     lp_ = std::make_shared<vector<Real>(n,ROL::ROL_NINF<Real>>());
-     up_ = std::make_shared<vector<Real>(n,ROL::ROL_INF<Real>>());
-     std::shared_ptr<V> l = std::make_shared<SV>( lp_ );
-     std::shared_ptr<V> u = std::make_shared<SV>( up_ );
-     bnd_ = std::make_shared<BND>( l, u ); 
+     lp_ = ROL::makeShared<vector<Real>(n,ROL::ROL_NINF<Real>>());
+     up_ = ROL::makeShared<vector<Real>(n,ROL::ROL_INF<Real>>());
+     ROL::SharedPointer<V> l = ROL::makeShared<SV>( lp_ );
+     ROL::SharedPointer<V> u = ROL::makeShared<SV>( up_ );
+     bnd_ = ROL::makeShared<BND>( l, u ); 
   }
 
    /* \brief Create the OptimizationProblem from the supplied components and 
              return it */
-  std::shared_ptr<OPT> getOptimizationProblem() {
-    std::shared_ptr<V> x = getInitialGuess()->clone();
+  ROL::SharedPointer<OPT> getOptimizationProblem() {
+    ROL::SharedPointer<V> x = getInitialGuess()->clone();
     x->set(*getInitialGuess());
-    return std::make_shared<OPT ( getObjective(>(),
+    return ROL::makeShared<OPT ( getObjective(>(),
                                    x,
                                    getBoundConstraint(),
                                    getEqualityConstraint(),
@@ -246,7 +246,7 @@ public:
   }
 
   /* \brief Return the initial guess for the optimization vector */
-  virtual const std::shared_ptr<const V> getInitialGuess() = 0;
+  virtual const ROL::SharedPointer<const V> getInitialGuess() = 0;
 
   /* \brief Return whether or not the initial guess is feasible */
   virtual bool initialGuessIsFeasible() = 0;
@@ -256,7 +256,7 @@ public:
 
   /* \brief Return the set of vectors that solve the nonlinear program if
             they are known */
-  virtual std::shared_ptr<const V> getSolutionSet() { return nullptr; } 
+  virtual ROL::SharedPointer<const V> getSolutionSet() { return ROL::nullPointer; } 
   
   /* \brief Return the value of the objective function for a solution vector. 
             If not known, return infinity */
@@ -267,9 +267,9 @@ public:
    /* \brief If the problem has known solutions, return whether ROL
              has acceptibly solved problem */
   bool foundAcceptableSolution( const V &x, const Real &tolerance=std::sqrt(ROL_EPSILON<Real>()) ) {
-    std::shared_ptr<const PV> sol = std::dynamic_pointer_cast<const PV>( getSolutionSet() );
-    std::shared_ptr<V> error;
-    std::shared_ptr<const V> xv;
+    ROL::SharedPointer<const PV> sol = ROL::dynamicPointerCast<const PV>( getSolutionSet() );
+    ROL::SharedPointer<V> error;
+    ROL::SharedPointer<const V> xv;
     if ( dimension_ci() > 0 ) {
       xv = dynamic_cast<const PV&>(x).get(0);
       error = xv->clone();

@@ -62,14 +62,14 @@ namespace ROL {
 template <class Real>
 class LinearOperatorFromConstraint : public LinearOperator<Real> {
 private:
-  const std::shared_ptr<const Vector<Real> > x_;
-  std::shared_ptr<Constraint<Real> > con_;
+  const ROL::SharedPointer<const Vector<Real> > x_;
+  ROL::SharedPointer<Constraint<Real> > con_;
  
 
 public:
 
-  LinearOperatorFromConstraint( const std::shared_ptr<const Vector<Real> > &x, 
-                                        const std::shared_ptr<Constraint<Real> > &con ) : 
+  LinearOperatorFromConstraint( const ROL::SharedPointer<const Vector<Real> > &x, 
+                                        const ROL::SharedPointer<Constraint<Real> > &con ) : 
                                         x_(x), con_(con) {
   }
 

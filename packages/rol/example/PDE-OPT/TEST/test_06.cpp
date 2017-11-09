@@ -107,7 +107,7 @@ int main(int argc, char *argv[] ) {
     
   Teuchos::oblackholestream bhs;
 
-  std::shared_ptr<std::ostream> os;
+  ROL::SharedPointer<std::ostream> os;
   if(argc>1)   os = &std::cout,false;
   else         os = &bhs,false;
   

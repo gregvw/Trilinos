@@ -67,18 +67,18 @@ class GMRES : public Krylov<Real> {
 
 private:
  
-  std::shared_ptr<Vector<Real> > r_;
-  std::shared_ptr<Vector<Real> > z_;
-  std::shared_ptr<Vector<Real> > w_;
+  ROL::SharedPointer<Vector<Real> > r_;
+  ROL::SharedPointer<Vector<Real> > z_;
+  ROL::SharedPointer<Vector<Real> > w_;
    
-  std::shared_ptr<SDMatrix> H_;      // quasi-Hessenberg matrix
-  std::shared_ptr<SDVector> cs_;     // Givens Rotations cosine components
-  std::shared_ptr<SDVector> sn_;     // Givens Rotations sine components
-  std::shared_ptr<SDVector> s_;      
-  std::shared_ptr<SDVector> y_;      
-  std::shared_ptr<SDVector> cnorm_;   
+  ROL::SharedPointer<SDMatrix> H_;      // quasi-Hessenberg matrix
+  ROL::SharedPointer<SDVector> cs_;     // Givens Rotations cosine components
+  ROL::SharedPointer<SDVector> sn_;     // Givens Rotations sine components
+  ROL::SharedPointer<SDVector> s_;      
+  ROL::SharedPointer<SDVector> y_;      
+  ROL::SharedPointer<SDVector> cnorm_;   
 
-  std::shared_ptr<std::vector<Real> > res_;
+  ROL::SharedPointer<std::vector<Real> > res_;
   
   bool isInitialized_;
   bool useInexact_;
@@ -108,13 +108,13 @@ public:
     relTol_          = kList.get("Relative Tolerance", oem2);
     useInitialGuess_ = kList.get("Use Initial Guess",false);
 
-    H_     = std::make_shared<SDMatrix>( maxit_+1, maxit_ );
-    cs_    = std::make_shared<SDVector>( maxit_ );
-    sn_    = std::make_shared<SDVector>( maxit_ );
-    s_     = std::make_shared<SDVector>( maxit_+1 ); 
-    y_     = std::make_shared<SDVector>( maxit_+1 );
-    cnorm_ = std::make_shared<SDVector>( maxit_ );   
-    res_   = std::make_shared<std::vector<Real>>(maxit_+1,zero);
+    H_     = ROL::makeShared<SDMatrix>( maxit_+1, maxit_ );
+    cs_    = ROL::makeShared<SDVector>( maxit_ );
+    sn_    = ROL::makeShared<SDVector>( maxit_ );
+    s_     = ROL::makeShared<SDVector>( maxit_+1 ); 
+    y_     = ROL::makeShared<SDVector>( maxit_+1 );
+    cnorm_ = ROL::makeShared<SDVector>( maxit_ );   
+    res_   = ROL::makeShared<std::vector<Real>>(maxit_+1,zero);
        
   }
  
@@ -152,8 +152,8 @@ public:
 
     Real temp  = 0;
 
-    std::vector<std::shared_ptr<Vector<Real > > > V;
-    std::vector<std::shared_ptr<Vector<Real > > > Z;
+    std::vector<ROL::SharedPointer<Vector<Real > > > V;
+    std::vector<ROL::SharedPointer<Vector<Real > > > Z;
 
     (*res_)[0] = r_->norm();
  

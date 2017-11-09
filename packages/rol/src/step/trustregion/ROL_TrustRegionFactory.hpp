@@ -47,7 +47,7 @@
 #include "ROL_Types.hpp"
 
 #include "Teuchos_ParameterList.hpp"
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 
 #include "ROL_TrustRegion.hpp"
 #include "ROL_CauchyPoint.hpp"
@@ -57,15 +57,15 @@
 
 namespace ROL {
 template<class Real>
-  inline std::shared_ptr<TrustRegion<Real> > TrustRegionFactory(Teuchos::ParameterList &parlist) {
+  inline ROL::SharedPointer<TrustRegion<Real> > TrustRegionFactory(Teuchos::ParameterList &parlist) {
     ETrustRegion etr = StringToETrustRegion(
       parlist.sublist("Step").sublist("Trust Region").get("Subproblem Solver","Dogleg"));
     switch(etr) {
-      case TRUSTREGION_CAUCHYPOINT:  return std::make_shared<CauchyPoint<Real>>(parlist);
-      case TRUSTREGION_DOGLEG:       return std::make_shared<DogLeg<Real>>(parlist);
-      case TRUSTREGION_DOUBLEDOGLEG: return std::make_shared<DoubleDogLeg<Real>>(parlist);
-      case TRUSTREGION_TRUNCATEDCG:  return std::make_shared<TruncatedCG<Real>>(parlist);
-      default:                       return nullptr;
+      case TRUSTREGION_CAUCHYPOINT:  return ROL::makeShared<CauchyPoint<Real>>(parlist);
+      case TRUSTREGION_DOGLEG:       return ROL::makeShared<DogLeg<Real>>(parlist);
+      case TRUSTREGION_DOUBLEDOGLEG: return ROL::makeShared<DoubleDogLeg<Real>>(parlist);
+      case TRUSTREGION_TRUNCATEDCG:  return ROL::makeShared<TruncatedCG<Real>>(parlist);
+      default:                       return ROL::nullPointer;
     }
   }
 }

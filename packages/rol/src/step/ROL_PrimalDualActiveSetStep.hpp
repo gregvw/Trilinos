@@ -133,7 +133,7 @@ template <class Real>
 class PrimalDualActiveSetStep : public Step<Real> {
 private:
 
-  std::shared_ptr<Krylov<Real> > krylov_;
+  ROL::SharedPointer<Krylov<Real> > krylov_;
 
   // Krylov Parameters
   int iterCR_;  ///< CR iteration counter
@@ -151,45 +151,45 @@ private:
   bool feasible_;  ///< Flag whether the current iterate is feasible or not
 
   // Dual Variable
-  std::shared_ptr<Vector<Real> > lambda_; ///< Container for dual variables
-  std::shared_ptr<Vector<Real> > xlam_;   ///< Container for primal plus dual variables
-  std::shared_ptr<Vector<Real> > x0_;     ///< Container for initial priaml variables
-  std::shared_ptr<Vector<Real> > xbnd_;   ///< Container for primal variable bounds
-  std::shared_ptr<Vector<Real> > As_;     ///< Container for step projected onto active set
-  std::shared_ptr<Vector<Real> > xtmp_;   ///< Container for temporary primal storage
-  std::shared_ptr<Vector<Real> > res_;    ///< Container for optimality system residual for quadratic model
-  std::shared_ptr<Vector<Real> > Ag_;     ///< Container for gradient projected onto active set
-  std::shared_ptr<Vector<Real> > rtmp_;   ///< Container for temporary right hand side storage
-  std::shared_ptr<Vector<Real> > gtmp_;   ///< Container for temporary gradient storage
+  ROL::SharedPointer<Vector<Real> > lambda_; ///< Container for dual variables
+  ROL::SharedPointer<Vector<Real> > xlam_;   ///< Container for primal plus dual variables
+  ROL::SharedPointer<Vector<Real> > x0_;     ///< Container for initial priaml variables
+  ROL::SharedPointer<Vector<Real> > xbnd_;   ///< Container for primal variable bounds
+  ROL::SharedPointer<Vector<Real> > As_;     ///< Container for step projected onto active set
+  ROL::SharedPointer<Vector<Real> > xtmp_;   ///< Container for temporary primal storage
+  ROL::SharedPointer<Vector<Real> > res_;    ///< Container for optimality system residual for quadratic model
+  ROL::SharedPointer<Vector<Real> > Ag_;     ///< Container for gradient projected onto active set
+  ROL::SharedPointer<Vector<Real> > rtmp_;   ///< Container for temporary right hand side storage
+  ROL::SharedPointer<Vector<Real> > gtmp_;   ///< Container for temporary gradient storage
 
   // Secant Information
   ESecant esec_;                       ///< Enum for secant type
-  std::shared_ptr<Secant<Real> > secant_; ///< Secant object
+  ROL::SharedPointer<Secant<Real> > secant_; ///< Secant object
   bool useSecantPrecond_;
   bool useSecantHessVec_;
 
   class HessianPD : public LinearOperator<Real> {
   private:
-    const std::shared_ptr<Objective<Real> > obj_;
-    const std::shared_ptr<BoundConstraint<Real> > bnd_;
-    const std::shared_ptr<Vector<Real> > x_;
-    const std::shared_ptr<Vector<Real> > xlam_;
-    std::shared_ptr<Vector<Real> > v_;
+    const ROL::SharedPointer<Objective<Real> > obj_;
+    const ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+    const ROL::SharedPointer<Vector<Real> > x_;
+    const ROL::SharedPointer<Vector<Real> > xlam_;
+    ROL::SharedPointer<Vector<Real> > v_;
     Real eps_;
-    const std::shared_ptr<Secant<Real> > secant_;
+    const ROL::SharedPointer<Secant<Real> > secant_;
     bool useSecant_;
   public:
-    HessianPD(const std::shared_ptr<Objective<Real> > &obj,
-              const std::shared_ptr<BoundConstraint<Real> > &bnd,
-              const std::shared_ptr<Vector<Real> > &x,
-              const std::shared_ptr<Vector<Real> > &xlam,
+    HessianPD(const ROL::SharedPointer<Objective<Real> > &obj,
+              const ROL::SharedPointer<BoundConstraint<Real> > &bnd,
+              const ROL::SharedPointer<Vector<Real> > &x,
+              const ROL::SharedPointer<Vector<Real> > &xlam,
               const Real eps = 0,
-              const std::shared_ptr<Secant<Real> > &secant = nullptr,
+              const ROL::SharedPointer<Secant<Real> > &secant = ROL::nullPointer,
               const bool useSecant = false )
       : obj_(obj), bnd_(bnd), x_(x), xlam_(xlam),
         eps_(eps), secant_(secant), useSecant_(useSecant) {
       v_ = x_->clone();
-      if ( !useSecant || secant == nullptr ) {
+      if ( !useSecant || secant == ROL::nullPointer ) {
         useSecant_ = false;
       }
     }
@@ -208,26 +208,26 @@ private:
 
   class PrecondPD : public LinearOperator<Real> {
   private:
-    const std::shared_ptr<Objective<Real> > obj_;
-    const std::shared_ptr<BoundConstraint<Real> > bnd_;
-    const std::shared_ptr<Vector<Real> > x_;
-    const std::shared_ptr<Vector<Real> > xlam_;
-    std::shared_ptr<Vector<Real> > v_;
+    const ROL::SharedPointer<Objective<Real> > obj_;
+    const ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+    const ROL::SharedPointer<Vector<Real> > x_;
+    const ROL::SharedPointer<Vector<Real> > xlam_;
+    ROL::SharedPointer<Vector<Real> > v_;
     Real eps_;
-    const std::shared_ptr<Secant<Real> > secant_;
+    const ROL::SharedPointer<Secant<Real> > secant_;
     bool useSecant_;
   public:
-    PrecondPD(const std::shared_ptr<Objective<Real> > &obj,
-              const std::shared_ptr<BoundConstraint<Real> > &bnd,
-              const std::shared_ptr<Vector<Real> > &x,
-              const std::shared_ptr<Vector<Real> > &xlam,
+    PrecondPD(const ROL::SharedPointer<Objective<Real> > &obj,
+              const ROL::SharedPointer<BoundConstraint<Real> > &bnd,
+              const ROL::SharedPointer<Vector<Real> > &x,
+              const ROL::SharedPointer<Vector<Real> > &xlam,
               const Real eps = 0,
-              const std::shared_ptr<Secant<Real> > &secant = nullptr,
+              const ROL::SharedPointer<Secant<Real> > &secant = ROL::nullPointer,
               const bool useSecant = false )
       : obj_(obj), bnd_(bnd), x_(x), xlam_(xlam),
         eps_(eps), secant_(secant), useSecant_(useSecant) {
       v_ = x_->dual().clone();
-      if ( !useSecant || secant == nullptr ) {
+      if ( !useSecant || secant == ROL::nullPointer ) {
         useSecant_ = false;
       }
     }
@@ -261,7 +261,7 @@ private:
   */
   Real computeCriticalityMeasure(Vector<Real> &x, Objective<Real> &obj, BoundConstraint<Real> &con, Real tol) {
     Real one(1);
-    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     obj.gradient(*(step_state->gradientVec),x,tol);
     xtmp_->set(x);
     xtmp_->axpy(-one,(step_state->gradientVec)->dual());
@@ -278,15 +278,15 @@ public:
                                       a secant approximation of the Hessian
   */
   PrimalDualActiveSetStep( Teuchos::ParameterList &parlist )
-    : Step<Real>::Step(), krylov_(nullptr),
+    : Step<Real>::Step(), krylov_(ROL::nullPointer),
       iterCR_(0), flagCR_(0), itol_(0),
       maxit_(0), iter_(0), flag_(0), stol_(0), gtol_(0), scale_(0),
       neps_(-ROL_EPSILON<Real>()), feasible_(false),
-      lambda_(nullptr), xlam_(nullptr), x0_(nullptr),
-      xbnd_(nullptr), As_(nullptr), xtmp_(nullptr),
-      res_(nullptr), Ag_(nullptr), rtmp_(nullptr),
-      gtmp_(nullptr),
-      esec_(SECANT_LBFGS), secant_(nullptr), useSecantPrecond_(false),
+      lambda_(ROL::nullPointer), xlam_(ROL::nullPointer), x0_(ROL::nullPointer),
+      xbnd_(ROL::nullPointer), As_(ROL::nullPointer), xtmp_(ROL::nullPointer),
+      res_(ROL::nullPointer), Ag_(ROL::nullPointer), rtmp_(ROL::nullPointer),
+      gtmp_(ROL::nullPointer),
+      esec_(SECANT_LBFGS), secant_(ROL::nullPointer), useSecantPrecond_(false),
       useSecantHessVec_(false) {
     Real one(1), oem6(1.e-6), oem8(1.e-8);
     // Algorithmic parameters
@@ -319,7 +319,7 @@ public:
   void initialize( Vector<Real> &x, const Vector<Real> &s, const Vector<Real> &g,
                    Objective<Real> &obj, BoundConstraint<Real> &con,
                    AlgorithmState<Real> &algo_state ) {
-    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     Real zero(0), one(1);
     // Initialize state descent direction and gradient storage
     step_state->descentVec  = s.clone();
@@ -377,7 +377,7 @@ public:
   */
   void compute( Vector<Real> &s, const Vector<Real> &x, Objective<Real> &obj, BoundConstraint<Real> &con,
                 AlgorithmState<Real> &algo_state ) {
-    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     Real zero(0), one(1);
     s.zero();
     x0_->set(x);
@@ -410,7 +410,7 @@ public:
       // APPLY HESSIAN TO ACTIVE COMPONENTS OF s AND REMOVE INACTIVE
       /********************************************************************/
       itol_ = std::sqrt(ROL_EPSILON<Real>());
-      if ( useSecantHessVec_ && secant_ != nullptr ) {        // IHAs = H*As
+      if ( useSecantHessVec_ && secant_ != ROL::nullPointer ) {        // IHAs = H*As
         secant_->applyB(*gtmp_,*As_);
       }
       else {
@@ -433,13 +433,13 @@ public:
       s.zero();
       if ( rtmp_->norm() > zero ) {
         // Initialize Hessian and preconditioner
-        std::shared_ptr<Objective<Real> > obj_ptr(&obj, [](Objective<Real>*){});
-        std::shared_ptr<BoundConstraint<Real> > con_ptr(&con, [](BoundConstraint<Real>*){});
-        std::shared_ptr<LinearOperator<Real> > hessian
-          = std::make_shared<HessianPD>(obj_ptr,con_ptr,
+        ROL::SharedPointer<Objective<Real> > obj_ptr = ROL::makeSharedFromRef(obj); 
+        ROL::SharedPointer<BoundConstraint<Real> > con_ptr = ROL::makeSharedFromRef(con);
+        ROL::SharedPointer<LinearOperator<Real> > hessian
+          = ROL::makeShared<HessianPD>(obj_ptr,con_ptr,
               algo_state.iterateVec,xlam_,neps_,secant_,useSecantHessVec_);
-        std::shared_ptr<LinearOperator<Real> > precond
-          = std::make_shared<PrecondPD>(obj_ptr,con_ptr,
+        ROL::SharedPointer<LinearOperator<Real> > precond
+          = ROL::makeShared<PrecondPD>(obj_ptr,con_ptr,
               algo_state.iterateVec,xlam_,neps_,secant_,useSecantPrecond_);
         //solve(s,*rtmp_,*xlam_,x,obj,con);   // Call conjugate residuals
         krylov_->run(s,*hessian,*rtmp_,*precond,iterCR_,flagCR_);
@@ -449,7 +449,7 @@ public:
       /********************************************************************/
       // UPDATE MULTIPLIER
       /********************************************************************/
-      if ( useSecantHessVec_ && secant_ != nullptr ) {
+      if ( useSecantHessVec_ && secant_ != ROL::nullPointer ) {
         secant_->applyB(*rtmp_,s);
       }
       else {
@@ -509,7 +509,7 @@ public:
   */
   void update( Vector<Real> &x, const Vector<Real> &s, Objective<Real> &obj, BoundConstraint<Real> &con,
                AlgorithmState<Real> &algo_state ) {
-    std::shared_ptr<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
 
     x.plus(s);
     feasible_ = con.isFeasible(x);
@@ -520,13 +520,13 @@ public:
     algo_state.value = obj.value(x,tol);
     algo_state.nfval++;
 
-    if ( secant_ != nullptr ) {
+    if ( secant_ != ROL::nullPointer ) {
       gtmp_->set(*(step_state->gradientVec));
     }
     algo_state.gnorm = computeCriticalityMeasure(x,obj,con,tol);
     algo_state.ngrad++;
 
-    if ( secant_ != nullptr ) {
+    if ( secant_ != ROL::nullPointer ) {
       secant_->updateStorage(x,*(step_state->gradientVec),*gtmp_,s,algo_state.snorm,algo_state.iter+1);
     }
     (algo_state.iterateVec)->set(x);
@@ -633,18 +633,18 @@ public:
 //    itol_ = std::sqrt(ROL_EPSILON<Real>());
 //    sol.zero();
 //
-//    std::shared_ptr<Vector<Real> > res = rhs.clone();
+//    ROL::SharedPointer<Vector<Real> > res = rhs.clone();
 //    res->set(rhs);
 //
-//    std::shared_ptr<Vector<Real> > v = x.clone();
+//    ROL::SharedPointer<Vector<Real> > v = x.clone();
 //    con.pruneActive(*res,xlam,neps_);
 //    obj.precond(*v,*res,x,itol_);
 //    con.pruneActive(*v,xlam,neps_);
 //
-//    std::shared_ptr<Vector<Real> > p = x.clone();
+//    ROL::SharedPointer<Vector<Real> > p = x.clone();
 //    p->set(*v);
 //
-//    std::shared_ptr<Vector<Real> > Hp = x.clone();
+//    ROL::SharedPointer<Vector<Real> > Hp = x.clone();
 //
 //    iterCR_ = 0;
 //    flagCR_ = 0;
@@ -656,7 +656,7 @@ public:
 //        itol_ = rtol/(maxitCR_*rnorm);
 //      }
 //      con.pruneActive(*p,xlam,neps_);
-//      if ( secant_ == nullptr ) {
+//      if ( secant_ == ROL::nullPointer ) {
 //        obj.hessVec(*Hp, *p, x, itol_);
 //      }
 //      else {
@@ -706,10 +706,10 @@ public:
 //  */
 //  void applyInactiveHessian(Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x,
 //                      const Vector<Real> &xlam, Objective<Real> &obj, BoundConstraint<Real> &con) {
-//    std::shared_ptr<Vector<Real> > tmp = v.clone();
+//    ROL::SharedPointer<Vector<Real> > tmp = v.clone();
 //    tmp->set(v);
 //    con.pruneActive(*tmp,xlam,neps_);
-//    if ( secant_ == nullptr ) {
+//    if ( secant_ == ROL::nullPointer ) {
 //      obj.hessVec(hv,*tmp,x,itol_);
 //    }
 //    else {
@@ -732,7 +732,7 @@ public:
 //  */
 //  void applyInactivePrecond(Vector<Real> &pv, const Vector<Real> &v, const Vector<Real> &x,
 //                      const Vector<Real> &xlam, Objective<Real> &obj, BoundConstraint<Real> &con) {
-//    std::shared_ptr<Vector<Real> > tmp = v.clone();
+//    ROL::SharedPointer<Vector<Real> > tmp = v.clone();
 //    tmp->set(v);
 //    con.pruneActive(*tmp,xlam,neps_);
 //    obj.precond(pv,*tmp,x,itol_);
@@ -761,7 +761,7 @@ public:
 //  void solve(Vector<Real> &sol, const Vector<Real> &rhs, const Vector<Real> &xlam, const Vector<Real> &x,
 //             Objective<Real> &obj, BoundConstraint<Real> &con) {
 //    // Initialize Residual
-//    std::shared_ptr<Vector<Real> > res = rhs.clone();
+//    ROL::SharedPointer<Vector<Real> > res = rhs.clone();
 //    res->set(rhs);
 //    Real rnorm  = res->norm();
 //    Real rtol   = std::min(tol1_,tol2_*rnorm);
@@ -769,20 +769,20 @@ public:
 //    sol.zero();
 //
 //    // Apply preconditioner to residual r = Mres
-//    std::shared_ptr<Vector<Real> > r = x.clone();
+//    ROL::SharedPointer<Vector<Real> > r = x.clone();
 //    applyInactivePrecond(*r,*res,x,xlam,obj,con);
 //
 //    // Initialize direction p = v
-//    std::shared_ptr<Vector<Real> > p = x.clone();
+//    ROL::SharedPointer<Vector<Real> > p = x.clone();
 //    p->set(*r);
 //
 //    // Apply Hessian to v
-//    std::shared_ptr<Vector<Real> > Hr = x.clone();
+//    ROL::SharedPointer<Vector<Real> > Hr = x.clone();
 //    applyInactiveHessian(*Hr,*r,x,xlam,obj,con);
 //
 //    // Apply Hessian to p
-//    std::shared_ptr<Vector<Real> > Hp  = x.clone();
-//    std::shared_ptr<Vector<Real> > MHp = x.clone();
+//    ROL::SharedPointer<Vector<Real> > Hp  = x.clone();
+//    ROL::SharedPointer<Vector<Real> > MHp = x.clone();
 //    Hp->set(*Hr);
 //
 //    iterCR_ = 0;

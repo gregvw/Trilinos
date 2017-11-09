@@ -78,16 +78,16 @@ namespace ROL {
         private:
 
             Belos::SolverFactory<ST,MV,OP> factory_;
-            std::shared_ptr<Belos::SolverManager<ST,MV,OP> > solver_;
-            std::shared_ptr<Belos::LinearProblem<ST,MV,OP> > problem_;  
+            ROL::SharedPointer<Belos::SolverManager<ST,MV,OP> > solver_;
+            ROL::SharedPointer<Belos::LinearProblem<ST,MV,OP> > problem_;  
 
         public:
            
             /// \brief Create a Belos solver 
             BelosKrylov(Teuchos::ParameterList &parlist) : 
-                problem_(std::make_shared<Belos::LinearProblem<ST,MV,OP>)>() {
+                problem_(ROL::makeShared<Belos::LinearProblem<ST,MV,OP>)>() {
 
-                std::shared_ptr<Teuchos::ParameterList> solverParams = std::make_shared<Teuchos::ParameterList>();
+                ROL::SharedPointer<Teuchos::ParameterList> solverParams = ROL::makeShared<Teuchos::ParameterList>();
 
                 // Options likely to be of interest include CG, MINRES, GMRES, and RCG
                 int blockSize          = 1; // Only support single solution & single RHS for now 
@@ -115,18 +115,18 @@ namespace ROL {
 
 
                 // Get pointers to ROL::Vectors
-                std::shared_ptr<V>        xp = Teuchos::rcpFromRef(x);
+                ROL::SharedPointer<V>        xp = Teuchos::rcpFromRef(x);
 
                 // Wasteful, but have not yet implemented const case for MV
-                std::shared_ptr<V>        bp = b.clone();
+                ROL::SharedPointer<V>        bp = b.clone();
                 bp->set(b);
 
                 // Make ROL::MultiVectors from the pointers to ROL::Vectors
-                std::shared_ptr<MV> xmvp = std::make_shared<MultiVectorDefault<Real>>(xp);
-                std::shared_ptr<MV> bmvp = std::make_shared<MultiVectorDefault<Real>>(bp);
+                ROL::SharedPointer<MV> xmvp = ROL::makeShared<MultiVectorDefault<Real>>(xp);
+                ROL::SharedPointer<MV> bmvp = ROL::makeShared<MultiVectorDefault<Real>>(bp);
 
-                std::shared_ptr<OP> Ap = Teuchos::rcpFromRef(A);
-                std::shared_ptr<OP> Mp = Teuchos::rcpFromRef(M);
+                ROL::SharedPointer<OP> Ap = Teuchos::rcpFromRef(A);
+                ROL::SharedPointer<OP> Mp = Teuchos::rcpFromRef(M);
 
                 // Wrap x and b in ROL::MultiVector objects 
                 MVD xmv(xp);

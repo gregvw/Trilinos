@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
     outStream = &std::cout, false;
@@ -96,23 +96,23 @@ int main(int argc, char *argv[]) {
     int nDoF = numCells*(numFields-1)+1;
 
     // Create discretization
-    std::shared_ptr<Discretization<RealT>> disc = std::make_shared<Discretization<RealT>>(numCells,numFields,domainLength);
+    ROL::SharedPointer<Discretization<RealT>> disc = ROL::makeShared<Discretization<RealT>>(numCells,numFields,domainLength);
   
-    std::shared_ptr<vec> u_rcp   = std::make_shared<vec>(nDoF,1.0);      // Simulation vector 
-    std::shared_ptr<vec> z_rcp   = std::make_shared<vec>(nDoF,1.0);      // Optimization vector 
-    std::shared_ptr<vec> yu_rcp  = std::make_shared<vec>(nDoF,0.0);      // Test vector in U
-    std::shared_ptr<vec> yz_rcp  = std::make_shared<vec>(nDoF,0.0);      // Test vector in Z
+    ROL::SharedPointer<vec> u_rcp   = ROL::makeShared<vec>(nDoF,1.0);      // Simulation vector 
+    ROL::SharedPointer<vec> z_rcp   = ROL::makeShared<vec>(nDoF,1.0);      // Optimization vector 
+    ROL::SharedPointer<vec> yu_rcp  = ROL::makeShared<vec>(nDoF,0.0);      // Test vector in U
+    ROL::SharedPointer<vec> yz_rcp  = ROL::makeShared<vec>(nDoF,0.0);      // Test vector in Z
 
-    std::shared_ptr<vec> gu_rcp  = std::make_shared<vec>(nDoF,0.0);      // Gradient w.r.t. Sim vector
-    std::shared_ptr<vec> gz_rcp  = std::make_shared<vec>(nDoF,0.0);      // Gradient w.r.t. Opt vector
+    ROL::SharedPointer<vec> gu_rcp  = ROL::makeShared<vec>(nDoF,0.0);      // Gradient w.r.t. Sim vector
+    ROL::SharedPointer<vec> gz_rcp  = ROL::makeShared<vec>(nDoF,0.0);      // Gradient w.r.t. Opt vector
 
-    std::shared_ptr<vec> utarget_rcp = std::make_shared<vec>(nDoF,1.0);  // Target vector
+    ROL::SharedPointer<vec> utarget_rcp = ROL::makeShared<vec>(nDoF,1.0);  // Target vector
 
-    std::shared_ptr<vec> v_rcp   = std::make_shared<vec>(nDoF,1.0);      // Simulation vector 
-    std::shared_ptr<vec> w_rcp   = std::make_shared<vec>(nDoF,1.0);      // Optimization vector 
+    ROL::SharedPointer<vec> v_rcp   = ROL::makeShared<vec>(nDoF,1.0);      // Simulation vector 
+    ROL::SharedPointer<vec> w_rcp   = ROL::makeShared<vec>(nDoF,1.0);      // Optimization vector 
 
-    std::shared_ptr<vec> c_rcp  = std::make_shared<vec>(nDoF,0.0);       // Constraint vector
-    std::shared_ptr<vec> l_rcp  = std::make_shared<vec>(nDoF,0.0);       // Lagrange multiplier
+    ROL::SharedPointer<vec> c_rcp  = ROL::makeShared<vec>(nDoF,0.0);       // Constraint vector
+    ROL::SharedPointer<vec> l_rcp  = ROL::makeShared<vec>(nDoF,0.0);       // Lagrange multiplier
 
     // -----------------------
     // Begin derivative checks
@@ -143,24 +143,24 @@ int main(int argc, char *argv[]) {
     SV c(c_rcp); 
     SV l(l_rcp);
 
-    std::shared_ptr<V> utarget = std::make_shared<SV>(utarget_rcp); 
+    ROL::SharedPointer<V> utarget = ROL::makeShared<SV>(utarget_rcp); 
 
-    std::shared_ptr<V> up   = &u,false;
-    std::shared_ptr<V> zp   = &z,false;
-    std::shared_ptr<V> gup  = &gu,false;
-    std::shared_ptr<V> gzp  = &gz,false;
-    std::shared_ptr<V> yup  = &yu,false;
-    std::shared_ptr<V> yzp  = &yz,false;
+    ROL::SharedPointer<V> up   = &u,false;
+    ROL::SharedPointer<V> zp   = &z,false;
+    ROL::SharedPointer<V> gup  = &gu,false;
+    ROL::SharedPointer<V> gzp  = &gz,false;
+    ROL::SharedPointer<V> yup  = &yu,false;
+    ROL::SharedPointer<V> yzp  = &yz,false;
 
     Vector_SimOpt<RealT> uz(up,zp);
     Vector_SimOpt<RealT> g(gup,gzp);
     Vector_SimOpt<RealT> y(yup,yzp);
 
     // Tracking Objective
-    std::shared_ptr<Objective_SimOpt<RealT>> obj = std::make_shared<TrackingObjective<RealT>>(disc,utarget,gamma);
+    ROL::SharedPointer<Objective_SimOpt<RealT>> obj = ROL::makeShared<TrackingObjective<RealT>>(disc,utarget,gamma);
 
     // Constraint
-    std::shared_ptr<Constraint_SimOpt<RealT>> con = std::make_shared<BVPConstraint<RealT>>(disc);
+    ROL::SharedPointer<Constraint_SimOpt<RealT>> con = ROL::makeShared<BVPConstraint<RealT>>(disc);
  
     obj->checkGradient(uz,y,true,*outStream);
     obj->checkHessVec(uz,y,true,*outStream);

@@ -126,7 +126,7 @@ void Sacado_StdObjective<Real,Obj>::gradientAD(vector<ScalarT> &g, const vector<
     int n = x.size();
 
     // Create a vector of independent variables
-    std::shared_ptr<Fadvector> x_fad = std::make_shared<Fadvector>();
+    ROL::SharedPointer<Fadvector> x_fad = ROL::makeShared<Fadvector>();
 
     x_fad->reserve(n);   
 
@@ -158,7 +158,7 @@ void Sacado_StdObjective<Real,Obj>::hessVecAD( vector<ScalarT> &hv, const vector
     int n = x.size();
    
     // Create a vector of independent variables
-    std::shared_ptr<Fadvector> x_fad = std::make_shared<Fadvector>();
+    ROL::SharedPointer<Fadvector> x_fad = ROL::makeShared<Fadvector>();
 
     x_fad->reserve(n); 
 

@@ -204,13 +204,13 @@ if(json.isMember("ROL")) {
     @param[in/out] step      is a ref count pointer to a ROL::Step 
 */
 template <class Real>
-void stepFactory(Teuchos::ParameterList &parlist,std::shared_ptr<ROL::Step<Real> > &step) {
+void stepFactory(Teuchos::ParameterList &parlist,ROL::SharedPointer<ROL::Step<Real> > &step) {
      
     if(parlist.get("Step Type","Linesearch")=="Trust-Region") {
-	step = std::make_shared<ROL::TrustRegionStep<Real>>(parlist);
+	step = ROL::makeShared<ROL::TrustRegionStep<Real>>(parlist);
     }
     else {
-	step = std::make_shared<ROL::LineSearchStep<Real>>(parlist);
+	step = ROL::makeShared<ROL::LineSearchStep<Real>>(parlist);
 	 
     }
 }

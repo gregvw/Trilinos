@@ -63,11 +63,11 @@ class StdVector : public Vector<Real> {
 
 private:
 
-  std::shared_ptr<std::vector<Element> >  std_vec_;
+  ROL::SharedPointer<std::vector<Element> >  std_vec_;
 
 public:
 
-  StdVector(std::shared_ptr<std::vector<Element>> std_vec) : std_vec_(std_vec) {}
+  StdVector(ROL::SharedPointer<std::vector<Element>> std_vec) : std_vec_(std_vec) {}
 
   void set( const Vector<Real> &x ) {
 
@@ -137,25 +137,25 @@ public:
     return val;
   }
 
-  virtual std::shared_ptr<Vector<Real> > clone() const {
-    return std::make_shared<StdVector>(std::make_shared<std::vector<Element>>(std_vec_->size()));
+  virtual ROL::SharedPointer<Vector<Real> > clone() const {
+    return ROL::makeShared<StdVector>(ROL::makeShared<std::vector<Element>>(std_vec_->size()));
   }
 
-  std::shared_ptr<const std::vector<Element> > getVector() const {
+  ROL::SharedPointer<const std::vector<Element> > getVector() const {
     return std_vec_;
   }
 
-  std::shared_ptr<std::vector<Element> > getVector() {
+  ROL::SharedPointer<std::vector<Element> > getVector() {
     return std_vec_;
   }
 
-  std::shared_ptr<Vector<Real> > basis( const int i ) const {
+  ROL::SharedPointer<Vector<Real> > basis( const int i ) const {
 
     TEUCHOS_TEST_FOR_EXCEPTION( i >= dimension() || i<0,
                                 std::invalid_argument,
                                 "Error: Basis index must be between 0 and vector dimension." );
 
-    std::shared_ptr<StdVector> e = std::make_shared<StdVector>(std::make_shared<std::vector<Element>>(std_vec_->size(), 0.0));
+    ROL::SharedPointer<StdVector> e = ROL::makeShared<StdVector>(ROL::makeShared<std::vector<Element>>(std_vec_->size(), 0.0));
     (*e->getVector())[i] = 1.0;
     return e;
   }

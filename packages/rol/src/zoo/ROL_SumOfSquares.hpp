@@ -87,22 +87,22 @@ public:
 };
 
 template<class Real>
-void getSumOfSquares( std::shared_ptr<Objective<Real> > &obj,
-                      std::shared_ptr<Vector<Real> >    &x0,
-                      std::shared_ptr<Vector<Real> >    &x ) {
+void getSumOfSquares( ROL::SharedPointer<Objective<Real> > &obj,
+                      ROL::SharedPointer<Vector<Real> >    &x0,
+                      ROL::SharedPointer<Vector<Real> >    &x ) {
   // Problem dimension
   int n = 100;
 
   // Get Initial Guess
-  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,1.0);
-  x0 = std::make_shared<StdVector<Real>>(x0p);
+  ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(n,1.0);
+  x0 = ROL::makeShared<StdVector<Real>>(x0p);
 
   // Get Solution
-  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(n,0.0);
-  x = std::make_shared<StdVector<Real>>(xp);
+  ROL::SharedPointer<std::vector<Real> > xp = ROL::makeShared<std::vector<Real>>(n,0.0);
+  x = ROL::makeShared<StdVector<Real>>(xp);
 
   // Instantiate Objective Function
-  obj = std::make_shared<Objective_SumOfSquares<Real>>();
+  obj = ROL::makeShared<Objective_SumOfSquares<Real>>();
 }
 
 } // End ZOO Namespace

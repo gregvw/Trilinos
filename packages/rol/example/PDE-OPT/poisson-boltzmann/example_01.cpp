@@ -70,12 +70,12 @@ typedef double RealT;
 int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  std::shared_ptr<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  std::shared_ptr<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
@@ -91,52 +91,52 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    std::shared_ptr<Teuchos::ParameterList> parlist = std::make_shared<Teuchos::ParameterList>();
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    std::shared_ptr<MeshManager<RealT> > meshMgr
-      = std::make_shared<MeshManager_Rectangle<RealT>>(*parlist);
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr
+      = ROL::makeShared<MeshManager_Rectangle<RealT>>(*parlist);
     // Initialize PDE describe Poisson's equation
-    std::shared_ptr<PDE_Poisson_Boltzmann<RealT> > pde
-      = std::make_shared<PDE_Poisson_Boltzmann<RealT>>(*parlist);
-    std::shared_ptr<PDE_Constraint<RealT> > con
-      = std::make_shared<PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
+    ROL::SharedPointer<PDE_Poisson_Boltzmann<RealT> > pde
+      = ROL::makeShared<PDE_Poisson_Boltzmann<RealT>>(*parlist);
+    ROL::SharedPointer<PDE_Constraint<RealT> > con
+      = ROL::makeShared<PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
     // Initialize quadratic objective function
-    std::vector<std::shared_ptr<QoI<RealT> > > qoi_vec(2,nullptr);
-    qoi_vec[0] = std::make_shared<QoI_L2Tracking_Poisson_Boltzmann<RealT>(pde->getFE>());
-    qoi_vec[1] = std::make_shared<QoI_L2Penalty_Poisson_Boltzmann<RealT>(pde->getFE>());
-    std::shared_ptr<StdObjective_Poisson_Boltzmann<RealT> > std_obj
-      = std::make_shared<StdObjective_Poisson_Boltzmann<RealT>>(*parlist);
-    std::shared_ptr<PDE_Objective<RealT> > obj
-      = std::make_shared<PDE_Objective<RealT>(qoi_vec,std_obj,con->getAssembler>());
+    std::vector<ROL::SharedPointer<QoI<RealT> > > qoi_vec(2,ROL::nullPointer);
+    qoi_vec[0] = ROL::makeShared<QoI_L2Tracking_Poisson_Boltzmann<RealT>(pde->getFE>());
+    qoi_vec[1] = ROL::makeShared<QoI_L2Penalty_Poisson_Boltzmann<RealT>(pde->getFE>());
+    ROL::SharedPointer<StdObjective_Poisson_Boltzmann<RealT> > std_obj
+      = ROL::makeShared<StdObjective_Poisson_Boltzmann<RealT>>(*parlist);
+    ROL::SharedPointer<PDE_Objective<RealT> > obj
+      = ROL::makeShared<PDE_Objective<RealT>(qoi_vec,std_obj,con->getAssembler>());
 
     // Create state vector and set to zeroes
-    std::shared_ptr<Tpetra::MultiVector<> > u_rcp = con->getAssembler()->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp = con->getAssembler()->createStateVector();
     u_rcp->randomize();
-    std::shared_ptr<ROL::Vector<RealT> > up
-      = std::make_shared<PDE_PrimalSimVector<RealT>(u_rcp,pde,con->getAssembler>());
+    ROL::SharedPointer<ROL::Vector<RealT> > up
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>(u_rcp,pde,con->getAssembler>());
     // Create control vector and set to ones
-    std::shared_ptr<Tpetra::MultiVector<> > z_rcp = con->getAssembler()->createControlVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > z_rcp = con->getAssembler()->createControlVector();
     z_rcp->putScalar(1.0);
-    std::shared_ptr<ROL::Vector<RealT> > zp
-      = std::make_shared<PDE_PrimalOptVector<RealT>(z_rcp,pde,con->getAssembler>());
+    ROL::SharedPointer<ROL::Vector<RealT> > zp
+      = ROL::makeShared<PDE_PrimalOptVector<RealT>(z_rcp,pde,con->getAssembler>());
     // Create residual vector and set to zeros
-    std::shared_ptr<Tpetra::MultiVector<> > r_rcp = con->getAssembler()->createResidualVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > r_rcp = con->getAssembler()->createResidualVector();
     r_rcp->putScalar(0.0);
-    std::shared_ptr<ROL::Vector<RealT> > rp
-      = std::make_shared<PDE_DualSimVector<RealT>(r_rcp,pde,con->getAssembler>());
+    ROL::SharedPointer<ROL::Vector<RealT> > rp
+      = ROL::makeShared<PDE_DualSimVector<RealT>(r_rcp,pde,con->getAssembler>());
     // Create state direction vector and set to random
-    std::shared_ptr<Tpetra::MultiVector<> > du_rcp = con->getAssembler()->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > du_rcp = con->getAssembler()->createStateVector();
     du_rcp->randomize();
-    std::shared_ptr<ROL::Vector<RealT> > dup
-      = std::make_shared<PDE_PrimalSimVector<RealT>(du_rcp,pde,con->getAssembler>());
+    ROL::SharedPointer<ROL::Vector<RealT> > dup
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>(du_rcp,pde,con->getAssembler>());
     // Create control direction vector and set to random
-    std::shared_ptr<Tpetra::MultiVector<> > dz_rcp = con->getAssembler()->createControlVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > dz_rcp = con->getAssembler()->createControlVector();
     //dz_rcp->randomize();
     dz_rcp->putScalar(0.0);
-    std::shared_ptr<ROL::Vector<RealT> > dzp
-      = std::make_shared<PDE_PrimalOptVector<RealT>(dz_rcp,pde,con->getAssembler>());
+    ROL::SharedPointer<ROL::Vector<RealT> > dzp
+      = ROL::makeShared<PDE_PrimalOptVector<RealT>(dz_rcp,pde,con->getAssembler>());
     // Create ROL SimOpt vectors
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> d(dup,dzp);

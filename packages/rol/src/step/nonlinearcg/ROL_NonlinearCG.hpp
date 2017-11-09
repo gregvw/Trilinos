@@ -75,8 +75,8 @@ namespace ROL {
 
 template<class Real>
 struct NonlinearCGState {
-  std::vector<std::shared_ptr<Vector<Real> > > grad;   // Gradient Storage
-  std::vector<std::shared_ptr<Vector<Real> > > pstep;  // Step Storage
+  std::vector<ROL::SharedPointer<Vector<Real> > > grad;   // Gradient Storage
+  std::vector<ROL::SharedPointer<Vector<Real> > > pstep;  // Step Storage
   int iter;                                         // Nonlinear-CG Iteration Counter
   int restart;                                      // Reinitialize every 'restart' iterations
   ENonlinearCG nlcg_type;                           // Nonlinear-CG Type
@@ -86,10 +86,10 @@ template<class Real>
 class NonlinearCG {
 private:
 
-  std::shared_ptr<NonlinearCGState<Real> > state_; // Nonlinear-CG State
+  ROL::SharedPointer<NonlinearCGState<Real> > state_; // Nonlinear-CG State
 
-  std::shared_ptr<Vector<Real> > y_;
-  std::shared_ptr<Vector<Real> > yd_;
+  ROL::SharedPointer<Vector<Real> > y_;
+  ROL::SharedPointer<Vector<Real> > yd_;
 
 public:
 
@@ -97,7 +97,7 @@ public:
 
   // Constructor
   NonlinearCG(ENonlinearCG type, int restart = 100) {
-    state_ = std::make_shared<NonlinearCGState<Real>>(); 
+    state_ = ROL::makeShared<NonlinearCGState<Real>>(); 
     state_->iter = 0;
     state_->grad.resize(1);
     state_->pstep.resize(1);
@@ -111,7 +111,7 @@ public:
     state_->restart = restart;
   }
 
-  std::shared_ptr<NonlinearCGState<Real> >& get_state() { return this->state_; }
+  ROL::SharedPointer<NonlinearCGState<Real> >& get_state() { return this->state_; }
 
   // Run one step of nonlinear CG.
   virtual void run( Vector<Real> &s , const Vector<Real> &g, const Vector<Real> &x, Objective<Real> &obj ) {

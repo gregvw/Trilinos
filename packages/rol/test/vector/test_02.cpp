@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Standard tests.
-    auto consistency = std::make_shared<std::vector<RealT>>(x.checkVector(y, z, true, *outStream));
+    auto consistency = ROL::makeShared<std::vector<RealT>>(x.checkVector(y, z, true, *outStream));
     ROL::StdVector<RealT, ElementT> checkvec(consistency);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 
     // Basis tests.
     // set x to first basis vector
-    std::shared_ptr<ROL::Vector<RealT> > zp = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > zp = x.clone();
     zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";

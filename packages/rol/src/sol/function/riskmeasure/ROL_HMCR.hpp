@@ -75,7 +75,7 @@ template<class Real>
 class HMCR : public RiskMeasure<Real> {
 private:
   // Plus function (approximation)
-  std::shared_ptr<PlusFunction<Real> > plusFunction_;
+  ROL::SharedPointer<PlusFunction<Real> > plusFunction_;
 
   // User inputs
   Real prob_;
@@ -86,10 +86,10 @@ private:
   Real coeff_;
 
   // Temporary vector storage
-  std::shared_ptr<Vector<Real> > mDualVector0_;
-  std::shared_ptr<Vector<Real> > gDualVector0_;
-  std::shared_ptr<Vector<Real> > mDualVector1_;
-  std::shared_ptr<Vector<Real> > gDualVector1_;
+  ROL::SharedPointer<Vector<Real> > mDualVector0_;
+  ROL::SharedPointer<Vector<Real> > gDualVector0_;
+  ROL::SharedPointer<Vector<Real> > mDualVector1_;
+  ROL::SharedPointer<Vector<Real> > gDualVector1_;
 
   // Statistic storage
   Real xvar_;
@@ -112,7 +112,7 @@ private:
       ">>> ERROR (ROL::HMCR): Convex combination parameter must be positive!");
     TEUCHOS_TEST_FOR_EXCEPTION((order_ < 2), std::invalid_argument,
       ">>> ERROR (ROL::HMCR): Norm order is less than 2!");
-    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == nullptr, std::invalid_argument,
+    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == ROL::nullPointer, std::invalid_argument,
       ">>> ERROR (ROL::HMCR): PlusFunction pointer is null!");
   }
 
@@ -127,7 +127,7 @@ public:
       @param[in]     pf      is the plus function or an approximation
   */
   HMCR( const Real prob, const Real lambda, const unsigned order,
-        const std::shared_ptr<PlusFunction<Real> > &pf )
+        const ROL::SharedPointer<PlusFunction<Real> > &pf )
     : RiskMeasure<Real>(),
       plusFunction_(pf), prob_(prob), lambda_(lambda), order_(order),
       xvar_(0), vvar_(0), pnorm_(0), coeff0_(0), coeff1_(0), coeff2_(0),
@@ -159,14 +159,14 @@ public:
     lambda_ = list.get<Real>("Convex Combination Parameter");
     order_ = (unsigned)list.get<int>("Order",2);
     // Build (approximate) plus function
-    plusFunction_  = std::make_shared<PlusFunction<Real>>(list);
+    plusFunction_  = ROL::makeShared<PlusFunction<Real>>(list);
     // Check inputs
     checkInputs();
     const Real one(1);
     coeff_ = one/(one-prob_);
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
     RiskMeasure<Real>::reset(x0,x);
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
@@ -185,10 +185,10 @@ public:
     pnorm_ = zero; coeff0_ = zero;
   }
 
-  void reset(std::shared_ptr<Vector<Real> > &x0, const Vector<Real> &x,
-             std::shared_ptr<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0    = std::const_pointer_cast<Vector<Real> >(
+    v0    = ROL::constPointerCast<Vector<Real> >(
             dynamic_cast<const RiskVector<Real>&>(v).getVector());
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();

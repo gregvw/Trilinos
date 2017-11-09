@@ -48,7 +48,7 @@
     \brief Provides interface for and implements line searches.
 */
 
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 #include "Teuchos_ParameterList.hpp"
 #include "ROL_Types.hpp"
 #include "ROL_Vector.hpp"
@@ -79,11 +79,11 @@ private:
   bool acceptMin_;    // Use smallest fval if sufficient decrease not satisfied
   bool itcond_;       // true if maximum function evaluations reached
 
-  std::shared_ptr<Vector<Real> > xtst_; 
-  std::shared_ptr<Vector<Real> > d_;
-  std::shared_ptr<Vector<Real> > g_;
-  std::shared_ptr<Vector<Real> > grad_;
-//  std::shared_ptr<const Vector<Real> > grad_;
+  ROL::SharedPointer<Vector<Real> > xtst_; 
+  ROL::SharedPointer<Vector<Real> > d_;
+  ROL::SharedPointer<Vector<Real> > g_;
+  ROL::SharedPointer<Vector<Real> > grad_;
+//  ROL::SharedPointer<const Vector<Real> > grad_;
 
 public:
 

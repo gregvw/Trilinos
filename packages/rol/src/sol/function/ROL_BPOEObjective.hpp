@@ -52,35 +52,35 @@ namespace ROL {
 template<class Real>
 class BPOEObjective : public Objective<Real> {
 private:
-  std::shared_ptr<RiskMeasure<Real> > bpoe_;
-  std::shared_ptr<Objective<Real> > riskObj_;
+  ROL::SharedPointer<RiskMeasure<Real> > bpoe_;
+  ROL::SharedPointer<Objective<Real> > riskObj_;
 
 public:
-  BPOEObjective( const std::shared_ptr<Objective<Real> > &pObj,
+  BPOEObjective( const ROL::SharedPointer<Objective<Real> > &pObj,
                  const Real order, const Real threshold,
-                 const std::shared_ptr<SampleGenerator<Real> > &vsampler, 
-                 const std::shared_ptr<SampleGenerator<Real> > &gsampler,
-                 const std::shared_ptr<SampleGenerator<Real> > &hsampler,
+                 const ROL::SharedPointer<SampleGenerator<Real> > &vsampler, 
+                 const ROL::SharedPointer<SampleGenerator<Real> > &gsampler,
+                 const ROL::SharedPointer<SampleGenerator<Real> > &hsampler,
                  const bool storage = true ) {
-    bpoe_    = std::make_shared<BPOE<Real>>(threshold,order);
-    riskObj_ = std::make_shared<RiskAverseObjective<Real>>(pObj,bpoe_,vsampler,gsampler,hsampler,storage);
+    bpoe_    = ROL::makeShared<BPOE<Real>>(threshold,order);
+    riskObj_ = ROL::makeShared<RiskAverseObjective<Real>>(pObj,bpoe_,vsampler,gsampler,hsampler,storage);
   }
 
-  BPOEObjective( const std::shared_ptr<Objective<Real> > &pObj,
+  BPOEObjective( const ROL::SharedPointer<Objective<Real> > &pObj,
                  const Real order, const Real threshold,
-                 const std::shared_ptr<SampleGenerator<Real> > &vsampler, 
-                 const std::shared_ptr<SampleGenerator<Real> > &gsampler,
+                 const ROL::SharedPointer<SampleGenerator<Real> > &vsampler, 
+                 const ROL::SharedPointer<SampleGenerator<Real> > &gsampler,
                  const bool storage = true ) {
-    bpoe_    = std::make_shared<BPOE<Real>>(threshold,order);
-    riskObj_ = std::make_shared<RiskAverseObjective<Real>>(pObj,bpoe_,vsampler,gsampler,storage);
+    bpoe_    = ROL::makeShared<BPOE<Real>>(threshold,order);
+    riskObj_ = ROL::makeShared<RiskAverseObjective<Real>>(pObj,bpoe_,vsampler,gsampler,storage);
   }
 
-  BPOEObjective( const std::shared_ptr<Objective<Real> > &pObj,
+  BPOEObjective( const ROL::SharedPointer<Objective<Real> > &pObj,
                  const Real order, const Real threshold,
-                 const std::shared_ptr<SampleGenerator<Real> > &sampler,
+                 const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
                  const bool storage = true ) {
-    bpoe_    = std::make_shared<BPOE<Real>>(threshold,order);
-    riskObj_ = std::make_shared<RiskAverseObjective<Real>>(pObj,bpoe_,sampler,storage);
+    bpoe_    = ROL::makeShared<BPOE<Real>>(threshold,order);
+    riskObj_ = ROL::makeShared<RiskAverseObjective<Real>>(pObj,bpoe_,sampler,storage);
   }
 
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {

@@ -87,11 +87,11 @@ int main(int argc, char *argv[]) {
       *outStream << "\n\n" << ROL:: ETestOptProblemToString(prob)  << "\n\n";
 
       // Get Objective Function
-      std::shared_ptr<ROL::Vector<RealT> > x0, z;
-      std::shared_ptr<ROL::Objective<RealT> > obj;
-      std::shared_ptr<ROL::BoundConstraint<RealT> > con;
+      ROL::SharedPointer<ROL::Vector<RealT> > x0, z;
+      ROL::SharedPointer<ROL::Objective<RealT> > obj;
+      ROL::SharedPointer<ROL::BoundConstraint<RealT> > con;
       ROL::getTestObjectives<RealT>(obj,con,x0,z,prob);
-      std::shared_ptr<ROL::Vector<RealT> > x = x0->clone();
+      ROL::SharedPointer<ROL::Vector<RealT> > x = x0->clone();
 
       // Get Dimension of Problem
       int dim = x0->dimension();
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
       obj->checkHessVec(*x0,*z);
 
       // Error Vector
-      std::shared_ptr<ROL::Vector<RealT> > e = x0->clone();
+      ROL::SharedPointer<ROL::Vector<RealT> > e = x0->clone();
       e->zero();
 
       //ROL::EDescent desc = ROL::DESCENT_STEEPEST;

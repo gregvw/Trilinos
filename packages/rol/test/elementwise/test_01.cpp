@@ -120,13 +120,13 @@ int main(int argc, char *argv[]) {
     int dim = k*k;
     RealT threshValue = 4.0;
 
-    std::shared_ptr<vec> w_rcp        = std::make_shared<vec>(dim, 0.0);
-    std::shared_ptr<vec> w2_rcp       = std::make_shared<vec>(dim, 0.0);
-    std::shared_ptr<vec> x_rcp        = std::make_shared<vec>(dim, 0.0);
-    std::shared_ptr<vec> x_recip_rcp  = std::make_shared<vec>(dim, 0.0);
-    std::shared_ptr<vec> y_rcp        = std::make_shared<vec>(dim, 0.0);
-    std::shared_ptr<vec> z_rcp        = std::make_shared<vec>(dim, 0.0);
-    std::shared_ptr<vec> z_thresh_rcp = std::make_shared<vec>(dim, 0.0);
+    ROL::SharedPointer<vec> w_rcp        = ROL::makeShared<vec>(dim, 0.0);
+    ROL::SharedPointer<vec> w2_rcp       = ROL::makeShared<vec>(dim, 0.0);
+    ROL::SharedPointer<vec> x_rcp        = ROL::makeShared<vec>(dim, 0.0);
+    ROL::SharedPointer<vec> x_recip_rcp  = ROL::makeShared<vec>(dim, 0.0);
+    ROL::SharedPointer<vec> y_rcp        = ROL::makeShared<vec>(dim, 0.0);
+    ROL::SharedPointer<vec> z_rcp        = ROL::makeShared<vec>(dim, 0.0);
+    ROL::SharedPointer<vec> z_thresh_rcp = ROL::makeShared<vec>(dim, 0.0);
 
     V w(w_rcp);
     V w2(w2_rcp);

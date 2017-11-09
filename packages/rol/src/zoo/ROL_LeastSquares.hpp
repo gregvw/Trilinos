@@ -68,7 +68,7 @@ class Objective_LeastSquares : public Objective<Real> {
 public:
 
   Real value( const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
     uint n    = ex->size();
@@ -91,9 +91,9 @@ public:
   }
 
   void gradient( Vector<Real> &g, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > eg
+    ROL::SharedPointer<std::vector<Real> > eg
       = dynamic_cast<StdVector<Real>&>(g).getVector();
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
     uint n  = ex->size();
@@ -125,11 +125,11 @@ public:
   }
 #if USE_HESSVEC
   void hessVec( Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, Real &tol ) {
-    std::shared_ptr<std::vector<Real> > ehv
+    ROL::SharedPointer<std::vector<Real> > ehv
       = dynamic_cast<StdVector<Real>&>(hv).getVector();
-    std::shared_ptr<const std::vector<Real> > ev
+    ROL::SharedPointer<const std::vector<Real> > ev
       = dynamic_cast<const StdVector<Real>&>(v).getVector();
-    std::shared_ptr<const std::vector<Real> > ex
+    ROL::SharedPointer<const std::vector<Real> > ex
       = dynamic_cast<const StdVector<Real>&>(x).getVector();
 
     uint n  = ex->size();
@@ -163,30 +163,30 @@ public:
 };
 
 template<class Real>
-void getLeastSquares( std::shared_ptr<Objective<Real> > &obj,
-                      std::shared_ptr<Vector<Real> >    &x0,
-                      std::shared_ptr<Vector<Real> >    &x ) {
+void getLeastSquares( ROL::SharedPointer<Objective<Real> > &obj,
+                      ROL::SharedPointer<Vector<Real> >    &x0,
+                      ROL::SharedPointer<Vector<Real> >    &x ) {
   // Problem dimension
   int n = 32;
 
   // Get Initial Guess
-  std::shared_ptr<std::vector<Real> > x0p = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > x0p = ROL::makeShared<std::vector<Real>>(n,0.0);
   for ( int i = 0; i < n; i++ ) {
     (*x0p)[i] = 0.0;
   }
-  x0 = std::make_shared<StdVector<Real>>(x0p);
+  x0 = ROL::makeShared<StdVector<Real>>(x0p);
 
   // Get Solution
-  std::shared_ptr<std::vector<Real> > xp = std::make_shared<std::vector<Real>>(n,0.0);
+  ROL::SharedPointer<std::vector<Real> > xp = ROL::makeShared<std::vector<Real>>(n,0.0);
   Real h = 1.0/((Real)n+1.0), pt = 0.0;
   for( int i = 0; i < n; i++ ) {
     pt = (Real)(i+1)*h;
     (*xp)[i] = pt*(1.0-pt);
   }
-  x = std::make_shared<StdVector<Real>>(xp);
+  x = ROL::makeShared<StdVector<Real>>(xp);
 
   // Instantiate Objective Function
-  obj = std::make_shared<Objective_LeastSquares<Real>>();
+  obj = ROL::makeShared<Objective_LeastSquares<Real>>();
 }
 
 } // End ZOO Namespace
