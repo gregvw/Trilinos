@@ -640,7 +640,7 @@ public:
     }
     else {
       needRiskLessObj_ = false;
-      parlistObj_.reset(&parlist, [](Teuchos::ParameterList*){});
+      parlistObj_ = ROL::makeSharedFromRef(parlist);
       INTERMEDIATE_obj_
         = ROL::makeShared<RiskAverseObjective<Real>>(INPUT_obj_,parlist,vsampler_,gsampler_,hsampler_);
     }
@@ -845,7 +845,7 @@ public:
     ixsampler_[index] = sampler;
     if ( INPUT_icon_[index] != ROL::nullPointer && sampler != ROL::nullPointer ) {
       needRiskLessIcon_[index] = false;
-      parlistCon_[index].reset(&parlist, [](Teuchos::ParameterList*){});
+      parlistCon_[index] = ROL::makeSharedFromRef(parlist);
       INTERMEDIATE_icon_[index]
         = ROL::makeShared<RiskAverseConstraint<Real>>(INPUT_icon_[index],sampler,parlist,index);
       INTERMEDIATE_ibnd_[index] = INPUT_ibnd_[index];

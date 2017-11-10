@@ -62,8 +62,8 @@ template<class Real>
 class ParametrizedObjectiveEx1 : public ROL::Objective<Real> {
 public:
   Real value( const ROL::Vector<Real> &x, Real &tol ) {
-    ROL::SharedPointer<const std::vector<Real> > ex =
-      (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
+    ROL::SharedPointer<const std::vector<Real>> ex = 
+      (dynamic_cast<const ROL::StdVector<Real>&>(x)).getVector();
     Real quad = 0.0, lin = 0.0;
     std::vector<Real> p = this->getParameter();
     unsigned size = ex->size();
@@ -75,10 +75,10 @@ public:
   }
 
   void gradient( ROL::Vector<Real> &g, const ROL::Vector<Real> &x, Real &tol ) {
-    ROL::SharedPointer<const std::vector<Real> > ex =
-      (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
-    ROL::SharedPointer<std::vector<Real> > eg =
-      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(g)).getVector());
+    ROL::SharedPointer<const std::vector<Real>> ex = 
+      (dynamic_cast<const ROL::StdVector<Real>&>(x)).getVector();
+    ROL::SharedPointer<std::vector<Real>> eg = 
+      (dynamic_cast<ROL::StdVector<Real>&>(g)).getVector();
     std::vector<Real> p = this->getParameter();
     unsigned size = ex->size();
     for ( unsigned i = 0; i < size; i++ ) {
@@ -87,12 +87,12 @@ public:
   }
 
   void hessVec( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &x, Real &tol ) {
-    ROL::SharedPointer<const std::vector<Real> > ex =
-      (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(x))).getVector();
-    ROL::SharedPointer<const std::vector<Real> > ev =
-      (dynamic_cast<ROL::StdVector<Real>&>(const_cast<ROL::Vector<Real>&>(v))).getVector();
-    ROL::SharedPointer<std::vector<Real> > ehv =
-      ROL::constPointerCast<std::vector<Real> >((dynamic_cast<ROL::StdVector<Real>&>(hv)).getVector());
+    ROL::SharedPointer<const std::vector<Real>> ex = 
+      (dynamic_cast<const ROL::StdVector<Real>&>(x)).getVector();
+    ROL::SharedPointer<const std::vector<Real>> ev = 
+      (dynamic_cast<const ROL::StdVector<Real>&>(v)).getVector();
+    ROL::SharedPointer<std::vector<Real>> ehv = 
+      (dynamic_cast<ROL::StdVector<Real>&>(hv)).getVector();
     std::vector<Real> p = this->getParameter();
     unsigned size = ex->size();
     for ( unsigned i = 0; i < size; i++ ) {

@@ -239,8 +239,8 @@ namespace ROL {
                         Real eps = 0.0 )
       : isInitialized_(false), useSecantPrecond_(useSecantPrecond),
         useSecantHessVec_(useSecantHessVec), eps_(eps) {
-      obj_.reset(&obj, [](Objective<Real>*){});
-      con_.reset(&con, [](BoundConstraint<Real>*){});
+      obj_ = ROL::makeSharedFromRef(obj);
+      con_ = ROL::makeSharedFromRef(con);
       secant_ = secant;
     }
 

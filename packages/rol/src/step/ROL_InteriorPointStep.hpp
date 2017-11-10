@@ -135,7 +135,7 @@ public:
     stol_  = stlist.get("Step Tolerance", 1.e-8);
     maxit_ = stlist.get("Iteration Limit", 100);
 
-    parlist_.reset(&parlist, [](Teuchos::ParameterList*){});
+    parlist_ = ROL::makeSharedFromRef(parlist);
   }
 
   /** \brief Initialize step with equality constraint
@@ -159,8 +159,8 @@ public:
 
     x_->set(x);
 
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
-    ipcon_.reset(&dynamic_cast<IPCON&>(con), [](IPCON*){});
+    ipobj_ = ROL::makeSharedFromRef(dynamic_cast<IPOBJ&>(obj));
+    ipcon_ = ROL::makeSharedFromRef(dynamic_cast<IPCON&>(con));
 
     // Set initial penalty
     ipobj_->updatePenalty(mu_);
@@ -211,7 +211,7 @@ public:
     g_ = g.clone();
 
     // Set initial penalty
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
+    ipobj_ = ROL::makeSharedFromRef(dynamic_cast<IPOBJ&>(obj));
     ipobj_->updatePenalty(mu_);
 
     algo_state.nfval = 0;
@@ -245,8 +245,8 @@ public:
                 Constraint<Real>     &con,
                 AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
-    ipcon_.reset(&dynamic_cast<IPCON&>(con), [](IPCON*){});
+    ipobj_ = ROL::makeSharedFromRef(dynamic_cast<IPOBJ&>(obj));
+    ipcon_ = ROL::makeSharedFromRef(dynamic_cast<IPCON&>(con));
 
     // Create the algorithm
     algo_ = ROL::makeShared<Algorithm<Real>>("Composite Step",*parlist_,false);
@@ -277,7 +277,7 @@ public:
                 BoundConstraint<Real> &bnd,
                 AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
+    ipobj_ = ROL::makeSharedFromRef(dynamic_cast<IPOBJ&>(obj));
 
     // Create the algorithm
     algo_ = ROL::makeShared<Algorithm<Real>>("Trust Region",*parlist_,false);
@@ -302,8 +302,9 @@ public:
                Constraint<Real>     &con,
                AlgorithmState<Real> &algo_state ) {
     // Grab interior point objective and constraint
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
-    ipcon_.reset(&dynamic_cast<IPCON&>(con), [](IPCON*){});
+
+    ipobj_ = ROL::makeSharedFromRef(dynamic_cast<IPOBJ&>(obj));
+    ipcon_ = ROL::makeSharedFromRef(dynamic_cast<IPCON&>(con));
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {
@@ -368,7 +369,7 @@ public:
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real>  &algo_state ) {
     // Grab interior point objective
-    ipobj_.reset(&dynamic_cast<IPOBJ&>(obj), [](IPOBJ*){});
+    ipobj_ = ROL::makeSharedFromRef(dynamic_cast<IPOBJ&>(obj));
 
     // If we can change the barrier parameter, do so
     if( (rho_< 1.0 && mu_ > mumin_) || (rho_ > 1.0 && mu_ < mumax_) ) {

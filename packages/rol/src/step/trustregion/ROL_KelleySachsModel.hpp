@@ -86,7 +86,7 @@ public:
                    const bool useSecantPrecond, const bool useSecantHessVec)
     : TrustRegionModel<Real>::TrustRegionModel(obj,x,g,false),
       secant_(secant), useSecantPrecond_(useSecantPrecond), useSecantHessVec_(useSecantHessVec), eps_(eps) {
-    bnd_.reset(&bnd, [](BoundConstraint<Real>*){});
+    bnd_ = ROL::makeSharedFromRef(bnd);
     prim_ = x.clone();
     dual_ = g.clone();
   }
