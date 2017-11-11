@@ -41,75 +41,62 @@
 // ************************************************************************
 // @HEADER
 
-#ifndef ROLTEUCHOSBATCHMANAGER_HPP
-#define ROLTEUCHOSBATCHMANAGER_HPP
+#pragma once
 
-#include "ROL_BatchManager.hpp"
-#include "ROL_SharedPointer.hpp"
-#include "Teuchos_Comm.hpp"
-#include "Teuchos_CommHelpers.hpp"
+#include <memory>
+#include <type_traits>
+#include <cstddef>
+#include <utility>
+
+
+/* \file  ROL_SharedPointer.hpp
+ * \brief Wraps the C++11 std::shared_ptr
+ *        ROL will be build with this implementation if CMake is
+ *        configured with ROL_ENABLE_STD_SHARED_PTR:BOOL=ON
+ *        Default behavior is OFF and Teuchos::RCP will be used
+ */
 
 namespace ROL {
 
-template<class Real, class Ordinal>
-class TeuchosBatchManager : public BatchManager<Real> {
-private:
-  const ROL::SharedPointer<const Teuchos::Comm<Ordinal> > comm_;
+template<class T> using SharedPointer = std::shared_ptr<T>;
 
-public:
-  TeuchosBatchManager(const ROL::SharedPointer<const Teuchos::Comm<Ordinal> > &comm)
-    : comm_(comm) {}
+std::nullptr_t nullPointer = nullptr;
 
-  int batchID(void) {
-    return Teuchos::rank<Ordinal>(*comm_);
-  }
-
-  int numBatches(void) {
-    return Teuchos::size<Ordinal>(*comm_);
-  }
-
-  void reduceAll(Real* input, Real* output, int dim,
-                 const Elementwise::ReductionOp<Real> &r) {
-    int nB = this->numBatches();
-    std::vector<Real> receiveBuffer(nB);
-    Teuchos::gather<Ordinal,Real>(input,1,&receiveBuffer[0],1,0,*comm_);
-    output[0] = r.initialValue();
-    for (int i = 0; i < nB; i++) {
-      r.reduce(receiveBuffer[i],output[0]);
-    }
-    Teuchos::broadcast<Ordinal,Real>(*comm_,0,1,output);
-  }
-
-  void minAll(Real* input, Real* output, int dim) {
-    Teuchos::reduceAll<Ordinal,Real>(*comm_,Teuchos::REDUCE_MIN,
-      dim, input, output);
-  }
-
-  void maxAll(Real* input, Real* output, int dim) {
-    Teuchos::reduceAll<Ordinal,Real>(*comm_,Teuchos::REDUCE_MAX,
-      dim, input, output);
-  }
-
-  void sumAll(Real* input, Real* output, int dim) {
-    Teuchos::reduceAll<Ordinal,Real>(*comm_,Teuchos::REDUCE_SUM,
-      dim, input, output);
-  }
-
-  void broadcast(Real* input, int cnt, int root) {
-    Teuchos::broadcast<Ordinal,Real>(*comm_,root,cnt,input);
-  }
-
-  virtual void sumAll(Vector<Real> &input, Vector<Real> &output) {
-    TEUCHOS_TEST_FOR_EXCEPTION( true, std::invalid_argument,
-      ">>> ERROR (ROL::TeuchosBatchManager): sumAll(Vector<Real> &input, Vector<Real> &output) is not implemented");
-  }
-
-  void barrier(void) {
-    Teuchos::barrier<Ordinal>(*comm_); 
-  }
-
-};
-
+template<class T, class... Args>
+inline
+SharedPointer<T> makeShared( Args&&... args ) {
+  return std::make_shared<T>(args...);
 }
 
-#endif
+template<class T>
+inline
+SharedPointer<T> makeSharedFromRef( T& obj ) {
+  return std::shared_ptr<T>(&obj,[](void*){});
+}
+
+template<class T>
+inline
+SharedPointer<const T> makeSharedFromRef( const T& obj ) {
+  return std::shared_ptr<const T>(&obj,[](const void*){});
+}
+
+template< class T, class U > 
+inline
+SharedPointer<T> staticPointerCast( const SharedPointer<U>& r ) noexcept {
+  return std::static_pointer_cast<T>(r);
+}
+
+template< class T, class U > 
+inline
+SharedPointer<T> constPointerCast( const SharedPointer<U>& r ) noexcept {
+  return std::const_pointer_cast<T>(r);
+}
+
+template< class T, class U > 
+inline
+SharedPointer<T> dynamicPointerCast( const SharedPointer<U>& r ) noexcept {
+  return std::dynamic_pointer_cast<T>(r);
+}
+
+} // namespace ROL
+

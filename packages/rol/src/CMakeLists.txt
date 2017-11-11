@@ -35,6 +35,31 @@ APPEND_SET(HEADERS
 #
 
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/compatibility)
+
+# Set an implementation of smart pointers
+IF(${PACKAGE_NAME}_ENABLE_STD_SHARED_PTR)
+  INCLUDE_DIRECTORIES(${DIR}/std/shared_ptr)
+  APPEND_GLOB(HEADERS ${DIR}/std/shared_ptr/ROL_SharedPointer.hpp)
+ELSE()
+  INCLUDE_DIRECTORIES(${DIR}/teuchos/rcp)
+  APPEND_GLOB(HEADERS ${DIR}/teuchos/rcp/ROL_SharedPointer.hpp)
+ENDIF()
+  
+# Set an implementation of parameter lists
+IF(${PACKAGE_NAME}_ENABLE_BOOST_PROPERTY_TREE)
+  INCLUDE_DIRECTORIES(${DIR}/boost/property_tree)
+  APPEND_GLOB(HEADERS ${DIR}/boost/property_tree/ROL_ParameterList.hpp)
+ELSE()
+  INCLUDE_DIRECTORIES(${DIR}/teuchos/parameterlist)
+  APPEND_GLOB(HEADERS ${DIR}/teuchos/parameterlist/ROL_ParameterList.hpp)
+ENDIF()
+
+
+
+
+
+
+
 INCLUDE_DIRECTORIES(${DIR})
 APPEND_GLOB(HEADERS ${DIR}/*.hpp)
 #

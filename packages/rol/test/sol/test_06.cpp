@@ -59,7 +59,8 @@ int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
   auto teuchos_comm = Teuchos::DefaultComm<int>::getComm();
-  ROL::SharedPointer<const Teuchos::Comm<int>> comm(&*teuchos_comm, [](const Teuchos::Comm<int>*){});
+  ROL::SharedPointer<const Teuchos::Comm<int>> comm =
+    ROL::makeSharedFromRef(*teuchos_comm);
 
   int iprint = argc - 1;
   Teuchos::oblackholestream bhs; // outputs nothing
@@ -137,25 +138,36 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistencyBMAN = b1->checkVector(*b2, *b3, true, outStream);
-    auto q = ROL::SharedPointer<std::vector<RealT>>(&consistencyBMAN, [](std::vector<RealT>*){});
+
+    ROL::SharedPointer<std::vector<RealT>> q =
+      ROL::makeSharedFromRef(consistencyBMAN);
     ROL::StdVector<RealT> checkvecBMAN(q);
     if (checkvecBMAN.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
+
     std::vector<RealT> consistencyAtom = a1->checkVector(*a2, *a3, true, outStream);
-    q = ROL::SharedPointer<std::vector<RealT>>(&consistencyAtom, [](std::vector<RealT>*){});
+
+    q = ROL::makeSharedFromRef(consistencyAtom);
+
     ROL::StdVector<RealT> checkvecAtom(q);
     if (checkvecAtom.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
+
     std::vector<RealT> consistencyProb = p1->checkVector(*p2, *p3, true, outStream);
-    q = ROL::SharedPointer<std::vector<RealT>>(&consistencyProb, [](std::vector<RealT>*){});
+
+    q = ROL::makeSharedFromRef(consistencyProb);
+
     ROL::StdVector<RealT> checkvecProb(q);
     if (checkvecProb.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
+
     std::vector<RealT> consistencySROM = x1.checkVector(x2, x3, true, outStream);
-    q = ROL::SharedPointer<std::vector<RealT>>(&consistencySROM, [](std::vector<RealT>*){});
+
+    q = ROL::makeSharedFromRef(consistencySROM);
+
     ROL::StdVector<RealT> checkvecSROM(q);
     if (checkvecSROM.norm() > std::sqrt(errtol)) {
       errorFlag++;

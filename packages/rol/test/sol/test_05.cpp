@@ -74,7 +74,8 @@ int main(int argc, char *argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
   auto teuchos_comm = Teuchos::DefaultComm<int>::getComm();
-  ROL::SharedPointer<const Teuchos::Comm<int>> comm(&*teuchos_comm, [](const Teuchos::Comm<int>*){});
+  ROL::SharedPointer<const Teuchos::Comm<int>> comm = 
+    ROL::makeSharedFromRef(*teuchos_comm);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;

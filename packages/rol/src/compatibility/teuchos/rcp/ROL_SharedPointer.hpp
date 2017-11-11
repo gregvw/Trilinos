@@ -1,4 +1,3 @@
-
 // @HEADER
 // ************************************************************************
 //
@@ -48,15 +47,13 @@
 #include <type_traits>
 
 /* \file ROL_SharedPointer.hpp
- * \brief Provides unified interface to ROL::SharedPointer and 
- *        Teuchos::RCP for legacy support.
+ * \brief Provides unified interface Teuchos::RCP for legacy support.
+ *        ROL will be build with this implementation by default  
+ *        unless ROL_ENABLE_STD_SHARED_PTR:BOOL=ON
  */
 
 #include <cstddef>
 #include <utility>
-
-
-#ifndef ROL_SHARED_POINTER    // Legacy support
 
 #include "Teuchos_RCP.hpp"
 
@@ -67,7 +64,6 @@ template<class T> using SharedPointer = Teuchos::RCP<T>;
 Teuchos::ENull nullPointer = Teuchos::null;
 
 }
-
 
 namespace std {
 
@@ -90,17 +86,6 @@ SharedPointer<T> makeSharedFromRef( T& obj ) {
   return Teuchos::rcpFromRef(obj);
 }
 
-/*
-template<class T>
-bool operator == ( const SharedPointer<T>& a, const Teuchos::ENull &b ) {
-  return a.is_null();
-}
-
-template<class T>
-bool operator != ( const ROL::SharedPointer<T>& a, const Teuchos::ENull &b ) {
-  return a.nonnull();
-}
-*/
 template< class T, class U > 
 inline
 SharedPointer<T> staticPointerCast( const SharedPointer<U>& r ) noexcept {
@@ -121,46 +106,4 @@ SharedPointer<T> dynamicPointerCast( const SharedPointer<U>& r ) noexcept {
 
 } // namespace ROL
 
-/*-------------------------------------------------------------------------------*/
-#else // Use C++11 std functions
-
-namespace ROL {
-
-template<class T> using SharedPointer = std::shared_ptr<T>;
-
-using nullPointer = ROL::nullPointer;
-
-template<class T, class... Args>
-inline
-SharedPointer<T> makeShared( Args&&... args ) {
-  return std::make_shared<T>(args...);
-}
-
-template<class T>
-inline
-SharedPointer<T> makeSharedFromRef( T& obj ) {
-  return std::shared_ptr<T>(obj,[](void*){});
-}
-
-template< class T, class U > 
-inline
-SharedPointer<T> staticPointerCast( const SharedPointer<U>& r ) noexcept {
-  return static_pointer_cast<T>(r);
-}
-
-template< class T, class U > 
-inline
-SharedPointer<T> constPointerCast( const SharedPointer<U>& r ) noexcept {
-  return const_pointer_cast<T>(r);
-}
-
-template< class T, class U > 
-inline
-SharedPointer<T> dynamicPointerCast( const SharedPointer<U>& r ) noexcept {
-  return dynamic_pointer_cast<T>(r);
-}
-
-} // namespace ROL
-
-#endif // ROL_SHARED_POINTER
 
