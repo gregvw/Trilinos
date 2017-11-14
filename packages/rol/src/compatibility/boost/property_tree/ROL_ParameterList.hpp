@@ -44,14 +44,74 @@
 #pragma once
 
 #include <boost/property_tree/ptree.h>
+#include <boost/property_tree/xml_parser.h>
+
+
+/*  Implements a unified ParameterList interface which conforms to that of
+    Teuchos::ParameterList while using the Boost::property_tree implementation.
+  
+    This interface only implements a small subset of the available methods,
+    however, at the time of creation these amount to all of the functionality
+    that ROL has needed. 
+ */
 
 namespace ROL {
 
+namespace details {
+
+
+using namespace std;
+using pt = boost::property_tree;
+
+
 class ParameterList {
 private:
+  ROL::SharedPointer<pt::ptree> tree_;
 
-//  boost::property_tree::ptree<std::string,X,Y>
+public:
+  ParameterList() : tree_(ROL::makeShared<pt::ptree>()) {
+  }
+
+  ParameterList( ROL::SharedPointer<pt::ptree> t ) : tree_(t) {
+  }
+
+  virtual ~ParameterList() {
+  }
+
+  template<class T> 
+  void set( const string& name, const T& value ) {
+    tree_->put(name,value);
+  }
+
+  template<class T>
+  T get( const string& name ) const {
+    return tree_->get<T>(name);
+  }
+
+  template<class T> 
+  T get( const string& name, const T& default_value ) const {
+    return tree_->get(name,default_value);
+  } 
+
+  ParameterList& sublist(const string& name) const {
+    pt::ptree& child = tree_->get_child(name); 
+    auto sublist = ROL::makeSharedFromRef<pt::ptree>(child);
+    return *ROL::makeShared<ParameterList>(sublist);
+  }
+
+  friend void readParametersFromXml( const string&, ParameterList& parlist );
+
 
 };
+
+} // namespace details
+
+using ParameterList = details::ParameterList;
+
+inline void readParametersFromXml( const std::string& filename, 
+                                   ParameterList& parlist ) {
+
+  boost::property_tree::read_xml(filename,*(parlist.tree_));
+}
 
 } // namespace ROL
