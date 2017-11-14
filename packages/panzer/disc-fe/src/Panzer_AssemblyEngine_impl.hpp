@@ -46,6 +46,7 @@
 #include "Phalanx_FieldManager.hpp"
 #include "Panzer_FieldManagerBuilder.hpp"
 #include "Panzer_AssemblyEngine_InArgs.hpp"
+#include "Panzer_GlobalEvaluationDataContainer.hpp"
 
 //===========================================================================
 //===========================================================================
@@ -173,12 +174,12 @@ evaluateVolume(const panzer::AssemblyEngineInArgs& in)
 
   Teuchos::RCP<panzer::WorksetContainer> wkstContainer = m_field_manager_builder->getWorksetContainer();
 
-  panzer::Traits::PreEvalData ped;
-  ped.gedc.addDataObject("Solution Gather Container",in.ghostedContainer_);
-  ped.gedc.addDataObject("Residual Scatter Container",in.ghostedContainer_);
+  panzer::Traits::PED ped;
+  ped.gedc->addDataObject("Solution Gather Container",in.ghostedContainer_);
+  ped.gedc->addDataObject("Residual Scatter Container",in.ghostedContainer_);
   ped.first_sensitivities_name  = in.first_sensitivities_name;
   ped.second_sensitivities_name = in.second_sensitivities_name;
-  in.fillGlobalEvaluationDataContainer(ped.gedc);
+  in.fillGlobalEvaluationDataContainer(*(ped.gedc));
 
   // Loop over volume field managers
   for (std::size_t block = 0; block < volume_field_managers.size(); ++block) {
@@ -304,13 +305,13 @@ evaluateBCs(const panzer::BCType bc_type,
 {
   Teuchos::RCP<panzer::WorksetContainer> wkstContainer = m_field_manager_builder->getWorksetContainer();
 
-  panzer::Traits::PreEvalData ped;
-  ped.gedc.addDataObject("Dirichlet Counter",preEval_loc);
-  ped.gedc.addDataObject("Solution Gather Container",in.ghostedContainer_);
-  ped.gedc.addDataObject("Residual Scatter Container",in.ghostedContainer_);
+  panzer::Traits::PED ped;
+  ped.gedc->addDataObject("Dirichlet Counter",preEval_loc);
+  ped.gedc->addDataObject("Solution Gather Container",in.ghostedContainer_);
+  ped.gedc->addDataObject("Residual Scatter Container",in.ghostedContainer_);
   ped.first_sensitivities_name  = in.first_sensitivities_name;
   ped.second_sensitivities_name = in.second_sensitivities_name;
-  in.fillGlobalEvaluationDataContainer(ped.gedc);
+  in.fillGlobalEvaluationDataContainer(*(ped.gedc));
 
   // this helps work around issues when constructing a mass
   // matrix using an evaluation of only the transient terms.
@@ -341,7 +342,8 @@ evaluateBCs(const panzer::BCType bc_type,
       const std::map<unsigned,PHX::FieldManager<panzer::Traits> > bc_fm = 
         bcfm_it->second;
    
-      Teuchos::RCP<const std::map<unsigned,panzer::Workset> > bc_wkst_ptr = wkstContainer->getSideWorksets(bc);
+      panzer::WorksetDescriptor desc = panzer::bcDescriptor(bc);
+      Teuchos::RCP<const std::map<unsigned,panzer::Workset> > bc_wkst_ptr = wkstContainer->getSideWorksets(desc);
       TEUCHOS_TEST_FOR_EXCEPTION(bc_wkst_ptr == Teuchos::null, std::logic_error,
                          "Failed to find corresponding bc workset!");
       const std::map<unsigned,panzer::Workset>& bc_wkst = *bc_wkst_ptr;

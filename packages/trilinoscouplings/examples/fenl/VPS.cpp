@@ -1,4 +1,5 @@
-// 2016/12/13
+// 2016/09/23
+// Automatic Discontinuity Detection using Spline Extrapolation
 
 #include "VPS.hpp"
 
@@ -10,7 +11,7 @@ VPS::VPS()
   /////////// Delaunay Graph  Variables //////////////////////////////////////////
   _seed_box = 0; _seed_rf = 0; _seed_rc = 0; _seed_neighbors = 0;
 
-  _seed_disc_neighbors = 0;
+  _seed_disc_neighbors = 0; // ETP
 
   /////////// Surrogate  Variables //////////////////////////////////////////
   _p = 0; _basis_coef = 0; _basis_index = 0;
@@ -18,40 +19,10 @@ VPS::VPS()
   initiate_random_number_generator(1234567890);
 
   size_t seed(size_t(time(0)));
-  seed = 1473364284;
+  seed = 1234567890;
   initiate_random_number_generator(seed);
   //std::cout << "RNG seed = " << seed << std::endl;
-
   _num_vs = 0;
-
-  /*
-    size_t n = 10;
-    double* t = new double[n];
-    double* f = new double[n];
-    for (size_t i = 0; i < n; i++)
-    {
-    t[i] = i * 1.0 / (n - 1);
-    if (i < n / 2) f[i] = 0.0;
-    else           f[i] = 1.0;
-    }
-
-    size_t num_basis = 50;
-    double* a = new double[num_basis];
-    double* b = new double[num_basis];
-
-    double** c = new double*[n - 1];
-    for (size_t i = 0; i < n - 1; i++) c[i] = new double[4];
-
-    form_discontinuity_spline(n, t, f, 4, c);
-
-    FourierExpansion(n, 0.0, 1.0, t, f, c, num_basis, a, b);
-
-    plot_FourierExpansion("Fourier.ps", num_basis, 0.0, 1.0, a, b, n, t, f);
-
-    int bug(0);
-    bug++;
-  */
-
 }
 
 VPS::~VPS()
@@ -61,8 +32,6 @@ VPS::~VPS()
 
 int VPS::clear_memory()
 {
-//#pragma region Clear Memory:
-
   /////////// kd-tree  Variables /////////////////////////////////////////////////
   _tree_max_height = 0;
   if (_tree_left != 0){ delete[] _tree_left; _tree_left = 0; }
@@ -75,38 +44,37 @@ int VPS::clear_memory()
     delete[] _seed_box;
     _seed_box = 0;
   }
-
   if (_seed_rf != 0){ delete[] _seed_rf; _seed_rf = 0; }
-
   if (_seed_rc != 0){ delete[] _seed_rc; _seed_rc = 0; }
 
   if (_seed_neighbors != 0)
   {
     for (size_t i = 0; i < _num_samples; i++) delete[] _seed_neighbors[i];
     delete[] _seed_neighbors;
+    _seed_neighbors = 0;
   }
-
   if (_seed_disc_neighbors != 0)
   {
-    for (size_t i = 0; i < _num_samples; i++)
+    for (size_t iseed = 0; iseed < _num_samples; iseed++)
     {
-      if (_seed_disc_neighbors[i] != 0)
+      if (_seed_disc_neighbors[iseed] != 0)
       {
         for (size_t ifunc = 0; ifunc < _num_functions; ifunc++)
         {
-          delete[] _seed_disc_neighbors[i][ifunc];
+          if (_seed_disc_neighbors[iseed][ifunc] != 0) delete[] _seed_disc_neighbors[iseed][ifunc];
         }
-        delete[] _seed_disc_neighbors[i];
+        delete[] _seed_disc_neighbors[iseed];
       }
+
     }
     delete[] _seed_disc_neighbors;
+    _seed_disc_neighbors = 0;
   }
 
   /////////// Surrogate  Variables //////////////////////////////////////////
-
   if (_p != 0)
   {
-    for (size_t ibasis = 0; ibasis < _num_basis; ibasis++) delete[] _p[ibasis];
+    for (size_t ibasis = 0; ibasis < _num_basis_pool; ibasis++) delete[] _p[ibasis];
     delete[] _p;
     _p = 0;
   }
@@ -134,9 +102,7 @@ int VPS::clear_memory()
   }
 
   return 0;
-//#pragma endregion
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +111,6 @@ int VPS::clear_memory()
 
 int VPS::get_initial_well_spaced_samples(size_t num_dim, double* xmin, double* xmax, size_t num_samples, double** x)
 {
-//#pragma region Initial Well Spaced points:
   double r_sq(0.0);
   for (size_t idim = 0; idim < num_dim; idim++)
   {
@@ -153,13 +118,11 @@ int VPS::get_initial_well_spaced_samples(size_t num_dim, double* xmin, double* x
     r_sq += dx * dx;
   }
 
-  //double sf(0.81);
   size_t isample(0);
   size_t num_successive_misses(0), max_num_successive_misses(100);
   while (isample < num_samples)
   {
     for (size_t idim = 0; idim < num_dim; idim++) x[isample][idim] = xmin[idim] + generate_a_random_number() * (xmax[idim] - xmin[idim]);
-
     bool miss(false);
     for (size_t i = 0; i < isample; i++)
     {
@@ -188,9 +151,7 @@ int VPS::get_initial_well_spaced_samples(size_t num_dim, double* xmin, double* x
     }
   }
   return 0;
-//#pragma endregion
 }
-
 
 int VPS::build_surrogate(size_t num_dim,
                          double* xmin, double* xmax,
@@ -217,86 +178,91 @@ int VPS::build_surrogate(size_t num_dim,
   kd_tree_build_balanced();
 
   // 2. Construct Delaunay Graph
-  construct_delaunay_graph();
+  if (desired_order > 0) construct_delaunay_graph();
 
   //plot_delaunay_graph("graph_nodisc.ps");
 
   // 3. Detect Discontinuites
-  detect_discontinuities();
+  //detect_discontinuities();
 
-  //plot_delaunay_graph("graph_wdisc.ps");
+  //plot_delaunay_graph("graph_disc.ps");
 
   // 3. Construct local surrogates
   construct_local_surrogates();
 
-  //plot_vps_surrogate("vps_with_disc_detect.ps", 0, 21, true);
 
-  _vs = new double*[100];
-  for (size_t i = 0; i < 100; i++) _vs[i] = 0;
+  std::string name_1;
+  std::string name_2;
 
-  for (size_t i = 0; i < 100; i++)
+  if (true)
   {
-    _vs[i] = new double[_num_dim];
-    sample_voronoi_vertex(_vs[i]);
-    int bug(0);
-    bug++;
+    std::stringstream sstm;
+    sstm << "vps_qoi_" << _num_samples << ".ps";
+    name_1 = sstm.str();
+  }
+  if (true)
+  {
+    std::stringstream sstm;
+    sstm << "vps_nit_" << _num_samples << ".ps";
+    name_2 = sstm.str();
   }
 
+  if (_num_samples > 1190 && _num_samples < 2100)
+  {
+    //plot_vps_surrogate("vps_2d_qoi.ps", 0, 21, true);
+    //plot_vps_surrogate("vps_2d_nit.ps", 1, 21, true);
+    // plot_vps_frames(name_1, 0, 11, 11, 21, false);
+    // plot_vps_frames(name_2, 1, 11, 11, 21, false);
+  }
+
+  //plot_vps_frames("vps_surrogate_r.ps", 0, 11, 11, 21, false);
+  //plot_vps_frames("vps_surrogate_g.ps", 1, 11, 11, 21, false);
+  //plot_vps_frames("vps_surrogate_b.ps", 2, 5, 5, 21, false);
   return 0;
 }
 
 int VPS::evaluate_surrogate(double* x, double* fs)
 {
-//#pragma region Evaluate Surrogate:
   double closest_distance = _diag; size_t closest_seed;
   get_closest_seed_tree(x, closest_seed, closest_distance);
-
   evaluate_surrogate(closest_seed, x, fs);
-
-  //fs[0] = closest_seed * 1.0 / _num_samples;
   return 0;
-//#pragma endregion
 }
 
 int VPS::evaluate_surrogate(size_t cell_index, double* x, double* fs)
 {
-//#pragma region Evaluate Surrogate:
   for (size_t ifunc = 0; ifunc < _num_functions; ifunc++)
   {
     fs[ifunc] = 0.0;
-    for (size_t ibasis = 0; ibasis < _num_basis; ibasis++)
+
+    if (_desired_order == 0)
     {
-      size_t basis_index = _basis_index[cell_index][ifunc][ibasis];
-      fs[ifunc] += _basis_coef[cell_index][ifunc][ibasis] * evaluate_basis_function(x, cell_index, basis_index);
+      fs[ifunc] = _f[cell_index][ifunc];
+    }
+    else
+    {
+      for (size_t ibasis = 0; ibasis < _num_basis; ibasis++)
+      {
+        size_t basis_index = _basis_index[cell_index][ifunc][ibasis];
+        fs[ifunc] += _basis_coef[cell_index][ifunc][ibasis] * evaluate_basis_function(x, cell_index, basis_index);
+      }
     }
   }
   return 0;
-//#pragma endregion
 }
 
-
-int VPS::suggest_new_sample(double* x)
+int VPS::suggest_new_sample(double* x, double &r, double &err_est)
 {
+  double* xmc = new double[_num_dim];
+  for (size_t idim = 0; idim < _num_dim; idim++) xmc[idim] = _xmin[idim] + generate_a_random_number() * (_xmax[idim] - _xmin[idim]);
 
-  return 0;
-}
-
-int VPS::suggest_new_sample(double* xmc, double* x, double &err_est)
-{
-  // Takes an MC point, returns a point on vertex/facet
-  size_t closest_seed;
-  double dst(DBL_MAX);
+  size_t closest_seed; double dst(DBL_MAX);
   get_closest_seed_tree(xmc, closest_seed, dst);
 
-  if (_num_samples < 4)
+  if (_num_samples < 5 * _num_dim)
   {
-    // Keep the MC point
-    for (size_t idim = 0; idim < _num_dim; idim++)
-      x[idim] = xmc[idim];
-
     // find distance to closest boundary
-    double h_dim;
-    double h_shortest= DBL_MAX;
+    double h_dim; double h_shortest(DBL_MAX);
 
     for (size_t idim = 0; idim < _num_dim; idim++)
     {
@@ -308,30 +274,45 @@ int VPS::suggest_new_sample(double* xmc, double* x, double &err_est)
     }
 
     // error estimate = min(distance to closest seed, distance to closest boundary)
-    if (h_shortest < dst)
-      err_est = h_shortest;
-    else err_est = dst;
+    r = dst;
+    if (h_shortest < dst) dst = h_shortest;
+
+    for (size_t idim = 0; idim < _num_dim; idim++) x[idim] = xmc[idim];
+    err_est = dst;
   }
   else
   {
-    //sample_voronoi_vertex(closest_seed, x);
-    sample_voronoi_facet(closest_seed, x);
+    size_t closest_seed;
+    double dst(DBL_MAX);
+    get_closest_seed_tree(xmc, closest_seed, dst);
+    sample_voronoi_vertex(closest_seed, _xmin, _xmax, _diag, x);
 
-    double rv(0.0);
+    r = 0.0;
     for (size_t idim = 0; idim < _num_dim; idim++)
     {
       double dx = _x[closest_seed][idim] - x[idim];
-      rv += dx*dx;
+      r += dx * dx;
     }
-    rv = sqrt(rv);
+    r = sqrt(r);
+
     size_t capacity = 10;
     size_t* neighbor_seeds = new size_t[capacity];
     size_t num_neighbor_seeds = 0;
-    get_seeds_in_sphere_tree(x, rv + 1E-10, num_neighbor_seeds, neighbor_seeds, capacity);
+    get_seeds_in_sphere_tree(x, r + 1E-10, num_neighbor_seeds, neighbor_seeds, capacity);
 
+    if (num_neighbor_seeds == 1)
+    {
+      // switch to neighbors of closest seed
+      num_neighbor_seeds = _seed_neighbors[closest_seed][1] + 1;
+      neighbor_seeds[0] = closest_seed;
+      for (size_t j = 1; j < num_neighbor_seeds; j++)
+      {
+        neighbor_seeds[j] = _seed_neighbors[closest_seed][2 + j];
+      }
+    }
 
     double* fneighbor = new double[num_neighbor_seeds];
-    double* fs = new double[1];
+    double* fs = new double[_num_functions];
     for (size_t i = 0; i < num_neighbor_seeds; i++)
     {
       size_t seed = neighbor_seeds[i];
@@ -340,32 +321,194 @@ int VPS::suggest_new_sample(double* xmc, double* x, double &err_est)
     }
 
     err_est = 0.0;
-
     for (size_t i = 0; i < num_neighbor_seeds; i++)
     {
       for (size_t j = i + 1; j < num_neighbor_seeds; j++)
       {
-        //double df = fabs(fneighbor[i] - fneighbor[j]);
-        double df = fabs(fneighbor[i] - fneighbor[j]) * rv;
+        double df = fabs(fneighbor[i] - fneighbor[j]);
         if (df > err_est) err_est = df;
       }
     }
+    err_est *= pow(r, _num_dim);
+
     delete[] fneighbor;
     delete[] fs;
     delete[] neighbor_seeds;
   }
+
+  delete[]xmc;
   return 0;
 }
 
-int VPS::add_new_sample(double* x, double* f, double** g, double*** h)
+int VPS::get_ensemble(size_t num_ensemble_points, double** ensemble_points,
+                      int proc_rank)
 {
+  double* ensemble_err = new double[num_ensemble_points];
+  double* ensemble_nit = new double[num_ensemble_points];
+  double* ensemble_r = new double[num_ensemble_points];
 
+  // collect points based on WS, Error Estimate, and min variance in nit:
+  double* x = new double[_num_dim]; double r, err_est;
+
+  double* fs = new double[_num_functions];
+
+  size_t num_points(0);
+  size_t num_misses(0), max_num_misses(100);
+
+  double nit_av(DBL_MAX), nit_max(0.0), err_av(0.0), err_max(0.0);
+
+  bool improve_error_only(true);
+  while (num_misses < max_num_misses)
+  {
+    suggest_new_sample(x, r, err_est);
+
+    // make sure this point is outside of ensemble spheres
+    bool conflict(false);
+    for (size_t ipoint = 0; ipoint < num_points; ipoint++)
+    {
+      double dstsq(0.0);
+      for (size_t idim = 0; idim < _num_dim; idim++)
+      {
+        double dx = x[idim] - ensemble_points[ipoint][idim];
+        dstsq += dx * dx;
+      }
+      if (dstsq < r * r || dstsq < ensemble_r[ipoint] * ensemble_r[ipoint])
+      {
+        conflict = true; break;
+      }
+    }
+
+    if (conflict) { num_misses++; continue; } // Violation of Wellspasedness condition
+
+    evaluate_surrogate(x, fs);
+
+    size_t iloc(num_ensemble_points);
+    if (num_points < num_ensemble_points) iloc = num_points;
+
+    if (iloc == num_ensemble_points)
+    {
+      // try replacing all prior points
+      for (size_t jloc = 0; jloc < num_points; jloc++)
+      {
+        // attempt same/better efficiency and better accuracy
+        double new_nit_av(0.0), new_nit_max(0.0), new_err_av(0.0), new_err_max(0.0);
+        for (size_t ipoint = 0; ipoint < num_points; ipoint++)
+        {
+          double nit = ensemble_nit[ipoint]; double err = ensemble_err[ipoint];
+          if (ipoint == jloc)
+          {
+            nit = fs[1]; err = err_est;
+          }
+          new_nit_av += nit;
+          new_err_av += err;
+
+          if (nit > new_nit_max) new_nit_max = nit;
+          if (err > new_err_max) new_err_max = err;
+        }
+        new_nit_av /= num_points;
+        new_err_av /= num_points;
+
+        if (improve_error_only)
+        {
+          if (new_err_av > err_av)
+          {
+            iloc = jloc;
+            break;
+          }
+        }
+        else
+        {
+          double oldR = nit_max / nit_av;
+          double newR = new_nit_max / new_nit_av;
+          if (newR < oldR && new_err_av > 0.8 * err_av) // better effeciency at least same accuracy
+          {
+            iloc = jloc; break;
+          }
+        }
+      }
+    }
+
+    if (iloc < num_ensemble_points)
+    {
+      // Add point to ensemble
+      num_misses = 0;
+      for (size_t idim = 0; idim < _num_dim; idim++) ensemble_points[iloc][idim] = x[idim];
+      ensemble_nit[iloc] = fs[1];
+      ensemble_err[iloc] = err_est;
+      ensemble_r[iloc] = r;
+      if (iloc == num_points) num_points++;
+
+      // update error and nit bounds
+      nit_av = 0.0; nit_max = 0.0;
+      if (improve_error_only)
+      {
+        err_av = 0.0; err_max = 0.0; // update error metrics
+      }
+
+      for (size_t ipoint = 0; ipoint < num_points; ipoint++)
+      {
+        if (ensemble_nit[ipoint] > nit_max) nit_max = ensemble_nit[ipoint];
+        nit_av += ensemble_nit[ipoint];
+
+        if (improve_error_only)
+        {
+          if (ensemble_err[ipoint] > err_max) err_max = ensemble_err[ipoint];
+          err_av += ensemble_err[ipoint];
+        }
+      }
+      nit_av /= num_points;
+      if (improve_error_only) err_av /= num_points;
+    }
+    else num_misses++;
+
+    if (num_misses == max_num_misses && improve_error_only)
+    {
+      num_misses = 0; improve_error_only = false;
+      max_num_misses = 1000;
+    }
+  }
+
+  delete[] x; delete[] fs;
+
+  delete[] ensemble_err; delete[] ensemble_nit; delete[] ensemble_r;
+
+  if (proc_rank == 0)
+    std::cout << "Number of samples = " << _num_samples << " , Ensemble expected R = " << nit_max / nit_av << std::endl;
   return 0;
 }
 
+int VPS::get_stats(size_t num_mc_points, size_t function_index, double& mean, double& var)
+{
+  double* xs = new double[_num_dim];
+  double* fs = new double[_num_functions];
 
+  mean = 0.0;
+  for (size_t imc = 0; imc < num_mc_points; imc++)
+  {
+    for (size_t idim = 0; idim < _num_dim; idim++)
+    {
+      xs[idim] = _xmin[idim] + generate_a_random_number()*(_xmax[idim] - _xmin[idim]);
+    }
+    evaluate_surrogate(xs, fs);
+    mean += fs[function_index];
+  }
+  mean /= num_mc_points;
 
+  var = 0.0;
+  for (size_t imc = 0; imc < num_mc_points; imc++)
+  {
+    for (size_t idim = 0; idim < _num_dim; idim++)
+    {
+      xs[idim] = _xmin[idim] + generate_a_random_number()*(_xmax[idim] - _xmin[idim]);
+    }
+    evaluate_surrogate(xs, fs);
+    var += (fs[function_index] - mean) * (fs[function_index] - mean);
+  }
+  var /= num_mc_points;
 
+  delete[] xs; delete[] fs;
+  return 0;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////// RNG               /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -373,7 +516,6 @@ int VPS::add_new_sample(double* x, double* f, double** g, double*** h)
 
 void VPS::initiate_random_number_generator(unsigned long x)
 {
-//#pragma region Initiate Random Number Gnerator:
   //assert(sizeof (double) >= 54) ;
 
   cc = 1.0 / 9007199254740992.0; // inverse of 2^53rd power
@@ -407,18 +549,17 @@ void VPS::initiate_random_number_generator(unsigned long x)
     }        /* end j loop */
     Q[i] = s;
   } /* end i seed loop, Now generate 10^9 dUNI's: */
-//#pragma endregion
 }
 
 double VPS::generate_a_random_number()
 {
-//#pragma region Generate a Random Number:
   /* Takes 14 nanosecs, Intel Q6600,2.40GHz */
   int i, j;
   double t; /* t: first temp, then next CSWB value */
   /* First get zy as next lag-2 SWB */
   t = zx - zy - zc;
   zx = zy;
+
   if (t < 0)
   {
     zy = t + 1.0;
@@ -456,28 +597,28 @@ double VPS::generate_a_random_number()
   } /* end else segment; return t-zy mod 1 */
 
   return ((t < zy) ? 1.0 + (t - zy) : t - zy);
-//#pragma endregion
 }
 
 int VPS::sample_uniformly_from_unit_sphere(double* dart, size_t num_dim)
 {
-//#pragma region Sample Uniformly from a Sphere:
-  // Select a random point uniformly from a sphere:
-  // unbiased method
-  double sf = 0.0;
-  for (size_t idim = 0; idim < num_dim; idim++)
+  size_t idim = 0;
+  while (true)
   {
-    double sum(0.0);
-    // select 12 random numbers from 0.0 to 1.0
-    for (size_t i = 0; i < 12; i++) sum += generate_a_random_number();
-    sum -= 6.0;
-    dart[idim] = sum;
-    sf += dart[idim] * dart[idim];
+    double u1 = generate_a_random_number();
+    double u2 = generate_a_random_number();
+    double r = sqrt(-2 * log(u1));
+    double theta = 2 * PI * u2;
+    double n1 = r * cos(theta);
+    double n2 = r * sin(theta);
+    dart[idim] = n1; idim++; if (idim == num_dim) break;
+    dart[idim] = n2; idim++; if (idim == num_dim) break;
   }
-  sf = 1.0 / sqrt(sf);
-  for (size_t idim = 0; idim < num_dim; idim++) dart[idim] *= sf;
+  double norm(0.0);
+  for (idim = 0; idim < num_dim; idim++) norm += dart[idim] * dart[idim];
+
+  norm = 1.0 / sqrt(norm);
+  for (idim = 0; idim < num_dim; idim++) dart[idim] *= norm;
   return 0;
-//#pragma endregion
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1040,80 +1181,6 @@ int VPS::add_entry(size_t entry, size_t &num_entries, size_t* &I, size_t &capaci
 }
 
 
-int VPS::get_normal_component(size_t num_dim, size_t num_basis, double** basis, double* vect, double &norm)
-{
-//#pragma region Get Normal component to some basis:
-
-
-  double* comp = new double[num_basis];
-
-  // project point to current basis
-  for (size_t ibasis = 0; ibasis < num_basis; ibasis++)
-  {
-    comp[ibasis] = 0.0;
-    for (size_t idim = 0; idim < num_dim; idim++) comp[ibasis] += vect[idim] * basis[ibasis][idim];
-  }
-
-  // get vector component orthogonal to current basis
-  for (size_t ibasis = 0; ibasis < num_basis; ibasis++)
-  {
-    for (size_t idim = 0; idim < num_dim; idim++) vect[idim] -= comp[ibasis] * basis[ibasis][idim];
-  }
-
-  norm = 0.0;
-  for (size_t idim = 0; idim < num_dim; idim++) norm += vect[idim] * vect[idim];
-
-  if (fabs(norm) < 1E-10) return 1;
-
-  norm = 1.0 / sqrt(norm);
-  for (size_t idim = 0; idim < num_dim; idim++) vect[idim] *= norm;
-
-  delete[] comp;
-
-  return 0;
-//#pragma endregion
-}
-
-bool VPS::trim_spoke(size_t num_dim, double* xst, double* xend, double* p, double* q)
-{
-//#pragma region Trim a Spoke:
-
-  double* nH = new double[num_dim];
-  double* xH = new double[num_dim];
-
-  // trim spoke using Voronoi hyperplane between ipoint and iclosest
-  //double norm(0.0);
-  for (size_t idim = 0; idim < num_dim; idim++)
-  {
-    nH[idim] = q[idim] - p[idim];
-    xH[idim] = 0.5 * (q[idim] + p[idim]);
-  }
-
-  double dotv(0.0), dote(0.0);
-  for (size_t idim = 0; idim < num_dim; idim++)
-  {
-    double dxv = xH[idim] - xst[idim];
-    double dxe = xend[idim] - xst[idim];
-    dotv += dxv * nH[idim];
-    dote += dxe * nH[idim];
-  }
-  delete[] nH; delete[] xH;
-
-  bool trimmed = false;
-  if (fabs(dote) > 1E-10)
-  {
-    double u = dotv / dote;
-    if (u > -1.0E-10 && u < 1.0 + 1.0E-10)
-    {
-      for (size_t idim = 0; idim < num_dim; idim++) xend[idim] = xst[idim] + u * (xend[idim] - xst[idim]);
-      trimmed = true;
-    }
-  }
-
-  return trimmed;
-//#pragma endregion
-}
-
 
 size_t VPS::retrieve_num_permutations(size_t num_dim, size_t upper_bound, bool force_sum_constraint, size_t sum_constraint)
 {
@@ -1488,7 +1555,7 @@ void VPS::plot_polynomial(std::string file_name, size_t num_basis, double* c, do
   double ymin(DBL_MAX), ymax(-DBL_MAX);
   for (size_t ipoint = 0; ipoint < num_p_points - 1; ipoint++)
   {
-    //size_t jpoint = ipoint + 1;
+    //size_t jpoint = ipoint + 1; // ETP
 
     double x = xmin + ipoint * dx;
     double f = 0.0;
@@ -1570,7 +1637,7 @@ void VPS::plot_polynomial(std::string file_name, size_t num_basis, double* c, do
 
   for (size_t ipoint = 0; ipoint < num_p_points - 1; ipoint++)
   {
-    //size_t jpoint = ipoint + 1;
+    //size_t jpoint = ipoint + 1; // ETP
 
     double x = xmin + ipoint * dx;
     double f = 0.0;
@@ -1761,7 +1828,7 @@ void VPS::plot_FourierExpansion(std::string file_name, size_t num_basis, double 
   double ymin(DBL_MAX), ymax(-DBL_MAX);
   for (size_t ipoint = 0; ipoint < num_p_points; ipoint++)
   {
-    //size_t jpoint = ipoint + 1;
+    // size_t jpoint = ipoint + 1; // ETP
 
     double x = xmin + ipoint * dx;
     double f = 0.5 * a[0];
@@ -1982,11 +2049,6 @@ void VPS::plot_delaunay_graph(const std::string outFile)
   {
     for (size_t j = 0; j < _seed_neighbors[i][1]; j++)
     {
-      if (_seed_disc_neighbors != 0 && _seed_disc_neighbors[i] != 0)
-      {
-        if (_seed_disc_neighbors[i][0][j]) continue;
-      }
-
       size_t neighbor = _seed_neighbors[i][2 + j];
 
       file << "newpath" << std::endl;
@@ -2532,7 +2594,7 @@ void VPS::plot_vps_surrogate(std::string file_name, size_t function_index, size_
       }
     }
   }
-  delete[] xx;
+  delete[] xx; delete[] f;
 
   if (plot_graph)
   {
@@ -2706,8 +2768,8 @@ int VPS::construct_delaunay_graph()
 int VPS::update_delaunay_graph(size_t seed_index)
 {
 //#pragma region Update Delaunay Graph of a given Seed:
-  size_t max_num_misses(100);
-
+  size_t max_num_misses(5);
+  if (_num_samples > 19000) std::cout << "Del graph:" << seed_index << std::endl;
   if (_seed_neighbors[seed_index] != 0)
   {
     while (_seed_neighbors[seed_index][1] != 0) disconnect_seeds(seed_index, _seed_neighbors[seed_index][2]);
@@ -2731,7 +2793,7 @@ int VPS::update_delaunay_graph(size_t seed_index)
   get_num_seed_neighbors(seed_index, old_neighbors);
   while (num_misses < max_num_misses)
   {
-    sample_voronoi_vertex(seed_index, v);
+    sample_voronoi_vertex(seed_index, _xmin, _xmax, _diag, v);
 
     // update Coverage radius
     double rc(0.0);
@@ -2767,6 +2829,8 @@ int VPS::update_delaunay_graph(size_t seed_index)
       }
     }
 
+    delete[] neighbors;
+
     size_t new_neighbors;
     get_num_seed_neighbors(seed_index, new_neighbors);
 
@@ -2791,295 +2855,9 @@ int VPS::sample_voronoi_vertex(double* v)
   double closest_distance = _diag; size_t closest_seed;
   get_closest_seed_tree(dart, closest_seed, closest_distance);
 
-  sample_voronoi_vertex(closest_seed, v);
+  sample_voronoi_vertex(closest_seed, _xmin, _xmax, _diag, v);
 
   delete[] dart;
-  return 0;
-//#pragma endregion
-}
-
-int VPS::sample_voronoi_vertex(size_t seed_index, double* v)
-{
-//#pragma region Sample A Voronoi Vertex bounding Cell with seed_index:
-
-  size_t num_basis(0);
-  double** basis = new double*[_num_dim];
-  for (size_t idim = 0; idim < _num_dim; idim++)
-  {
-    basis[idim] = new double[_num_dim];
-    for (size_t jdim = 0; jdim < _num_dim; jdim++) basis[idim][jdim] = 0.0;
-    basis[idim][idim] = 1.0;
-  }
-
-  double* xst = new double[_num_dim];
-  double* xend = new double[_num_dim];
-  double* dart = new double[_num_dim];
-  size_t* simplex = new size_t[_num_dim + 1];
-
-  double* vect = new double[_num_dim];
-
-  for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = _x[seed_index][idim];
-
-  double closest_distance = 0.0;
-
-  // add first point
-  size_t num_simplex_seeds(0);
-  simplex[num_simplex_seeds] = seed_index; num_simplex_seeds++;
-
-  while (num_simplex_seeds <= _num_dim)
-  {
-    // Throw a random spoke
-    sample_uniformly_from_unit_sphere(dart, _num_dim - num_basis);
-
-    for (size_t idim = 0; idim < _num_dim; idim++) xend[idim] = xst[idim];
-
-    for (size_t ibasis = num_basis; ibasis < _num_dim; ibasis++)
-    {
-      for (size_t idim = 0; idim < _num_dim; idim++) xend[idim] += _diag * dart[ibasis - num_basis] * basis[ibasis][idim];
-    }
-
-    closest_distance = 0.0;
-    for (size_t idim = 0; idim < _num_dim; idim++)
-    {
-      double dx = xend[idim] - _x[seed_index][idim];
-      closest_distance += dx * dx;
-    }
-    closest_distance = sqrt(closest_distance);
-
-    size_t neighbor(seed_index);
-    while (true)
-    {
-      // get closest point to xend
-      size_t closest_seed(seed_index);
-      double excluded_closest_distance = closest_distance + 1E-10;
-      get_closest_seed_tree(xend, num_simplex_seeds, simplex, closest_seed, excluded_closest_distance);
-
-      bool vertex_out_of_bounding_box(false);
-      if (neighbor == closest_seed)
-      {
-        for (size_t idim = 0; idim < _num_dim; idim++)
-        {
-          if (xend[idim] > _xmin[idim] - 1E-10 && xend[idim] < _xmax[idim] + 1E-10) continue;
-          vertex_out_of_bounding_box = true;
-          break;
-        }
-      }
-
-      if (closest_seed == _budget || (neighbor == closest_seed && vertex_out_of_bounding_box))
-      {
-//#pragma region A boundary Vertex mirror seed:
-        bool done(false);
-        for (size_t idim = 0; idim < _num_dim; idim++)
-        {
-          double t;
-          for (size_t ib = 0; ib < 2; ib++)
-          {
-            if (fabs(xend[idim] - xst[idim]) < 1E-10) continue;
-
-            if (ib == 0) t = (_xmin[idim] - xst[idim]) / (xend[idim] - xst[idim]);
-            else         t = (_xmax[idim] - xst[idim]) / (xend[idim] - xst[idim]);
-
-
-            bool trimming_bound(false);
-            if (t > 0.0 && t < 1.0)
-            {
-              trimming_bound = true;
-              for (size_t jdim = 0; jdim < _num_dim; jdim++)
-              {
-                if (fabs(xend[jdim] - xst[jdim]) < 1E-10) continue;
-                if (jdim == idim) continue;
-
-                double xx = xst[jdim] + t * (xend[jdim] - xst[jdim]);
-
-                if (xx < _xmin[jdim] || xx > _xmax[jdim])
-                {
-                  trimming_bound = false; break;
-                }
-              }
-            }
-
-            if (trimming_bound)
-            {
-              double* mirrored_seed = new double[_num_dim];
-              for (size_t jdim = 0; jdim < _num_dim; jdim++) mirrored_seed[jdim] = _x[seed_index][jdim];
-              if (ib == 0) mirrored_seed[idim] = _xmin[idim] - (_x[seed_index][idim] - _xmin[idim]); // 3.0;
-              else         mirrored_seed[idim] = _xmax[idim] + (_xmax[idim] - _x[seed_index][idim]); // 3.0;
-
-              trim_spoke(_num_dim, xst, xend, _x[seed_index], mirrored_seed);
-
-              // apply recursion
-              simplex[num_simplex_seeds] = seed_index; num_simplex_seeds++;
-
-              // update spoke start
-              for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = xend[idim];
-
-              // update basis
-              for (size_t idim = 0; idim < _num_dim; idim++) vect[idim] = mirrored_seed[idim] - _x[seed_index][idim];
-              double norm;
-              get_normal_component(_num_dim, num_basis, basis, vect, norm);
-              for (size_t idim = 0; idim < _num_dim; idim++) basis[num_basis][idim] = vect[idim];
-              num_basis++;
-
-              // update remaining basis
-              for (size_t ibasis = num_basis; ibasis < _num_dim; ibasis++)
-              {
-                for (size_t idim = 0; idim < _num_dim; idim++)
-                {
-                  for (size_t jdim = 0; jdim < _num_dim; jdim++) vect[jdim] = 0.0;
-                  vect[idim] = 1.0;
-                  get_normal_component(_num_dim, ibasis, basis, vect, norm);
-                  if (norm > 0.1) break;
-                }
-                for (size_t idim = 0; idim < _num_dim; idim++) basis[ibasis][idim] = vect[idim];
-              }
-              delete[] mirrored_seed;
-              done = true; break;
-            }
-          }
-          if (done) break;
-        }
-        if (done) break;
-//#pragma endregion
-      }
-      else if (neighbor == closest_seed || fabs(excluded_closest_distance - closest_distance) < 1E-10)
-      {
-//#pragma region A voronoi neighbor apply recursion:
-        simplex[num_simplex_seeds] = neighbor; num_simplex_seeds++;
-
-        // update spoke start
-        for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = xend[idim];
-
-        // update basis
-        for (size_t idim = 0; idim < _num_dim; idim++) vect[idim] = _x[closest_seed][idim] - _x[seed_index][idim];
-        double norm;
-        get_normal_component(_num_dim, num_basis, basis, vect, norm);
-        for (size_t idim = 0; idim < _num_dim; idim++) basis[num_basis][idim] = vect[idim];
-        num_basis++;
-
-        // update remaining basis
-        for (size_t ibasis = num_basis; ibasis < _num_dim; ibasis++)
-        {
-          for (size_t idim = 0; idim < _num_dim; idim++)
-          {
-            for (size_t jdim = 0; jdim < _num_dim; jdim++) vect[jdim] = 0.0;
-            vect[idim] = 1.0;
-            get_normal_component(_num_dim, ibasis, basis, vect, norm);
-            if (norm > 0.1) break;
-          }
-          for (size_t idim = 0; idim < _num_dim; idim++) basis[ibasis][idim] = vect[idim];
-        }
-        break;
-//#pragma endregion
-      }
-      else
-      {
-        neighbor = closest_seed;
-        trim_spoke(_num_dim, xst, xend, _x[seed_index], _x[neighbor]);
-        closest_distance = 0.0;
-        for (size_t idim = 0; idim < _num_dim; idim++)
-        {
-          double dx = xend[idim] - _x[seed_index][idim];
-          closest_distance += dx * dx;
-        }
-        closest_distance = sqrt(closest_distance);
-      }
-    }
-  }
-
-  if (closest_distance > _seed_rc[seed_index]) _seed_rc[seed_index] = closest_distance;
-
-  for (size_t idim = 0; idim < _num_dim; idim++) v[idim] = xend[idim];
-
-
-  for (size_t idim = 0; idim < _num_dim; idim++) delete[] basis[idim];
-  delete[] basis;
-
-  delete[] xst; delete[] xend; delete[] dart; delete[] simplex; delete[] vect;
-
-  return 0;
-//#pragma endregion
-}
-
-int VPS::sample_voronoi_facet(size_t seed_index, double* v)
-{
-//#pragma region Sample A Voronoi Vertex bounding Cell with seed_index:
-
-  double* xst = new double[_num_dim];
-  double* xend = new double[_num_dim];
-  double* dart = new double[_num_dim];
-
-  for (size_t idim = 0; idim < _num_dim; idim++)
-    xst[idim] = _x[seed_index][idim]; // Start at seed
-
-  size_t num_ex = 1;
-  size_t* ex_seeds = new size_t[1];
-  ex_seeds[0] = seed_index;
-
-  while (true)
-  {
-    // Throw a random spoke
-    sample_uniformly_from_unit_sphere(dart, _num_dim);
-
-    for (size_t idim = 0; idim < _num_dim; idim++)
-      xend[idim] = xst[idim];
-
-    for (size_t idim = 0; idim < _num_dim; idim++)
-      xend[idim] += _diag * dart[idim];
-
-    bool valid_spoke;
-
-    while (true)
-    {
-      // get closest point to xend
-      size_t closest_seed(seed_index);
-      double closest_dst(DBL_MAX);
-
-      get_closest_seed_tree(xend, num_ex, ex_seeds, closest_seed, closest_dst);
-
-      double d1(0.0), d2(0.0);
-
-      for (size_t idim = 0; idim < _num_dim; idim++)
-      {
-        double dx1 = xend[idim] - _x[seed_index][idim];
-        double dx2 = xend[idim] - _x[closest_seed][idim];
-
-        d1 += dx1 * dx1;
-        d2 += dx2 * dx2;
-      }
-
-      if (fabs(d1 - d2) < 1E-10)
-      {
-        valid_spoke = true;
-        break;
-      }
-
-      if (closest_seed == _budget)
-      {
-        valid_spoke = false; break;
-      }
-
-      if (!trim_spoke(_num_dim, xst, xend, _x[seed_index], _x[closest_seed]))
-      {
-        valid_spoke = false; break;
-      }
-    }
-
-    for (size_t idim = 0; idim < _num_dim; idim++)
-    {
-      if (xend[idim]< _xmin[idim] || xend[idim] > _xmax[idim])
-      {
-        valid_spoke = false;
-        break;
-      }
-    }
-
-    if (valid_spoke) break;
-  }
-
-  for (size_t idim = 0; idim < _num_dim; idim++) v[idim] = xend[idim];
-
-  delete[] xst; delete[] xend; delete[] dart; delete[] ex_seeds;
-
   return 0;
 //#pragma endregion
 }
@@ -3271,7 +3049,7 @@ int VPS::FourierExpansion(size_t num_data_points, double xmin, double xmax, doub
 {
 //#pragma region Fourier Expansion of a function:
 
-  //size_t num_pieces(num_data_points - 1);
+  //size_t num_pieces(num_data_points - 1); // ETP
 
   double P = xmax - xmin;
 
@@ -3580,14 +3358,13 @@ void VPS::MAT_Transpose(size_t nrow, size_t ncol, double** A, double** AT)
 
 int VPS::construct_local_surrogates()
 {
-//#pragma region Construct Local Surrogates:
   init_vps_containers();
   for (size_t isample = 0; isample < _num_samples; isample++)
   {
+    if (_num_samples > 19000) std::cout << "Building Surrogate:" << isample << std::endl;
     if (_method == Regression) retrieve_weights_regression(isample);
   }
   return 0;
-//#pragma endregion
 }
 
 
@@ -3624,7 +3401,7 @@ int VPS::add_neighbor_layer(size_t cell_index, size_t function_index, size_t &nu
 {
 //#pragma region Add neighbor Layer:
 
-  if (_seed_neighbors[cell_index] == 0) return 0;
+  if (_seed_neighbors == 0 || _seed_neighbors[cell_index] == 0) return 0;
 
   size_t num_new_neighbors(0), new_neighbors_capacity(100);
   size_t* new_neighbors = new size_t[new_neighbors_capacity];
@@ -3684,6 +3461,20 @@ int VPS::retrieve_weights_regression(size_t cell_index)
 {
 //#pragma region Retrieve Weight Using Regression:
 
+  if (_desired_order == 0)
+  {
+    _basis_coef[cell_index] = new double*[_num_functions];
+    _basis_index[cell_index] = new size_t*[_num_functions];
+    for (size_t ifunc = 0; ifunc < _num_functions; ifunc++)
+    {
+      _basis_coef[cell_index][ifunc] = new double[_num_basis];
+      _basis_index[cell_index][ifunc] = new size_t[_num_basis];
+      _basis_coef[cell_index][ifunc][0] = _f[cell_index][ifunc];
+      _basis_index[cell_index][ifunc][0] = 0;
+    }
+    return 0;
+  }
+
   if (_basis_coef[cell_index] == 0)
   {
     _basis_coef[cell_index] = new double*[_num_functions];
@@ -3712,7 +3503,7 @@ int VPS::retrieve_weights_regression(size_t cell_index)
     size_t num_data_points(1), data_points_capacity(10);
     size_t* data_points = new size_t[data_points_capacity];
     data_points[0] = cell_index;
-    while (num_data_points < 2 * _num_basis)
+    while (_desired_order > 0 && num_data_points < 2 * _num_basis)
     {
       size_t old_num = num_data_points;
       add_neighbor_layer(cell_index, ifunc, num_data_points, data_points, data_points_capacity);
@@ -3737,6 +3528,7 @@ int VPS::retrieve_weights_regression(size_t cell_index)
       for (size_t ifunc = 0; ifunc < _num_functions; ifunc++) _basis_index[cell_index][ifunc][nb] = ibasis;
       nb++;
     }
+
 
 
 
@@ -3768,7 +3560,7 @@ int VPS::retrieve_weights_regression(size_t cell_index)
       }
     }
 
-    LS_QR_Solver(num_data_points, _num_basis, A, b, _basis_coef[cell_index][ifunc]);
+    LS_QR_Solver(num_data_points, /*_*/num_basis, A, b, _basis_coef[cell_index][ifunc]); // ETP
 
 
     delete[] data_points;
@@ -3879,491 +3671,849 @@ int VPS::detect_discontinuities()
 //#pragma region Detect Discontinuities:
   for (size_t iseed = 0; iseed < _num_samples; iseed++)
   {
-    detect_discontinuities(iseed);
-  }
-  for (size_t iseed = 0; iseed < _num_samples; iseed++)
-  {
-    //detect_discontinuities(iseed);
-  }
-  return 0;
-//#pragma endregion
-}
+    size_t num_neighbors; get_num_seed_neighbors(iseed, num_neighbors);
 
-int VPS::detect_discontinuities(size_t seed_index)
-{
-//#pragma region Detect Discontinuities:
-  size_t num_neighbors; get_num_seed_neighbors(seed_index, num_neighbors);
+    if (num_neighbors == 0) return 0;
 
-  if (num_neighbors == 0) return 0;
-
-  for (size_t ifunc = 0; ifunc < _num_functions; ifunc++)
-  {
-    for (size_t i = 0; i < num_neighbors; i++)
+    for (size_t ifunc = 0; ifunc < _num_functions; ifunc++)
     {
-      if (_seed_disc_neighbors[seed_index][ifunc][i]) continue;
-
-      size_t neighbor = _seed_neighbors[seed_index][2 + i];
-      if (seed_index < neighbor) detect_discontinuities(seed_index, neighbor);
-    }
-  }
-  return 0;
-//#pragma endregion
-}
-
-
-bool VPS::detect_discontinuities(size_t seed_i, size_t seed_j)
-{
-
-  if (fabs(_f[seed_i][0] - _f[seed_j][0]) > 0.5)
-  {
-    // A discontinous edge.
-    size_t num_neighbors;
-    get_num_seed_neighbors(seed_i, num_neighbors);
-    for (size_t i = 0; i < num_neighbors; i++)
-    {
-      size_t neighbor = _seed_neighbors[seed_i][2 + i];
-      if (neighbor != seed_j) continue;
-
-      _seed_disc_neighbors[seed_i][0][i] = true;
-
-      break;
-    }
-
-    get_num_seed_neighbors(seed_j, num_neighbors);
-    for (size_t i = 0; i < num_neighbors; i++)
-    {
-      size_t neighbor = _seed_neighbors[seed_j][2 + i];
-      if (neighbor != seed_i) continue;
-
-      _seed_disc_neighbors[seed_j][0][i] = true;
-
-      break;
-    }
-    return true;
-  }
-
-
-
-  if (seed_i == 7 && seed_j == 16)
-  {
-    int bug(0);
-    bug++;
-  }
-
-  for (size_t ifunc = 0; ifunc < _num_functions; ifunc++)
-  {
-    size_t num_chain_seeds; size_t* chain_seeds = new size_t[10];
-    form_discontinuity_chain(seed_i, seed_j, ifunc, num_chain_seeds, chain_seeds);
-
-    size_t disc_interv = 0;
-    for (size_t i = 1; i < num_chain_seeds; i++)
-    {
-      size_t cs = chain_seeds[i];
-      size_t csm = chain_seeds[i - 1];
-
-      if (csm == seed_i && cs == seed_j) disc_interv = i - 1;
-      if (csm == seed_j && cs == seed_i) disc_interv = i - 1;
-    }
-    size_t num_pieces(num_chain_seeds - 1);
-
-    if (disc_interv < 2 || disc_interv >= num_pieces - 2)
-    {
-      int bug(0);
-      bug++;
-    }
-
-    double* t = new double[num_chain_seeds];
-    double* f = new double[num_chain_seeds];
-
-    double **c = new double*[num_pieces];
-    for (size_t i = 0; i < num_pieces; i++) c[i] = new double[4];
-
-    //size_t cso = chain_seeds[0];
-    t[0] = 0.0;
-    for (size_t i = 1; i < num_chain_seeds; i++)
-    {
-      size_t cs = chain_seeds[i];
-      size_t csm = chain_seeds[i - 1];
-      double dst(0.0);
-      for (size_t idim = 0; idim < _num_dim; idim++)
-      {
-        double dx = _x[cs][idim] - _x[csm][idim];
-        dst += dx * dx;
-      }
-      dst = sqrt(dst);
-      t[i] = t[i - 1] + dst;
-    }
-
-    for (size_t i = 1; i < num_chain_seeds; i++) t[i] /= t[num_chain_seeds - 1];
-
-    for (size_t i = 1; i < num_chain_seeds - 1; i++)
-    {
-      // Adjust too close points
-      double dt = t[i + 1] - t[i - 1];
-      if (t[i] - t[i - 1] < 0.1 * dt)      t[i] = t[i - 1] + 0.1 * dt;
-      else if (t[i + 1] - t[i] < 0.1 * dt) t[i] = t[i + 1] - 0.1 * dt;
-    }
-
-    for (size_t i = 0; i < num_chain_seeds; i++)
-    {
-      size_t cs = chain_seeds[i];
-      f[i] = _f[cs][ifunc];
-    }
-
-    double xdm = t[disc_interv]; double xdp = t[disc_interv + 1];
-
-
-    form_discontinuity_spline(num_chain_seeds, t, f, disc_interv, c);
-
-
-    size_t* nb = new size_t[num_pieces]; double* tmin = new double[num_pieces]; double* tmax = new double[num_pieces];
-    for (size_t i = 0; i < num_pieces; i++)
-    {
-      nb[i] = 4; tmin[i] = t[i]; tmax[i] = t[i + 1];
-    }
-    //plot_piecewise_polynomial("disc_cubic_spline.ps", num_pieces, tmin, tmax, nb, c, num_chain_seeds, t, f);
-    delete[] nb; delete[] tmin; delete[] tmax;
-
-
-    double tsm = t[disc_interv]; double tsp = t[disc_interv + 1];
-    double fsm = f[disc_interv]; double fsp = f[disc_interv + 1];
-
-    double fsmS(fsm);
-    if (disc_interv > 0)
-    {
-      fsmS = 0.0;
-      for (size_t ibasis = 0; ibasis < 4; ibasis++) fsmS += c[disc_interv - 1][ibasis] * pow(tsm, ibasis);
-    }
-
-    double fspS(fsp);
-    if (disc_interv + 1 < num_pieces)
-    {
-      fspS = 0.0;
-      for (size_t ibasis = 0; ibasis < 4; ibasis++) fspS += c[disc_interv + 1][ibasis] * pow(tsp, ibasis);
-    }
-
-    double overlap(0.0);
-    if (fsmS > fspS){ double tmp = fsmS; fsmS = fspS; fspS = tmp;}
-    if (fsm > fsp){ double tmp = fsm; fsm = fsp; fsp = tmp; }
-
-    if (fsm > fspS || fsmS > fsp) overlap = 0.0;
-    else if (fsm >= fsmS && fsp <= fspS) overlap = fsp - fsm;
-    else if (fsmS >= fsm && fspS <= fsp) overlap = fspS - fsmS;
-    else if (fsm >= fsmS && fsp >= fspS) overlap = fspS - fsm;
-    else if (fsmS >= fsm && fspS >= fsp) overlap = fsp - fsmS;
-
-    double JS = fspS - fsmS;
-    double J = fsp - fsm;
-
-    if (overlap > 0.8 * J  && JS < 1.2 * J)
-    {
-      // A discontinous edge.
-      size_t num_neighbors;
-      get_num_seed_neighbors(seed_i, num_neighbors);
       for (size_t i = 0; i < num_neighbors; i++)
       {
-        size_t neighbor = _seed_neighbors[seed_i][2 + i];
-        if (neighbor != seed_j) continue;
+        if (_seed_disc_neighbors[iseed][ifunc][i]) continue;
+        size_t neighbor_i = _seed_neighbors[iseed][2 + i];
 
-        _seed_disc_neighbors[seed_i][ifunc][i] = true;
+        for (size_t j = i + 1; j < num_neighbors; j++)
+        {
+          if (_seed_disc_neighbors[iseed][ifunc][j]) continue;
+          size_t neighbor_j = _seed_neighbors[iseed][2 + j];
 
+          // Asser that neighbor_i and neighbor_j lie on opposite direction with regard to iseed
+
+          double hi(0.0), hj(0.0), dot(0.0);
+          for (size_t idim = 0; idim < _num_dim; idim++)
+          {
+            double dxi = _x[neighbor_i][idim] - _x[iseed][idim];
+            double dxj = _x[neighbor_j][idim] - _x[iseed][idim];
+            hi += dxi * dxi;
+            hj += dxj * dxj;
+            dot += dxi * dxj;
+          }
+          hi = sqrt(hi); hj = sqrt(hj);
+          dot /= hi; dot /= hj;
+          if (dot > -0.5) continue;
+
+          double dfi = _f[neighbor_i][ifunc] - _f[iseed][ifunc];
+          double dfj = _f[neighbor_j][ifunc] - _f[iseed][ifunc];
+
+          double norm_hfi = sqrt(hi * hi + dfi * dfi);
+          double norm_hfj = sqrt(hj * hj + dfj * dfj);
+          double dot_hf = -hi * hj + dfi * dfj;
+
+          dot_hf /= norm_hfi; dot_hf /= norm_hfj;
+
+          if (dot_hf < -0.5) continue;
+
+          double si = fabs(dfi) / hi;
+          double sj = fabs(dfj) / hj;
+
+          if (si > sj)
+          {
+            _seed_disc_neighbors[iseed][ifunc][i] = true;
+            size_t num_ii_neighbors; get_num_seed_neighbors(neighbor_i, num_ii_neighbors);
+            for (size_t ii = 0; ii < num_ii_neighbors; ii++)
+            {
+              if (_seed_neighbors[neighbor_i][2 + ii] == iseed) _seed_disc_neighbors[neighbor_i][ifunc][ii] = true;
+            }
+          }
+          else
+          {
+            _seed_disc_neighbors[iseed][ifunc][j] = true;
+            size_t num_jj_neighbors; get_num_seed_neighbors(neighbor_j, num_jj_neighbors);
+            for (size_t jj = 0; jj < num_jj_neighbors; jj++)
+            {
+              if (_seed_neighbors[neighbor_j][2 + jj] == iseed) _seed_disc_neighbors[neighbor_j][ifunc][jj] = true;
+            }
+          }
+        }
+      }
+    }
+  }
+  return 0;
+//#pragma endregion
+}
+
+int VPS::sample_voronoi_facet(size_t seed_index, double* xmin, double* xmax, double diag, double* v)
+{
+
+//#pragma region Sample A Voronoi facet bounding Cell with seed_index:
+
+  size_t num_basis(0);
+  double** basis = new double*[_num_dim];
+  for (size_t idim = 0; idim < _num_dim; idim++)
+  {
+
+    basis[idim] = new double[_num_dim];
+
+    for (size_t jdim = 0; jdim < _num_dim; jdim++) basis[idim][jdim] = 0.0;
+
+    basis[idim][idim] = 1.0;
+
+  }
+
+  double* xst = new double[_num_dim];
+  double* xend = new double[_num_dim];
+  double* dart = new double[_num_dim];
+  size_t* simplex = new size_t[_num_dim + 1];
+  double* vect = new double[_num_dim];
+  for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = _x[seed_index][idim];
+
+  double closest_distance = 0.0;
+  // add first point
+  size_t num_simplex_seeds(0);
+  simplex[num_simplex_seeds] = seed_index; num_simplex_seeds++;
+
+  size_t num_misses(0); size_t vertex_dim(0);
+
+  while (num_simplex_seeds <= _num_dim - vertex_dim)
+  {
+    // Throw a random spoke
+    sample_uniformly_from_unit_sphere(dart, _num_dim - num_basis);
+
+    for (size_t idim = 0; idim < _num_dim; idim++) xend[idim] = xst[idim];
+
+    for (size_t ibasis = num_basis; ibasis < _num_dim; ibasis++)
+    {
+      for (size_t idim = 0; idim < _num_dim; idim++) xend[idim] += diag * dart[ibasis - num_basis] * basis[ibasis][idim];
+    }
+
+    closest_distance = 0.0;
+
+    for (size_t idim = 0; idim < _num_dim; idim++)
+    {
+      double dx = xend[idim] - _x[seed_index][idim];
+      closest_distance += dx * dx;
+    }
+    closest_distance = sqrt(closest_distance);
+
+    bool done(true);
+    size_t neighbor(seed_index);
+    while (true)
+    {
+      // get closest point to xend
+      size_t closest_seed(seed_index);
+
+      double excluded_closest_distance = closest_distance + 1E-10;
+
+      get_closest_seed_tree(xend, num_simplex_seeds, simplex, closest_seed, excluded_closest_distance);
+
+      bool vertex_out_of_bounding_box(false);
+
+      if (neighbor == closest_seed)
+      {
+        for (size_t idim = 0; idim < _num_dim; idim++)
+        {
+          if (xend[idim] > xmin[idim] - 1E-10 && xend[idim] < xmax[idim] + 1E-10) continue;
+          vertex_out_of_bounding_box = true;
+          break;
+        }
+      }
+
+      if (closest_seed == _num_samples || (neighbor == closest_seed && vertex_out_of_bounding_box))
+      {
+        // reset sampling
+        num_simplex_seeds = 1;
+        for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = _x[seed_index][idim];
+
+        num_basis = 0;
+        for (size_t idim = 0; idim < _num_dim; idim++)
+        {
+          for (size_t jdim = 0; jdim < _num_dim; jdim++) basis[idim][jdim] = 0.0;
+          basis[idim][idim] = 1.0;
+        }
+        num_misses++;
+
+        if (num_misses == 100)
+        {
+          vertex_dim++; num_misses = 0;
+        }
+        done = false;
         break;
       }
 
-      get_num_seed_neighbors(seed_j, num_neighbors);
-      for (size_t i = 0; i < num_neighbors; i++)
+      if (neighbor == closest_seed || fabs(excluded_closest_distance - closest_distance) < 1E-10)
       {
-        size_t neighbor = _seed_neighbors[seed_j][2 + i];
-        if (neighbor != seed_i) continue;
+//#pragma region A voronoi neighbor apply recursion:
+        simplex[num_simplex_seeds] = neighbor; num_simplex_seeds++;
 
-        _seed_disc_neighbors[seed_j][ifunc][i] = true;
+        // update spoke start
+        for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = xend[idim];
 
+        // update basis
+        for (size_t idim = 0; idim < _num_dim; idim++) vect[idim] = _x[closest_seed][idim] - _x[seed_index][idim];
+
+        double norm;
+        get_normal_component(_num_dim, num_basis, basis, vect, norm);
+        for (size_t idim = 0; idim < _num_dim; idim++) basis[num_basis][idim] = vect[idim];
+        num_basis++;
+
+        // update remaining basis
+        for (size_t ibasis = num_basis; ibasis < _num_dim; ibasis++)
+        {
+          for (size_t idim = 0; idim < _num_dim; idim++)
+          {
+            for (size_t jdim = 0; jdim < _num_dim; jdim++) vect[jdim] = 0.0;
+            vect[idim] = 1.0;
+            get_normal_component(_num_dim, num_basis, basis, vect, norm);
+            if (norm > 0.1) break;
+          }
+
+          for (size_t idim = 0; idim < _num_dim; idim++) basis[ibasis][idim] = vect[idim];
+        }
+        break;
+//#pragma endregion
+      }
+      else
+      {
+        neighbor = closest_seed;
+        trim_spoke(_num_dim, xst, xend, _x[seed_index], _x[neighbor]);
+        closest_distance = 0.0;
+        for (size_t idim = 0; idim < _num_dim; idim++)
+        {
+          double dx = xend[idim] - _x[seed_index][idim];
+          closest_distance += dx * dx;
+        }
+        closest_distance = sqrt(closest_distance);
+      }
+    }
+    if (done) break;
+  }
+
+  for (size_t idim = 0; idim < _num_dim; idim++) v[idim] = xend[idim];
+  for (size_t idim = 0; idim < _num_dim; idim++) delete[] basis[idim];
+  delete[] basis;
+
+  delete[] xst; delete[] xend; delete[] dart; delete[] simplex; delete[] vect;
+  return 0;
+//#pragma endregion
+}
+
+int VPS::sample_voronoi_vertex(size_t seed_index, double* xmin, double* xmax, double diag, double* v)
+{
+
+//#pragma region Sample A Voronoi Vertex bounding Cell with seed_index:
+
+  size_t num_basis(0);
+  double** basis = new double*[_num_dim];
+  for (size_t idim = 0; idim < _num_dim; idim++)
+  {
+
+    basis[idim] = new double[_num_dim];
+
+    for (size_t jdim = 0; jdim < _num_dim; jdim++) basis[idim][jdim] = 0.0;
+
+    basis[idim][idim] = 1.0;
+
+  }
+
+  double* xst = new double[_num_dim];
+  double* xend = new double[_num_dim];
+  double* dart = new double[_num_dim];
+  size_t* simplex = new size_t[_num_dim + 1];
+  double* vect = new double[_num_dim];
+  for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = _x[seed_index][idim];
+
+  double closest_distance = 0.0;
+  // add first point
+  size_t num_simplex_seeds(0);
+  simplex[num_simplex_seeds] = seed_index; num_simplex_seeds++;
+
+  size_t num_misses(0); size_t vertex_dim(0);
+
+  while (num_simplex_seeds <= _num_dim - vertex_dim)
+  {
+    // Throw a random spoke
+    sample_uniformly_from_unit_sphere(dart, _num_dim - num_basis);
+
+    for (size_t idim = 0; idim < _num_dim; idim++) xend[idim] = xst[idim];
+
+    for (size_t ibasis = num_basis; ibasis < _num_dim; ibasis++)
+    {
+      for (size_t idim = 0; idim < _num_dim; idim++) xend[idim] += diag * dart[ibasis - num_basis] * basis[ibasis][idim];
+    }
+
+    closest_distance = 0.0;
+
+    for (size_t idim = 0; idim < _num_dim; idim++)
+    {
+      double dx = xend[idim] - _x[seed_index][idim];
+      closest_distance += dx * dx;
+    }
+    closest_distance = sqrt(closest_distance);
+
+    size_t neighbor(seed_index);
+    while (true)
+    {
+      // get closest point to xend
+      size_t closest_seed(seed_index);
+
+      double excluded_closest_distance = closest_distance + 1E-10;
+
+      get_closest_seed_tree(xend, num_simplex_seeds, simplex, closest_seed, excluded_closest_distance);
+
+      bool vertex_out_of_bounding_box(false);
+
+      if (neighbor == closest_seed)
+      {
+        for (size_t idim = 0; idim < _num_dim; idim++)
+        {
+          if (xend[idim] > xmin[idim] - 1E-10 && xend[idim] < xmax[idim] + 1E-10) continue;
+          vertex_out_of_bounding_box = true;
+          break;
+        }
+      }
+
+      if (closest_seed == _num_samples || (neighbor == closest_seed && vertex_out_of_bounding_box))
+      {
+        // reset sampling
+        num_simplex_seeds = 1;
+        for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = _x[seed_index][idim];
+
+        num_basis = 0;
+        for (size_t idim = 0; idim < _num_dim; idim++)
+        {
+          for (size_t jdim = 0; jdim < _num_dim; jdim++) basis[idim][jdim] = 0.0;
+          basis[idim][idim] = 1.0;
+        }
+        num_misses++;
+
+        if (num_misses == 100)
+        {
+          vertex_dim++; num_misses = 0;
+        }
         break;
       }
-    }
 
-    t[disc_interv] = xdm; t[disc_interv + 1] = xdp;
-
-    for (size_t i = 0; i < num_pieces; i++) delete[] c[i];
-    delete[] c; delete[] chain_seeds; delete[] t; delete[] f;
-  }
-  return 0;
-}
-
-int VPS::form_discontinuity_chain(size_t seed_i, size_t seed_j, size_t function_index, size_t &num_chain_seeds, size_t* chain_seeds)
-{
-//#pragma region Form Discontinuity Chain:
-  if (seed_i > seed_j){size_t tmp = seed_i; seed_i = seed_j; seed_j = tmp;}
-
-  double* vect = new double[_num_dim]; double vnorm(0.0);
-  for (size_t idim = 0; idim < _num_dim; idim++)
-  {
-    vect[idim] = _x[seed_j][idim] - _x[seed_i][idim];
-    vnorm += vect[idim] * vect[idim];
-  }
-  vnorm = sqrt(vnorm);
-  for (size_t idim = 0; idim < _num_dim; idim++) vect[idim] /= vnorm;
-
-  double ref_slope = (_f[seed_i][function_index] - _f[seed_j][function_index]) / vnorm;
-
-  size_t active_seed(seed_i); size_t num_back_chain_seeds(1);
-  size_t* back_chain = new size_t[9]; back_chain[0] = seed_i;
-  for (size_t i = 1; i <= 8; i++)
-  {
-    // best neighbor is the one with less functional and directional variation
-    size_t best_neighbor(active_seed); double best_var(2.0);
-    size_t num_neighbors(0);
-    get_num_seed_neighbors(active_seed, num_neighbors);
-
-    double dsmax(0.0);
-    double* ds = new double[num_neighbors];
-    for (size_t i = 0; i < num_neighbors; i++)
-    {
-      ds[i] = 0.0;
-
-      size_t seed_k = _seed_neighbors[active_seed][2 + i];
-      if (find_brute(seed_k, back_chain, num_back_chain_seeds)) continue;
-      if (seed_k == seed_j) continue;
-
-      double df = _f[seed_k][function_index] - _f[active_seed][function_index];
-      double dst = 0.0;
-      for (size_t idim = 0; idim < _num_dim; idim++)
+      if (neighbor == closest_seed || fabs(excluded_closest_distance - closest_distance) < 1E-10)
       {
-        double dx = _x[seed_j][idim] - _x[seed_i][idim];
-        dst += dx * dx;
+//#pragma region A voronoi neighbor apply recursion:
+        simplex[num_simplex_seeds] = neighbor; num_simplex_seeds++;
+
+        // update spoke start
+        for (size_t idim = 0; idim < _num_dim; idim++) xst[idim] = xend[idim];
+
+        // update basis
+        for (size_t idim = 0; idim < _num_dim; idim++) vect[idim] = _x[closest_seed][idim] - _x[seed_index][idim];
+
+        double norm;
+        get_normal_component(_num_dim, num_basis, basis, vect, norm);
+        for (size_t idim = 0; idim < _num_dim; idim++) basis[num_basis][idim] = vect[idim];
+        num_basis++;
+
+        // update remaining basis
+        for (size_t ibasis = num_basis; ibasis < _num_dim; ibasis++)
+        {
+          for (size_t idim = 0; idim < _num_dim; idim++)
+          {
+            for (size_t jdim = 0; jdim < _num_dim; jdim++) vect[jdim] = 0.0;
+            vect[idim] = 1.0;
+            get_normal_component(_num_dim, num_basis, basis, vect, norm);
+            if (norm > 0.1) break;
+          }
+
+          for (size_t idim = 0; idim < _num_dim; idim++) basis[ibasis][idim] = vect[idim];
+        }
+        break;
+//#pragma endregion
       }
-      dst = sqrt(dst);
-      double slope = df / dst;
-
-      ds[i] = fabs(slope - ref_slope);
-
-      if (ds[i] > dsmax) dsmax = ds[i];
-    }
-
-    if (dsmax > 1E-10)
-    {
-      for (size_t i = 0; i < num_neighbors; i++) ds[i] /= dsmax;
-    }
-
-    for (size_t i = 0; i < num_neighbors; i++)
-    {
-      size_t seed_k = _seed_neighbors[active_seed][2 + i];
-      if (find_brute(seed_k, back_chain, num_back_chain_seeds)) continue;
-      if (seed_k == seed_j) continue;
-
-      double cos_ang(0.0), norm(0.0);
-      for (size_t idim = 0; idim < _num_dim; idim++)
+      else
       {
-        double dx = _x[seed_k][idim] - _x[active_seed][idim];
-        norm += dx * dx;
-        cos_ang += dx * vect[idim];
-      }
-      norm = sqrt(norm); cos_ang /= norm;
-
-      if (cos_ang > 0.0) continue;
-
-      double ang = 1 - acos(cos_ang) / PI;
-
-      double var = ang + ds[i];
-      if (var < best_var)
-      {
-        best_var = var; best_neighbor = seed_k;
+        neighbor = closest_seed;
+        trim_spoke(_num_dim, xst, xend, _x[seed_index], _x[neighbor]);
+        closest_distance = 0.0;
+        for (size_t idim = 0; idim < _num_dim; idim++)
+        {
+          double dx = xend[idim] - _x[seed_index][idim];
+          closest_distance += dx * dx;
+        }
+        closest_distance = sqrt(closest_distance);
       }
     }
-    delete[] ds;
-    if (best_neighbor == active_seed) break;
-
-    vnorm = 0.0;
-    for (size_t idim = 0; idim < _num_dim; idim++)
-    {
-      vect[idim] = _x[active_seed][idim] - _x[best_neighbor][idim];
-      vnorm += vect[idim] * vect[idim];
-    }
-    vnorm = sqrt(vnorm);
-    for (size_t idim = 0; idim < _num_dim; idim++) vect[idim] /= vnorm;
-
-    ref_slope = (_f[best_neighbor][function_index] - _f[active_seed][function_index]) / vnorm;
-
-    back_chain[num_back_chain_seeds] = best_neighbor;
-    active_seed = best_neighbor;
-    num_back_chain_seeds++;
   }
 
-  vnorm = 0.0;
-  for (size_t idim = 0; idim < _num_dim; idim++)
-  {
-    vect[idim] = _x[seed_j][idim] - _x[seed_i][idim];
-    vnorm += vect[idim] * vect[idim];
-  }
-  vnorm = sqrt(vnorm);
-  for (size_t idim = 0; idim < _num_dim; idim++) vect[idim] /= vnorm;
+  for (size_t idim = 0; idim < _num_dim; idim++) v[idim] = xend[idim];
+  for (size_t idim = 0; idim < _num_dim; idim++) delete[] basis[idim];
+  delete[] basis;
 
-  ref_slope = (_f[seed_j][function_index] - _f[seed_i][function_index]) / vnorm;
-
-  active_seed = seed_j; size_t num_fwd_chain_seeds(1);
-  size_t* fwd_chain = new size_t[9]; fwd_chain[0] = seed_j;
-  for (size_t i = 1; i <= 8; i++)
-  {
-    size_t best_neighbor(active_seed); double best_var(2.0);
-    size_t num_neighbors(0);
-    get_num_seed_neighbors(active_seed, num_neighbors);
-
-    double dsmax(0.0);
-    double* ds = new double[num_neighbors];
-    for (size_t i = 0; i < num_neighbors; i++)
-    {
-      ds[i] = 0.0;
-
-      size_t seed_k = _seed_neighbors[active_seed][2 + i];
-      if (find_brute(seed_k, back_chain, num_back_chain_seeds)) continue;
-      if (seed_k == seed_j) continue;
-
-      double df = _f[seed_k][function_index] - _f[active_seed][function_index];
-      double dst = 0.0;
-      for (size_t idim = 0; idim < _num_dim; idim++)
-      {
-        double dx = _x[seed_j][idim] - _x[seed_i][idim];
-        dst += dx * dx;
-      }
-      dst = sqrt(dst);
-      double slope = df / dst;
-
-      ds[i] = fabs(slope - ref_slope);
-
-      if (ds[i] > dsmax) dsmax = ds[i];
-    }
-
-    if (dsmax > 1E-10)
-    {
-      for (size_t i = 0; i < num_neighbors; i++) ds[i] /= dsmax;
-    }
-
-    for (size_t i = 0; i < num_neighbors; i++)
-    {
-      size_t seed_k = _seed_neighbors[active_seed][2 + i];
-      if (find_brute(seed_k, back_chain, num_back_chain_seeds)) continue;
-      if (find_brute(seed_k, fwd_chain, num_fwd_chain_seeds)) continue;
-
-      double cos_ang(0.0), norm(0.0);
-      for (size_t idim = 0; idim < _num_dim; idim++)
-      {
-        double dx = _x[seed_k][idim] - _x[active_seed][idim];
-        norm += dx * dx;
-        cos_ang -= dx * vect[idim];
-      }
-      norm = sqrt(norm); cos_ang /= norm;
-
-      if (cos_ang > 0.0) continue;
-
-      double ang = 1.0 - acos(cos_ang) / PI;
-
-      double var = ang + ds[i];
-      if (var < best_var)
-      {
-        best_var = var; best_neighbor = seed_k;
-      }
-    }
-    delete[] ds;
-    if (best_neighbor == active_seed) break;
-
-    vnorm = 0.0;
-    for (size_t idim = 0; idim < _num_dim; idim++)
-    {
-      vect[idim] = _x[best_neighbor][idim] - _x[active_seed][idim];
-      vnorm += vect[idim] * vect[idim];
-    }
-    vnorm = sqrt(vnorm);
-    for (size_t idim = 0; idim < _num_dim; idim++) vect[idim] /= vnorm;
-
-    ref_slope = (_f[best_neighbor][function_index] - _f[active_seed][function_index]) / vnorm;
-
-    fwd_chain[num_fwd_chain_seeds] = best_neighbor;
-    active_seed = best_neighbor;
-    num_fwd_chain_seeds++;
-  }
-
-  if      (num_back_chain_seeds < 5 && num_back_chain_seeds + num_fwd_chain_seeds >= 10)    num_fwd_chain_seeds = 10 - num_back_chain_seeds;
-  else if (num_fwd_chain_seeds < 5 && num_back_chain_seeds + num_fwd_chain_seeds >= 10)     num_back_chain_seeds = 10 - num_fwd_chain_seeds;
-  else if (num_back_chain_seeds + num_fwd_chain_seeds >= 10) { num_fwd_chain_seeds = 5;     num_back_chain_seeds = 5; }
-
-  num_chain_seeds = 0;
-  for (size_t i = 0; i < num_back_chain_seeds; i++)
-  {
-    chain_seeds[num_chain_seeds] = back_chain[num_back_chain_seeds - i - 1];
-    num_chain_seeds++;
-  }
-
-  for (size_t i = 0; i < num_fwd_chain_seeds; i++)
-  {
-    chain_seeds[num_chain_seeds] = fwd_chain[i];
-    num_chain_seeds++;
-  }
-  delete[] back_chain; delete[] fwd_chain;
+  delete[] xst; delete[] xend; delete[] dart; delete[] simplex; delete[] vect;
   return 0;
 //#pragma endregion
 }
 
-int VPS::form_discontinuity_spline(size_t num_data_points, double* x, double* f, size_t disc_interv, double** c)
+bool VPS::trim_spoke(size_t num_dim, double* xst, double* xend, double* p, double* q)
 {
-//#pragma region Form Discontinuity Spline:
-  size_t num_pieces(num_data_points - 1);
-  double* co = new double[num_pieces]; double* c1 = new double[num_pieces];
-  double* c2 = new double[num_pieces]; double* c3 = new double[num_pieces];
 
-  double xmid(0.5*(x[0] + x[1]));
+//#pragma region Trim a Spoke:
+  double* nH = new double[num_dim];
+  double* xH = new double[num_dim];
 
-  if (disc_interv > 0)
+  // trim spoke using Voronoi hyperplane between ipoint and iclosest
+  //double norm(0.0);
+  for (size_t idim = 0; idim < num_dim; idim++)
   {
-    size_t nL(disc_interv);
-    double* coL = new double[nL]; double* c1L = new double[nL];
-    double* c2L = new double[nL]; double* c3L = new double[nL];
-    double* xL = new double[nL + 1]; double* fL = new double[nL + 1];
+    nH[idim] = q[idim] - p[idim];
+    xH[idim] = 0.5 * (q[idim] + p[idim]);
+  }
 
-    for (size_t i = 0; i <= nL; i++)
+  double dotv(0.0), dote(0.0);
+  for (size_t idim = 0; idim < num_dim; idim++)
+  {
+    double dxv = xH[idim] - xst[idim];
+    double dxe = xend[idim] - xst[idim];
+    dotv += dxv * nH[idim];
+    dote += dxe * nH[idim];
+  }
+  delete[] nH; delete[] xH;
+  bool trimmed = false;
+
+  if (fabs(dote) > 1E-10)
+  {
+    double u = dotv / dote;
+    if (u < 0.0) u = 0.0;
+    if (u > -1.0E-10 && u < 1.0 - 1.0E-10)
     {
-      xL[i] = x[i]; fL[i] = f[i];
-      if (i == disc_interv) xmid = 0.5 * (x[i] + x[i + 1]);
+      for (size_t idim = 0; idim < num_dim; idim++) xend[idim] = xst[idim] + u * (xend[idim] - xst[idim]);
+      trimmed = true;
     }
-
-    NaturalCubicSplineInterpolation(nL + 1, xL, fL, coL, c1L, c2L, c3L);
-
-    for (size_t i = 0; i < nL; i++){ co[i] = coL[i]; c1[i] = c1L[i]; c2[i] = c2L[i]; c3[i] = c3L[i]; }
-
-    delete[] coL; delete[] c1L; delete[] c2L; delete[] c3L; delete[] xL; delete[] fL;
   }
+  return trimmed;
+//#pragma endregion
+}
 
-  co[disc_interv] = 0.0; c1[disc_interv] = 0.0; c2[disc_interv] = 0.0; c3[disc_interv] = 0.0;
+int VPS::get_normal_component(size_t num_dim, size_t num_basis, double** basis, double* vect, double &norm)
+{
+//#pragma region Get Normal component to some basis:
+  double* comp = new double[num_basis];
 
-  if (disc_interv < num_pieces - 1)
+  // project point to current basis
+  for (size_t ibasis = 0; ibasis < num_basis; ibasis++)
   {
-    size_t nR(num_pieces - 1 - disc_interv);
-    double* coR = new double[nR]; double* c1R = new double[nR];
-    double* c2R = new double[nR]; double* c3R = new double[nR];
-    double* xR = new double[nR + 1]; double* fR = new double[nR + 1];
-
-    for (size_t i = 0; i <= nR; i++)
-    {
-      xR[i] = x[disc_interv + 1 + i]; fR[i] = f[disc_interv + 1 + i];
-    }
-    NaturalCubicSplineInterpolation(nR + 1, xR, fR, coR, c1R, c2R, c3R);
-
-    for (size_t i = 0; i < nR; i++){ co[disc_interv + 1 + i] = coR[i]; c1[disc_interv + 1 + i] = c1R[i]; c2[disc_interv + 1 + i] = c2R[i]; c3[disc_interv + 1 + i] = c3R[i]; }
-
-    delete[] coR; delete[] c1R; delete[] c2R; delete[] c3R; delete[] xR; delete[] fR;
+    comp[ibasis] = 0.0;
+    for (size_t idim = 0; idim < num_dim; idim++) comp[ibasis] += vect[idim] * basis[ibasis][idim];
   }
-
-  x[disc_interv] = xmid; x[disc_interv + 1] = xmid;
-
-  for (size_t ipiece = 0; ipiece < num_pieces; ipiece++)
+  // get vector component orthogonal to current basis
+  for (size_t ibasis = 0; ibasis < num_basis; ibasis++)
   {
-    c[ipiece][0] = co[ipiece];
-    c[ipiece][1] = c1[ipiece];
-    c[ipiece][2] = c2[ipiece];
-    c[ipiece][3] = c3[ipiece];
+    for (size_t idim = 0; idim < num_dim; idim++) vect[idim] -= comp[ibasis] * basis[ibasis][idim];
   }
+  delete[] comp;
 
-  delete[] co; delete[] c1; delete[] c2; delete[] c3;
+  norm = 0.0;
+  for (size_t idim = 0; idim < num_dim; idim++) norm += vect[idim] * vect[idim];
+
+  if (fabs(norm) < 1E-10) return 1;
+
+  norm = 1.0 / sqrt(norm);
+
+  for (size_t idim = 0; idim < num_dim; idim++) vect[idim] *= norm;
 
   return 0;
+
 //#pragma endregion
+}
+
+
+void VPS::plot_vps_frames(std::string file_name, size_t function_index, size_t nx, size_t ny, size_t num_contours, bool plot_graph)
+{
+//    #pragma region Plot Frames:
+  double* xsec = new double[_num_dim];
+  for (size_t idim = 0; idim < _num_dim; idim++) xsec[idim] = 0.5 * (_xmin[idim] + _xmax[idim]);
+  size_t dim_i(0), dim_j(1), dim_k(2), dim_l(3);
+
+  std::fstream ps_file;
+  double scale;
+  create_ps_file(file_name, nx, ny, ps_file, scale);
+
+  double fmin(DBL_MAX), fmax(-DBL_MAX);
+
+  size_t num_misses(0), max_misses(100);
+  double* xx = new double[_num_dim];
+  double* ff = new double[_num_functions];
+  while (num_misses < max_misses)
+  {
+    for (size_t idim = 0; idim < _num_dim; idim++)
+    {
+      xx[idim] = _xmin[idim] + generate_a_random_number() * (_xmax[idim] - _xmin[idim]);
+    }
+    evaluate_surrogate(xx, ff);
+    if (ff[function_index] < fmin)
+    {
+      fmin = ff[function_index]; num_misses = 0;
+    }
+    else num_misses++;
+    if (ff[function_index] > fmax)
+    {
+      fmax = ff[function_index];
+      num_misses = 0;
+    }
+    else num_misses++;
+  }
+  delete[] xx;
+  delete[] ff;
+
+  std::vector<double> contours;
+  contours.push_back(fmin - 2 * (fmax - fmin));
+  for (size_t i = 0; i < num_contours; i++) contours.push_back(fmin + (1.0 / num_contours) * i * (fmax - fmin));
+  contours.push_back(fmax + 2 * (fmax - fmin));
+
+  for (size_t i = 0; i < nx; i++)
+  {
+    xsec[dim_k] = _xmin[dim_k] + i * 1.0 / (nx - 1) * (_xmax[dim_k] - _xmin[dim_k]);
+    for (size_t j = 0; j < ny; j++)
+    {
+      xsec[dim_l] = _xmin[dim_l] + j * 1.0 / (ny - 1) * (_xmax[dim_l] - _xmin[dim_l]);
+      plot_vps_surrogate_frame(ps_file, scale, function_index, xsec, dim_i, dim_j, i, j, nx, ny, false, contours);
+    }
+  }
+  ps_file << "showpage" << std::endl;
+
+  delete[] xsec;
+//#pragma endregion
+}
+
+void VPS::create_ps_file(std::string file_name, size_t nx, size_t ny, std::fstream &file, double &scale)
+{
+//#pragma region Create PS file:
+  //std::cout << ".: VPS Debug Mode :. Plotting ps files .... " << std::endl;
+
+  file.open(file_name.c_str(), std::ios::out);
+  file << "%!PS-Adobe-3.0" << std::endl;
+  file << "72 72 scale     % one unit = one inch" << std::endl;
+
+  double xmin(_xmin[0]);
+  double ymin(_xmin[1]);
+  double Lx(_xmax[0] - _xmin[0]);
+  double Ly(_xmax[1] - _xmin[0]);
+
+  Lx *= (nx + 1); Ly *= (ny + 1);
+
+  double scale_x, scale_y;
+  double shift_x, shift_y;
+
+  scale_x = 6.5 / Lx;
+  scale_y = 9.0 / Ly;
+
+  if (scale_x < scale_y)
+  {
+    scale = scale_x;
+    shift_x = 1.0 - xmin * scale;
+    shift_y = 0.5 * (11.0 - Ly * scale) - ymin * scale;
+  }
+  else
+  {
+    scale = scale_y;
+    shift_x = 0.5 * (8.5 - Lx * scale) - xmin * scale;
+    shift_y = 1.0 - ymin * scale;
+  }
+  file << shift_x << " " << shift_y << " translate" << std::endl;
+
+  file << "/Courier findfont" << std::endl;
+  file << "0.05 scalefont" << std::endl;
+  file << "setfont" << std::endl;
+
+//#pragma endregion
+}
+
+void VPS::plot_vps_surrogate_frame(std::fstream &file, double scale, size_t function_index, double* xsec, size_t dim_i, size_t dim_j,
+                                   size_t frame_i, size_t frame_j, size_t frame_ni, size_t frame_nj, bool plot_graph, std::vector<double> &contours)
+{
+//#pragma region Plot Solid Isocontours Of a Single Frame:
+
+  double dx = (_xmax[dim_i] - _xmin[dim_i]);
+  double DX = frame_i * dx *(1.0 + 1.0 / (frame_ni - 1));
+
+  double dy = (_xmax[dim_j] - _xmin[dim_j]);
+  double DY = frame_j * dy *(1.0 + 1.0 / (frame_nj - 1));
+
+  std::vector<double> poly_x;
+  std::vector<double> poly_y;
+
+  size_t num_cells(100);
+  double* xx = new double[_num_dim];
+  double* f = new double[_num_functions];
+  double sx = (_xmax[dim_i] - _xmin[dim_i]) / num_cells;
+  double sy = (_xmax[dim_j] - _xmin[dim_j]) / num_cells;
+
+  for (size_t idim = 0; idim < _num_dim; idim++) xx[idim] = xsec[idim];
+
+  for (size_t i = 0; i < num_cells; i++)
+  {
+    double xo = _xmin[dim_i] + i * sx;
+    for (size_t j = 0; j < num_cells; j++)
+    {
+      double fo(0.0), f1(0.0), f2(0.0), f3(0.0);
+
+      double yo = _xmin[dim_j] + j * sy;
+      xx[dim_i] = xo; xx[dim_j] = yo;
+      evaluate_surrogate(xx, f);
+      fo = f[function_index];
+
+      xx[dim_i] = xo + sx; xx[dim_j] = yo;
+      evaluate_surrogate(xx, f);
+      f1 = f[function_index];
+
+      xx[dim_i] = xo + sx; xx[dim_j] = yo + sy;
+      evaluate_surrogate(xx, f);
+      f2 = f[function_index];
+
+      xx[dim_i] = xo; xx[dim_j] = yo + sy;
+      evaluate_surrogate(xx, f);
+      f3 = f[function_index];
+
+      size_t num_isocontours = contours.size();
+      for (size_t icont = 0; icont < num_isocontours; icont++)
+      {
+        double contour = contours[icont];
+        double contour_m = -1000.00;
+        if (icont > 0) contour_m = contours[icont - 1];
+
+        //std::cout<< "contour_m = " << contour_m << " , contour = " << contour << std::endl;
+
+        poly_x.clear(); poly_y.clear();
+
+        // moving right
+        if (fo >= contour_m - 1E-10 && fo < contour + 1E-10)
+        {
+          poly_x.push_back(xo);
+          poly_y.push_back(yo);
+          if ((fo > contour && f1 < contour) || (fo < contour && f1 > contour))
+          {
+            double h = sx * (contour - fo) / (f1 - fo);
+            poly_x.push_back(xo + h);
+            poly_y.push_back(yo);
+          }
+          else if ((fo > contour_m && f1 < contour_m) || (fo < contour_m && f1 > contour_m))
+          {
+            double h = sx * (contour_m - fo) / (f1 - fo);
+            poly_x.push_back(xo + h);
+            poly_y.push_back(yo);
+          }
+        }
+        else if ((fo > contour_m && f1 < contour_m) || (fo < contour_m && f1 > contour_m))
+        {
+          double hm = sx * (contour_m - fo) / (f1 - fo);
+          double h = hm;
+          if ((fo > contour && f1 < contour) || (fo < contour && f1 > contour))
+          {
+            h = sx * (contour - fo) / (f1 - fo);
+          }
+          if (h < hm)
+          {
+            double tmp = h; h = hm; hm = tmp;
+          }
+          poly_x.push_back(xo + hm);
+          poly_y.push_back(yo);
+
+          if (h - hm > 1E-10)
+          {
+            poly_x.push_back(xo + h);
+            poly_y.push_back(yo);
+          }
+        }
+        else if ((fo > contour && f1 < contour) || (fo < contour && f1 > contour))
+        {
+          double h = sx * (contour - fo) / (f1 - fo);
+          poly_x.push_back(xo + h);
+          poly_y.push_back(yo);
+        }
+
+        // moving up
+        if (f1 >= contour_m - 1E-10 && f1 < contour + 1E-10)
+        {
+          poly_x.push_back(xo + sx);
+          poly_y.push_back(yo);
+          if ((f1 > contour && f2 < contour) || (f1 < contour && f2 > contour))
+          {
+            double h = sy * (contour - f1) / (f2 - f1);
+            poly_x.push_back(xo + sx);
+            poly_y.push_back(yo + h);
+          }
+          else if ((f1 > contour_m && f2 < contour_m) || (f1 < contour_m && f2 > contour_m))
+          {
+            double h = sy * (contour_m - f1) / (f2 - f1);
+            poly_x.push_back(xo + sx);
+            poly_y.push_back(yo + h);
+          }
+
+        }
+        else if ((f1 > contour_m && f2 < contour_m) || (f1 < contour_m && f2 > contour_m))
+        {
+          double hm = sy * (contour_m - f1) / (f2 - f1);
+          double h = hm;
+          if ((f1 > contour && f2 < contour) || (f1 < contour && f2 > contour))
+          {
+            h = sy * (contour - f1) / (f2 - f1);
+          }
+          if (h < hm)
+          {
+            double tmp = h; h = hm; hm = tmp;
+          }
+          poly_x.push_back(xo + sx);
+          poly_y.push_back(yo + hm);
+
+          if (h - hm > 1E-10)
+          {
+            poly_x.push_back(xo + sx);
+            poly_y.push_back(yo + h);
+          }
+        }
+        else if ((f1 > contour && f2 < contour) || (f1 < contour && f2 > contour))
+        {
+          double h = sy * (contour - f1) / (f2 - f1);
+          poly_x.push_back(xo + sx);
+          poly_y.push_back(yo + h);
+        }
+
+        // moving left
+        if (f2 >= contour_m - 1E-10 && f2 < contour + 1E-10)
+        {
+          poly_x.push_back(xo + sx);
+          poly_y.push_back(yo + sy);
+          if ((f2 > contour && f3 < contour) || (f2 < contour && f3 > contour))
+          {
+            double h = sx * (contour - f2) / (f3 - f2);
+            poly_x.push_back(xo + sx - h);
+            poly_y.push_back(yo + sy);
+          }
+          else if ((f2 > contour_m && f3 < contour_m) || (f2 < contour_m && f3 > contour_m))
+          {
+            double h = sx * (contour_m - f2) / (f3 - f2);
+            poly_x.push_back(xo + sx - h);
+            poly_y.push_back(yo + sy);
+          }
+        }
+        else if ((f2 > contour_m && f3 < contour_m) || (f2 < contour_m && f3 > contour_m))
+        {
+          double hm = sx * (contour_m - f2) / (f3 - f2);
+          double h = hm;
+          if ((f2 > contour && f3 < contour) || (f2 < contour && f3 > contour))
+          {
+            h = sx * (contour - f2) / (f3 - f2);
+          }
+          if (h < hm)
+          {
+            double tmp = h; h = hm; hm = tmp;
+          }
+          poly_x.push_back(xo + sx - hm);
+          poly_y.push_back(yo + sy);
+
+          if (h - hm > 1E-10)
+          {
+            poly_x.push_back(xo + sx - h);
+            poly_y.push_back(yo + sy);
+          }
+        }
+        else if ((f2 > contour && f3 < contour) || (f2 < contour && f3 > contour))
+        {
+          double h = sx * (contour - f2) / (f3 - f2);
+          poly_x.push_back(xo + sx - h);
+          poly_y.push_back(yo + sy);
+        }
+
+        // moving down
+        if (f3 >= contour_m - 1E-10 && f3 < contour + 1E-10)
+        {
+          poly_x.push_back(xo);
+          poly_y.push_back(yo + sy);
+          if ((f3 > contour && fo < contour) || (f3 < contour && fo > contour))
+          {
+            double h = sy * (contour - f3) / (fo - f3);
+            poly_x.push_back(xo);
+            poly_y.push_back(yo + sy - h);
+          }
+          else if ((f3 > contour_m && fo < contour_m) || (f3 < contour_m && fo > contour_m))
+          {
+            double h = sy * (contour_m - f3) / (fo - f3);
+            poly_x.push_back(xo);
+            poly_y.push_back(yo + sy - h);
+          }
+        }
+        else if ((f3 > contour_m && fo < contour_m) || (f3 < contour_m && fo > contour_m))
+        {
+          double hm = sy * (contour_m - f3) / (fo - f3);
+          double h = hm;
+          if ((f3 > contour && fo < contour) || (f3 < contour && fo > contour))
+          {
+            h = sy * (contour - f3) / (fo - f3);
+          }
+          if (h < hm)
+          {
+            double tmp = h; h = hm; hm = tmp;
+          }
+          poly_x.push_back(xo);
+          poly_y.push_back(yo + sy - hm);
+
+          if (h - hm > 1E-10)
+          {
+            poly_x.push_back(xo);
+            poly_y.push_back(yo + sy - h);
+          }
+        }
+        else if ((f3 > contour && fo < contour) || (f3 < contour && fo > contour))
+        {
+          double h = sy * (contour - f3) / (fo - f3);
+          poly_x.push_back(xo);
+          poly_y.push_back(yo + sy - h);
+        }
+
+
+        size_t num_corners(poly_x.size());
+
+        // shift ploy
+        for (size_t icorner = 0; icorner < num_corners; icorner++)
+        {
+          poly_x[icorner] += DX; poly_y[icorner] += DY;
+        }
+
+        if (num_corners > 1)
+        {
+          double gs = 1.0 - icont * 1.0 / num_isocontours;
+          file << "newpath" << std::endl;
+          file << poly_x[0] * scale << " " << poly_y[0] * scale << " moveto" << std::endl;
+          //std::cout<< "*** x = " <<  poly_x[0] << ", y = " << poly_y[0] << std::endl;
+          for (size_t icorner = 1; icorner < num_corners; icorner++)
+          {
+            file << poly_x[icorner] * scale << " " << poly_y[icorner] * scale << " lineto" << std::endl;
+            //std::cout << "*** x = " <<  poly_x[icorner] << ", y = " << poly_y[icorner] << std::endl;
+          }
+          //std::cout << std::endl;
+
+          file << "closepath" << std::endl;
+          file << "gsave" << std::endl;
+          file << "grestore" << std::endl;
+
+          double r, g, b;
+
+          if (gs < 0.25)     r = 1.0;
+          //else if (gs < 0.5) r = 2.0 - 4.0 * gs;
+          else if (gs < 0.5) r = 1.0 - 16.0 * (gs - 0.25) * (gs - 0.25);
+          else               r = 0.0;
+
+          double go(0.25), gn(1.0 - go);
+          if (gs < go)      g = gs / go;
+          else if (gs < gn) g = 1.0;
+          else              g = 1.0 / (1.0 - gn) - gs / (1.0 - gn);
+
+
+          if (gs < 0.5)       b = 0.0;
+          else if (gs < 0.75) b = 1.0 - 16.0 * (gs - 0.75) * (gs - 0.75);
+          else                b = 1.0;
+
+          file << r << " " << g << " " << b << " setrgbcolor" << std::endl;
+
+          file << " fill" << std::endl;
+        }
+      }
+    }
+  }
+  delete[] xx; delete[] f;
 }

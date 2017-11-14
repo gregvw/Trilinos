@@ -43,7 +43,7 @@
 
 /*! \file  test_11.cpp
     \brief Verify that the implementation of the Coleman-Li Trust-Region
-           model passes derivative checks 
+           model passes derivative checks
 */
 
 #include "ROL_ColemanLiModel.hpp"
@@ -61,19 +61,19 @@ int main(int argc, char *argv[]) {
 
   typedef ROL::Vector<RealT>          V;
   typedef ROL::Objective<RealT>       OBJ;
-  typedef ROL::BoundConstraint<RealT> CON; 
-  using Teuchos::RCP;
+  typedef ROL::BoundConstraint<RealT> CON;
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -81,12 +81,12 @@ int main(int argc, char *argv[]) {
 
   RealT zero(0);
 
-  RCP<V>   x0;
-  RCP<V>   x;
-  RCP<V>   g;
-  RCP<OBJ> obj;
-  RCP<CON> con;
-  RCP<OBJ> model;  
+  ROL::SharedPointer<V>   x0;
+  ROL::SharedPointer<V>   x;
+  ROL::SharedPointer<V>   g;
+  ROL::SharedPointer<OBJ> obj;
+  ROL::SharedPointer<CON> con;
+  ROL::SharedPointer<OBJ> model;
 
   ROL::ZOO::getHS2(obj,con,x0,x);
 
@@ -95,11 +95,11 @@ int main(int argc, char *argv[]) {
   // Need to evaluate the gradient to construct the model
   obj->gradient(*g,*x,zero);
 
-  model = Teuchos::rcp(new ROL::ColemanLiModel<RealT>(*obj,*con,*x,*g));
+  model = ROL::makeShared<ROL::ColemanLiModel<RealT>>(*obj,*con,*x,*g);
 
-  RCP<V> s = x->clone();
-  RCP<V> v = x->clone();
-  RCP<V> u = x->clone();
+  ROL::SharedPointer<V> s = x->clone();
+  ROL::SharedPointer<V> v = x->clone();
+  ROL::SharedPointer<V> u = x->clone();
 
   ROL::RandomizeVector(*s,-1.0,1.0);
   ROL::RandomizeVector(*u,-1.0,1.0);
@@ -111,5 +111,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
-

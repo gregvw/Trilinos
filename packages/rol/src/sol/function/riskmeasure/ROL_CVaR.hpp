@@ -78,12 +78,12 @@ namespace ROL {
 template<class Real>
 class CVaR : public RiskMeasure<Real> {
 private:
-  Teuchos::RCP<PlusFunction<Real> > plusFunction_;
+  ROL::SharedPointer<PlusFunction<Real> > plusFunction_;
 
   Real prob_;
   Real coeff_;
 
-  Teuchos::RCP<Vector<Real> > dualVector_;
+  ROL::SharedPointer<Vector<Real> > dualVector_;
   Real xvar_;
   Real vvar_;
 
@@ -95,7 +95,7 @@ private:
       ">>> ERROR (ROL::CVaR): Confidence level must be between 0 and 1!");
     TEUCHOS_TEST_FOR_EXCEPTION((coeff_ < zero) || (coeff_ > one), std::invalid_argument,
       ">>> ERROR (ROL::CVaR): Convex combination parameter must be positive!");
-    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == Teuchos::null, std::invalid_argument,
+    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == ROL::nullPointer, std::invalid_argument,
       ">>> ERROR (ROL::CVaR): PlusFunction pointer is null!");
   }
 
@@ -110,7 +110,7 @@ public:
       @param[in]     pf      is the plus function or an approximation
   */
   CVaR( const Real prob, const Real coeff,
-        const Teuchos::RCP<PlusFunction<Real> > &pf )
+        const ROL::SharedPointer<PlusFunction<Real> > &pf )
     : RiskMeasure<Real>(), plusFunction_(pf), prob_(prob), coeff_(coeff),
       xvar_(0), vvar_(0), firstReset_(true) {
     checkInputs();
@@ -134,14 +134,16 @@ public:
     prob_  = list.get<Real>("Confidence Level");
     coeff_ = list.get<Real>("Convex Combination Parameter");
     // Build (approximate) plus function
-    plusFunction_ = Teuchos::rcp(new PlusFunction<Real>(list));
+    plusFunction_ = ROL::makeShared<PlusFunction<Real>>(list);
     // Check Inputs
     checkInputs();
   }
 
-  void reset(Teuchos::RCP<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
     RiskMeasure<Real>::reset(x0,x);
-    xvar_ = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatistic(0);
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    xvar_ = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[0];
     if ( firstReset_ ) {
       dualVector_ = (x0->dual()).clone();
       firstReset_ = false;
@@ -149,12 +151,14 @@ public:
     dualVector_->zero();
   }
 
-  void reset(Teuchos::RCP<Vector<Real> > &x0, const Vector<Real> &x,
-             Teuchos::RCP<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    const RiskVector<Real> &vr = Teuchos::dyn_cast<const RiskVector<Real> >(v);
-    v0    = Teuchos::rcp_const_cast<Vector<Real> >(vr.getVector());
-    vvar_ = vr.getStatistic(0);
+    const RiskVector<Real> &vr = dynamic_cast<const RiskVector<Real>&>(v);
+    v0    = ROL::constPointerCast<Vector<Real> >(vr.getVector());
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    vvar_ = (*vr.getStatistic(comp,index))[0];
   }
 
   void update(const Real val, const Real weight) {
@@ -191,25 +195,29 @@ public:
   }
 
   void getGradient(Vector<Real> &g, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &gs = Teuchos::dyn_cast<RiskVector<Real> >(g);
+    RiskVector<Real> &gs = dynamic_cast<RiskVector<Real>&>(g);
     Real val = RiskMeasure<Real>::val_, var(0), one(1);
     sampler.sumAll(&val,&var,1);
     
     sampler.sumAll(*(RiskMeasure<Real>::g_),*dualVector_);
     var *= -coeff_/(one-prob_);
     var += coeff_;
-    gs.setStatistic(var);
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    gs.setStatistic(var,comp,index);
     gs.setVector(*dualVector_); 
   }
 
   void getHessVec(Vector<Real> &hv, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &hs = Teuchos::dyn_cast<RiskVector<Real> >(hv);
+    RiskVector<Real> &hs = dynamic_cast<RiskVector<Real>&>(hv);
     Real val = RiskMeasure<Real>::val_, var(0), one(1);
     sampler.sumAll(&val,&var,1);
 
     sampler.sumAll(*(RiskMeasure<Real>::hv_),*dualVector_);
     var *= coeff_/(one-prob_);
-    hs.setStatistic(var);
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    hs.setStatistic(var,comp,index);
     hs.setVector(*dualVector_);
   }
 };

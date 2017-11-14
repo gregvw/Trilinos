@@ -2,7 +2,38 @@
 
 // Skeleton implementation for Bison LALR(1) parsers in C++
 
-// Copyright (C) 2002-2015 Free Software Foundation, Inc.
+// Copyright (c) 2014 National Technology & Engineering Solutions
+// of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+// NTESS, the U.S. Government retains certain rights in this software.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//
+//     * Redistributions in binary form must reproduce the above
+//       copyright notice, this list of conditions and the following
+//       disclaimer in the documentation and/or other materials provided
+//       with the distribution.
+//
+//     * Neither the name of NTESS nor the names of its
+//       contributors may be used to endorse or promote products derived
+//       from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,9 +75,9 @@
 #include <cfenv>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <stdlib.h>
 
 namespace {
   void reset_error()
@@ -118,7 +149,7 @@ namespace SEAMS {
     if (yydebug_) {                                                                                \
       *yycdebug_ << Title << ' ';                                                                  \
       yy_print_(*yycdebug_, Symbol);                                                               \
-      *yycdebug_ << std::endl;                                                                     \
+      *yycdebug_ << '\n';                                                                          \
     }                                                                                              \
   } while (false)
 
@@ -197,7 +228,7 @@ namespace SEAMS {
   {
   }
 
-  Parser::~Parser() {}
+  Parser::~Parser() = default;
 
   /*---------------.
   | Symbol types.  |
@@ -245,7 +276,7 @@ namespace SEAMS {
   // by_type.
   inline Parser::by_type::by_type() : type(empty_symbol) {}
 
-  inline Parser::by_type::by_type(const by_type &other) : type(other.type) {}
+  inline Parser::by_type::by_type(const by_type &other) = default;
 
   inline Parser::by_type::by_type(token_type t) : type(yytranslate_(t)) {}
 
@@ -262,7 +293,7 @@ namespace SEAMS {
   // by_state.
   inline Parser::by_state::by_state() : state(empty_state) {}
 
-  inline Parser::by_state::by_state(const by_state &other) : state(other.state) {}
+  inline Parser::by_state::by_state(const by_state &other) = default;
 
   inline void Parser::by_state::clear() { state = empty_state; }
 
@@ -385,7 +416,7 @@ namespace SEAMS {
     // FIXME: This shoud be completely indented.  It is not yet to
     // avoid gratuitous conflicts when merging into the master branch.
     try {
-      YYCDEBUG << "Starting parse" << std::endl;
+      YYCDEBUG << "Starting parse\n";
 
       /* Initialize the stack.  The initial state will be set in
          yynewstate, since the latter expects the semantical and the
@@ -396,7 +427,7 @@ namespace SEAMS {
 
     // A new symbol was pushed on the stack.
     yynewstate:
-      YYCDEBUG << "Entering state " << yystack_[0].state << std::endl;
+      YYCDEBUG << "Entering state " << yystack_[0].state << '\n';
 
       // Accept?
       if (yystack_[0].state == yyfinal_)
@@ -1877,7 +1908,7 @@ namespace SEAMS {
       return yyresult;
     }
     catch (...) {
-      YYCDEBUG << "Exception caught: cleaning lookahead and stack" << std::endl;
+      YYCDEBUG << "Exception caught: cleaning lookahead and stack\n";
       // Do not try to display the values of the reclaimed symbols,
       // as their printer might throw an exception.
       if (!yyla.empty())
@@ -2261,7 +2292,7 @@ namespace SEAMS {
     *yycdebug_ << "Stack now";
     for (stack_type::const_iterator i = yystack_.begin(), i_end = yystack_.end(); i != i_end; ++i)
       *yycdebug_ << ' ' << i->state;
-    *yycdebug_ << std::endl;
+    *yycdebug_ << '\n';
   }
 
   // Report on the debug stream that the rule \a yyrule is going to be reduced.
@@ -2270,8 +2301,7 @@ namespace SEAMS {
     unsigned int yylno  = yyrline_[yyrule];
     int          yynrhs = yyr2_[yyrule];
     // Print the symbols being reduced, and their result.
-    *yycdebug_ << "Reducing stack by rule " << yyrule - 1 << " (line " << yylno
-               << "):" << std::endl;
+    *yycdebug_ << "Reducing stack by rule " << yyrule - 1 << " (line " << yylno << "):\n";
     // The symbols being reduced.
     for (int yyi = 0; yyi < yynrhs; yyi++)
       YY_SYMBOL_PRINT("   $" << yyi + 1 << " =", yystack_[(yynrhs) - (yyi + 1)]);

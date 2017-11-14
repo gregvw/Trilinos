@@ -973,15 +973,16 @@ TEST(LoadBalance, doOneElementSearch)
         stk::mesh::BulkData &stkMeshBulkData = ioBroker.bulk_data();
 
         stk::balance::internal::BoxVectorWithStkId faceBoxes;
-        const double eps = 0.1;
         const stk::mesh::FieldBase* coord = stkMeshBulkData.mesh_meta_data().get_field(stk::topology::NODE_RANK, "coordinates");
-        stk::balance::internal::fillFaceBoxesWithIds(stkMeshBulkData, eps, coord, faceBoxes, stkMeshBulkData.mesh_meta_data().locally_owned_part());
+        stk::balance::GraphCreationSettings settings;
+        settings.setToleranceForFaceSearch( 0.1 );
+        stk::balance::internal::fillFaceBoxesWithIds(stkMeshBulkData, settings, coord, faceBoxes, stkMeshBulkData.mesh_meta_data().locally_owned_part());
 
         size_t goldNumFaceBoxes = 6u;
         EXPECT_EQ(goldNumFaceBoxes, faceBoxes.size());
 
         stk::balance::internal::StkSearchResults searchResults;
-        stk::search::coarse_search(faceBoxes, faceBoxes, stk::search::BOOST_RTREE, communicator, searchResults);
+        stk::search::coarse_search(faceBoxes, faceBoxes, stk::search::KDTREE, communicator, searchResults);
 
         size_t numNonSelfFaceInteractions = 24u;
         size_t numSelfInteractions = goldNumFaceBoxes;
@@ -1086,9 +1087,10 @@ TEST(LoadBalance, doSearch)
         stk::mesh::BulkData &stkMeshBulkData = ioBroker.bulk_data();
 
         stk::balance::internal::BoxVectorWithStkId faceBoxes;
-        const double eps = 0.1;
         const stk::mesh::FieldBase* coord = stkMeshBulkData.mesh_meta_data().get_field(stk::topology::NODE_RANK, "coordinates");
-        stk::balance::internal::fillFaceBoxesWithIds(stkMeshBulkData, eps, coord, faceBoxes, stkMeshBulkData.mesh_meta_data().locally_owned_part());
+        stk::balance::GraphCreationSettings settings;
+        settings.setToleranceForFaceSearch( 0.1 );
+        stk::balance::internal::fillFaceBoxesWithIds(stkMeshBulkData, settings, coord, faceBoxes, stkMeshBulkData.mesh_meta_data().locally_owned_part());
 
         std::vector<stk::balance::internal::StkBox> faceItems(faceBoxes.size());
         for(size_t i = 0; i < faceBoxes.size(); i++)
@@ -1413,7 +1415,7 @@ void create2DisconnectedHex8sStkMesh(stk::mesh::MetaData &meta, stk::mesh::BulkD
     stk::mesh::Part& block2 = meta.declare_part_with_topology("block_2", stk::topology::HEX_8);
     stk::io::put_io_part_attribute(block2);
 
-    OurCartesianField::VectorField &coordField = meta.declare_field<OurCartesianField::VectorField>(stk::topology::NODE_RANK, "model_coordinates");
+    OurCartesianField::VectorField &coordField = meta.declare_field<OurCartesianField::VectorField>(stk::topology::NODE_RANK, "coordinates");
 
     stk::mesh::put_field(coordField, meta.universal_part(), meta.spatial_dimension());
 
@@ -1466,7 +1468,7 @@ void create2ParticlesStkMesh(stk::mesh::MetaData &meta, stk::mesh::BulkData &mes
     stk::mesh::Part& block1 = meta.declare_part_with_topology("block_1", stk::topology::PARTICLE);
     stk::io::put_io_part_attribute(block1);
 
-    OurCartesianField::VectorField &coordField = meta.declare_field<OurCartesianField::VectorField>(stk::topology::NODE_RANK, "model_coordinates");
+    OurCartesianField::VectorField &coordField = meta.declare_field<OurCartesianField::VectorField>(stk::topology::NODE_RANK, "coordinates");
 
     stk::mesh::put_field(coordField, meta.universal_part(), meta.spatial_dimension());
 
@@ -1499,7 +1501,7 @@ void create2Particles2HexStkMesh(stk::mesh::MetaData &meta, stk::mesh::BulkData 
     stk::mesh::Part& block2 = meta.declare_part_with_topology("block_2", stk::topology::PARTICLE);
     stk::io::put_io_part_attribute(block2);
 
-    OurCartesianField::VectorField &coordField = meta.declare_field<OurCartesianField::VectorField>(stk::topology::NODE_RANK, "model_coordinates");
+    OurCartesianField::VectorField &coordField = meta.declare_field<OurCartesianField::VectorField>(stk::topology::NODE_RANK, "coordinates");
 
     stk::mesh::put_field(coordField, meta.universal_part(), meta.spatial_dimension());
 

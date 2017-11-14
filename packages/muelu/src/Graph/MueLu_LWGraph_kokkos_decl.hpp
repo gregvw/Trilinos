@@ -75,11 +75,12 @@ namespace MueLu {
   template<class LocalOrdinal, class GlobalOrdinal, class DeviceType>
   class LWGraph_kokkos<LocalOrdinal, GlobalOrdinal, Kokkos::Compat::KokkosDeviceWrapperNode<DeviceType>> {
   public:
-    typedef LocalOrdinal                                        local_ordinal_type;
-    typedef GlobalOrdinal                                       global_ordinal_type;
-    typedef typename DeviceType::execution_space                execution_space;
-    typedef Kokkos::Compat::KokkosDeviceWrapperNode<DeviceType> node_type;
-    typedef size_t                                              size_type;
+    typedef LocalOrdinal                                             local_ordinal_type;
+    typedef GlobalOrdinal                                            global_ordinal_type;
+    typedef typename DeviceType::execution_space                     execution_space;
+    typedef Kokkos::RangePolicy<local_ordinal_type, execution_space> range_type;
+    typedef Kokkos::Compat::KokkosDeviceWrapperNode<DeviceType>      node_type;
+    typedef size_t                                                   size_type;
 
     typedef Xpetra::Map<LocalOrdinal, GlobalOrdinal, node_type> map_type;
     typedef Kokkos::StaticCrsGraph<LocalOrdinal, Kokkos::LayoutLeft, execution_space> local_graph_type;
@@ -132,11 +133,14 @@ namespace MueLu {
     }
 
     //! Return the list of vertices adjacent to the vertex 'v'.
-    KOKKOS_INLINE_FUNCTION row_type getNeighborVertices(LO i) const {
-      auto rowPointers = graph_.row_map;
-      auto colIndices  = graph_.entries;
+    // Unfortunately, C++11 does not support the following:
+    //    auto getNeighborVertices(LO i) const -> decltype(rowView)
+    // auto return with decltype was only introduced in C++14
+    KOKKOS_INLINE_FUNCTION
+    Kokkos::GraphRowViewConst<local_graph_type> getNeighborVertices(LO i) const {
+      auto rowView = graph_.rowConst(i);
 
-      return Kokkos::subview(colIndices, Kokkos::make_pair<size_t,size_t>(rowPointers(i), rowPointers(i+1)));
+      return rowView;
     }
 
     //! Return true if vertex with local id 'v' is on current process.

@@ -63,12 +63,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -77,8 +77,7 @@ int main(int argc, char *argv[]) {
   try {
 
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile( filename);
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",true);
 #if USE_HESSVEC
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",false);
@@ -87,17 +86,17 @@ int main(int argc, char *argv[]) {
     *outStream << "\n\n" << ROL::ETestObjectivesToString(ROL::TESTOBJECTIVES_ROSENBROCK) << "\n\n";
 
     // Set Up Optimization Problem
-    Teuchos::RCP<ROL::Vector<RealT> > x0, z;
-    Teuchos::RCP<ROL::Objective<RealT> > obj;
+    ROL::SharedPointer<ROL::Vector<RealT> > x0, z;
+    ROL::SharedPointer<ROL::Objective<RealT> > obj;
     ROL::getTestObjectives<RealT>(obj,x0,z,ROL::TESTOBJECTIVES_ROSENBROCK);
-    Teuchos::RCP<ROL::Vector<RealT> > x = x0->clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > x = x0->clone();
 
     // Get Dimension of Problem
     int dim = x0->dimension();
     parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 2*dim);
 
     // Error Vector
-    Teuchos::RCP<ROL::Vector<RealT> > e = x->clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > e = x->clone();
     e->zero();
 
     for ( ROL::EDescent desc = ROL::DESCENT_STEEPEST; desc < ROL::DESCENT_LAST; desc++ ) {
@@ -117,7 +116,7 @@ int main(int argc, char *argv[]) {
         e->set(*x);
         e->axpy(-1.0,*z);
         *outStream << std::endl << "Norm of Error: " << e->norm() << std::endl;
-        //errorFlag += (int)(e.norm() < std::sqrt(ROL::ROL_EPSILON<RealT>())); 
+        //errorFlag += (int)(e.norm() < std::sqrt(ROL::ROL_EPSILON<RealT>()));
       }
     }
   }
@@ -134,4 +133,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

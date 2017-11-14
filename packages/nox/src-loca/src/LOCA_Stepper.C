@@ -106,7 +106,8 @@ LOCA::Stepper::Stepper(
   minTangentFactor(0.1),
   tangentFactorExponent(1.0),
   calcEigenvalues(false),
-  return_failed_on_max_steps(true)
+  return_failed_on_max_steps(true),
+  printOnlyConvergedSol(p->get("Write Only Converged Solution", true))
 {
   reset(global_data, initialGuess, lt, nt, p );
 }
@@ -148,7 +149,8 @@ LOCA::Stepper::Stepper(
   minTangentFactor(0.1),
   tangentFactorExponent(1.0),
   calcEigenvalues(false),
-  return_failed_on_max_steps(true)
+  return_failed_on_max_steps(true),
+  printOnlyConvergedSol(p->get("Write Only Converged Solution", true))
 {
   reset(global_data, initialGuess, nt, p );
 }
@@ -614,8 +616,11 @@ LOCA::Stepper::postprocess(LOCA::Abstract::Iterator::StepStatus stepStatus)
   // Allow continuation group to postprocess the step
   curGroupPtr->postProcessContinuationStep(stepStatus);
 
-  if (stepStatus == LOCA::Abstract::Iterator::Unsuccessful)
+  if (stepStatus == LOCA::Abstract::Iterator::Unsuccessful) {
+    if(!printOnlyConvergedSol)
+      curGroupPtr->printSolution();
     return stepStatus;
+  }
 
   *prevPredictorPtr = *curPredictorPtr;
 
@@ -873,8 +878,8 @@ LOCA::Stepper::getList() const
   return paramListPtr;
 }
 
-Teuchos::RCP<const NOX::Solver::Generic>
-LOCA::Stepper::getSolver() const
+Teuchos::RCP<NOX::Solver::Generic>
+LOCA::Stepper::getSolver()
 {
   if (solverPtr.get() == NULL) {
     globalData->locaErrorCheck->throwError(
@@ -1027,4 +1032,16 @@ LOCA::Stepper::withinThreshold()
   double conParam = curGroupPtr->getContinuationParameter();
 
   return (fabs(conParam-targetValue) < relt*fabs(initialStep));
+}
+
+Teuchos::ParameterList &
+LOCA::Stepper::getParams()
+{
+  return *stepperList;
+}
+
+Teuchos::ParameterList &
+LOCA::Stepper::getStepSizeParams()
+{
+  return *parsedParams->getSublist("Step Size");
 }

@@ -56,12 +56,12 @@
 #include<iomanip>
 
 // Identity operator for preconditioner
-template<class Real> 
+template<class Real>
 class Identity : public ROL::LinearOperator<Real> {
   typedef ROL::Vector<Real> V;
 public:
-  void apply( V& Hv, const V& v, Real &tol ) const { 
-    Hv.set(v); 
+  void apply( V& Hv, const V& v, Real &tol ) const {
+    Hv.set(v);
   }
 }; // class Identity
 
@@ -74,12 +74,12 @@ class TridiagonalToeplitzOperator : public ROL::LinearOperator<Real> {
   typedef ROL::Vector<Real>    V;
   typedef ROL::StdVector<Real> SV;
 
-  typedef typename vector::size_type uint; 
+  typedef typename vector::size_type uint;
 
 private:
 
   Real a_; // subdiagonal
-  Real b_; // diagonal 
+  Real b_; // diagonal
   Real c_; // superdiagonal
 
   Teuchos::LAPACK<int,Real> lapack_;
@@ -91,22 +91,22 @@ public:
   // Tridiagonal multiplication
   void apply( V &Hv, const V &v, Real &tol ) const {
 
-    using Teuchos::RCP;  using Teuchos::dyn_cast;
- 
-    SV &Hvs = dyn_cast<SV>(Hv);
-    RCP<vector> Hvp = Hvs.getVector();
- 
-    const SV &vs = dyn_cast<const SV>(v);
-    RCP<const vector> vp = vs.getVector();
+
+
+    SV &Hvs = dynamic_cast<SV&>(Hv);
+    ROL::SharedPointer<vector> Hvp = Hvs.getVector();
+
+    const SV &vs = dynamic_cast<const SV&>(v);
+    ROL::SharedPointer<const vector> vp = vs.getVector();
 
     uint n = vp->size();
 
     (*Hvp)[0] = b_*(*vp)[0] + c_*(*vp)[1];
 
     for(uint k=1; k<n-1; ++k) {
-      (*Hvp)[k]  = a_*(*vp)[k-1] + b_*(*vp)[k] + c_*(*vp)[k+1];  
-    } 
-  
+      (*Hvp)[k]  = a_*(*vp)[k-1] + b_*(*vp)[k] + c_*(*vp)[k+1];
+    }
+
     (*Hvp)[n-1] = a_*(*vp)[n-2] + b_*(*vp)[n-1];
 
   }
@@ -114,13 +114,13 @@ public:
   // Tridiagonal solve - compare against GMRES
   void applyInverse( V &Hv, const V &v, Real &tol ) const {
 
-    using Teuchos::RCP;  using Teuchos::dyn_cast;
- 
-    SV &Hvs = dyn_cast<SV>(Hv);
-    RCP<vector> Hvp = Hvs.getVector();
- 
-    const SV &vs = dyn_cast<const SV>(v);
-    RCP<const vector> vp = vs.getVector();
+
+
+    SV &Hvs = dynamic_cast<SV&>(Hv);
+    ROL::SharedPointer<vector> Hvp = Hvs.getVector();
+
+    const SV &vs = dynamic_cast<const SV&>(v);
+    ROL::SharedPointer<const vector> vp = vs.getVector();
 
     uint n = vp->size();
 
@@ -131,11 +131,11 @@ public:
     vector d(n,b_);
     vector du(n-1,c_);
     vector du2(n-2,0.0);
- 
+
     std::vector<int> ipiv(n);
     int info;
 
-    Hv.set(v); // LAPACK will modify this in place    
+    Hv.set(v); // LAPACK will modify this in place
 
     // Do Tridiagonal LU factorization
     lapack_.GTTRF(n,&dl[0],&d[0],&du[0],&du2[0],&ipiv[0],&info);
@@ -153,23 +153,23 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp; 
+
+
 
   typedef std::vector<RealT>            vector;
-  typedef ROL::StdVector<RealT>         SV; 
+  typedef ROL::StdVector<RealT>         SV;
 
   typedef typename vector::size_type    uint;
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
     Teuchos::ParameterList parlist;
     Teuchos::ParameterList &gList = parlist.sublist("General");
     Teuchos::ParameterList &kList = gList.sublist("Krylov");
-    
+
     kList.set("Type","GMRES");
     kList.set("Iteration Limit",20);
     kList.set("Absolute Tolerance",1.e-8);
@@ -187,22 +187,22 @@ int main(int argc, char *argv[]) {
 
     uint dim = 10;
 
-    RCP<vector> xp = rcp( new vector(dim,0.0) );
-    RCP<vector> yp = rcp( new vector(dim,0.0) );
-    RCP<vector> zp = rcp( new vector(dim,0.0) );
-    RCP<vector> bp = rcp( new vector(dim,0.0) );
+    ROL::SharedPointer<vector> xp = ROL::makeShared<vector>(dim,0.0);
+    ROL::SharedPointer<vector> yp = ROL::makeShared<vector>(dim,0.0);
+    ROL::SharedPointer<vector> zp = ROL::makeShared<vector>(dim,0.0);
+    ROL::SharedPointer<vector> bp = ROL::makeShared<vector>(dim,0.0);
 
     SV x(xp); // Exact solution
     SV y(yp); // Solution using direct solve
     SV z(zp); // Solution using GMRES
 
-    SV b(bp); // Right-hand-side    
-    
+    SV b(bp); // Right-hand-side
+
     RealT left = -1.0;
-    RealT right = 1.0;    
+    RealT right = 1.0;
 
     ROL::RandomizeVector(x,left,right);
-   
+
     RealT sub   = -1.0;
     RealT diag  =  2.0;
     RealT super = -1.0;
@@ -211,29 +211,29 @@ int main(int argc, char *argv[]) {
     Identity<RealT> I;
 
     RealT tol = 0.0;
-      
+
     T.apply(b,x,tol);
 
     T.applyInverse(y,b,tol);
 
-    RCP<ROL::Krylov<RealT> > krylov = ROL::KrylovFactory<RealT>( parlist );
+    ROL::SharedPointer<ROL::Krylov<RealT> > krylov = ROL::KrylovFactory<RealT>( parlist );
 
     int iter;
     int flag;
 
     krylov->run(z,T,b,I,iter,flag);
 
-    *outStream << std::setw(10) << "Exact"  
+    *outStream << std::setw(10) << "Exact"
                << std::setw(10) << "LAPACK"
                << std::setw(10) << "GMRES " << std::endl;
     *outStream << "---------------------------------" << std::endl;
 
     for(uint k=0;k<dim;++k) {
-      *outStream << std::setw(10) << (*xp)[k] << " " 
+      *outStream << std::setw(10) << (*xp)[k] << " "
                  << std::setw(10) << (*yp)[k] << " "
                  << std::setw(10) << (*zp)[k] << " " << std::endl;
-    }  
- 
+    }
+
     *outStream << "GMRES performed " << iter << " iterations." << std::endl;
 
     z.axpy(-1.0,x);
@@ -253,5 +253,5 @@ int main(int argc, char *argv[]) {
   else
     std::cout << "End Result: TEST PASSED\n";
 
-  return 0;   
+  return 0;
 }

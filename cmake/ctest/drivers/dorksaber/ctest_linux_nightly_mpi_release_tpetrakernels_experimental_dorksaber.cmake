@@ -65,6 +65,7 @@ SET(BUILD_TYPE RELEASE)
 SET(BUILD_DIR_NAME RELEASE_DEV_TpetraKernels_Experimental)
 SET(CTEST_PARALLEL_LEVEL 3)
 SET(CTEST_TEST_TYPE Nightly)
+SET(Trilinos_TRACK  Specialized)      # Set the CDash track
 SET(CTEST_TEST_TIMEOUT 1800)
 
 SET(Trilinos_PACKAGES Amesos2 Ifpack2 Teuchos Tpetra MueLu Zoltan2)
@@ -80,7 +81,7 @@ SET(EXTRA_CONFIGURE_OPTIONS
   "-DTpetraKernels_ENABLE_Experimental:BOOL=ON"
   "-DTpetraKernels_ENABLE_TESTS:BOOL=ON"
   "-DMATLAB_ARCH:STRING=glnxa64"
-  "-DCMAKE_CXX_FLAGS:STRING='-g'"
+  "-DCMAKE_CXX_FLAGS:STRING='-g -fno-var-tracking'"
   "-DCMAKE_C_FLAGS:STRING='-g'"
   "-DCMAKE_Fortran_FLAGS:STRING='-g'"
 )

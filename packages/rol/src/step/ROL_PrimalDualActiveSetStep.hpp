@@ -55,53 +55,53 @@
 
 /** @ingroup step_group
     \class ROL::PrimalDualActiveSetStep
-    \brief Implements the computation of optimization steps 
+    \brief Implements the computation of optimization steps
            with the Newton primal-dual active set method.
 
-    To describe primal-dual active set (PDAS), we consider the following 
-    abstract setting.  Suppose \f$\mathcal{X}\f$ is a Hilbert space of 
-    functions mapping \f$\Xi\f$ to \f$\mathbb{R}\f$.  For example, 
-    \f$\Xi\subset\mathbb{R}^n\f$ and \f$\mathcal{X}=L^2(\Xi)\f$ or 
-    \f$\Xi = \{1,\ldots,n\}\f$ and \f$\mathcal{X}=\mathbb{R}^n\f$. We 
-    assume \f$ f:\mathcal{X}\to\mathbb{R}\f$ is twice-continuously Fr&eacute;chet 
-    differentiable and \f$a,\,b\in\mathcal{X}\f$ with \f$a\le b\f$ almost 
-    everywhere in \f$\Xi\f$.  Note that the PDAS algorithm will also work 
-    with secant approximations of the Hessian. 
+    To describe primal-dual active set (PDAS), we consider the following
+    abstract setting.  Suppose \f$\mathcal{X}\f$ is a Hilbert space of
+    functions mapping \f$\Xi\f$ to \f$\mathbb{R}\f$.  For example,
+    \f$\Xi\subset\mathbb{R}^n\f$ and \f$\mathcal{X}=L^2(\Xi)\f$ or
+    \f$\Xi = \{1,\ldots,n\}\f$ and \f$\mathcal{X}=\mathbb{R}^n\f$. We
+    assume \f$ f:\mathcal{X}\to\mathbb{R}\f$ is twice-continuously Fr&eacute;chet
+    differentiable and \f$a,\,b\in\mathcal{X}\f$ with \f$a\le b\f$ almost
+    everywhere in \f$\Xi\f$.  Note that the PDAS algorithm will also work
+    with secant approximations of the Hessian.
 
-    Traditionally, PDAS is an algorithm for the minimizing quadratic objective 
-    functions subject to bound constraints.  ROL implements a Newton PDAS which 
-    extends PDAS to general bound-constrained nonlinear programs, i.e., 
+    Traditionally, PDAS is an algorithm for the minimizing quadratic objective
+    functions subject to bound constraints.  ROL implements a Newton PDAS which
+    extends PDAS to general bound-constrained nonlinear programs, i.e.,
     \f[
         \min_x \quad f(x) \quad \text{s.t.} \quad a \le x \le b.
-    \f] 
-    Given the \f$k\f$-th iterate \f$x_k\f$, the Newton PDAS algorithm computes 
-    steps by applying PDAS to the quadratic subproblem 
+    \f]
+    Given the \f$k\f$-th iterate \f$x_k\f$, the Newton PDAS algorithm computes
+    steps by applying PDAS to the quadratic subproblem
     \f[
         \min_s \quad \langle \nabla^2 f(x_k)s + \nabla f(x_k),s \rangle_{\mathcal{X}}
         \quad \text{s.t.} \quad a \le x_k + s \le b.
     \f]
-    For the \f$k\f$-th quadratic subproblem, PDAS builds an approximation of the 
-    active set \f$\mathcal{A}_k\f$ using the dual variable \f$\lambda_k\f$ as 
+    For the \f$k\f$-th quadratic subproblem, PDAS builds an approximation of the
+    active set \f$\mathcal{A}_k\f$ using the dual variable \f$\lambda_k\f$ as
     \f[
        \mathcal{A}^+_k = \{\,\xi\in\Xi\,:\,(\lambda_k + c(x_k-b))(\xi) > 0\,\}, \quad
        \mathcal{A}^-_k = \{\,\xi\in\Xi\,:\,(\lambda_k + c(x_k-a))(\xi) < 0\,\}, \quad\text{and}\quad
        \mathcal{A}_k = \mathcal{A}^-_k\cup\mathcal{A}^+_k.
-    \f] 
+    \f]
     We define the inactive set \f$\mathcal{I}_k=\Xi\setminus\mathcal{A}_k\f$.
-    The solution to the quadratic subproblem is then computed iteratively by solving 
+    The solution to the quadratic subproblem is then computed iteratively by solving
     \f[
        \nabla^2 f(x_k) s_k + \lambda_{k+1} = -\nabla f(x_k), \quad
        x_k+s_k = a \;\text{on}\;\mathcal{A}^-_k,\quad x_k+s_k = b\;\text{on}\;\mathcal{A}^+_k,
        \quad\text{and}\quad
        \lambda_{k+1} = 0\;\text{on}\;\mathcal{I}_k
     \f]
-    and updating the active and inactive sets. 
- 
-    One can rewrite this system by consolidating active and inactive parts, i.e., 
+    and updating the active and inactive sets.
+
+    One can rewrite this system by consolidating active and inactive parts, i.e.,
     \f[
        \begin{pmatrix}
            \nabla^2 f(x_k)_{\mathcal{A}_k,\mathcal{A}_k}  & \nabla^2 f(x_k)_{\mathcal{A}_k,\mathcal{I}_k} \\
-           \nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{A}_k}  & \nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{I}_k} 
+           \nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{A}_k}  & \nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{I}_k}
        \end{pmatrix}
        \begin{pmatrix}
          (s_k)_{\mathcal{A}_k} \\
@@ -112,18 +112,18 @@
          (\lambda_{k+1})_{\mathcal{A}_k} \\
          0
        \end{pmatrix}
-       = - 
+       = -
        \begin{pmatrix}
          \nabla f(x_k)_{\mathcal{A}_k}\\
          \nabla f(x_k)_{\mathcal{I}_k}
        \end{pmatrix}.
     \f]
-    Here the subscripts \f$\mathcal{A}_k\f$ and \f$\mathcal{I}_k\f$ denote the active and inactive 
-    components, respectively.  Moreover, the active components of \f$s_k\f$ are 
+    Here the subscripts \f$\mathcal{A}_k\f$ and \f$\mathcal{I}_k\f$ denote the active and inactive
+    components, respectively.  Moreover, the active components of \f$s_k\f$ are
     \f$s_k(\xi) = a(\xi)-x_k(\xi)\f$ if \f$\xi\in\mathcal{A}^-_k\f$ and \f$s_k(\xi) = b(\xi)-x_k(\xi)\f$
-    if \f$\xi\in\mathcal{A}^+_k\f$.  Since \f$(s_k)_{\mathcal{A}_k}\f$ is fixed, we only need to solve 
-    for the inactive components of \f$s_k\f$ which we can do this using conjugate residuals (CR) (i.e., the 
-    Hessian operator corresponding to the inactive indices may not be positive definite).  Once 
+    if \f$\xi\in\mathcal{A}^+_k\f$.  Since \f$(s_k)_{\mathcal{A}_k}\f$ is fixed, we only need to solve
+    for the inactive components of \f$s_k\f$ which we can do this using conjugate residuals (CR) (i.e., the
+    Hessian operator corresponding to the inactive indices may not be positive definite).  Once
     \f$(s_k)_{\mathcal{I}_k}\f$ is computed, it is straight forward to update the dual variables.
 */
 
@@ -133,7 +133,7 @@ template <class Real>
 class PrimalDualActiveSetStep : public Step<Real> {
 private:
 
-  Teuchos::RCP<Krylov<Real> > krylov_;
+  ROL::SharedPointer<Krylov<Real> > krylov_;
 
   // Krylov Parameters
   int iterCR_;  ///< CR iteration counter
@@ -141,55 +141,55 @@ private:
   Real itol_;   ///< Inexact CR tolerance
 
   // PDAS Parameters
-  int maxit_;      ///< Maximum number of PDAS iterations 
+  int maxit_;      ///< Maximum number of PDAS iterations
   int iter_;       ///< PDAS iteration counter
   int flag_;       ///< PDAS termination flag
   Real stol_;      ///< PDAS minimum step size stopping tolerance
   Real gtol_;      ///< PDAS gradient stopping tolerance
   Real scale_;     ///< Scale for dual variables in the active set, \f$c\f$
-  Real neps_;      ///< \f$\epsilon\f$-active set parameter 
+  Real neps_;      ///< \f$\epsilon\f$-active set parameter
   bool feasible_;  ///< Flag whether the current iterate is feasible or not
 
   // Dual Variable
-  Teuchos::RCP<Vector<Real> > lambda_; ///< Container for dual variables
-  Teuchos::RCP<Vector<Real> > xlam_;   ///< Container for primal plus dual variables
-  Teuchos::RCP<Vector<Real> > x0_;     ///< Container for initial priaml variables
-  Teuchos::RCP<Vector<Real> > xbnd_;   ///< Container for primal variable bounds
-  Teuchos::RCP<Vector<Real> > As_;     ///< Container for step projected onto active set
-  Teuchos::RCP<Vector<Real> > xtmp_;   ///< Container for temporary primal storage
-  Teuchos::RCP<Vector<Real> > res_;    ///< Container for optimality system residual for quadratic model
-  Teuchos::RCP<Vector<Real> > Ag_;     ///< Container for gradient projected onto active set
-  Teuchos::RCP<Vector<Real> > rtmp_;   ///< Container for temporary right hand side storage
-  Teuchos::RCP<Vector<Real> > gtmp_;   ///< Container for temporary gradient storage
- 
+  ROL::SharedPointer<Vector<Real> > lambda_; ///< Container for dual variables
+  ROL::SharedPointer<Vector<Real> > xlam_;   ///< Container for primal plus dual variables
+  ROL::SharedPointer<Vector<Real> > x0_;     ///< Container for initial priaml variables
+  ROL::SharedPointer<Vector<Real> > xbnd_;   ///< Container for primal variable bounds
+  ROL::SharedPointer<Vector<Real> > As_;     ///< Container for step projected onto active set
+  ROL::SharedPointer<Vector<Real> > xtmp_;   ///< Container for temporary primal storage
+  ROL::SharedPointer<Vector<Real> > res_;    ///< Container for optimality system residual for quadratic model
+  ROL::SharedPointer<Vector<Real> > Ag_;     ///< Container for gradient projected onto active set
+  ROL::SharedPointer<Vector<Real> > rtmp_;   ///< Container for temporary right hand side storage
+  ROL::SharedPointer<Vector<Real> > gtmp_;   ///< Container for temporary gradient storage
+
   // Secant Information
   ESecant esec_;                       ///< Enum for secant type
-  Teuchos::RCP<Secant<Real> > secant_; ///< Secant object
-  bool useSecantPrecond_; 
+  ROL::SharedPointer<Secant<Real> > secant_; ///< Secant object
+  bool useSecantPrecond_;
   bool useSecantHessVec_;
 
   class HessianPD : public LinearOperator<Real> {
   private:
-    const Teuchos::RCP<Objective<Real> > obj_;
-    const Teuchos::RCP<BoundConstraint<Real> > bnd_;
-    const Teuchos::RCP<Vector<Real> > x_;
-    const Teuchos::RCP<Vector<Real> > xlam_;
-    Teuchos::RCP<Vector<Real> > v_;
+    const ROL::SharedPointer<Objective<Real> > obj_;
+    const ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+    const ROL::SharedPointer<Vector<Real> > x_;
+    const ROL::SharedPointer<Vector<Real> > xlam_;
+    ROL::SharedPointer<Vector<Real> > v_;
     Real eps_;
-    const Teuchos::RCP<Secant<Real> > secant_;
+    const ROL::SharedPointer<Secant<Real> > secant_;
     bool useSecant_;
   public:
-    HessianPD(const Teuchos::RCP<Objective<Real> > &obj,
-              const Teuchos::RCP<BoundConstraint<Real> > &bnd,
-              const Teuchos::RCP<Vector<Real> > &x,
-              const Teuchos::RCP<Vector<Real> > &xlam,
+    HessianPD(const ROL::SharedPointer<Objective<Real> > &obj,
+              const ROL::SharedPointer<BoundConstraint<Real> > &bnd,
+              const ROL::SharedPointer<Vector<Real> > &x,
+              const ROL::SharedPointer<Vector<Real> > &xlam,
               const Real eps = 0,
-              const Teuchos::RCP<Secant<Real> > &secant = Teuchos::null,
+              const ROL::SharedPointer<Secant<Real> > &secant = ROL::nullPointer,
               const bool useSecant = false )
       : obj_(obj), bnd_(bnd), x_(x), xlam_(xlam),
         eps_(eps), secant_(secant), useSecant_(useSecant) {
       v_ = x_->clone();
-      if ( !useSecant || secant == Teuchos::null ) {
+      if ( !useSecant || secant == ROL::nullPointer ) {
         useSecant_ = false;
       }
     }
@@ -208,26 +208,26 @@ private:
 
   class PrecondPD : public LinearOperator<Real> {
   private:
-    const Teuchos::RCP<Objective<Real> > obj_;
-    const Teuchos::RCP<BoundConstraint<Real> > bnd_;
-    const Teuchos::RCP<Vector<Real> > x_;
-    const Teuchos::RCP<Vector<Real> > xlam_;
-    Teuchos::RCP<Vector<Real> > v_;
+    const ROL::SharedPointer<Objective<Real> > obj_;
+    const ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+    const ROL::SharedPointer<Vector<Real> > x_;
+    const ROL::SharedPointer<Vector<Real> > xlam_;
+    ROL::SharedPointer<Vector<Real> > v_;
     Real eps_;
-    const Teuchos::RCP<Secant<Real> > secant_;
+    const ROL::SharedPointer<Secant<Real> > secant_;
     bool useSecant_;
   public:
-    PrecondPD(const Teuchos::RCP<Objective<Real> > &obj,
-              const Teuchos::RCP<BoundConstraint<Real> > &bnd,
-              const Teuchos::RCP<Vector<Real> > &x,
-              const Teuchos::RCP<Vector<Real> > &xlam,
+    PrecondPD(const ROL::SharedPointer<Objective<Real> > &obj,
+              const ROL::SharedPointer<BoundConstraint<Real> > &bnd,
+              const ROL::SharedPointer<Vector<Real> > &x,
+              const ROL::SharedPointer<Vector<Real> > &xlam,
               const Real eps = 0,
-              const Teuchos::RCP<Secant<Real> > &secant = Teuchos::null,
+              const ROL::SharedPointer<Secant<Real> > &secant = ROL::nullPointer,
               const bool useSecant = false )
       : obj_(obj), bnd_(bnd), x_(x), xlam_(xlam),
         eps_(eps), secant_(secant), useSecant_(useSecant) {
       v_ = x_->dual().clone();
-      if ( !useSecant || secant == Teuchos::null ) {
+      if ( !useSecant || secant == ROL::nullPointer ) {
         useSecant_ = false;
       }
     }
@@ -249,19 +249,19 @@ private:
 
   /** \brief Compute the gradient-based criticality measure.
 
-             The criticality measure is 
+             The criticality measure is
              \f$\|x_k - P_{[a,b]}(x_k-\nabla f(x_k))\|_{\mathcal{X}}\f$.
              Here, \f$P_{[a,b]}\f$ denotes the projection onto the
              bound constraints.
- 
+
              @param[in]    x     is the current iteration
              @param[in]    obj   is the objective function
              @param[in]    con   are the bound constraints
              @param[in]    tol   is a tolerance for inexact evaluations of the objective function
-  */ 
+  */
   Real computeCriticalityMeasure(Vector<Real> &x, Objective<Real> &obj, BoundConstraint<Real> &con, Real tol) {
     Real one(1);
-    Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     obj.gradient(*(step_state->gradientVec),x,tol);
     xtmp_->set(x);
     xtmp_->axpy(-one,(step_state->gradientVec)->dual());
@@ -272,21 +272,21 @@ private:
 
 public:
   /** \brief Constructor.
-     
+
              @param[in]     parlist   is a parameter list containing relevent algorithmic information
-             @param[in]     useSecant is a bool which determines whether or not the algorithm uses 
+             @param[in]     useSecant is a bool which determines whether or not the algorithm uses
                                       a secant approximation of the Hessian
   */
-  PrimalDualActiveSetStep( Teuchos::ParameterList &parlist ) 
-    : Step<Real>::Step(), krylov_(Teuchos::null),
+  PrimalDualActiveSetStep( Teuchos::ParameterList &parlist )
+    : Step<Real>::Step(), krylov_(ROL::nullPointer),
       iterCR_(0), flagCR_(0), itol_(0),
       maxit_(0), iter_(0), flag_(0), stol_(0), gtol_(0), scale_(0),
       neps_(-ROL_EPSILON<Real>()), feasible_(false),
-      lambda_(Teuchos::null), xlam_(Teuchos::null), x0_(Teuchos::null),
-      xbnd_(Teuchos::null), As_(Teuchos::null), xtmp_(Teuchos::null),
-      res_(Teuchos::null), Ag_(Teuchos::null), rtmp_(Teuchos::null),
-      gtmp_(Teuchos::null),
-      esec_(SECANT_LBFGS), secant_(Teuchos::null), useSecantPrecond_(false),
+      lambda_(ROL::nullPointer), xlam_(ROL::nullPointer), x0_(ROL::nullPointer),
+      xbnd_(ROL::nullPointer), As_(ROL::nullPointer), xtmp_(ROL::nullPointer),
+      res_(ROL::nullPointer), Ag_(ROL::nullPointer), rtmp_(ROL::nullPointer),
+      gtmp_(ROL::nullPointer),
+      esec_(SECANT_LBFGS), secant_(ROL::nullPointer), useSecantPrecond_(false),
       useSecantHessVec_(false) {
     Real one(1), oem6(1.e-6), oem8(1.e-8);
     // Algorithmic parameters
@@ -296,7 +296,7 @@ public:
     scale_ = parlist.sublist("Step").sublist("Primal Dual Active Set").get("Dual Scaling", one);
     // Build secant object
     esec_ = StringToESecant(parlist.sublist("General").sublist("Secant").get("Type","Limited-Memory BFGS"));
-    useSecantHessVec_ = parlist.sublist("General").sublist("Secant").get("Use as Hessian", false); 
+    useSecantHessVec_ = parlist.sublist("General").sublist("Secant").get("Use as Hessian", false);
     useSecantPrecond_ = parlist.sublist("General").sublist("Secant").get("Use as Preconditioner", false);
     if ( useSecantHessVec_ || useSecantPrecond_ ) {
       secant_ = SecantFactory<Real>(parlist);
@@ -305,36 +305,36 @@ public:
     krylov_ = KrylovFactory<Real>(parlist);
   }
 
-  /** \brief Initialize step.  
+  /** \brief Initialize step.
 
-             This includes projecting the initial guess onto the constraints, 
-             computing the initial objective function value and gradient, 
+             This includes projecting the initial guess onto the constraints,
+             computing the initial objective function value and gradient,
              and initializing the dual variables.
 
-             @param[in,out]    x           is the initial guess 
+             @param[in,out]    x           is the initial guess
              @param[in]        obj         is the objective function
              @param[in]        con         are the bound constraints
              @param[in]        algo_state  is the current state of the algorithm
   */
-  void initialize( Vector<Real> &x, const Vector<Real> &s, const Vector<Real> &g, 
-                   Objective<Real> &obj, BoundConstraint<Real> &con, 
+  void initialize( Vector<Real> &x, const Vector<Real> &s, const Vector<Real> &g,
+                   Objective<Real> &obj, BoundConstraint<Real> &con,
                    AlgorithmState<Real> &algo_state ) {
-    Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     Real zero(0), one(1);
     // Initialize state descent direction and gradient storage
     step_state->descentVec  = s.clone();
     step_state->gradientVec = g.clone();
     step_state->searchSize  = zero;
     // Initialize additional storage
-    xlam_ = x.clone(); 
+    xlam_ = x.clone();
     x0_   = x.clone();
     xbnd_ = x.clone();
-    As_   = s.clone(); 
-    xtmp_ = x.clone(); 
+    As_   = s.clone();
+    xtmp_ = x.clone();
     res_  = g.clone();
-    Ag_   = g.clone(); 
-    rtmp_ = g.clone(); 
-    gtmp_ = g.clone(); 
+    Ag_   = g.clone();
+    rtmp_ = g.clone();
+    gtmp_ = g.clone();
     // Project x onto constraint set
     con.project(x);
     // Update objective function, get value, and get gradient
@@ -345,28 +345,27 @@ public:
     algo_state.gnorm = computeCriticalityMeasure(x,obj,con,tol);
     algo_state.ngrad++;
     // Initialize dual variable
-    lambda_ = s.clone(); 
+    lambda_ = s.clone();
     lambda_->set((step_state->gradientVec)->dual());
     lambda_->scale(-one);
-    //con.setVectorToLowerBound(*lambda_);
   }
 
   /** \brief Compute step.
 
-             Given \f$x_k\f$, this function first builds the 
+             Given \f$x_k\f$, this function first builds the
              primal-dual active sets
-             \f$\mathcal{A}_k^-\f$ and \f$\mathcal{A}_k^+\f$.  
-             Next, it uses CR to compute the inactive 
-             components of the step by solving 
+             \f$\mathcal{A}_k^-\f$ and \f$\mathcal{A}_k^+\f$.
+             Next, it uses CR to compute the inactive
+             components of the step by solving
              \f[
-                 \nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{I}_k}(s_k)_{\mathcal{I}_k}  = 
+                 \nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{I}_k}(s_k)_{\mathcal{I}_k}  =
                      -\nabla f(x_k)_{\mathcal{I}_k}
                      -\nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{A}_k} (s_k)_{\mathcal{A}_k}.
              \f]
-             Finally, it updates the active components of the 
-             dual variables as 
+             Finally, it updates the active components of the
+             dual variables as
              \f[
-                \lambda_{k+1} = -\nabla f(x_k)_{\mathcal{A}_k} 
+                \lambda_{k+1} = -\nabla f(x_k)_{\mathcal{A}_k}
                                 -(\nabla^2 f(x_k) s_k)_{\mathcal{A}_k}.
              \f]
 
@@ -376,9 +375,9 @@ public:
              @param[in]        con         are the bound constraints
              @param[in]        algo_state  is the current state of the algorithm
   */
-  void compute( Vector<Real> &s, const Vector<Real> &x, Objective<Real> &obj, BoundConstraint<Real> &con, 
+  void compute( Vector<Real> &s, const Vector<Real> &x, Objective<Real> &obj, BoundConstraint<Real> &con,
                 AlgorithmState<Real> &algo_state ) {
-    Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     Real zero(0), one(1);
     s.zero();
     x0_->set(x);
@@ -393,15 +392,15 @@ public:
       // PROJECT x ONTO PRIMAL DUAL FEASIBLE SET
       /********************************************************************/
       As_->zero();                               // As   = 0
-   
-      con.setVectorToUpperBound(*xbnd_);         // xbnd = u
+
+      xbnd_->set(*con.getUpperBound());          // xbnd = u
       xbnd_->axpy(-one,x);                       // xbnd = u - x
       xtmp_->set(*xbnd_);                        // tmp  = u - x
       con.pruneUpperActive(*xtmp_,*xlam_,neps_); // tmp  = I(u - x)
       xbnd_->axpy(-one,*xtmp_);                  // xbnd = A(u - x)
       As_->plus(*xbnd_);                         // As  += A(u - x)
 
-      con.setVectorToLowerBound(*xbnd_);         // xbnd = l
+      xbnd_->set(*con.getLowerBound());          // xbnd = l
       xbnd_->axpy(-one,x);                       // xbnd = l - x
       xtmp_->set(*xbnd_);                        // tmp  = l - x
       con.pruneLowerActive(*xtmp_,*xlam_,neps_); // tmp  = I(l - x)
@@ -411,7 +410,7 @@ public:
       // APPLY HESSIAN TO ACTIVE COMPONENTS OF s AND REMOVE INACTIVE
       /********************************************************************/
       itol_ = std::sqrt(ROL_EPSILON<Real>());
-      if ( useSecantHessVec_ && secant_ != Teuchos::null ) {        // IHAs = H*As
+      if ( useSecantHessVec_ && secant_ != ROL::nullPointer ) {        // IHAs = H*As
         secant_->applyB(*gtmp_,*As_);
       }
       else {
@@ -427,30 +426,30 @@ public:
       Ag_->set(*(step_state->gradientVec));     // Active components
       Ag_->axpy(-one,*rtmp_);
       /********************************************************************/
-      // SOLVE REDUCED NEWTON SYSTEM 
+      // SOLVE REDUCED NEWTON SYSTEM
       /********************************************************************/
       rtmp_->plus(*gtmp_);
       rtmp_->scale(-one);                        // rhs = -Ig - I(H*As)
       s.zero();
-      if ( rtmp_->norm() > zero ) {             
+      if ( rtmp_->norm() > zero ) {
         // Initialize Hessian and preconditioner
-        Teuchos::RCP<Objective<Real> > obj_ptr = Teuchos::rcpFromRef(obj);
-        Teuchos::RCP<BoundConstraint<Real> > con_ptr = Teuchos::rcpFromRef(con);
-        Teuchos::RCP<LinearOperator<Real> > hessian
-          = Teuchos::rcp(new HessianPD(obj_ptr,con_ptr,
-              algo_state.iterateVec,xlam_,neps_,secant_,useSecantHessVec_));
-        Teuchos::RCP<LinearOperator<Real> > precond
-          = Teuchos::rcp(new PrecondPD(obj_ptr,con_ptr,
-              algo_state.iterateVec,xlam_,neps_,secant_,useSecantPrecond_));
+        ROL::SharedPointer<Objective<Real> > obj_ptr = ROL::makeSharedFromRef(obj); 
+        ROL::SharedPointer<BoundConstraint<Real> > con_ptr = ROL::makeSharedFromRef(con);
+        ROL::SharedPointer<LinearOperator<Real> > hessian
+          = ROL::makeShared<HessianPD>(obj_ptr,con_ptr,
+              algo_state.iterateVec,xlam_,neps_,secant_,useSecantHessVec_);
+        ROL::SharedPointer<LinearOperator<Real> > precond
+          = ROL::makeShared<PrecondPD>(obj_ptr,con_ptr,
+              algo_state.iterateVec,xlam_,neps_,secant_,useSecantPrecond_);
         //solve(s,*rtmp_,*xlam_,x,obj,con);   // Call conjugate residuals
         krylov_->run(s,*hessian,*rtmp_,*precond,iterCR_,flagCR_);
         con.pruneActive(s,*xlam_,neps_);        // s <- Is
       }
       s.plus(*As_);                             // s = Is + As
       /********************************************************************/
-      // UPDATE MULTIPLIER 
+      // UPDATE MULTIPLIER
       /********************************************************************/
-      if ( useSecantHessVec_ && secant_ != Teuchos::null ) {
+      if ( useSecantHessVec_ && secant_ != ROL::nullPointer ) {
         secant_->applyB(*rtmp_,s);
       }
       else {
@@ -463,22 +462,22 @@ public:
       lambda_->plus(*Ag_);
       lambda_->scale(-one);
       /********************************************************************/
-      // UPDATE STEP 
+      // UPDATE STEP
       /********************************************************************/
       x0_->set(x);
       x0_->plus(s);
       res_->set(*(step_state->gradientVec));
       res_->plus(*rtmp_);
-      // Compute criticality measure  
+      // Compute criticality measure
       xtmp_->set(*x0_);
       xtmp_->axpy(-one,res_->dual());
       con.project(*xtmp_);
       xtmp_->axpy(-one,*x0_);
-//      std::cout << s.norm()               << "  " 
-//                << tmp->norm()            << "  " 
-//                << res_->norm()           << "  " 
-//                << lambda_->norm()  << "  " 
-//                << flagCR_          << "  " 
+//      std::cout << s.norm()               << "  "
+//                << tmp->norm()            << "  "
+//                << res_->norm()           << "  "
+//                << lambda_->norm()  << "  "
+//                << flagCR_          << "  "
 //                << iterCR_          << "\n";
       if ( xtmp_->norm() < gtol_*algo_state.gnorm ) {
         flag_ = 0;
@@ -487,7 +486,7 @@ public:
       if ( s.norm() < stol_*x.norm() ) {
         flag_ = 2;
         break;
-      } 
+      }
     }
     if ( iter_ == maxit_ ) {
       flag_ = 1;
@@ -510,7 +509,7 @@ public:
   */
   void update( Vector<Real> &x, const Vector<Real> &s, Objective<Real> &obj, BoundConstraint<Real> &con,
                AlgorithmState<Real> &algo_state ) {
-    Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
 
     x.plus(s);
     feasible_ = con.isFeasible(x);
@@ -520,14 +519,14 @@ public:
     obj.update(x,true,algo_state.iter);
     algo_state.value = obj.value(x,tol);
     algo_state.nfval++;
-    
-    if ( secant_ != Teuchos::null ) {
+
+    if ( secant_ != ROL::nullPointer ) {
       gtmp_->set(*(step_state->gradientVec));
     }
     algo_state.gnorm = computeCriticalityMeasure(x,obj,con,tol);
     algo_state.ngrad++;
 
-    if ( secant_ != Teuchos::null ) {
+    if ( secant_ != ROL::nullPointer ) {
       secant_->updateStorage(x,*(step_state->gradientVec),*gtmp_,s,algo_state.snorm,algo_state.iter+1);
     }
     (algo_state.iterateVec)->set(x);
@@ -535,8 +534,8 @@ public:
 
   /** \brief Print iterate header.
 
-             This function produces a string containing 
-             header information.  
+             This function produces a string containing
+             header information.
   */
   std::string printHeader( void ) const {
     std::stringstream hist;
@@ -562,8 +561,8 @@ public:
 
   /** \brief Print step name.
 
-             This function produces a string containing 
-             the algorithmic step information.  
+             This function produces a string containing
+             the algorithmic step information.
   */
   std::string printName( void ) const {
     std::stringstream hist;
@@ -572,7 +571,7 @@ public:
   }
 
   /** \brief Print iterate status.
-    
+
              This function prints the iteration status.
 
              @param[in]        algo_state  is the current state of the algorithm
@@ -627,25 +626,25 @@ public:
 
 #endif
 
-//  void solve(Vector<Real> &sol, const Vector<Real> &rhs, const Vector<Real> &xlam, const Vector<Real> &x, 
+//  void solve(Vector<Real> &sol, const Vector<Real> &rhs, const Vector<Real> &xlam, const Vector<Real> &x,
 //             Objective<Real> &obj, BoundConstraint<Real> &con) {
-//    Real rnorm  = rhs.norm(); 
+//    Real rnorm  = rhs.norm();
 //    Real rtol   = std::min(tol1_,tol2_*rnorm);
 //    itol_ = std::sqrt(ROL_EPSILON<Real>());
 //    sol.zero();
 //
-//    Teuchos::RCP<Vector<Real> > res = rhs.clone();
+//    ROL::SharedPointer<Vector<Real> > res = rhs.clone();
 //    res->set(rhs);
 //
-//    Teuchos::RCP<Vector<Real> > v = x.clone();
+//    ROL::SharedPointer<Vector<Real> > v = x.clone();
 //    con.pruneActive(*res,xlam,neps_);
 //    obj.precond(*v,*res,x,itol_);
 //    con.pruneActive(*v,xlam,neps_);
 //
-//    Teuchos::RCP<Vector<Real> > p = x.clone();
+//    ROL::SharedPointer<Vector<Real> > p = x.clone();
 //    p->set(*v);
 //
-//    Teuchos::RCP<Vector<Real> > Hp = x.clone();
+//    ROL::SharedPointer<Vector<Real> > Hp = x.clone();
 //
 //    iterCR_ = 0;
 //    flagCR_ = 0;
@@ -657,7 +656,7 @@ public:
 //        itol_ = rtol/(maxitCR_*rnorm);
 //      }
 //      con.pruneActive(*p,xlam,neps_);
-//      if ( secant_ == Teuchos::null ) {
+//      if ( secant_ == ROL::nullPointer ) {
 //        obj.hessVec(*Hp, *p, x, itol_);
 //      }
 //      else {
@@ -694,10 +693,10 @@ public:
 
 
 //  /** \brief Apply the inactive components of the Hessian operator.
-// 
+//
 //             I.e., the components corresponding to \f$\mathcal{I}_k\f$.
 //
-//             @param[out]       hv     is the result of applying the Hessian at @b x to 
+//             @param[out]       hv     is the result of applying the Hessian at @b x to
 //                                      @b v
 //             @param[in]        v      is the direction in which we apply the Hessian
 //             @param[in]        x      is the current iteration vector \f$x_k\f$
@@ -705,12 +704,12 @@ public:
 //             @param[in]        obj    is the objective function
 //             @param[in]        con    are the bound constraints
 //  */
-//  void applyInactiveHessian(Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x, 
+//  void applyInactiveHessian(Vector<Real> &hv, const Vector<Real> &v, const Vector<Real> &x,
 //                      const Vector<Real> &xlam, Objective<Real> &obj, BoundConstraint<Real> &con) {
-//    Teuchos::RCP<Vector<Real> > tmp = v.clone();
+//    ROL::SharedPointer<Vector<Real> > tmp = v.clone();
 //    tmp->set(v);
 //    con.pruneActive(*tmp,xlam,neps_);
-//    if ( secant_ == Teuchos::null ) {
+//    if ( secant_ == ROL::nullPointer ) {
 //      obj.hessVec(hv,*tmp,x,itol_);
 //    }
 //    else {
@@ -723,7 +722,7 @@ public:
 //
 //             I.e., the components corresponding to \f$\mathcal{I}_k\f$.
 //
-//             @param[out]       hv     is the result of applying the preconditioner at @b x to 
+//             @param[out]       hv     is the result of applying the preconditioner at @b x to
 //                                      @b v
 //             @param[in]        v      is the direction in which we apply the preconditioner
 //             @param[in]        x      is the current iteration vector \f$x_k\f$
@@ -733,24 +732,24 @@ public:
 //  */
 //  void applyInactivePrecond(Vector<Real> &pv, const Vector<Real> &v, const Vector<Real> &x,
 //                      const Vector<Real> &xlam, Objective<Real> &obj, BoundConstraint<Real> &con) {
-//    Teuchos::RCP<Vector<Real> > tmp = v.clone();
+//    ROL::SharedPointer<Vector<Real> > tmp = v.clone();
 //    tmp->set(v);
 //    con.pruneActive(*tmp,xlam,neps_);
 //    obj.precond(pv,*tmp,x,itol_);
 //    con.pruneActive(pv,xlam,neps_);
 //  }
 //
-//  /** \brief Solve the inactive part of the PDAS optimality system.  
+//  /** \brief Solve the inactive part of the PDAS optimality system.
 //
-//             The inactive PDAS optimality system is 
+//             The inactive PDAS optimality system is
 //             \f[
-//                 \nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{I}_k}s  = 
+//                 \nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{I}_k}s  =
 //                     -\nabla f(x_k)_{\mathcal{I}_k}
 //                     -\nabla^2 f(x_k)_{\mathcal{I}_k,\mathcal{A}_k} (s_k)_{\mathcal{A}_k}.
 //             \f]
-//             Since the inactive part of the Hessian may not be positive definite, we solve 
+//             Since the inactive part of the Hessian may not be positive definite, we solve
 //             using CR.
-//   
+//
 //             @param[out]       sol    is the vector containing the solution
 //             @param[in]        rhs    is the right-hand side vector
 //             @param[in]        xlam   is the vector \f$x_k + c\lambda_k\f$
@@ -759,31 +758,31 @@ public:
 //             @param[in]        con    are the bound constraints
 //  */
 //  // Solve the inactive part of the optimality system using conjugate residuals
-//  void solve(Vector<Real> &sol, const Vector<Real> &rhs, const Vector<Real> &xlam, const Vector<Real> &x, 
+//  void solve(Vector<Real> &sol, const Vector<Real> &rhs, const Vector<Real> &xlam, const Vector<Real> &x,
 //             Objective<Real> &obj, BoundConstraint<Real> &con) {
 //    // Initialize Residual
-//    Teuchos::RCP<Vector<Real> > res = rhs.clone();
+//    ROL::SharedPointer<Vector<Real> > res = rhs.clone();
 //    res->set(rhs);
-//    Real rnorm  = res->norm(); 
+//    Real rnorm  = res->norm();
 //    Real rtol   = std::min(tol1_,tol2_*rnorm);
 //    if ( false ) { itol_ = rtol/(maxitCR_*rnorm); }
 //    sol.zero();
 //
 //    // Apply preconditioner to residual r = Mres
-//    Teuchos::RCP<Vector<Real> > r = x.clone();
+//    ROL::SharedPointer<Vector<Real> > r = x.clone();
 //    applyInactivePrecond(*r,*res,x,xlam,obj,con);
 //
 //    // Initialize direction p = v
-//    Teuchos::RCP<Vector<Real> > p = x.clone();
+//    ROL::SharedPointer<Vector<Real> > p = x.clone();
 //    p->set(*r);
 //
 //    // Apply Hessian to v
-//    Teuchos::RCP<Vector<Real> > Hr = x.clone();
+//    ROL::SharedPointer<Vector<Real> > Hr = x.clone();
 //    applyInactiveHessian(*Hr,*r,x,xlam,obj,con);
 //
 //    // Apply Hessian to p
-//    Teuchos::RCP<Vector<Real> > Hp  = x.clone();
-//    Teuchos::RCP<Vector<Real> > MHp = x.clone();
+//    ROL::SharedPointer<Vector<Real> > Hp  = x.clone();
+//    ROL::SharedPointer<Vector<Real> > MHp = x.clone();
 //    Hp->set(*Hr);
 //
 //    iterCR_ = 0;
@@ -800,7 +799,7 @@ public:
 //      sol.axpy(alpha,*p);     // update step
 //      res->axpy(-alpha,*Hp);  // residual
 //      r->axpy(-alpha,*MHp);   // preconditioned residual
-//      
+//
 //      // recompute rnorm and decide whether or not to exit
 //      rnorm = res->norm();
 //      if ( rnorm < rtol ) { break; }

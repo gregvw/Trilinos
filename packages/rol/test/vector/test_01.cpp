@@ -1,4 +1,4 @@
-// @HEADER
+// @Header
 // ************************************************************************
 //
 //               Rapid Optimization Library (ROL) Package
@@ -62,12 +62,14 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+
+  std::ostream* outStream;
+
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -78,9 +80,9 @@ int main(int argc, char *argv[]) {
   try {
 
     int dim = 100;
-    Teuchos::RCP<std::vector<ElementT> > x_rcp = Teuchos::rcp( new std::vector<ElementT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<ElementT> > y_rcp = Teuchos::rcp( new std::vector<ElementT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<ElementT> > z_rcp = Teuchos::rcp( new std::vector<ElementT> (dim, 0.0) );
+    ROL::SharedPointer<std::vector<ElementT> > x_rcp = ROL::makeShared<std::vector<ElementT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<ElementT> > y_rcp = ROL::makeShared<std::vector<ElementT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<ElementT> > z_rcp = ROL::makeShared<std::vector<ElementT>>(dim, 0.0);
     ROL::StdVector<RealT, ElementT> x(x_rcp);
     ROL::StdVector<RealT, ElementT> y(y_rcp);
     ROL::StdVector<RealT, ElementT> z(z_rcp);
@@ -95,15 +97,15 @@ int main(int argc, char *argv[]) {
     }
 
     // Standard tests.
-    std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT, ElementT> checkvec(Teuchos::rcp(&consistency, false));
+    auto consistency = ROL::makeShared<std::vector<RealT>>(x.checkVector(y, z, true, *outStream));
+    ROL::StdVector<RealT, ElementT> checkvec(consistency);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
 
     // Basis tests.
     // set x to first basis vector
-    Teuchos::RCP<ROL::Vector<RealT> > zp = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > zp = x.clone();
     zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";
@@ -130,7 +132,7 @@ int main(int argc, char *argv[]) {
 
     // Repeat the checkVector tests with a zero vector.
     x.scale(0.0);
-    consistency = x.checkVector(x, x, true, *outStream);
+    *consistency = x.checkVector(x, x, true, *outStream);
     if (checkvec.norm() > 0.0) {
       errorFlag++;
     }
@@ -149,4 +151,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

@@ -48,7 +48,7 @@
 #include <limits>
 #include <Kokkos_Core.hpp>
 #include <Kokkos_Blas1.hpp>
-#include <Kokkos_Sparse.hpp>
+#include <KokkosSparse_spmv.hpp>
 #include <impl/Kokkos_Timer.hpp>
 
 #include <WrapMPI.hpp>
@@ -136,7 +136,7 @@ struct CGSolve< ImportType , SparseMatrixType , VectorType ,
 
       /* p = r + beta * p ; */ KokkosBlas::axpby( 1.0 , r , beta , p );
 
-      norm_res = sqrt( old_rdot = r_dot );
+      norm_res = std::sqrt( old_rdot = r_dot );
 
       ++iteration ;
     }

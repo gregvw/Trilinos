@@ -233,14 +233,14 @@ class StkSimdView1dTester {
   }
 
   Real reduce_sum_functor(SimdView a, int loopSize) const {
-    Real reducedRunningSum=0;
+    Real reducedRunningSum=0.0;
     stk::simd::parallel_reduce_sum("running_sum", loopSize,
                                    ReduceSumFunctor(a), reducedRunningSum);
     return reducedRunningSum;
   }
 
   Real reduce_sum_functor_with_tag(SimdView a, int loopSize) const {
-    Real reducedRunningSum=0;
+    Real reducedRunningSum=0.0;
     stk::simd::parallel_reduce_sum("running_sum", 
                                    Kokkos::RangePolicy<SomeTag>(0, loopSize),
                                    ReduceSumFunctorWithTag(a),
@@ -259,7 +259,7 @@ class StkSimdView1dTester {
   void test_view_equal_to_index_multiple(HostSimdView view, int n) const {
     for (int i=0; i < N; ++i) {
       EXPECT_EQ(n*i, view(i));
-    }    
+    }
   }
   int N;
 };

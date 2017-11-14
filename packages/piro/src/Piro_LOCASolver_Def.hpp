@@ -90,10 +90,10 @@ Piro::LOCASolver<Scalar>::LOCASolver(
   globalData_(LOCA::createGlobalData(piroParams)),
   paramVector_(),
   group_(),
-  model_(model), 
   locaStatusTests_(),
   noxStatusTests_(),
-  stepper_()
+  stepper_(),
+  model_(model)
 {
   const int l = 0; // TODO: Allow user to select parameter index
   const Detail::ModelEvaluatorParamName paramName(this->getModel().get_p_names(l));
@@ -141,6 +141,27 @@ template<typename Scalar>
 Piro::LOCASolver<Scalar>::~LOCASolver()
 {
   LOCA::destroyGlobalData(globalData_);
+}
+
+template<typename Scalar>
+Teuchos::RCP<NOX::Solver::Generic>
+Piro::LOCASolver<Scalar>::getSolver()
+{
+  return stepper_->getSolver();
+}
+
+template<typename Scalar>
+Teuchos::ParameterList &
+Piro::LOCASolver<Scalar>::getStepperParams()
+{
+  return stepper_->getParams();
+}
+
+template<typename Scalar>
+Teuchos::ParameterList &
+Piro::LOCASolver<Scalar>::getStepSizeParams()
+{
+  return stepper_->getStepSizeParams();
 }
 
 template <typename Scalar>

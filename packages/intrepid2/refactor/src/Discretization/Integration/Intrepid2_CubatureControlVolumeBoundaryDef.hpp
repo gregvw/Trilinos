@@ -40,7 +40,7 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_CubatureControlVolumeBoundaryDef.hpp
+/** \file   Intrepid2_CubatureControlVolumeBoundaryDef.hpp
     \brief  Definition file for the Intrepid2::CubatureControlVolumeBoundary class.
     \author Created by K. Peterson, P. Bochev and D. Ridzal.
             Kokkorized by Kyungjoo Kim
@@ -170,6 +170,7 @@ namespace Intrepid2{
         sideNodeMapHost(i,j+1) = subcvCellTopo_.getNodeMap(sideDim, sideOrd, j);
     }
     sideNodeMap_ = Kokkos::create_mirror_view(typename SpT::memory_space(), sideNodeMapHost);
+    Kokkos::deep_copy(sideNodeMap_, sideNodeMapHost);
   }
 
   template <typename SpT, typename PT, typename WT>

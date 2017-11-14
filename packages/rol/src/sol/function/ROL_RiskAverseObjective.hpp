@@ -44,7 +44,7 @@
 #ifndef ROL_RISKAVERSEOBJECTIVE_HPP
 #define ROL_RISKAVERSEOBJECTIVE_HPP
 
-#include "Teuchos_RCP.hpp"
+#include "ROL_SharedPointer.hpp"
 #include "ROL_Vector.hpp"
 #include "ROL_Objective.hpp"
 #include "ROL_SampleGenerator.hpp"
@@ -57,23 +57,23 @@ template<class Real>
 class RiskAverseObjective : public Objective<Real> {
 private:
   // Objective function definition
-  Teuchos::RCP<Objective<Real> >             ParametrizedObjective_; // Parametrized objective function
-  Teuchos::RCP<RiskMeasure<Real> >           RiskMeasure_;           // Risk measure
+  ROL::SharedPointer<Objective<Real> >             ParametrizedObjective_; // Parametrized objective function
+  ROL::SharedPointer<RiskMeasure<Real> >           RiskMeasure_;           // Risk measure
 
   // Sampler generators
-  Teuchos::RCP<SampleGenerator<Real> >       ValueSampler_;          // Sampler for objective value
-  Teuchos::RCP<SampleGenerator<Real> >       GradientSampler_;       // Sampler for objective gradient
-  Teuchos::RCP<SampleGenerator<Real> >       HessianSampler_;        // Sampler for objective Hessian-times-a-vector
+  ROL::SharedPointer<SampleGenerator<Real> >       ValueSampler_;          // Sampler for objective value
+  ROL::SharedPointer<SampleGenerator<Real> >       GradientSampler_;       // Sampler for objective gradient
+  ROL::SharedPointer<SampleGenerator<Real> >       HessianSampler_;        // Sampler for objective Hessian-times-a-vector
 
   // Additional storage
   bool firstUpdate_;
   bool storage_;
   std::map<std::vector<Real>,Real>                         value_storage_;
-  std::map<std::vector<Real>,Teuchos::RCP<Vector<Real> > > gradient_storage_;
-  Teuchos::RCP<Vector<Real> > x_;
-  Teuchos::RCP<Vector<Real> > v_;
-  Teuchos::RCP<Vector<Real> > g_;
-  Teuchos::RCP<Vector<Real> > hv_;
+  std::map<std::vector<Real>,ROL::SharedPointer<Vector<Real> > > gradient_storage_;
+  ROL::SharedPointer<Vector<Real> > x_;
+  ROL::SharedPointer<Vector<Real> > v_;
+  ROL::SharedPointer<Vector<Real> > g_;
+  ROL::SharedPointer<Vector<Real> > hv_;
 
   // Evaluate objective function at current parameter
   void getValue(Real &val, const Vector<Real> &x,
@@ -103,8 +103,8 @@ private:
       ParametrizedObjective_->setParameter(param);
       ParametrizedObjective_->gradient(g,x,tol);
       if ( storage_ ) {
-        Teuchos::RCP<Vector<Real> > tmp = g.clone();
-        gradient_storage_.insert(std::pair<std::vector<Real>,Teuchos::RCP<Vector<Real> > >(param,tmp));
+        ROL::SharedPointer<Vector<Real> > tmp = g.clone();
+        gradient_storage_.insert(std::pair<std::vector<Real>,ROL::SharedPointer<Vector<Real> > >(param,tmp));
         gradient_storage_[param]->set(g);
       }
     }
@@ -123,47 +123,42 @@ private:
 public:
   virtual ~RiskAverseObjective() {}
 
-  RiskAverseObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
-                       const Teuchos::RCP<RiskMeasure<Real> >     &rm,
-                       const Teuchos::RCP<SampleGenerator<Real> > &vsampler,
-                       const Teuchos::RCP<SampleGenerator<Real> > &gsampler,
-                       const Teuchos::RCP<SampleGenerator<Real> > &hsampler,
-                       const bool storage = true )
+  RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
+                       const ROL::SharedPointer<RiskMeasure<Real> >     &rm,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &gsampler,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &hsampler,
+                       const bool storage = true,
+                       const int comp = 0, const int index = 0 )
     : ParametrizedObjective_(pObj), RiskMeasure_(rm),
       ValueSampler_(vsampler), GradientSampler_(gsampler), HessianSampler_(hsampler),
       firstUpdate_(true), storage_(storage) {
     value_storage_.clear();
     gradient_storage_.clear();
+    RiskMeasure_->setRiskVectorInfo(comp,index);
   }
 
-  RiskAverseObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
-                       const Teuchos::RCP<RiskMeasure<Real> >     &rm,
-                       const Teuchos::RCP<SampleGenerator<Real> > &vsampler,
-                       const Teuchos::RCP<SampleGenerator<Real> > &gsampler,
-                       const bool storage = true )
-    : ParametrizedObjective_(pObj), RiskMeasure_(rm),
-      ValueSampler_(vsampler), GradientSampler_(gsampler), HessianSampler_(gsampler),
-      firstUpdate_(true), storage_(storage) {
-    value_storage_.clear();
-    gradient_storage_.clear();
-  }
+  RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
+                       const ROL::SharedPointer<RiskMeasure<Real> >     &rm,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &gsampler,
+                       const bool storage = true,
+                       const int comp = 0, const int index = 0 )
+    : RiskAverseObjective(pObj,rm,vsampler,gsampler,gsampler,storage,comp,index) {}
 
-  RiskAverseObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
-                       const Teuchos::RCP<RiskMeasure<Real> >     &rm,
-                       const Teuchos::RCP<SampleGenerator<Real> > &sampler,
-                       const bool storage = true )
-    : ParametrizedObjective_(pObj), RiskMeasure_(rm),
-      ValueSampler_(sampler), GradientSampler_(sampler), HessianSampler_(sampler),
-      firstUpdate_(true), storage_(storage) {
-    value_storage_.clear();
-    gradient_storage_.clear();
-  }
+  RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
+                       const ROL::SharedPointer<RiskMeasure<Real> >     &rm,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
+                       const bool storage = true,
+                       const int comp = 0, const int index = 0 )
+    : RiskAverseObjective(pObj,rm,sampler,sampler,sampler,storage,comp,index) {}
 
-  RiskAverseObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
+  RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
                              Teuchos::ParameterList               &parlist,
-                       const Teuchos::RCP<SampleGenerator<Real> > &vsampler,
-                       const Teuchos::RCP<SampleGenerator<Real> > &gsampler,
-                       const Teuchos::RCP<SampleGenerator<Real> > &hsampler )
+                       const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &gsampler,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &hsampler,
+                       const int comp = 0, const int index = 0 )
     : ParametrizedObjective_(pObj),
       ValueSampler_(vsampler), GradientSampler_(gsampler), HessianSampler_(hsampler),
       firstUpdate_(true) {
@@ -172,65 +167,42 @@ public:
       RiskMeasure_ = RiskMeasureFactory<Real>(parlist);
     }
     else {
-      RiskMeasure_ = Teuchos::rcp(new ConvexCombinationRiskMeasure<Real>(parlist));
+      RiskMeasure_ = ROL::makeShared<ConvexCombinationRiskMeasure<Real>>(parlist);
     }
     storage_ = parlist.sublist("SOL").get("Store Sampled Value and Gradient",true);
     value_storage_.clear();
     gradient_storage_.clear();
+    RiskMeasure_->setRiskVectorInfo(comp,index);
   }
 
-  RiskAverseObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
+  RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
                              Teuchos::ParameterList               &parlist,
-                       const Teuchos::RCP<SampleGenerator<Real> > &vsampler,
-                       const Teuchos::RCP<SampleGenerator<Real> > &gsampler )
-    : ParametrizedObjective_(pObj),
-      ValueSampler_(vsampler), GradientSampler_(gsampler), HessianSampler_(gsampler),
-      firstUpdate_(true) {
-    std::string name = parlist.sublist("SOL").sublist("Risk Measure").get("Name","CVaR");
-    if (name != "Convex Combination Risk Measure") {
-      RiskMeasure_ = RiskMeasureFactory<Real>(parlist);
-    }
-    else {
-      RiskMeasure_ = ConvexCombinationRiskMeasure<Real>(parlist);
-    }
-    storage_ = parlist.sublist("SOL").get("Store Sampled Value and Gradient",true);
-    value_storage_.clear();
-    gradient_storage_.clear();
-  }
+                       const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
+                       const ROL::SharedPointer<SampleGenerator<Real> > &gsampler,
+                       const int comp = 0, const int index = 0 )
+    : RiskAverseObjective(pObj,parlist,vsampler,gsampler,gsampler,comp,index) {}
 
-  RiskAverseObjective( const Teuchos::RCP<Objective<Real> >       &pObj,
+  RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
                              Teuchos::ParameterList               &parlist,
-                       const Teuchos::RCP<SampleGenerator<Real> > &sampler )
-    : ParametrizedObjective_(pObj),
-      ValueSampler_(sampler), GradientSampler_(sampler), HessianSampler_(sampler),
-      firstUpdate_(true) {
-    std::string name = parlist.sublist("SOL").sublist("Risk Measure").get("Name","CVaR");
-    if (name != "Convex Combination Risk Measure") {
-      RiskMeasure_ = RiskMeasureFactory<Real>(parlist);
-    }
-    else {
-      RiskMeasure_ = ConvexCombinationRiskMeasure<Real>(parlist);
-    }
-    storage_ = parlist.sublist("SOL").get("Store Sampled Value and Gradient",true);
-    value_storage_.clear();
-    gradient_storage_.clear();
-  }
+                       const ROL::SharedPointer<SampleGenerator<Real> > &sampler, 
+                       const int comp = 0, const int index = 0 )
+    : RiskAverseObjective(pObj,parlist,sampler,sampler,sampler,comp,index) {}
 
   virtual void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
+    RiskMeasure_->reset(x_,x);
     if ( firstUpdate_ ) {
-      RiskMeasure_->reset(x_,x);
       g_  = (x_->dual()).clone();
       hv_ = (x_->dual()).clone();
       firstUpdate_ = false;
     }
-    ParametrizedObjective_->update(x,flag,iter);
-    ValueSampler_->update(x);
+    ParametrizedObjective_->update(*x_,flag,iter);
+    ValueSampler_->update(*x_);
     if ( storage_ ) {
       value_storage_.clear();
     }
     if ( flag ) {
-      GradientSampler_->update(x);
-      HessianSampler_->update(x);
+      GradientSampler_->update(*x_);
+      HessianSampler_->update(*x_);
       if ( storage_ ) {
         gradient_storage_.clear();
       }

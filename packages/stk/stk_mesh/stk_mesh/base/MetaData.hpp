@@ -103,7 +103,7 @@ stk::topology get_topology(const MetaData& meta_data, EntityRank entity_rank, co
 void set_topology(Part &part, stk::topology topology);
 
 /** get the stk::topology given a Shards Cell Topology */
-stk::topology get_topology(shards::CellTopology shards_topology, int spatial_dimension = 3);
+stk::topology get_topology(shards::CellTopology shards_topology, unsigned spatial_dimension = 3);
 
 /** Get the Shards Cell Topology given a stk::topology  */
 shards::CellTopology get_cell_topology(stk::topology topo);
@@ -137,7 +137,7 @@ shards::CellTopology get_cell_topology(stk::topology topo);
 class MetaData {
 public:
 
-  typedef std::map<const stk::mesh::Part*, std::vector<const stk::mesh::Part*>> SurfaceBlockMap;
+  typedef std::map<unsigned, std::vector<unsigned>> SurfaceBlockMap;
 
   /** \} */
   //------------------------------------
@@ -145,10 +145,9 @@ public:
    *  \{
    */
 
-  /// CellTopologyPartEntityRankMap maps each Cell Topology to its root cell topology part and its associated rank
-  typedef std::map<shards::CellTopology, std::pair<Part *, EntityRank> > CellTopologyPartEntityRankMap;
-  /// PartCellTopologyVector is a fast-lookup vector of size equal to the number of parts
-  typedef std::vector<shards::CellTopology> PartCellTopologyVector;
+  typedef std::map<stk::topology, Part*> TopologyPartMap;
+
+  typedef std::vector<stk::topology> PartTopologyVector;
 
 
   inline static MetaData & get( const Part & part ) { return part.meta_data(); }
@@ -514,6 +513,8 @@ public:
    */
   void register_cell_topology(const shards::CellTopology cell_topology, EntityRank in_entity_rank);
 
+  Part& register_topology(stk::topology stkTopo);
+
   shards::CellTopology register_super_cell_topology(stk::topology t);
 
   /** \brief Return the root cell topology part associated with the given cell topology.
@@ -524,8 +525,7 @@ public:
 
   /** \brief Return the topology part given a stk::topology.
    */
-  Part &get_topology_root_part(stk::topology topology) const
-  { return get_cell_topology_root_part(stk::mesh::get_cell_topology(topology)); }
+  Part &get_topology_root_part(stk::topology topology) const;
 
   /** \brief Return the cell topology associated with the given part.
    * The cell topology is set on a part through part subsetting with the root
@@ -542,12 +542,35 @@ public:
 
   void set_surface_to_block_mapping(const stk::mesh::Part* surface, const std::vector<const stk::mesh::Part*> &blocks)
   {
-      m_surfaceToBlock[surface] = blocks;
+      std::vector<unsigned> partOrdinals(blocks.size());
+      for(size_t i=0;i<blocks.size();++i)
+          partOrdinals[i] = blocks[i]->mesh_meta_data_ordinal();
+      m_surfaceToBlock[surface->mesh_meta_data_ordinal()] = partOrdinals;
   }
 
-  const SurfaceBlockMap& get_surface_to_block_mapping() const
+  std::vector<const stk::mesh::Part*> get_blocks_touching_surface(const stk::mesh::Part* surface) const
   {
-      return m_surfaceToBlock;
+      std::vector<const stk::mesh::Part*> blockParts;
+      const auto entry = m_surfaceToBlock.find(surface->mesh_meta_data_ordinal());
+      if(entry != m_surfaceToBlock.end())
+      {
+          for(auto && touching_block_ordinal : entry->second)
+          {
+              const stk::mesh::Part* part = this->get_parts()[touching_block_ordinal];
+              blockParts.push_back(part);
+          }
+      }
+      return blockParts;
+  }
+
+  std::vector<const stk::mesh::Part *> get_surfaces_in_surface_to_block_map() const
+  {
+      std::vector<const stk::mesh::Part *> surfaces;
+      surfaces.reserve(m_surfaceToBlock.size());
+      SurfaceBlockMap::const_iterator iter = m_surfaceToBlock.begin();
+      for(; iter != m_surfaceToBlock.end();++iter)
+          surfaces.push_back(this->get_parts()[iter->first]);
+      return surfaces;
   }
 
 protected:
@@ -566,6 +589,8 @@ private:
   void internal_declare_known_cell_topology_parts();
 
   void internal_declare_part_subset( Part & superset , Part & subset );
+
+  void assign_topology(Part& part, stk::topology stkTopo);
 
   void assign_cell_topology( Part & part, shards::CellTopology topo);
 
@@ -590,10 +615,10 @@ private:
   unsigned m_spatial_dimension;
   SurfaceBlockMap m_surfaceToBlock;
 
-  /// Used to store mapping between Cell Topologies and their associated root parts and specified ranks:
-  CellTopologyPartEntityRankMap m_cellTopologyPartEntityRankMap;
+  /// Used to store mapping between Topologies and their associated root parts and specified ranks:
+  TopologyPartMap m_topologyPartMap;
   /// Fast-lookup vector that maps part ordinals to Cell Topologies.
-  PartCellTopologyVector        m_partCellTopologyVector;
+  PartTopologyVector m_partTopologyVector;
 
   /** \name  Invariants/preconditions for MetaData.
    * \{

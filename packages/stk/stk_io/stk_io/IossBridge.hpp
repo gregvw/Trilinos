@@ -302,7 +302,7 @@ void define_io_fields(Ioss::GroupingEntity *entity,
  *  stk::topology. If a corresponding topology is not found, a
  *  runtime error exception will be thrown.
  */
-stk::topology map_ioss_topology_to_stk(const Ioss::ElementTopology *topology);
+stk::topology map_ioss_topology_to_stk(const Ioss::ElementTopology *topology, unsigned mesh_spatial_dimension);
 
 /** Given a stk::topology, return the
  *	corresponding Ioss::ElementTopology string. If a corresponding
@@ -450,8 +450,6 @@ void put_io_part_attribute( mesh::Part &part);
  * this part should be used for io.  \see is_part_io_part()
  */
 void remove_io_part_attribute(mesh::Part &part);
-
-const Ioss::GroupingEntity *get_associated_ioss_entity(const mesh::Part &part);
 
 size_t db_api_int_size(const Ioss::GroupingEntity *entity);
 

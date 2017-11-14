@@ -54,7 +54,7 @@ template<class Real>
 class SampleGenerator {
 private:
   int begin_;
-  Teuchos::RCP<BatchManager<Real> > bman_;
+  ROL::SharedPointer<BatchManager<Real> > bman_;
   std::vector<std::vector<Real> > points_;
   std::vector<Real> weights_;
 
@@ -70,7 +70,7 @@ protected:
 
 public:
   virtual ~SampleGenerator() {}
-  SampleGenerator(const Teuchos::RCP<BatchManager<Real> > &bman)
+  SampleGenerator(const ROL::SharedPointer<BatchManager<Real> > &bman)
     : begin_(0), bman_(bman) {}
   SampleGenerator(const SampleGenerator<Real> &sampler) 
     : begin_(sampler.begin_), bman_(sampler.bman_),
@@ -88,7 +88,7 @@ public:
     return 0.0;
   }
 
-  virtual Real computeError(std::vector<Teuchos::RCP<Vector<Real> > > &vals, const Vector<Real> &x) {
+  virtual Real computeError(std::vector<ROL::SharedPointer<Vector<Real> > > &vals, const Vector<Real> &x) {
     return 0.0;
   }
 
@@ -126,8 +126,16 @@ public:
     bman_->sumAll(input,output);
   }
 
+  void broadcast(Real *input, int cnt, int root) const {
+    bman_->broadcast(input,cnt,root);
+  }
+
   void barrier(void) const {
     bman_->barrier();
+  }
+
+  const ROL::SharedPointer<BatchManager<Real> > getBatchManager(void) const {
+    return bman_;
   }
 
   void print(const std::string &filename = "samples",

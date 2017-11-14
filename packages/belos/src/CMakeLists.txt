@@ -33,6 +33,7 @@ APPEND_SET(HEADERS
   BelosBlockGmresSolMgr.hpp
   BelosCGIteration.hpp
   BelosCGIter.hpp
+  BelosCGSingleRedIter.hpp
   BelosConfigDefs.hpp
   BelosDGKSOrthoManager.hpp
   BelosFixedPointIter.hpp
@@ -77,6 +78,7 @@ APPEND_SET(HEADERS
   BelosSimpleOrthoManager.hpp
   BelosSolverManager.hpp
   BelosSolverFactory.hpp
+  BelosCustomSolverFactory.hpp
   BelosStatusTestCombo.hpp
   BelosStatusTestFactory.hpp
   BelosStatusTestGeneralOutput.hpp
@@ -84,6 +86,7 @@ APPEND_SET(HEADERS
   BelosStatusTestGenResSubNorm.hpp
   BelosStatusTest.hpp
   BelosStatusTestImpResNorm.hpp
+  BelosStatusTestLogResNorm.hpp
   BelosStatusTestMaxIters.hpp
   BelosStatusTestOutputFactory.hpp
   BelosStatusTestOutput.hpp
@@ -109,6 +112,7 @@ APPEND_SET(SOURCES
   BelosTypes.cpp
   BelosVersion.cpp
   Belos_Details_registerLinearSolverFactory.cpp
+  BelosSolverFactory.cpp
   )
 
 # COMP_H
@@ -122,6 +126,7 @@ APPEND_SET(HEADERS
   BelosTFQMRSolMgr.hpp
   BelosPseudoBlockTFQMRSolMgr.hpp
   BelosCGIter.hpp
+  BelosCGSingleRedIter.hpp
   BelosBlockCGIter.hpp
   BelosMinresIter.hpp
   BelosBlockGmresIter.hpp

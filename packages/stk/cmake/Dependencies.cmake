@@ -1,6 +1,7 @@
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
   Classic         stk_classic          EX  OPTIONAL
   Util            stk_util             PT  OPTIONAL
+  Simd            stk_simd             PT  OPTIONAL
   Topology        stk_topology         PT  OPTIONAL
   Mesh            stk_mesh             PT  OPTIONAL
   IO              stk_io               PT  OPTIONAL
@@ -8,6 +9,7 @@ SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
   Search          stk_search           PT  OPTIONAL
   SearchUtil      stk_search_util      PT  OPTIONAL
   Transfer        stk_transfer         PT  OPTIONAL
+  Tools           stk_tools            PT  OPTIONAL
   Unit_tests      stk_unit_tests       PT  OPTIONAL
   Doc_tests       stk_doc_tests        PT  OPTIONAL
   Exp             stk_exp              EX  OPTIONAL

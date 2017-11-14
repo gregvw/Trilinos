@@ -1,6 +1,6 @@
-// Copyright(C) 2008 Sandia Corporation.  Under the terms of Contract
-// DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-// certain rights in this software
+// Copyright(C) 2008 National Technology & Engineering Solutions
+// of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+// NTESS, the U.S. Government retains certain rights in this software.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,7 +14,7 @@
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
 //
-//     * Neither the name of Sandia Corporation nor the names of its
+//     * Neither the name of NTESS nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -31,7 +31,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 #include "iqsort.h"
-#include <cstdint>
 
 namespace {
   template <typename INT> void swap_(INT v[], size_t i, size_t j);
@@ -43,12 +42,13 @@ namespace {
   template <typename T, typename INT> void iisort(const T v[], INT iv[], size_t N);
 
   template <typename T, typename INT> void check(const T v[], INT iv[], size_t N);
-}
+} // namespace
 
 template <typename T, typename INT> void index_qsort(const T v[], INT iv[], size_t N)
 {
-  if (N <= 1)
+  if (N <= 1) {
     return;
+  }
   iqsort(v, iv, 0, N - 1);
   iisort(v, iv, N);
   check(v, iv, N);
@@ -86,12 +86,15 @@ namespace {
   {
     size_t center = (left + right) / 2;
 
-    if (v[iv[left]] > v[iv[center]])
+    if (v[iv[left]] > v[iv[center]]) {
       swap_(iv, left, center);
-    if (v[iv[left]] > v[iv[right]])
+    }
+    if (v[iv[left]] > v[iv[right]]) {
       swap_(iv, left, right);
-    if (v[iv[center]] > v[iv[right]])
+    }
+    if (v[iv[center]] > v[iv[right]]) {
       swap_(iv, center, right);
+    }
 
     swap_(iv, center, right - 1);
     return iv[right - 1];
@@ -105,10 +108,12 @@ namespace {
       size_t j     = right - 1;
 
       for (;;) {
-        while (v[iv[++i]] < v[pivot])
+        while (v[iv[++i]] < v[pivot]) {
           ;
-        while (v[iv[--j]] > v[pivot])
+        }
+        while (v[iv[--j]] > v[pivot]) {
           ;
+        }
         if (i < j) {
           swap_(iv, i, j);
         }
@@ -157,7 +162,7 @@ namespace {
     }
 #endif
   }
-}
+} // namespace
 
 template void index_qsort(const int v[], int iv[], size_t N);
 template void index_qsort(const double v[], int iv[], size_t N);

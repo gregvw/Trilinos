@@ -106,7 +106,7 @@ namespace Belos {
     //@{
 
     //! Default constructor
-    XpetraOp (const RCP<Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > & Op) : Op_(Op) {}
+    XpetraOp (const RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > & Op) : Op_(Op) {}
 
     //! Destructor.
     virtual ~XpetraOp() {};
@@ -154,14 +154,14 @@ namespace Belos {
     }
 #endif
 
-    RCP<const Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const { return Op_; }
+    RCP<const Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const { return Op_; }
 
   private:
 
-    RCP<Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > Op_;
+    RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > Op_;
   };
 
-#ifdef HAVE_MUELU_EPETRA
+#ifdef HAVE_XPETRA_EPETRA
 #ifndef EPETRA_NO_32BIT_GLOBAL_INDICES
   /*! @class XpetraOp
    *
@@ -192,7 +192,7 @@ namespace Belos {
 
   public:
 
-    XpetraOp(const RCP<Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > & Op) : Op_(Op) {}
+    XpetraOp(const RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > & Op) : Op_(Op) {}
 
     virtual ~XpetraOp() {};
 
@@ -249,16 +249,16 @@ namespace Belos {
     }
 #endif
 
-    RCP<const Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const { return Op_; }
+    RCP<const Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const { return Op_; }
 
   private:
 
-    RCP<Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > Op_;
+    RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > Op_;
   };
 #endif // !EPETRA_NO_32BIT_GLOBAL_INDICES
-#endif // HAVE_MUELU_EPETRA
+#endif // HAVE_XPETRA_EPETRA
 
-#ifdef HAVE_MUELU_EPETRA
+#ifdef HAVE_XPETRA_EPETRA
 #ifndef EPETRA_NO_64BIT_GLOBAL_INDICES
   /*! @class XpetraOp
    *
@@ -290,7 +290,7 @@ namespace Belos {
 
   public:
 
-    XpetraOp(const RCP<Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > & Op) : Op_(Op) {}
+    XpetraOp(const RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > & Op) : Op_(Op) {}
 
     virtual ~XpetraOp() {};
 
@@ -347,14 +347,14 @@ namespace Belos {
     }
 #endif
 
-    RCP<const Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const { return Op_; }
+    RCP<const Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const { return Op_; }
 
   private:
 
-    RCP<Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > Op_;
+    RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > Op_;
   };
 #endif // !EPETRA_NO_64BIT_GLOBAL_INDICES
-#endif // HAVE_MUELU_EPETRA
+#endif // HAVE_XPETRA_EPETRA
 
   //@}
 

@@ -58,26 +58,26 @@
 int main(int argc, char *argv[]) {
 
   using namespace ROL;
-  using Teuchos::RCP;
-  using Teuchos::rcp;
+
+
 
   typedef int                           OrdinalT;
   typedef double                        RealT;
   typedef Vector<RealT>                 V;
   typedef StdVector<RealT,RealT>        StdV;
   typedef TeuchosVector<OrdinalT,RealT> TV;
-  
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     OrdinalT dim = 100;
     TV x(dim,true);
     TV y(dim,true);
-    TV z(dim,true); 
+    TV z(dim,true);
 
     RealT left = -1e0, right = 1e0;
 
@@ -100,14 +100,14 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     std::vector<RealT> consistency = x.checkVector(y, z, true, *outStream);
-    StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    StdVector<RealT> checkvec(&consistency, false);
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
 
     // Basis tests.
     // set x to first basis vector
-    RCP<V> zp = x.basis(0);
+    ROL::SharedPointer<V> zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";
     if ( std::abs(znorm-1.0) > errtol ) {
@@ -152,4 +152,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

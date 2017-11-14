@@ -48,10 +48,7 @@
 #include <string>
 #include <iostream>
 
-#include "Phalanx_KokkosUtilities.hpp"
-
 #include "PanzerDiscFE_config.hpp"
-#include "Panzer_EpetraLinearObjFactory.hpp"
 #include "Panzer_BlockedEpetraLinearObjFactory.hpp"
 #include "Panzer_IntrepidFieldPattern.hpp"
 #include "Panzer_DOFManager.hpp"
@@ -126,13 +123,13 @@ TEUCHOS_UNIT_TEST(tCloneLOF, epetra)
    control_indexer->buildGlobalUnknowns();
  
    // setup factory
-   RCP<EpetraLinearObjFactory<Traits,int> > ep_lof
-         = Teuchos::rcp(new EpetraLinearObjFactory<Traits,int>(tComm.getConst(),indexer));
+   RCP<BlockedEpetraLinearObjFactory<Traits,int> > ep_lof
+         = Teuchos::rcp(new BlockedEpetraLinearObjFactory<Traits,int>(tComm.getConst(),indexer));
    
    // this is the member we are testing!
    RCP<const LinearObjFactory<Traits> > control_lof = cloneWithNewDomain(*ep_lof,control_indexer);
-   RCP<const EpetraLinearObjFactory<Traits,int> > ep_control_lof 
-       = rcp_dynamic_cast<const EpetraLinearObjFactory<Traits,int> >(control_lof);
+   RCP<const BlockedEpetraLinearObjFactory<Traits,int> > ep_control_lof 
+       = rcp_dynamic_cast<const BlockedEpetraLinearObjFactory<Traits,int> >(control_lof);
 
    std::vector<int> control_owned;
    control_indexer->getOwnedIndices(control_owned);

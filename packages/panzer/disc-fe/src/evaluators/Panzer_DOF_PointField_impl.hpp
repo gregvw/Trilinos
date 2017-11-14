@@ -70,8 +70,8 @@ void DOF_PointField<EvalT,TRAITST>::initialize(const std::string & fieldName,
 
   Teuchos::RCP<PHX::DataLayout> basisLayout = fieldBasis.functional;
 
-  coordinates = PHX::MDField<ScalarT,Point,Dim>(coordinateName,coordLayout);
-  dof_coeff = PHX::MDField<ScalarT>(fieldName,basisLayout);
+  coordinates = PHX::MDField<const ScalarT,Point,Dim>(coordinateName,coordLayout);
+  dof_coeff = PHX::MDField<const ScalarT>(fieldName,basisLayout);
   dof_field = PHX::MDField<ScalarT>(fieldName+postfixFieldName,quadLayout);
 
   this->addDependentField(coordinates);
@@ -89,7 +89,7 @@ void DOF_PointField<EvalT,TRAITST>::initialize(const std::string & fieldName,
 
 //**********************************************************************
 template <typename EvalT, typename TRAITST>
-void DOF_PointField<EvalT,TRAITST>::postRegistrationSetup(typename TRAITST::SetupData d,
+void DOF_PointField<EvalT,TRAITST>::postRegistrationSetup(typename TRAITST::SetupData /* d */,
 			                                  PHX::FieldManager<TRAITST>& fm)
 {
   this->utils.setFieldData(coordinates,fm);

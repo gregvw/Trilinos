@@ -47,17 +47,17 @@
 #include <stk_mesh/base/FieldParallel.hpp>
 #include <stk_mesh/base/CreateEdges.hpp>
 
-#include <stk_mesh/fixtures/BoxFixture.hpp>  // for BoxFixture
-#include <stk_mesh/fixtures/HexFixture.hpp>  // for HexFixture, etc
-#include <stk_mesh/fixtures/QuadFixture.hpp>  // for QuadFixture
-#include <stk_mesh/fixtures/RingFixture.hpp>  // for RingFixture
+#include <stk_unit_tests/stk_mesh_fixtures/BoxFixture.hpp>  // for BoxFixture
+#include <stk_unit_tests/stk_mesh_fixtures/HexFixture.hpp>  // for HexFixture, etc
+#include <stk_unit_tests/stk_mesh_fixtures/QuadFixture.hpp>  // for QuadFixture
+#include <stk_unit_tests/stk_mesh_fixtures/RingFixture.hpp>  // for RingFixture
 #include <stk_util/parallel/Parallel.hpp>  // for ParallelMachine, etc
 #include <stk_util/parallel/ParallelReduce.hpp>  // for Reduce, ReduceSum, etc
 #include <stk_util/parallel/CommSparse.hpp>  // for Reduce, ReduceSum, etc
 #include <gtest/gtest.h>
 #include <string>                       // for string, basic_string, etc
-#include <unit_tests/UnitTestRingFixture.hpp>  // for test_shift_ring
-#include <unit_tests/Setup8Quad4ProcMesh.hpp>
+#include <stk_unit_tests/stk_mesh/UnitTestRingFixture.hpp>  // for test_shift_ring
+#include <stk_unit_tests/stk_mesh/Setup8Quad4ProcMesh.hpp>
 #include <stk_unit_test_utils/getOption.h>
 #include <utility>                      // for pair
 #include <vector>                       // for vector, etc
@@ -2160,7 +2160,9 @@ static void test_sync_1(stk::mesh::BulkData& eMesh, PressureFieldType& pressure_
                 {
                     p_e = ((eMesh.parallel_owner_rank(entity) + 1) * 100 + id);
                     if(sync_aura)
+                    {
                         ASSERT_EQ(p[0], p_e);
+                    }
                 }
             }
         }
@@ -5920,7 +5922,7 @@ TEST(FaceCreation, test_face_creation_2Hexes_2procs)
 
         mesh.modification_begin();
 
-        stk::mesh::Entity side = stk::unit_test_util::declare_element_side_with_nodes(mesh, elem, nodes, 1+procId, meta.get_topology_root_part(stk::topology::QUAD_4_2D));
+        stk::mesh::Entity side = stk::unit_test_util::declare_element_side_with_nodes(mesh, elem, nodes, 1+procId, meta.get_topology_root_part(stk::topology::QUAD_4));
 
         EXPECT_TRUE(mesh.is_valid(side));
 
@@ -5974,7 +5976,7 @@ TEST(BulkData, test_parallel_entity_sharing)
     keys.push_back(stk::mesh::EntityKey(stk::topology::NODE_RANK, 3));
     keys.push_back(stk::mesh::EntityKey(stk::topology::NODE_RANK, 4));
 
-    stk::topology topo = stk::topology::QUAD_4_2D;
+    stk::topology topo = stk::topology::QUAD_4;
 
     stk::mesh::shared_entity_type sentity(quad, entity, topo);
     sentity.nodes.resize(num_nodes_on_entity);

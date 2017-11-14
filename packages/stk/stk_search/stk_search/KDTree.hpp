@@ -1,3 +1,35 @@
+// Copyright (c) 2013, Sandia Corporation.
+ // Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+ // the U.S. Government retains certain rights in this software.
+ // 
+ // Redistribution and use in source and binary forms, with or without
+ // modification, are permitted provided that the following conditions are
+ // met:
+ // 
+ //     * Redistributions of source code must retain the above copyright
+ //       notice, this list of conditions and the following disclaimer.
+ // 
+ //     * Redistributions in binary form must reproduce the above
+ //       copyright notice, this list of conditions and the following
+ //       disclaimer in the documentation and/or other materials provided
+ //       with the distribution.
+ // 
+ //     * Neither the name of Sandia Corporation nor the names of its
+ //       contributors may be used to endorse or promote products derived
+ //       from this software without specific prior written permission.
+ // 
+ // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #ifndef STKSEARCH_KDTREE_BoundingBoxHierarchy_h_
 #define STKSEARCH_KDTREE_BoundingBoxHierarchy_h_
 
@@ -34,18 +66,19 @@ class ObjectBoundingBoxHierarchy_T {
    *  each leave of the tree will contain approximiatly half of the boxes.  The hierarchy continues down until the tree node contains only 
    *  a single box
    */
-  KOKKOS_FORCEINLINE_FUNCTION int  get_right_child_offset() const {return right_child_offset;}
   KOKKOS_FORCEINLINE_FUNCTION void set_right_child_offset(const int right_child_offset_) {right_child_offset = right_child_offset_;}
-
   KOKKOS_FORCEINLINE_FUNCTION const BoxType& GetBox() const {return m_box;}
   KOKKOS_FORCEINLINE_FUNCTION BoxType& GetBox() {return m_box;}
 
   //
   //  Right child offset stores one of two things.
   //    If the offset is <= 0 the current object is a terminal node of the tree.  The value is the negative of the 
-  //  index back to the object that the terminal node represents.  If the value is positive it is the offset from
-  //  the current object to the objects right child.  Note that the offset to the left child is always one.  Thus
-  //  for a given object the left child can be found at this[1] and the right child at this[right_child_offset]
+  //  the object number associated with the object represented by the terminal node.  If the tree is created from
+  //  inputBoxes that are not std::search::OblectBoundingBoxes, then the object number is the offset into the
+  //  vector of inputBoxes.
+  //    If the value of right_child_offset is positive it is the offset from the current object to the objects
+  //  right child.  Note that the offset to the left child is always one.  Thus for a given object the left child
+  //  can be found at this[1] and the right child at this[right_child_offset]
   //
  public:
   int right_child_offset;

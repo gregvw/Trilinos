@@ -40,8 +40,8 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_HGRAD_LINE_Cn_FEM_JACOBIDef.hpp
-    \brief  Definition file for FEM basis functions of degree n for H(grad) orthogonal on LINE.
+/** \file   Intrepid2_HGRAD_LINE_Cn_FEM_JACOBIDef.hpp
+    \brief  Definition file for FEM orthogonal basis functions of degree n for H(grad) functions on LINE.
     \author Created by P. Bochev and D. Ridzal and R. Kirby
             Kokkorized by Kyungjoo Kim
 */
@@ -108,12 +108,12 @@ namespace Intrepid2 {
       case OPERATOR_Dn: {
         {
           const ordinal_type pend = output.dimension(0);
-          const ordinal_type jend = output.dimension(1);
-          const ordinal_type iend = output.dimension(2);
+          const ordinal_type iend = output.dimension(1);
+          const ordinal_type jend = output.dimension(2);
           
           for (ordinal_type p=0;p<pend;++p)
-            for (ordinal_type j=0;j<jend;++j)
-              for (ordinal_type i=0;i<iend;++i)
+            for (ordinal_type i=0;i<iend;++i)
+              for (ordinal_type j=0;j<jend;++j)
                 output(p, i, j) = 0.0;
         }
         {

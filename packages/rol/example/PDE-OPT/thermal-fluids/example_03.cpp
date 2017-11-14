@@ -75,19 +75,19 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   }
   else {
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
   }
   int errorFlag  = 0;
 
@@ -96,64 +96,64 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input_ex03.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    Teuchos::RCP<MeshManager<RealT> > meshMgr
-      = Teuchos::rcp(new MeshManager_ThermalFluids<RealT>(*parlist));
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr
+      = ROL::makeShared<MeshManager_ThermalFluids<RealT>>(*parlist);
     // Initialize PDE describing Navier-Stokes equations.
-    Teuchos::RCP<PDE_ThermalFluids_ex03<RealT> > pde
-      = Teuchos::rcp(new PDE_ThermalFluids_ex03<RealT>(*parlist));
-    Teuchos::RCP<ROL::EqualityConstraint_SimOpt<RealT> > con
-      = Teuchos::rcp(new PDE_Constraint<RealT>(pde,meshMgr,comm,*parlist,*outStream));
+    ROL::SharedPointer<PDE_ThermalFluids_ex03<RealT> > pde
+      = ROL::makeShared<PDE_ThermalFluids_ex03<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con
+      = ROL::makeShared<PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    Teuchos::RCP<PDE_Constraint<RealT> > pdecon
-      = Teuchos::rcp_dynamic_cast<PDE_Constraint<RealT> >(con);
-    Teuchos::RCP<Assembler<RealT> > assembler = pdecon->getAssembler();
+    ROL::SharedPointer<PDE_Constraint<RealT> > pdecon
+      = ROL::dynamicPointerCast<PDE_Constraint<RealT> >(con);
+    ROL::SharedPointer<Assembler<RealT> > assembler = pdecon->getAssembler();
     con->setSolveParameters(*parlist);
     pdecon->outputTpetraData();
 
     // Create state vector and set to zeroes
-    Teuchos::RCP<Tpetra::MultiVector<> > u_rcp, p_rcp, du_rcp, r_rcp, z_rcp, dz_rcp;
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp, p_rcp, du_rcp, r_rcp, z_rcp, dz_rcp;
     u_rcp  = assembler->createStateVector();     u_rcp->randomize();
     p_rcp  = assembler->createStateVector();     p_rcp->randomize();
     du_rcp = assembler->createStateVector();     du_rcp->randomize();
     r_rcp  = assembler->createResidualVector();  r_rcp->randomize();
     z_rcp  = assembler->createControlVector();   z_rcp->randomize();
     dz_rcp = assembler->createControlVector();   dz_rcp->randomize();
-    Teuchos::RCP<ROL::Vector<RealT> > up, pp, dup, rp, zp, dzp;
-    up  = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(u_rcp,pde,assembler));
-    pp  = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(p_rcp,pde,assembler));
-    dup = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(du_rcp,pde,assembler));
-    rp  = Teuchos::rcp(new PDE_DualSimVector<RealT>(r_rcp,pde,assembler));
-    zp  = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(z_rcp,pde,assembler));
-    dzp = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(dz_rcp,pde,assembler));
+    ROL::SharedPointer<ROL::Vector<RealT> > up, pp, dup, rp, zp, dzp;
+    up  = ROL::makeShared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
+    pp  = ROL::makeShared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler);
+    dup = ROL::makeShared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler);
+    rp  = ROL::makeShared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler);
+    zp  = ROL::makeShared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler);
+    dzp = ROL::makeShared<PDE_PrimalOptVector<RealT>>(dz_rcp,pde,assembler);
     // Create ROL SimOpt vectors
     ROL::Vector_SimOpt<RealT> x(up,zp);
     ROL::Vector_SimOpt<RealT> d(dup,dzp);
 
     // Initialize objective function.
-    std::vector<Teuchos::RCP<QoI<RealT> > > qoi_vec(2,Teuchos::null);
+    std::vector<ROL::SharedPointer<QoI<RealT> > > qoi_vec(2,ROL::nullPointer);
     qoi_vec[0] = Teuchos::rcp(new QoI_State_ThermalFluids<RealT>(*parlist,
                                                                  pde->getVelocityFE(),
                                                                  pde->getPressureFE(),
                                                                  pde->getThermalFE(),
                                                                  pde->getFieldHelper()));
-    qoi_vec[1] = Teuchos::rcp(new QoI_L2Penalty_ThermalFluids<RealT>(pde->getVelocityFE(),
+    qoi_vec[1] = ROL::makeShared<QoI_L2Penalty_ThermalFluids<RealT>(pde->getVelocityFE(>(),
                                                                      pde->getPressureFE(),
                                                                      pde->getThermalFE(),
                                                                      pde->getThermalBdryFE(),
                                                                      pde->getBdryCellLocIds(),
                                                                      pde->getFieldHelper()));
-    Teuchos::RCP<StdObjective_ThermalFluids<RealT> > std_obj
-      = Teuchos::rcp(new StdObjective_ThermalFluids<RealT>(*parlist));
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > obj
-      = Teuchos::rcp(new PDE_Objective<RealT>(qoi_vec,std_obj,assembler));
-    Teuchos::RCP<ROL::SimController<RealT> > stateStore
-      = Teuchos::rcp(new ROL::SimController<RealT>());
-    Teuchos::RCP<ROL::Reduced_Objective_SimOpt<RealT> > robj
-      = Teuchos::rcp(new ROL::Reduced_Objective_SimOpt<RealT>(obj, con, stateStore, up, zp, pp, true, false));
+    ROL::SharedPointer<StdObjective_ThermalFluids<RealT> > std_obj
+      = ROL::makeShared<StdObjective_ThermalFluids<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > obj
+      = ROL::makeShared<PDE_Objective<RealT>>(qoi_vec,std_obj,assembler);
+    ROL::SharedPointer<ROL::SimController<RealT> > stateStore
+      = ROL::makeShared<ROL::SimController<RealT>>();
+    ROL::SharedPointer<ROL::Reduced_Objective_SimOpt<RealT> > robj
+      = ROL::makeShared<ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, stateStore, up, zp, pp, true, false);
 
     //up->zero();
     //zp->zero();
@@ -214,13 +214,13 @@ int main(int argc, char *argv[]) {
     }
 
     bool useCompositeStep = parlist->sublist("Problem").get("Full space",false);
-    Teuchos::RCP<ROL::Algorithm<RealT> > algo;
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
     if ( useCompositeStep ) {
-      algo = Teuchos::rcp(new ROL::Algorithm<RealT>("Composite Step",*parlist,false));
+      algo = ROL::makeShared<ROL::Algorithm<RealT>>("Composite Step",*parlist,false);
       algo->run(x,*rp,*obj,*con,true,*outStream);
     }
     else {
-      algo = Teuchos::rcp(new ROL::Algorithm<RealT>("Trust Region",*parlist,false));
+      algo = ROL::makeShared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
       algo->run(*zp,*robj,true,*outStream);
       std::vector<RealT> param;
       stateStore->get(*up,param);
@@ -238,8 +238,8 @@ int main(int argc, char *argv[]) {
     errorFlag += (res[0] > 1.e-6 ? 1 : 0);
     pdecon->outputTpetraData();
 
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > obj0
-      = Teuchos::rcp(new IntegralObjective<RealT>(qoi_vec[0],assembler));
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > obj0
+      = ROL::makeShared<IntegralObjective<RealT>>(qoi_vec[0],assembler);
     RealT val = obj0->value(*up,*zp,tol);
     *outStream << "Vorticity Value: " << val << std::endl;
 

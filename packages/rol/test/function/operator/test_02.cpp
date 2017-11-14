@@ -42,7 +42,7 @@
 // @HEADER
 
 /*! \file  test_02.cpp
-    \brief Test of StdTridiagonalOperator 
+    \brief Test of StdTridiagonalOperator
 */
 
 #include "ROL_StdTridiagonalOperator.hpp"
@@ -53,25 +53,25 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP; using Teuchos::rcp;
+
 
   using SV  = ROL::StdVector<RealT>;
   using MAT = ROL::StdLinearOperator<RealT>;
-  using TRI = ROL::StdTridiagonalOperator<RealT>; 
+  using TRI = ROL::StdTridiagonalOperator<RealT>;
 
   using vector = std::vector<RealT>;
-  
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -80,34 +80,35 @@ int main(int argc, char *argv[]) {
   int errorFlag  = 0;
 
   RealT tol = ROL::ROL_EPSILON<RealT>();
- 
+
   // *** Test body.
 
   try {
-   
-    int dim = 3;    
 
-    RCP<vector> m_rcp = rcp( new vector({  3.0, 1.0, 0.0, -2.0, 6.0, 2.0, 0.0, -1.0, 3.0 }) );
-    RCP<vector> a_rcp = rcp( new vector({  3.0, 6.0, 3.0} ) );
-    RCP<vector> b_rcp = rcp( new vector({ -2.0,-1.0 } ) );
-    RCP<vector> c_rcp = rcp( new vector({  1.0, 2.0 } ) );
+    int dim = 3;
+
+    auto m_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>
+      ({  3.0, 1.0, 0.0, -2.0, 6.0, 2.0, 0.0, -1.0, 3.0 });
+    auto a_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({  3.0, 6.0, 3.0});
+    auto b_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({ -2.0,-1.0 });
+    auto c_rcp = ROL::makeShared<vector, std::initializer_list<RealT>>({  1.0, 2.0 });
 
     MAT M(m_rcp);
-    TRI T(a_rcp,b_rcp,c_rcp);   
+    TRI T(a_rcp,b_rcp,c_rcp);
 
-    SV xm( rcp( new vector( {1.0, 2.0,-1.0} ) ) );
-    SV ym( rcp( new vector( dim ) ) );
-    SV zm( rcp( new vector( dim ) ) );
-    
-    SV xt( rcp( new vector( dim ) ) );
-    SV yt( rcp( new vector( dim ) ) );
-    SV zt( rcp( new vector( dim ) ) );
-  
-    SV error( rcp( new vector(dim) ) );
+    SV xm( ROL::makeShared<vector, std::initializer_list<RealT>>({1.0, 2.0,-1.0}));
+    SV ym( ROL::makeShared<vector>( dim ) );
+    SV zm( ROL::makeShared<vector>( dim ) );
+
+    SV xt( ROL::makeShared<vector>( dim ) );
+    SV yt( ROL::makeShared<vector>( dim ) );
+    SV zt( ROL::makeShared<vector>( dim ) );
+
+    SV error( ROL::makeShared<vector>(dim) );
     RealT nerr = 0;
- 
+
     xt.set(xm);
- 
+
     M.apply(ym,xm,tol);
     M.applyInverse(zm,ym,tol);
 
@@ -115,13 +116,13 @@ int main(int argc, char *argv[]) {
     *outStream << "x = "; xm.print(*outStream);
     *outStream << "y = Ax = "; ym.print(*outStream);
     *outStream << "z = inv(A)y = "; zm.print(*outStream);
-     
+
     *outStream << "\nUsing StdTridiagonalOperator - T is tridiagonal representation" << std::endl;
     T.apply(yt,xt,tol);
     *outStream << "y = Tx = "; yt.print(*outStream);
     error.set(yt);
     error.axpy(-1.0,ym);
-    nerr = error.norm();  
+    nerr = error.norm();
     errorFlag += static_cast<int>(nerr>tol);
     *outStream << "apply() error = " << nerr <<std::endl;
 
@@ -132,20 +133,20 @@ int main(int argc, char *argv[]) {
     nerr = error.norm();
     errorFlag += static_cast<int>(nerr>tol);
     *outStream << "applyInverse() error = " << nerr <<std::endl;
-         
+
     M.applyAdjoint(ym,xm,tol);
     M.applyAdjointInverse(zm,ym,tol);
     *outStream << "\nUsing StdLinearOperator - A is full matrix representation" << std::endl;
     *outStream << "x = "; xm.print(*outStream);
     *outStream << "y = A'x = "; ym.print(*outStream);
     *outStream << "z = inv(A')y = "; zm.print(*outStream);
-        
+
     *outStream << "\nUsing StdTridiagonalOperator - T is tridiagonal representation" << std::endl;
     T.applyAdjoint(yt,xt,tol);
     *outStream << "y = T'x = "; yt.print(*outStream);
     error.set(yt);
     error.axpy(-1.0,ym);
-    nerr = error.norm();  
+    nerr = error.norm();
     errorFlag += static_cast<int>(nerr>tol);
     *outStream << "applyAdjoint() error = " << nerr <<std::endl;
 
@@ -156,9 +157,9 @@ int main(int argc, char *argv[]) {
     nerr = error.norm();
     errorFlag += static_cast<int>(nerr>tol);
     *outStream << "applyAdjointInverse() error = " << nerr <<std::endl;
- 
 
-    
+
+
 
   }
   catch (std::logic_error err) {
@@ -177,4 +178,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

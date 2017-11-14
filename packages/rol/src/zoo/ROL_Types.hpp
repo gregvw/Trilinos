@@ -61,7 +61,7 @@
 #include <sstream>
 #include <limits>
 #include <Teuchos_getConst.hpp>
-#include <Teuchos_RCP.hpp>
+#include "ROL_SharedPointer.hpp"
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_TestForException.hpp>
 #include <ROL_Vector.hpp>
@@ -94,7 +94,7 @@ std::string NumberToString( T Number )
     int  nfval;
     int  ncval;
     int  ngrad;
-    Real value;              
+    Real value;
     Real minValue;
     Real gnorm;
     Real cnorm;
@@ -102,43 +102,43 @@ std::string NumberToString( T Number )
     Real aggregateGradientNorm;
     Real aggregateModelError;
     bool flag;
-    Teuchos::RCP<Vector<Real> > iterateVec;
-    Teuchos::RCP<Vector<Real> > lagmultVec;
-    Teuchos::RCP<Vector<Real> > minIterVec;
-    AlgorithmState(void) : iter(0), minIter(0), nfval(0), ngrad(0), value(0), minValue(0), 
+    ROL::SharedPointer<Vector<Real> > iterateVec;
+    ROL::SharedPointer<Vector<Real> > lagmultVec;
+    ROL::SharedPointer<Vector<Real> > minIterVec;
+    AlgorithmState(void) : iter(0), minIter(0), nfval(0), ngrad(0), value(0), minValue(0),
       gnorm(std::numeric_limits<Real>::max()),
       cnorm(std::numeric_limits<Real>::max()),
-      snorm(std::numeric_limits<Real>::max()), 
+      snorm(std::numeric_limits<Real>::max()),
       aggregateGradientNorm(std::numeric_limits<Real>::max()),
       aggregateModelError(std::numeric_limits<Real>::max()),
       flag(false),
-      iterateVec(Teuchos::null), lagmultVec(Teuchos::null), minIterVec(Teuchos::null) {}
-  };  
-  
+      iterateVec(ROL::nullPointer), lagmultVec(ROL::nullPointer), minIterVec(ROL::nullPointer) {}
+  };
+
   /** \brief  State for step class.  Will be used for restarts.
-   */  
+   */
   template<class Real>
   struct StepState {
-    Teuchos::RCP<Vector<Real> > gradientVec;
-    Teuchos::RCP<Vector<Real> > descentVec;
-    Teuchos::RCP<Vector<Real> > constraintVec;
+    ROL::SharedPointer<Vector<Real> > gradientVec;
+    ROL::SharedPointer<Vector<Real> > descentVec;
+    ROL::SharedPointer<Vector<Real> > constraintVec;
     int nfval;
     int ngrad;
     Real searchSize; // line search parameter (alpha) or trust-region radius (delta)
-    StepState(void) : gradientVec(Teuchos::null),
-                      descentVec(Teuchos::null),
-                      constraintVec(Teuchos::null),
+    StepState(void) : gradientVec(ROL::nullPointer),
+                      descentVec(ROL::nullPointer),
+                      constraintVec(ROL::nullPointer),
                       nfval(0),
                       ngrad(0),
                       searchSize(0) {}
-  };  
-      
-  /** \brief  Platform-dependent machine epsilon. 
+  };
+
+  /** \brief  Platform-dependent machine epsilon.
    */
   template<class Real>
   inline Real ROL_EPSILON(void) { return std::abs(Teuchos::ScalarTraits<Real>::eps()); }
   //static const Real ROL_EPSILON<Real>() = std::abs(Teuchos::ScalarTraits<Real>::eps());
-    
+
   /** \brief  Tolerance for various equality tests.
    */
   template<class Real>
@@ -146,7 +146,7 @@ std::string NumberToString( T Number )
   //static const Real ROL_THRESHOLD = 10.0 * ROL_EPSILON<Real>()<Real>;
 
   /** \brief  Platform-dependent maximum double.
-   */ 
+   */
   template<class Real>
   inline Real ROL_OVERFLOW(void) { return std::abs(Teuchos::ScalarTraits<Real>::rmax()); }
   //static const double ROL_OVERFLOW  = std::abs(Teuchos::ScalarTraits<double>::rmax());
@@ -160,7 +160,7 @@ std::string NumberToString( T Number )
   //static const double ROL_NINF<Real>() = -ROL_INF<Real>();
 
   /** \brief  Platform-dependent minimum double.
-   */ 
+   */
   template<class Real>
   inline Real ROL_UNDERFLOW(void) { return std::abs(Teuchos::ScalarTraits<Real>::rmin()); }
   //static const double ROL_UNDERFLOW  = std::abs(Teuchos::ScalarTraits<double>::rmin());
@@ -227,29 +227,33 @@ std::string NumberToString( T Number )
     return retString;
   }
 
-  inline int isCompatibleStep( EProblem p, EStep s ) {
-    int comp;
+  inline bool isCompatibleStep( EProblem p, EStep s ) {
+    bool comp = false;
     switch(p) {
 
       case TYPE_U:    comp = ( (s == STEP_LINESEARCH) ||
-                                (s == STEP_TRUSTREGION) );
+                               (s == STEP_TRUSTREGION) ||
+                               (s == STEP_BUNDLE) );
         break;
 
       case TYPE_B:    comp = ( (s == STEP_LINESEARCH)  ||
-                                (s == STEP_TRUSTREGION) || 
-                                (s == STEP_MOREAUYOSIDAPENALTY) );
+                               (s == STEP_TRUSTREGION) ||
+                               (s == STEP_MOREAUYOSIDAPENALTY) ||
+                               (s == STEP_PRIMALDUALACTIVESET) ||
+                               (s == STEP_INTERIORPOINT) );
         break;
 
-      case TYPE_E:    comp = ( (s == STEP_COMPOSITESTEP) || 
-                                (s == STEP_AUGMENTEDLAGRANGIAN) );  
+      case TYPE_E:    comp = ( (s == STEP_COMPOSITESTEP) ||
+                               (s == STEP_AUGMENTEDLAGRANGIAN) );
         break;
 
-      case TYPE_EB:   comp = ( (s == STEP_AUGMENTEDLAGRANGIAN) || 
-                                (s == STEP_MOREAUYOSIDAPENALTY) );
+      case TYPE_EB:   comp = ( (s == STEP_AUGMENTEDLAGRANGIAN) ||
+                               (s == STEP_MOREAUYOSIDAPENALTY) ||
+                               (s == STEP_INTERIORPOINT) );
         break;
 
-      case TYPE_LAST: comp = 0; break;
-      default:        comp = 0;      
+      case TYPE_LAST: comp = false; break;
+      default:        comp = false;
     }
     return comp;
   }
@@ -266,10 +270,10 @@ std::string NumberToString( T Number )
     }
     return retString;
   }
-  
- 
+
+
   /** \brief  Verifies validity of a TrustRegion enum.
-    
+
       \param  tr  [in]  - enum of the TrustRegion
       \return 1 if the argument is a valid TrustRegion; 0 otherwise.
     */
@@ -280,7 +284,7 @@ std::string NumberToString( T Number )
             (ls == STEP_LINESEARCH) ||
             (ls == STEP_MOREAUYOSIDAPENALTY) ||
             (ls == STEP_PRIMALDUALACTIVESET) ||
-            (ls == STEP_TRUSTREGION) || 
+            (ls == STEP_TRUSTREGION) ||
             (ls == STEP_INTERIORPOINT) ) ;
   }
 
@@ -306,80 +310,12 @@ std::string NumberToString( T Number )
 
   inline EStep StringToEStep(std::string s) {
     s = removeStringFormat(s);
-    for ( EStep tr = STEP_AUGMENTEDLAGRANGIAN; tr < STEP_LAST; tr++ ) {
-      if ( !s.compare(removeStringFormat(EStepToString(tr))) ) {
-        return tr;
+    for ( EStep st = STEP_AUGMENTEDLAGRANGIAN; st < STEP_LAST; ++st ) {
+      if ( !s.compare(removeStringFormat(EStepToString(st))) ) {
+        return st;
       }
     }
-    return STEP_TRUSTREGION;
-  }
-
-  /** \enum   ROL::EBoundAlgorithm
-      \brief  Enumeration of algorithms to handle bound constraints.
-
-      \arg    PROJECTED             describe
-      \arg    PRIMALDUALACTIVESET   describe
-      \arg    INTERIORPOINTS        describe
-   */
-  enum EBoundAlgorithm{
-    BOUNDALGORITHM_PROJECTED = 0,
-    BOUNDALGORITHM_PRIMALDUALACTIVESET,
-    BOUNDALGORITHM_INTERIORPOINTS,
-    BOUNDALGORITHM_LAST
-  };
-
-  inline std::string EBoundAlgorithmToString(EBoundAlgorithm tr) {
-    std::string retString;
-    switch(tr) {
-      case BOUNDALGORITHM_PROJECTED:           retString = "Projected";              break;
-      case BOUNDALGORITHM_PRIMALDUALACTIVESET: retString = "Primal Dual Active Set"; break;
-      case BOUNDALGORITHM_INTERIORPOINTS:      retString = "Interior Points";        break;
-      case BOUNDALGORITHM_LAST:                retString = "Last Type (Dummy)";      break;
-      default:                                 retString = "INVALID EBoundAlgorithm";
-    }
-    return retString;
-  }
-
-  /** \brief  Verifies validity of a Bound Algorithm enum.
-    
-      \param  tr  [in]  - enum of the Bound Algorithm
-      \return 1 if the argument is a valid Bound Algorithm; 0 otherwise.
-    */
-  inline int isValidBoundAlgorithm(EBoundAlgorithm d){
-    return( (d == BOUNDALGORITHM_PROJECTED)           ||
-            (d == BOUNDALGORITHM_PRIMALDUALACTIVESET) || 
-            (d == BOUNDALGORITHM_INTERIORPOINTS)  
-          );
-  }
-
-  inline EBoundAlgorithm & operator++(EBoundAlgorithm &type) {
-    return type = static_cast<EBoundAlgorithm>(type+1);
-  }
-
-  inline EBoundAlgorithm operator++(EBoundAlgorithm &type, int) {
-    EBoundAlgorithm oldval = type;
-    ++type;
-    return oldval;
-  }
-
-  inline EBoundAlgorithm & operator--(EBoundAlgorithm &type) {
-    return type = static_cast<EBoundAlgorithm>(type-1);
-  }
-
-  inline EBoundAlgorithm operator--(EBoundAlgorithm &type, int) {
-    EBoundAlgorithm oldval = type;
-    --type;
-    return oldval;
-  }
-
-  inline EBoundAlgorithm StringToEBoundAlgorithm(std::string s) {
-    s = removeStringFormat(s);
-    for ( EBoundAlgorithm des = BOUNDALGORITHM_PROJECTED; des < BOUNDALGORITHM_LAST; des++ ) {
-      if ( !s.compare(removeStringFormat(EBoundAlgorithmToString(des))) ) {
-        return des;
-      }
-    }
-    return BOUNDALGORITHM_PROJECTED;
+    return STEP_LAST;
   }
 
   /** \enum   ROL::EDescent
@@ -388,7 +324,7 @@ std::string NumberToString( T Number )
       \arg    STEEPEST        describe
       \arg    NONLINEARCG     describe
       \arg    SECANT          describe
-      \arg    NEWTON          describe 
+      \arg    NEWTON          describe
       \arg    NEWTONKRYLOV    describe
       \arg    SECANTPRECOND   describe
    */
@@ -416,7 +352,7 @@ std::string NumberToString( T Number )
   }
 
   /** \brief  Verifies validity of a Secant enum.
-    
+
       \param  tr  [in]  - enum of the Secant
       \return 1 if the argument is a valid Secant; 0 otherwise.
     */
@@ -458,13 +394,13 @@ std::string NumberToString( T Number )
     }
     return DESCENT_SECANT;
   }
-  
+
   /** \enum   ROL::ESecant
       \brief  Enumeration of secant update algorithms.
 
       \arg    LBFGS           describe
       \arg    LDFP            describe
-      \arg    LSR1            describe 
+      \arg    LSR1            describe
       \arg    BARZILAIBORWEIN describe
    */
   enum ESecant{
@@ -489,9 +425,9 @@ std::string NumberToString( T Number )
     }
     return retString;
   }
-  
+
   /** \brief  Verifies validity of a Secant enum.
-    
+
       \param  tr  [in]  - enum of the Secant
       \return 1 if the argument is a valid Secant; 0 otherwise.
     */
@@ -533,7 +469,7 @@ std::string NumberToString( T Number )
     }
     return SECANT_LBFGS;
   }
-  
+
   /** \enum   ROL::EKrylov
       \brief  Enumeration of Krylov methods.
 
@@ -562,7 +498,7 @@ std::string NumberToString( T Number )
   }
 
   /** \brief  Verifies validity of a Secant enum.
-    
+
       \param  tr  [in]  - enum of the Secant
       \return 1 if the argument is a valid Secant; 0 otherwise.
     */
@@ -614,7 +550,7 @@ std::string NumberToString( T Number )
       \arg    LIU_STOREY         \f$ -\frac{g_k^\top y_{k-1} }{d_{k-1}^\top g_{k-1} \f$
       \arg    DAI_YUAN           \f$ \frac{\|g_{k+1}\|^2}{d_k^\top y_k} \f$
       \arg    HAGER_ZHANG        \f$ \frac{g_{k+1}^\top y_k}{d_k^\top y_k} - 2 \frac{\|y_k\|^2}{d_k^\top y_k} \frac{g_{k+1}^\top d_k}{d_k^\top y_k} \f$
-      \arg    OREN_LUENBERGER    \f$ \frac{g_{k+1}^\top y_k}{d_k^\top y_k} - \frac{\|y_k\|^2}{d_k^\top y_k} \frac{g_{k+1}^\top d_k}{d_k^\top y_k} \f$ 
+      \arg    OREN_LUENBERGER    \f$ \frac{g_{k+1}^\top y_k}{d_k^\top y_k} - \frac{\|y_k\|^2}{d_k^\top y_k} \frac{g_{k+1}^\top d_k}{d_k^\top y_k} \f$
    */
   enum ENonlinearCG{
     NONLINEARCG_HESTENES_STIEFEL = 0,
@@ -648,9 +584,9 @@ std::string NumberToString( T Number )
     }
     return retString;
   }
-  
+
   /** \brief  Verifies validity of a NonlinearCG enum.
-    
+
       \param  tr  [in]  - enum of the NonlinearCG
       \return 1 if the argument is a valid NonlinearCG; 0 otherwise.
     */
@@ -697,7 +633,7 @@ std::string NumberToString( T Number )
     }
     return NONLINEARCG_HESTENES_STIEFEL;
   }
-  
+
   /** \enum   ROL::ELineSearch
       \brief  Enumeration of line-search types.
 
@@ -736,9 +672,9 @@ std::string NumberToString( T Number )
     }
     return retString;
   }
-  
+
   /** \brief  Verifies validity of a LineSearch enum.
-    
+
       \param  ls  [in]  - enum of the linesearch
       \return 1 if the argument is a valid linesearch; 0 otherwise.
     */
@@ -815,9 +751,9 @@ std::string NumberToString( T Number )
     }
     return retString;
   }
-  
+
   /** \brief  Verifies validity of a CurvatureCondition enum.
-    
+
       \param  ls  [in]  - enum of the Curvature Conditions
       \return 1 if the argument is a valid curvature condition; 0 otherwise.
     */
@@ -861,7 +797,7 @@ std::string NumberToString( T Number )
     return CURVATURECONDITION_WOLFE;
   }
 
-  /** \enum  ROL::ECGFlag 
+  /** \enum  ROL::ECGFlag
       \brief Enumation of flags used by conjugate gradient methods.
 
     \arg CG_FLAG_SUCCESS     Residual Tolerance Met
@@ -877,7 +813,7 @@ std::string NumberToString( T Number )
     CG_FLAG_NEGCURVE,
     CG_FLAG_TRRADEX,
     CG_FLAG_ZERORHS,
-    CG_FLAG_UNDEFINED 
+    CG_FLAG_UNDEFINED
   };
 
 
@@ -893,14 +829,14 @@ std::string NumberToString( T Number )
       case CG_FLAG_NEGCURVE:
         retString = "Negative curvature detected";
         break;
-      case CG_FLAG_TRRADEX:   
+      case CG_FLAG_TRRADEX:
         retString = "Trust-Region radius exceeded";
         break;
       case CG_FLAG_ZERORHS:
         retString = "Initial right hand side is zero";
         break;
       default:
-        retString = "INVALID ECGFlag";  
+        retString = "INVALID ECGFlag";
     }
     return retString;
   }
@@ -945,9 +881,9 @@ std::string NumberToString( T Number )
     }
     return retString;
   }
-  
+
   /** \brief  Verifies validity of a TestObjectives enum.
-    
+
       \param  ls  [in]  - enum of the TestObjectives
       \return 1 if the argument is a valid TestObjectives; 0 otherwise.
     */
@@ -1034,9 +970,9 @@ std::string NumberToString( T Number )
     }
     return retString;
   }
-  
+
   /** \brief  Verifies validity of a TestOptProblem enum.
-    
+
       \param  ls  [in]  - enum of the TestOptProblem
       \return 1 if the argument is a valid TestOptProblem; 0 otherwise.
     */
@@ -1083,80 +1019,17 @@ std::string NumberToString( T Number )
   }
 
 
-  /** \enum   ROL::EConstraint
-      \brief  Enumeration of constraint types.
-
-      \arg    EQUALITY        describe
-      \arg    INEQUALITY      describe
-   */
-  enum EConstraint{
-    CONSTRAINT_EQUALITY = 0,
-    CONSTRAINT_INEQUALITY,
-    CONSTRAINT_LAST
-  };
-
-  inline std::string EConstraintToString(EConstraint c) {
-    std::string retString;
-    switch(c) {
-      case CONSTRAINT_EQUALITY:     retString = "Equality";                           break;
-      case CONSTRAINT_INEQUALITY:   retString = "Inequality";                         break;
-      case CONSTRAINT_LAST:         retString = "Last Type (Dummy)";                  break;
-      default:                      retString = "INVALID EConstraint";
-    }
-    return retString;
-  }
-
-  /** \brief  Verifies validity of a Secant enum.
-    
-      \param  c  [in]  - enum of the Secant
-      \return 1 if the argument is a valid Secant; 0 otherwise.
-    */
-  inline int isValidConstraint(EConstraint c){
-    return( (c == CONSTRAINT_EQUALITY)      ||
-            (c == CONSTRAINT_INEQUALITY) );
-  }
-
-  inline EConstraint & operator++(EConstraint &type) {
-    return type = static_cast<EConstraint>(type+1);
-  }
-
-  inline EConstraint operator++(EConstraint &type, int) {
-    EConstraint oldval = type;
-    ++type;
-    return oldval;
-  }
-
-  inline EConstraint & operator--(EConstraint &type) {
-    return type = static_cast<EConstraint>(type-1);
-  }
-
-  inline EConstraint operator--(EConstraint &type, int) {
-    EConstraint oldval = type;
-    --type;
-    return oldval;
-  }
-
-  inline EConstraint StringToEConstraint(std::string s) {
-    s = removeStringFormat(s);
-    for ( EConstraint ctype = CONSTRAINT_EQUALITY; ctype < CONSTRAINT_LAST; ctype++ ) {
-      if ( !s.compare(removeStringFormat(EConstraintToString(ctype))) ) {
-        return ctype;
-      }
-    }
-    return CONSTRAINT_EQUALITY;
-  }
-
   // For use in gradient and Hessian checks
   namespace Finite_Difference_Arrays {
 
-    // Finite difference steps in axpy form    
+    // Finite difference steps in axpy form
     const int shifts[4][4] = { {  1,  0,  0, 0 },  // First order
                                { -1,  2,  0, 0 },  // Second order
                                { -1,  2,  1, 0 },  // Third order
                                { -1, -1,  3, 1 }   // Fourth order
                              };
 
-      // Finite difference weights     
+      // Finite difference weights
      const double weights[4][5] = { { -1.0,          1.0, 0.0,      0.0,      0.0      },  // First order
                                     {  0.0,     -1.0/2.0, 1.0/2.0,  0.0,      0.0      },  // Second order
                                     { -1.0/2.0, -1.0/3.0, 1.0,     -1.0/6.0,  0.0      },  // Third order
@@ -1179,7 +1052,7 @@ template<class Real>
 struct TypeCaster<Real, std::complex<Real> > {
   static Real ElementToReal( const std::complex<Real> &val ) {
     return val.real();
-  } 
+  }
 };
 
 // Fully specialize for double,float
@@ -1210,7 +1083,7 @@ public:
 
 
 }; // class NotImplemented
- 
+
 
 } // namespace Exception
 
@@ -1219,7 +1092,7 @@ public:
 
 
 /*! \mainpage %ROL Documentation (Development Version)
- 
+
   \image html rol.png "Rapid Optimization Library" width=1in
   \image latex rol.pdf "Rapid Optimization Library" width=1in
 
@@ -1229,9 +1102,9 @@ public:
   optimization.
   It is used for the solution of optimal design, optimal control and
   inverse problems in large-scale engineering applications.
-  Other uses include mesh optimization and image processing. 
+  Other uses include mesh optimization and image processing.
 
- 
+
   \section overview_sec Overview
 
   %ROL aims to combine flexibility, efficiency and robustness.  Key features:
@@ -1267,7 +1140,7 @@ public:
 
   \subsection vector_qs_sec Step 1: Implement linear algebra / vector interface.
   --- or try one of the provided implementations, such as ROL::StdVector in rol/vector.
-  
+
   ~~~{.hpp}
       ROL::Vector
   ~~~
@@ -1393,7 +1266,7 @@ public:
 /** @defgroup extensions_group Algorithmic Extensions
  *  \brief ROL's algorithmic extensions.
  */
-  
+
 /** @defgroup stochastic_group Stochastic Optimization
  *  @ingroup extensions_group
  *  \brief ROL's stochastic optimization capability.
@@ -1402,12 +1275,12 @@ public:
 /** @defgroup risk_group Risk Measures
  *  @ingroup stochastic_group
  * \brief ROL's risk measure implementations.
-*/ 
+*/
 
 /** @defgroup examples_group Examples
  *  \brief ROL's examples
  *  <ul>
- *  <li><b>Unconstrained Examples</b>   
+ *  <li><b>Unconstrained Examples</b>
  *  <ol>
  *  <li>\link rol/example/rosenbrock/example_01.cpp Minimizing the Rosenbrock function\endlink</li>
  *  <li>\link rol/example/zakharov/example_01.cpp Minimizing the Zakharov function\endlink</li>
@@ -1424,11 +1297,11 @@ public:
  *  <li>\link rol/example/gross-pitaevskii/example_01.hpp Minimizing the Gross-Pitaevskii functional \endlink</li>
  *  <li>\link rol/example/gross-pitaevskii/example_02.hpp Gross-Pitaevskii functional with \f$H^1\f$ gradient \endlink</li>
  *  </ol>
- *  <li><b>Examples using Third Party Libraries</b></li> 
+ *  <li><b>Examples using Third Party Libraries</b></li>
  *  <ol>
- *  <li>\link rol/example/json/example_01.cpp Using a JSON file to provide ROL with parameters\endlink</li> 
+ *  <li>\link rol/example/json/example_01.cpp Using a JSON file to provide ROL with parameters\endlink</li>
  *  </ol>
- *  </ul> 
-*/  
+ *  </ul>
+*/
 
 #endif

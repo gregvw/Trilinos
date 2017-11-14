@@ -54,22 +54,22 @@
 
 #include <iomanip>
 
-/*! \file test_02.cpp 
+/*! \file test_02.cpp
     \brief Perform a finite difference check on for the Hessian of the Lagrangian
            resulting from a Type-EB problem. Note that this test has a required
-           dependence on Sacado. 
+           dependence on Sacado.
            NOTE: The finite difference check can only be expected to pass if
-           the system is not symmetrized and all bounds are finite. 
+           the system is not symmetrized and all bounds are finite.
 
 */
 
 
-template<class Real> 
+template<class Real>
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
   try {
-    Teuchos::RCP<const std::vector<Real> > xp = 
-      Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
+    ROL::SharedPointer<const std::vector<Real> > xp =
+      dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
     outStream << "Standard Vector" << std::endl;
     for( size_t i=0; i<xp->size(); ++i ) {
@@ -78,11 +78,11 @@ void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
   }
   catch( const std::bad_cast& e ) {
     outStream << "Partitioned Vector" << std::endl;
-    
+
     typedef ROL::PartitionedVector<Real>    PV;
     typedef typename PV::size_type          size_type;
 
-    const PV &xpv = Teuchos::dyn_cast<const PV>(x);
+    const PV &xpv = dynamic_cast<const PV&>(x);
 
     for( size_type i=0; i<xpv.numVectors(); ++i ) {
       outStream << "--------------------" << std::endl;
@@ -96,7 +96,7 @@ void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
 // Exact residual for H&S Problem 41
 template<class Real>
-void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu ) { 
+void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu ) {
 
   typedef std::vector<Real>            vector;
   typedef ROL::StdVector<Real>         SV;
@@ -104,27 +104,27 @@ void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu )
 
   typedef typename PV::size_type size_type;
 
-  using Teuchos::RCP;
-  using Teuchos::dyn_cast;
-  using Teuchos::rcp_dynamic_cast;
+
+
+  using ROL::dynamicPointerCast;
 
   const size_type OPT   = 0;
   const size_type EQUAL = 1;
   const size_type LOWER = 2;
   const size_type UPPER = 3;
 
-  const PV &sol_pv = dyn_cast<const PV>(sol);
+  const PV &sol_pv = dynamic_cast<const PV&>(sol);
   const vector &x  = *(rcp_dynamic_cast<const SV>(sol_pv.get(OPT))->getVector());
   const vector &l  = *(rcp_dynamic_cast<const SV>(sol_pv.get(EQUAL))->getVector());
   const vector &zl = *(rcp_dynamic_cast<const SV>(sol_pv.get(LOWER))->getVector());
   const vector &zu = *(rcp_dynamic_cast<const SV>(sol_pv.get(UPPER))->getVector());
 
-  PV &c_pv = dyn_cast<PV>(c);
+  PV &c_pv = dynamic_cast<PV&>(c);
   vector &cx  = *(rcp_dynamic_cast<SV>(c_pv.get(OPT))->getVector());
   vector &cl  = *(rcp_dynamic_cast<SV>(c_pv.get(EQUAL))->getVector());
   vector &czl = *(rcp_dynamic_cast<SV>(c_pv.get(LOWER))->getVector());
   vector &czu = *(rcp_dynamic_cast<SV>(c_pv.get(UPPER))->getVector());
- 
+
   cx[0] = -x[1]*x[2] +   l[0] - zl[0] + zu[0];
   cx[1] = -x[0]*x[1] + 2*l[0] - zl[1] + zu[1];
   cx[2] = -x[0]*x[1] + 2*l[0] - zl[2] + zu[2];
@@ -136,18 +136,18 @@ void value( ROL::Vector<Real> &c, const ROL::Vector<Real> &sol, const Real &mu )
   czl[1] = x[1]*zl[1] - mu;
   czl[2] = x[2]*zl[2] - mu;
   czl[3] = x[3]*zl[3] - mu;
-   
+
   czu[0] = (1.0-x[0])*zu[0] - mu;
   czu[1] = (1.0-x[1])*zu[1] - mu;
   czu[2] = (1.0-x[2])*zl[2] - mu;
   czu[3] = (2.0-x[3])*zl[3] - mu;
-}    
- 
+}
+
 
 
 // Exact residual for H&S Problem 41
 template<class Real>
-void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &sol ) { 
+void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &sol ) {
 
   typedef std::vector<Real>            vector;
   typedef ROL::StdVector<Real>         SV;
@@ -155,33 +155,33 @@ void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL
 
   typedef typename PV::size_type size_type;
 
-  using Teuchos::RCP;
-  using Teuchos::dyn_cast;
-  using Teuchos::rcp_dynamic_cast;
+
+
+  using ROL::dynamicPointerCast;
 
   const size_type OPT   = 0;
   const size_type EQUAL = 1;
   const size_type LOWER = 2;
   const size_type UPPER = 3;
 
-  const PV &sol_pv = dyn_cast<const PV>(sol);
+  const PV &sol_pv = dynamic_cast<const PV&>(sol);
   const vector &x  = *(rcp_dynamic_cast<const SV>(sol_pv.get(OPT))->getVector());
 //const vector &l  = *(rcp_dynamic_cast<const SV>(sol_pv.get(EQUAL))->getVector());
   const vector &zl = *(rcp_dynamic_cast<const SV>(sol_pv.get(LOWER))->getVector());
   const vector &zu = *(rcp_dynamic_cast<const SV>(sol_pv.get(UPPER))->getVector());
 
-  const PV &v_pv = dyn_cast<const PV>(v);
+  const PV &v_pv = dynamic_cast<const PV&>(v);
   const vector &vx  = *(rcp_dynamic_cast<const SV>(v_pv.get(OPT))->getVector());
   const vector &vl  = *(rcp_dynamic_cast<const SV>(v_pv.get(EQUAL))->getVector());
   const vector &vzl = *(rcp_dynamic_cast<const SV>(v_pv.get(LOWER))->getVector());
   const vector &vzu = *(rcp_dynamic_cast<const SV>(v_pv.get(UPPER))->getVector());
 
-  PV &jv_pv = dyn_cast<PV>(jv);
+  PV &jv_pv = dynamic_cast<PV&>(jv);
   vector &jvx  = *(rcp_dynamic_cast<SV>(jv_pv.get(OPT))->getVector());
   vector &jvl  = *(rcp_dynamic_cast<SV>(jv_pv.get(EQUAL))->getVector());
   vector &jvzl = *(rcp_dynamic_cast<SV>(jv_pv.get(LOWER))->getVector());
   vector &jvzu = *(rcp_dynamic_cast<SV>(jv_pv.get(UPPER))->getVector());
- 
+
   jvx[0] = -x[1]*vx[2] - x[2]*vx[1] +   vl[0] - vzl[0] + vzu[0];
   jvx[1] = -x[0]*vx[2] - x[2]*vx[0] + 2*vl[0] - vzl[1] + vzu[1];
   jvx[2] = -x[0]*vx[1] - x[1]*vx[0] + 2*vl[0] - vzl[2] + vzu[2];
@@ -200,12 +200,12 @@ void applyJacobian( ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL
   jvzu[3] = -zu[3]*vx[3] + vzu[3]*(2.0-x[3]);
 
 }
- 
+
 
 typedef double RealT;
 
 int main(int argc, char *argv[]) {
- 
+
 //  typedef std::vector<RealT>                          vector;
 
   typedef Teuchos::ParameterList                      PL;
@@ -213,7 +213,7 @@ int main(int argc, char *argv[]) {
   typedef ROL::Vector<RealT>                          V;
   typedef ROL::PartitionedVector<RealT>               PV;
   typedef ROL::Objective<RealT>                       OBJ;
-  typedef ROL::EqualityConstraint<RealT>              CON;
+  typedef ROL::Constraint<RealT>                      CON;
   typedef ROL::BoundConstraint<RealT>                 BND;
   typedef ROL::OptimizationProblem<RealT>             OPT;
   typedef ROL::NonlinearProgram<RealT>                NLP;
@@ -221,20 +221,20 @@ int main(int argc, char *argv[]) {
   typedef ROL::InteriorPointPenalty<RealT>            PENALTY;
   typedef ROL::PrimalDualInteriorPointResidual<RealT> RESIDUAL;
 
-  using Teuchos::RCP; using Teuchos::rcp;
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint = argc - 1;
-  RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs;
-  if( iprint > 0 ) 
-    outStream = rcp(&std::cout,false);
+  if( iprint > 0 )
+    outStream = &std::cout;
   else
-    outStream = rcp(&bhs,false);
+    outStream = &bhs;
 
   int errorFlag = 0;
-   
+
   try {
 
     RealT mu = 0.1;
@@ -253,47 +253,47 @@ int main(int argc, char *argv[]) {
     lblist.set("Initial Barrier Parameter", mu);
 
     // Need an example problem that satisfies the following criteria:
-    // 1) Has an equality constraint 
+    // 1) Has an equality constraint
     // 2) Has a bound constraint where all variables have finite upper and lower bounds
 
-    RCP<NLP> nlp = rcp( new HS::Problem_041<RealT>() ); 
-    RCP<OPT> opt = nlp->getOptimizationProblem();
- 
-    RCP<V>   x   = opt->getSolutionVector();
-    RCP<V>   l   = opt->getMultiplierVector();
-    RCP<V>   zl  = x->clone();
-    RCP<V>   zu  = x->clone(); 
+    ROL::SharedPointer<NLP> nlp = ROL::makeShared<HS::Problem_041<RealT>>();
+    ROL::SharedPointer<OPT> opt = nlp->getOptimizationProblem();
 
-    RCP<V>   scratch = x->clone();
+    ROL::SharedPointer<V>   x   = opt->getSolutionVector();
+    ROL::SharedPointer<V>   l   = opt->getMultiplierVector();
+    ROL::SharedPointer<V>   zl  = x->clone();
+    ROL::SharedPointer<V>   zu  = x->clone();
 
-    RCP<PV>  x_pv = Teuchos::rcp_dynamic_cast<PV>(x);
+    ROL::SharedPointer<V>   scratch = x->clone();
 
-    RCP<V>   sol = CreatePartitionedVector(x,l,zl,zu);   
+    ROL::SharedPointer<PV>  x_pv = ROL::dynamicPointerCast<PV>(x);
 
-    RCP<V>   c = sol->clone();
-    RCP<V>   v = sol->clone();
-    RCP<V>  jv = sol->clone(); 
+    ROL::SharedPointer<V>   sol = CreatePartitionedVector(x,l,zl,zu);
 
-    RCP<V>   c_exact = c->clone();
-    RCP<V>  jv_exact = jv->clone();
+    ROL::SharedPointer<V>   c = sol->clone();
+    ROL::SharedPointer<V>   v = sol->clone();
+    ROL::SharedPointer<V>  jv = sol->clone();
+
+    ROL::SharedPointer<V>   c_exact = c->clone();
+    ROL::SharedPointer<V>  jv_exact = jv->clone();
 
     ROL::RandomizeVector(*l, -1.0, 1.0);
     ROL::RandomizeVector(*v,  0.0, 1.0);
 
 
-    RCP<OBJ> obj = opt->getObjective();
-    RCP<CON> con = opt->getEqualityConstraint();
-    RCP<BND> bnd = opt->getBoundConstraint();
+    ROL::SharedPointer<OBJ> obj = opt->getObjective();
+    ROL::SharedPointer<CON> con = opt->getConstraint();
+    ROL::SharedPointer<BND> bnd = opt->getBoundConstraint();
 
     PENALTY penalty(obj,bnd,parlist);
- 
-    RCP<const V> maskL = penalty.getLowerMask();
-    RCP<const V> maskU = penalty.getUpperMask();
+
+    ROL::SharedPointer<const V> maskL = penalty.getLowerMask();
+    ROL::SharedPointer<const V> maskU = penalty.getUpperMask();
 
     zl->set(*maskL);
     zu->set(*maskU);
 
-    RCP<CON> res = rcp( new RESIDUAL(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false)  );
+    ROL::SharedPointer<CON> res = ROL::makeShared<RESIDUAL>(obj,con,bnd,*sol,maskL,maskU,scratch,mu,false);
 
 
     *outStream << "\n[x|lambda|zl|zu]" << std::endl;
@@ -330,9 +330,9 @@ int main(int argc, char *argv[]) {
     jv->axpy(-1.0,*jv_exact);
 
     RealT jverror = jv->norm();
-    
+
     if( jverror > tol ) {
-      ++errorFlag;  
+      ++errorFlag;
     }
 
     *outStream << "\n\n||jv-jv_exact|| = " << jverror << std::endl;
@@ -355,4 +355,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-

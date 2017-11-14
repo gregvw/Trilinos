@@ -44,7 +44,6 @@
 
 #include <map>
 
-#include "Phalanx_config.hpp"
 #include "Phalanx_FieldTag.hpp"
 #include "Phalanx_FieldTag_Tag.hpp"
 #include "Phalanx_FieldTag_STL_Functors.hpp"
@@ -192,4 +191,16 @@ TEUCHOS_UNIT_TEST(FieldTag,ConstCorrectness)
   // This should fail to compile: uncomment to test static_assert
   // warning message
   //Tag<int> d(nonconst_a); // create int tag from double
+}
+
+TEUCHOS_UNIT_TEST(FieldTag,EmptyCtor)
+{
+  using namespace PHX;
+
+  Tag<double> empty_tag;
+  TEST_THROW(empty_tag.dataLayout(),std::logic_error);
+  TEST_EQUALITY(empty_tag.name(),std::string("TAG_NAME_NOT_SET"));
+
+  const Tag<double> const_empty_tag;
+  TEST_THROW(const_empty_tag.dataLayout(),std::logic_error);
 }

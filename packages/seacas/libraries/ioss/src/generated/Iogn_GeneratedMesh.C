@@ -1,7 +1,6 @@
-// Copyright(C) 1999-2010
-// Sandia Corporation. Under the terms of Contract
-// DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-// certain rights in this software.
+// Copyright(C) 1999-2010 National Technology & Engineering Solutions
+// of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+// NTESS, the U.S. Government retains certain rights in this software.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,7 +13,8 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of Sandia Corporation nor the names of its
+//
+//     * Neither the name of NTESS nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -367,7 +367,8 @@ namespace Iogn {
                   << "\tnodeset:xXyYzZ (specifies which plane to apply nodeset)\n"
                   << "\tsideset:xXyYzZ (specifies which plane to apply sideset)\n"
                   << "\ttets (split each hex into 6 tets)\n"
-                  << "\tvariables:type,count,...  type=element|nodal|nodeset\n"
+                  << "\tvariables:type,count,...  "
+                     "type=global|element|node|nodal|nodeset|sideset|surface\n"
                   << "\ttimes:count (number of timesteps to generate)\n"
                   << "\tshow -- show mesh parameters\n"
                   << "\thelp -- show this list\n\n";
@@ -1477,7 +1478,7 @@ namespace Iogn {
     else if (type == "element") {
       variableCount[Ioss::ELEMENTBLOCK] = count;
     }
-    else if (type == "nodal") {
+    else if (type == "nodal" || type == "node") {
       variableCount[Ioss::NODEBLOCK] = count;
     }
     else if (type == "nodeset") {
@@ -1489,7 +1490,7 @@ namespace Iogn {
     else {
       std::cerr << "ERROR: (Iogn::GeneratedMesh::set_variable_count)\n"
                 << "       Unrecognized variable type '" << type << "'. Valid types are:\n"
-                << "       global, element, nodal, nodeset, surface, sideset.\n";
+                << "       global, element, node, nodal, nodeset, surface, sideset.\n";
     }
   }
 

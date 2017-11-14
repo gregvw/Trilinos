@@ -1,18 +1,52 @@
+// Copyright (c) 2013, Sandia Corporation.
+ // Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+ // the U.S. Government retains certain rights in this software.
+ // 
+ // Redistribution and use in source and binary forms, with or without
+ // modification, are permitted provided that the following conditions are
+ // met:
+ // 
+ //     * Redistributions of source code must retain the above copyright
+ //       notice, this list of conditions and the following disclaimer.
+ // 
+ //     * Redistributions in binary form must reproduce the above
+ //       copyright notice, this list of conditions and the following
+ //       disclaimer in the documentation and/or other materials provided
+ //       with the distribution.
+ // 
+ //     * Neither the name of Sandia Corporation nor the names of its
+ //       contributors may be used to endorse or promote products derived
+ //       from this software without specific prior written permission.
+ // 
+ // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef STK_BALANCE_UTILS
 #define STK_BALANCE_UTILS
 
-#include <mpi.h>
+#include "mpi.h"
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/Entity.hpp>
 #include <stk_topology/topology.hpp>
 #include "stk_mesh/base/Field.hpp"  // for field_data
 #include "stk_mesh/base/FieldBase.hpp"
+#include <memory>
 
 namespace stk
 {
 namespace balance
 {
 //rcb, multijagged, rib, hsfc, patoh, phg, metis, parmetis, parma, scotch, ptscotch, block, cyclic, random, zoltan, nd
+
+class FaceSearchTolerance;
 
 typedef std::vector<int> ElementDecomposition;
 typedef stk::mesh::Field<double> DoubleFieldType;
@@ -57,7 +91,10 @@ public:
 
     // Graph (parmetis) based options only
     virtual bool includeSearchResultsInGraph() const;
-    virtual double getToleranceForFaceSearch() const;
+
+    virtual double getToleranceForFaceSearch(const stk::mesh::BulkData & mesh, const stk::mesh::FieldBase & coordField, const stk::mesh::EntityVector & faceNodes) const;
+    virtual void setToleranceFunctionForFaceSearch(std::shared_ptr<stk::balance::FaceSearchTolerance> faceSearchTolerance);
+
     virtual double getToleranceForParticleSearch() const;
     virtual double getGraphEdgeWeightForSearch() const;
     virtual bool getEdgesForParticlesUsingSearch() const;
@@ -91,6 +128,8 @@ public:
     virtual bool setVertexWeightsBasedOnNumberAdjacencies() const;
 
     virtual bool allowModificationOfVertexWeightsForSmallMeshes() const;
+
+    virtual bool shouldFixMechanisms() const;
 };
 
 class GraphCreationSettings : public BalanceSettings
@@ -104,7 +143,8 @@ public:
                              mToleranceForParticleSearch(particleSearchTol),
                              edgeWeightForSearch (edgeWeightSearch),
                              method(decompMethod),
-                             vertexWeightMultiplierForVertexInSearch(multiplierVWSearch)
+                             vertexWeightMultiplierForVertexInSearch(multiplierVWSearch),
+                             m_UseConstantToleranceForFaceSearch(true)
     {}
 
     virtual ~GraphCreationSettings() {}
@@ -122,7 +162,10 @@ public:
     virtual GraphOption getGraphOption() const;
     virtual bool includeSearchResultsInGraph() const ;
     virtual double getToleranceForParticleSearch() const ;
-    virtual double getToleranceForFaceSearch() const ;
+
+    virtual double getToleranceForFaceSearch(const stk::mesh::BulkData & mesh, const stk::mesh::FieldBase & coordField, const stk::mesh::EntityVector & faceNodes) const;
+    virtual void setToleranceFunctionForFaceSearch(std::shared_ptr<stk::balance::FaceSearchTolerance> faceSearchTolerance);
+
     virtual bool getEdgesForParticlesUsingSearch() const ;
     virtual double getVertexWeightMultiplierForVertexInSearch() const ;
     virtual std::string getDecompMethod() const ;
@@ -130,6 +173,7 @@ public:
     virtual void setDecompMethod(const std::string& input_method);
     virtual void setToleranceForFaceSearch(double tol);
     virtual void setToleranceForParticleSearch(double tol) ;
+    virtual bool shouldFixMechanisms() const;
 
 protected:
     int getConnectionTableIndex(stk::topology elementTopology) const;
@@ -138,41 +182,31 @@ protected:
     double edgeWeightForSearch;
     std::string method;
     double vertexWeightMultiplierForVertexInSearch;
+    bool m_UseConstantToleranceForFaceSearch;
+    std::shared_ptr<stk::balance::FaceSearchTolerance> m_faceSearchToleranceFunction;
 };
 
 class GraphCreationSettingsWithCustomTolerances : public GraphCreationSettings
 {
 public:
-    GraphCreationSettingsWithCustomTolerances() : mToleranceForFaceSearch(0.1), mToleranceForParticleSearch(1.0) { }
-
-    virtual double getToleranceForFaceSearch() const { return mToleranceForFaceSearch; }
-    void setToleranceForFaceSearch(double tol) { mToleranceForFaceSearch = tol; }
-
-    virtual double getToleranceForParticleSearch() const { return mToleranceForParticleSearch; }
-    void setToleranceForParticleSearch(double tol)
+    GraphCreationSettingsWithCustomTolerances()
+      : GraphCreationSettings()
     {
-        mToleranceForParticleSearch = tol;
+        mToleranceForFaceSearch = 0.1;
+        mToleranceForParticleSearch = 1.0;
     }
+
     virtual bool getEdgesForParticlesUsingSearch() const { return true; }
     virtual bool setVertexWeightsBasedOnNumberAdjacencies() const { return true; }
-
-private:
-    double mToleranceForFaceSearch;
-    double mToleranceForParticleSearch;
 };
 
 class BasicZoltan2Settings : public GraphCreationSettings
 {
 public:
+    BasicZoltan2Settings()
+      : GraphCreationSettings(0.0005, 0.3, 100.0, "rcb", 6.0) {}
     virtual bool includeSearchResultsInGraph() const { return false; }
-
-    virtual double getToleranceForFaceSearch() const { return 0.0005 ; }
-    virtual double getToleranceForParticleSearch() const { return 0.3; }
-    virtual double getGraphEdgeWeightForSearch() const { return 100.0; }
     virtual bool getEdgesForParticlesUsingSearch() const { return true; }
-    virtual double getVertexWeightMultiplierForVertexInSearch() const { return 6.0; }
-    //virtual double getImbalanceTolerance() const { return 1.05; }
-    virtual std::string getDecompMethod() const { return std::string("rcb"); }
 };
 
 class UserSpecifiedVertexWeightsSetting : public GraphCreationSettings
@@ -189,6 +223,7 @@ public:
     virtual std::string getDecompMethod() const { return method; }
     void setCoordinateFieldName(const std::string& field_name) { m_field_name = field_name; }
     virtual std::string getCoordinateFieldName() const { return m_field_name; }
+    virtual bool shouldFixMechanisms() const { return false; }
 
 private:
     std::vector<double> vertex_weights;

@@ -75,7 +75,7 @@ template<class Real>
 class HMCR : public RiskMeasure<Real> {
 private:
   // Plus function (approximation)
-  Teuchos::RCP<PlusFunction<Real> > plusFunction_;
+  ROL::SharedPointer<PlusFunction<Real> > plusFunction_;
 
   // User inputs
   Real prob_;
@@ -86,10 +86,10 @@ private:
   Real coeff_;
 
   // Temporary vector storage
-  Teuchos::RCP<Vector<Real> > mDualVector0_;
-  Teuchos::RCP<Vector<Real> > gDualVector0_;
-  Teuchos::RCP<Vector<Real> > mDualVector1_;
-  Teuchos::RCP<Vector<Real> > gDualVector1_;
+  ROL::SharedPointer<Vector<Real> > mDualVector0_;
+  ROL::SharedPointer<Vector<Real> > gDualVector0_;
+  ROL::SharedPointer<Vector<Real> > mDualVector1_;
+  ROL::SharedPointer<Vector<Real> > gDualVector1_;
 
   // Statistic storage
   Real xvar_;
@@ -112,7 +112,7 @@ private:
       ">>> ERROR (ROL::HMCR): Convex combination parameter must be positive!");
     TEUCHOS_TEST_FOR_EXCEPTION((order_ < 2), std::invalid_argument,
       ">>> ERROR (ROL::HMCR): Norm order is less than 2!");
-    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == Teuchos::null, std::invalid_argument,
+    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == ROL::nullPointer, std::invalid_argument,
       ">>> ERROR (ROL::HMCR): PlusFunction pointer is null!");
   }
 
@@ -127,7 +127,7 @@ public:
       @param[in]     pf      is the plus function or an approximation
   */
   HMCR( const Real prob, const Real lambda, const unsigned order,
-        const Teuchos::RCP<PlusFunction<Real> > &pf )
+        const ROL::SharedPointer<PlusFunction<Real> > &pf )
     : RiskMeasure<Real>(),
       plusFunction_(pf), prob_(prob), lambda_(lambda), order_(order),
       xvar_(0), vvar_(0), pnorm_(0), coeff0_(0), coeff1_(0), coeff2_(0),
@@ -159,16 +159,18 @@ public:
     lambda_ = list.get<Real>("Convex Combination Parameter");
     order_ = (unsigned)list.get<int>("Order",2);
     // Build (approximate) plus function
-    plusFunction_  = Teuchos::rcp(new PlusFunction<Real>(list));
+    plusFunction_  = ROL::makeShared<PlusFunction<Real>>(list);
     // Check inputs
     checkInputs();
     const Real one(1);
     coeff_ = one/(one-prob_);
   }
 
-  void reset(Teuchos::RCP<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
     RiskMeasure<Real>::reset(x0,x);
-    xvar_ = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatistic(0);
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    xvar_ = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[0];
     // Initialize additional vector storage
     if ( HMCR_firstReset_ ) {
       mDualVector0_ = (x0->dual()).clone();
@@ -183,12 +185,14 @@ public:
     pnorm_ = zero; coeff0_ = zero;
   }
 
-  void reset(Teuchos::RCP<Vector<Real> > &x0, const Vector<Real> &x,
-             Teuchos::RCP<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0    = Teuchos::rcp_const_cast<Vector<Real> >(
-            Teuchos::dyn_cast<const RiskVector<Real> >(v).getVector());
-    vvar_ = Teuchos::dyn_cast<const RiskVector<Real> >(v).getStatistic(0);
+    v0    = ROL::constPointerCast<Vector<Real> >(
+            dynamic_cast<const RiskVector<Real>&>(v).getVector());
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    vvar_ = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index))[0];
     // Zero temporary storage
     const Real zero(0);
     mDualVector1_->zero(); gDualVector1_->zero();
@@ -255,8 +259,10 @@ public:
       var -= lambda_*coeff_*((denom > zero) ? val_out[1]/denom : zero);
     }
     // Set gradients
-    (Teuchos::dyn_cast<RiskVector<Real> >(g)).setStatistic(var);
-    (Teuchos::dyn_cast<RiskVector<Real> >(g)).setVector(*(RiskMeasure<Real>::dualVector_));
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    (dynamic_cast<RiskVector<Real>&>(g)).setStatistic(var,comp,index);
+    (dynamic_cast<RiskVector<Real>&>(g)).setVector(*(RiskMeasure<Real>::dualVector_));
   }
 
   void update(const Real val, const Vector<Real> &g, const Real gv, const Vector<Real> &hv,
@@ -318,8 +324,10 @@ public:
       RiskMeasure<Real>::dualVector_->axpy(coeff*val_out[3]/denom2,*gDualVector1_);
     }
 
-    (Teuchos::dyn_cast<RiskVector<Real> >(hv)).setStatistic(var);
-    (Teuchos::dyn_cast<RiskVector<Real> >(hv)).setVector(*(RiskMeasure<Real>::dualVector_));
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    (dynamic_cast<RiskVector<Real>&>(hv)).setStatistic(var,comp,index);
+    (dynamic_cast<RiskVector<Real>&>(hv)).setVector(*(RiskMeasure<Real>::dualVector_));
   }
 };
 

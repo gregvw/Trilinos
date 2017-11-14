@@ -31,6 +31,38 @@ APPEND_SET(HEADERS
 )
 
 #
+# compatibility headers
+#
+
+SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/compatibility)
+
+# Set an implementation of smart pointers
+IF(${PACKAGE_NAME}_ENABLE_STD_SHARED_PTR)
+  INCLUDE_DIRECTORIES(${DIR}/std/shared_ptr)
+  APPEND_GLOB(HEADERS ${DIR}/std/shared_ptr/ROL_SharedPointer.hpp)
+ELSE()
+  INCLUDE_DIRECTORIES(${DIR}/teuchos/rcp)
+  APPEND_GLOB(HEADERS ${DIR}/teuchos/rcp/ROL_SharedPointer.hpp)
+ENDIF()
+  
+# Set an implementation of parameter lists
+IF(${PACKAGE_NAME}_ENABLE_BOOST_PROPERTY_TREE)
+  INCLUDE_DIRECTORIES(${DIR}/boost/property_tree)
+  APPEND_GLOB(HEADERS ${DIR}/boost/property_tree/ROL_ParameterList.hpp)
+ELSE()
+  INCLUDE_DIRECTORIES(${DIR}/teuchos/parameterlist)
+  APPEND_GLOB(HEADERS ${DIR}/teuchos/parameterlist/ROL_ParameterList.hpp)
+ENDIF()
+
+
+
+
+
+
+
+INCLUDE_DIRECTORIES(${DIR})
+APPEND_GLOB(HEADERS ${DIR}/*.hpp)
+#
 # vector headers
 #
 
@@ -44,10 +76,22 @@ APPEND_GLOB(HEADERS ${DIR}/*.hpp)
 
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/function)
 INCLUDE_DIRECTORIES(${DIR}
-                    ${DIR}/operator)
+                    ${DIR}/boundconstraint
+                    ${DIR}/constraint
+                    ${DIR}/nlls
+                    ${DIR}/objective
+                    ${DIR}/operator
+                    ${DIR}/simopt
+                    ${DIR}/std)
 
 APPEND_GLOB(HEADERS ${DIR}/*.hpp
-                    ${DIR}/operator/*.hpp)
+                    ${DIR}/boundconstraint/*.hpp
+                    ${DIR}/constraint/*.hpp
+                    ${DIR}/nlls/*.hpp
+                    ${DIR}/objective/*.hpp
+                    ${DIR}/operator/*.hpp
+                    ${DIR}/simopt/*.hpp
+                    ${DIR}/std/*.hpp)
 
 #
 # step headers
@@ -70,6 +114,8 @@ APPEND_GLOB(HEADERS ${DIR}/*.hpp
                     ${DIR}/secant/*.hpp
                     ${DIR}/krylov/*.hpp
                     ${DIR}/bundle/*.hpp
+                    ${DIR}/augmentedlagrangian/*.hpp
+                    ${DIR}/moreauyosidapenalty/*.hpp
                     ${DIR}/interiorpoint/*.hpp
                     ${DIR}/nonlinearcg/*.hpp
                    )

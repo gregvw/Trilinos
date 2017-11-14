@@ -45,12 +45,8 @@
 
 #include <string>
 #include "Phalanx_Evaluator_Macros.hpp"
-#include "Phalanx_Field.hpp"
-
+#include "Phalanx_MDField.hpp"
 #include "PanzerDiscFE_config.hpp"
-
-#include "Panzer_Evaluator_WithBaseImpl.hpp"
-
 #include "Panzer_Evaluator_WithBaseImpl.hpp"
 
 namespace panzer {
@@ -72,7 +68,7 @@ private:
 
   typedef typename EvalT::ScalarT ScalarT;
   
-  PHX::MDField<ScalarT,Cell,Point> dof_basis;
+  PHX::MDField<const ScalarT,Cell,Point> dof_basis;
 
   PHX::MDField<ScalarT,Cell,Point> dof_ip_scalar;
   PHX::MDField<ScalarT,Cell,Point,Dim> dof_ip_vector;
@@ -80,7 +76,6 @@ private:
   std::string basis_name;
   std::size_t basis_index;
 
-  PHX::MDField<ScalarT,Cell,BASIS> dof_orientation;
   bool is_vector_basis;
 };
 
@@ -106,7 +101,7 @@ private:
 
   typedef panzer::Traits::Jacobian::ScalarT ScalarT;
   
-  PHX::MDField<ScalarT,Cell,Point> dof_basis;
+  PHX::MDField<const ScalarT,Cell,Point> dof_basis;
 
   PHX::MDField<ScalarT,Cell,Point> dof_ip_scalar;
   PHX::MDField<ScalarT,Cell,Point,Dim> dof_ip_vector;

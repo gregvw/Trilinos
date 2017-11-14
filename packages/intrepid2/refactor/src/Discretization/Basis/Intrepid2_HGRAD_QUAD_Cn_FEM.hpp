@@ -40,8 +40,8 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_HGRAD_QUAD_Cn_FEM.hpp
-    \brief  Header file for the Intrepid2::HGRAD_QUAD_Cn_FEM class.
+/** \file   Intrepid2_HGRAD_QUAD_Cn_FEM.hpp
+    \brief  Header file for the Intrepid2::Basis_HGRAD_QUAD_Cn_FEM class.
     \author Created by R. Kirby.
             Kokkorized by Kyungjoo Kim
 */
@@ -56,9 +56,15 @@ namespace Intrepid2 {
   
   namespace Impl {
 
+    /**
+      \brief See Intrepid2::Basis_HGRAD_QUAD_Cn_FEM
+    */
     class Basis_HGRAD_QUAD_Cn_FEM {
     public:
-      
+      typedef struct Quadrilateral<4> cell_topology_type;      
+      /**
+        \brief See Intrepid2::Basis_HGRAD_QUAD_Cn_FEM
+      */
       template<EOperator opType>
       struct Serial {
         template<typename outputValueViewType,
@@ -84,6 +90,9 @@ namespace Intrepid2 {
                   const Kokkos::DynRankView<vinvValueType,       vinvProperties...>        vinv,
                   const EOperator operatorType );
       
+      /**
+        \brief See Intrepid2::Basis_HGRAD_QUAD_Cn_FEM
+      */
       template<typename outputValueViewType,
                typename inputPointViewType,
                typename vinvViewType,
@@ -113,8 +122,10 @@ namespace Intrepid2 {
 
           typedef typename outputValueViewType::value_type outputValueType;
           typedef typename outputValueViewType::pointer_type outputPointerType;
-          constexpr ordinal_type bufSize = 3*(Parameters::MaxOrder+1)*numPtsEval;
-          outputValueType buf[bufSize];
+          constexpr ordinal_type spaceDim = 2;
+          constexpr ordinal_type bufSize = 
+            (spaceDim+1) * Intrepid2::getPnCardinality<spaceDim,Parameters::MaxOrder>()*numPtsEval;// :
+          char buf[bufSize*sizeof(outputValueType)];
           
           Kokkos::DynRankView<outputValueType,
             Kokkos::Impl::ActiveExecutionMemorySpace> work((outputPointerType)&buf[0], bufSize);
@@ -142,8 +153,8 @@ namespace Intrepid2 {
     };
   }
   
-  /** \class  Intrepid2::Basis_HGRAD_QUAD_C1_FEM
-      \brief  Implementation of the default H(grad)-compatible FEM basis of degree 1 on Quadrilateral cell
+  /** \class  Intrepid2::Basis_HGRAD_QUAD_Cn_FEM
+      \brief  Implementation of the default H(grad)-compatible FEM basis of degree n on Quadrilateral cell
               Implements Lagrangian basis of degree n on the reference Quadrilateral cell using
               a tensor product of points
   */
@@ -180,7 +191,7 @@ namespace Intrepid2 {
                                       this->getBaseCellTopology(),
                                       this->getCardinality() );
 #endif
-      constexpr ordinal_type numPtsPerEval = 1;
+      constexpr ordinal_type numPtsPerEval = Parameters::MaxNumPtsPerBasisEval;
       Impl::Basis_HGRAD_QUAD_Cn_FEM::
         getValues<ExecSpaceType,numPtsPerEval>( outputValues,
                                                 inputPoints,
@@ -203,6 +214,20 @@ namespace Intrepid2 {
                                     ">>> ERROR: (Intrepid2::Basis_HGRAD_QUAD_Cn_FEM::getDofCoords) incorrect reference cell (1st) dimension in dofCoords array");
 #endif
       Kokkos::deep_copy(dofCoords, this->dofCoords_);
+    }
+
+    virtual
+    void
+    getDofCoeffs( scalarViewType dofCoeffs ) const {
+#ifdef HAVE_INTREPID2_DEBUG
+      // Verify rank of output array.
+      INTREPID2_TEST_FOR_EXCEPTION( dofCoeffs.rank() != 1, std::invalid_argument,
+                                    ">>> ERROR: (Intrepid2::Basis_HGRAD_QUAD_Cn_FEM::getdofCoeffs) rank = 1 required for dofCoeffs array");
+      // Verify 0th dimension of output array.
+      INTREPID2_TEST_FOR_EXCEPTION( static_cast<ordinal_type>(dofCoeffs.dimension(0)) != this->getCardinality(), std::invalid_argument,
+                                    ">>> ERROR: (Intrepid2::Basis_HGRAD_QUAD_Cn_FEM::getdofCoeffs) mismatch in number of dof and 0th dimension of dofCoeffs array");
+#endif
+      Kokkos::deep_copy(dofCoeffs, 1.0);
     }
 
     virtual

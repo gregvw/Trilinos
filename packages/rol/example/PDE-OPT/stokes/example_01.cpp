@@ -69,19 +69,19 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   }
   else {
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
   }
   int errorFlag  = 0;
 
@@ -90,43 +90,43 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     /*** Initialize main data structure. ***/
-    Teuchos::RCP<MeshManager<RealT> > meshMgr
-      = Teuchos::rcp(new MeshManager_Stokes<RealT>(*parlist));
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr
+      = ROL::makeShared<MeshManager_Stokes<RealT>>(*parlist);
     // Initialize PDE describing Navier-Stokes equations.
-    Teuchos::RCP<PDE_Stokes<RealT> > pde
-      = Teuchos::rcp(new PDE_Stokes<RealT>(*parlist));
-    Teuchos::RCP<ROL::EqualityConstraint_SimOpt<RealT> > con
-      = Teuchos::rcp(new Linear_PDE_Constraint<RealT>(pde,meshMgr,comm,*parlist,*outStream));
+    ROL::SharedPointer<PDE_Stokes<RealT> > pde
+      = ROL::makeShared<PDE_Stokes<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > con
+      = ROL::makeShared<Linear_PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    Teuchos::RCP<Linear_PDE_Constraint<RealT> > pdecon
-      = Teuchos::rcp_dynamic_cast<Linear_PDE_Constraint<RealT> >(con);
-    Teuchos::RCP<Assembler<RealT> > assembler = pdecon->getAssembler();
+    ROL::SharedPointer<Linear_PDE_Constraint<RealT> > pdecon
+      = ROL::dynamicPointerCast<Linear_PDE_Constraint<RealT> >(con);
+    ROL::SharedPointer<Assembler<RealT> > assembler = pdecon->getAssembler();
     con->setSolveParameters(*parlist);
     pdecon->outputTpetraData();
 
     // Create state vector and set to zeroes
-    Teuchos::RCP<Tpetra::MultiVector<> > u_rcp, r_rcp, z_rcp;
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp, r_rcp, z_rcp;
     u_rcp  = assembler->createStateVector();     u_rcp->randomize();
     r_rcp  = assembler->createResidualVector();  r_rcp->randomize();
     z_rcp  = assembler->createControlVector();   z_rcp->putScalar(0);
-    Teuchos::RCP<ROL::Vector<RealT> > up, rp, zp;
-    up  = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(u_rcp,pde,assembler));
-    rp  = Teuchos::rcp(new PDE_DualSimVector<RealT>(r_rcp,pde,assembler));
-    zp  = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(z_rcp,pde,assembler));
+    ROL::SharedPointer<ROL::Vector<RealT> > up, rp, zp;
+    up  = ROL::makeShared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler);
+    rp  = ROL::makeShared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler);
+    zp  = ROL::makeShared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler);
 
     // Run derivative checks
     bool checkDeriv = parlist->sublist("Problem").get("Check derivatives",false);
     if ( checkDeriv ) {
-      Teuchos::RCP<Tpetra::MultiVector<> > p_rcp, du_rcp;
+      ROL::SharedPointer<Tpetra::MultiVector<> > p_rcp, du_rcp;
       p_rcp  = assembler->createStateVector();     p_rcp->randomize();
       du_rcp = assembler->createStateVector();     du_rcp->randomize();
-      Teuchos::RCP<ROL::Vector<RealT> > pp, dup;
-      pp  = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(p_rcp,pde,assembler));
-      dup = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(du_rcp,pde,assembler));
+      ROL::SharedPointer<ROL::Vector<RealT> > pp, dup;
+      pp  = ROL::makeShared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler);
+      dup = ROL::makeShared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler);
 
       *outStream << std::endl << "Check Jacobian_1 of Constraint" << std::endl;
       con->checkApplyJacobian_1(*up,*zp,*dup,*rp,true,*outStream);

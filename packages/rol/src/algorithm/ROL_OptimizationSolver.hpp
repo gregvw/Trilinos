@@ -44,14 +44,13 @@
 #ifndef ROL_OPTIMIZATIONSOLVER_HPP
 #define ROL_OPTIMIZATIONSOLVER_HPP
 
-#define OPTIMIZATION_PROBLEM_REFACTOR
-
 #include "ROL_Algorithm.hpp"
-#include "ROL_OptimizationProblemRefactor.hpp"
+#include "ROL_OptimizationProblem.hpp"
+#include "ROL_CombinedStatusTest.hpp"
 
 #include "Teuchos_oblackholestream.hpp"
 
-/** \class ROL::OptimizationSolver 
+/** \class ROL::OptimizationSolver
     \brief Provides a simplified interface for solving a wide range of
            optimization problems
  */
@@ -60,61 +59,65 @@ namespace ROL {
 
 template<class Real>
 class OptimizationSolver {
-
-  typedef Vector<Real>               V;
-  typedef Objective<Real>            OBJ;
-  typedef EqualityConstraint<Real>   EQCON;
-  typedef BoundConstraint<Real>      BND;
-
 private:
 
-  Teuchos::RCP<Algorithm<Real> >             algo_;
-  Teuchos::RCP<Step<Real> >                  step_;
-  Teuchos::RCP<StatusTest<Real> >            status_;
-  Teuchos::RCP<AlgorithmState<Real> >        state_; 
+  ROL::SharedPointer<Algorithm<Real> >          algo_;
+  ROL::SharedPointer<Step<Real> >               step_;
+  ROL::SharedPointer<StatusTest<Real> >         status0_;
+  ROL::SharedPointer<CombinedStatusTest<Real> > status_;
+  ROL::SharedPointer<AlgorithmState<Real> >     state_;
 
-  Teuchos::RCP<V>         x_;
-  Teuchos::RCP<V>         g_;
-  Teuchos::RCP<V>         l_;
-  Teuchos::RCP<V>         c_;
+  ROL::SharedPointer<Vector<Real> > x_;
+  ROL::SharedPointer<Vector<Real> > g_;
+  ROL::SharedPointer<Vector<Real> > l_;
+  ROL::SharedPointer<Vector<Real> > c_;
 
-  Teuchos::RCP<OBJ>       obj_;
-  Teuchos::RCP<BND>       bnd_;
-  Teuchos::RCP<EQCON>     eqcon_;
+  ROL::SharedPointer<Objective<Real> >       obj_;
+  ROL::SharedPointer<BoundConstraint<Real> > bnd_;
+  ROL::SharedPointer<Constraint<Real> >      con_;
 
   std::vector<std::string>  output_;
-  
+
   EProblem problemType_;
 
 public:
 
   OptimizationSolver( OptimizationProblem<Real> &opt,
                       Teuchos::ParameterList &parlist ) {
-
-    using Teuchos::RCP; using Teuchos::rcp;
-
+    // Get step name from parameterlist
     std::string stepname = parlist.sublist("Step").get("Type","Last Type (Dummy)");
-
     EStep stepType = StringToEStep(stepname);
 
-    problemType_ = opt.getProblemType();  
+    // Get optimization problem type: U, E, B, EB
+    problemType_ = opt.getProblemType();
 
-    TEUCHOS_TEST_FOR_EXCEPTION( !isValidStep(stepType), std::invalid_argument,
-                                "Invalid step name in OptimizationSolver constructor!" );
-                      
-    TEUCHOS_TEST_FOR_EXCEPTION( !isCompatibleStep(problemType_, stepType), std::logic_error,
-      "Error in OptimizationSolver constructor: Step type " << stepname << " does not support "
-      << EProblemToString(problemType_) << " problems" << std::endl ); 
+    // Set default algorithm if provided step is incompatible with problem type
+    if ( !isCompatibleStep(problemType_, stepType) ) {
+      switch ( problemType_ ) {
+        case TYPE_U:
+          stepType = STEP_TRUSTREGION;          break;
+        case TYPE_B:
+          stepType = STEP_TRUSTREGION;          break;
+        case TYPE_E:
+          stepType = STEP_COMPOSITESTEP;        break;
+        case TYPE_EB:
+          stepType = STEP_AUGMENTEDLAGRANGIAN;  break;
+        case TYPE_LAST:
+        default:
+          throw Exception::NotImplemented(">>> ROL::OptimizationSolver: Unknown problem type!");
+      }
+    }
+    stepname = EStepToString(stepType);
 
+    // Build algorithmic components
     StepFactory<Real>        stepFactory;
     StatusTestFactory<Real>  statusTestFactory;
+    step_    = stepFactory.getStep(stepname,parlist);
+    status0_ = statusTestFactory.getStatusTest(stepname,parlist);
+    status_  = ROL::makeShared<CombinedStatusTest<Real>>();
+    state_   = ROL::makeShared<AlgorithmState<Real>>();
 
-    step_     = stepFactory.getStep(stepname,parlist);
-    status_   = statusTestFactory.getStatusTest(stepname,parlist);
-    state_    = rcp( new AlgorithmState<Real> );
-
-    algo_ = rcp( new Algorithm<Real>( step_, status_, state_ ) );
-
+    // Get optimization vector and a vector for the gradient
     x_ = opt.getSolutionVector();
     g_ = x_->dual().clone();
 
@@ -123,74 +126,91 @@ public:
       l_ = opt.getMultiplierVector();
       c_ = l_->dual().clone();
     }
-
     // Create modified objectives if needed
     if( stepType == STEP_AUGMENTEDLAGRANGIAN ) {
-      RCP<OBJ> raw_obj = opt.getObjective();
-      eqcon_ = opt.getEqualityConstraint();    
-
+      ROL::SharedPointer<Objective<Real> > raw_obj = opt.getObjective();
+      con_ = opt.getConstraint();
       // TODO: Provide access to change initial penalty
-      obj_ = rcp( new AugmentedLagrangian<Real>(raw_obj,eqcon_,*l_,1.0,*x_,*c_,parlist) );
+      obj_ = ROL::makeShared<AugmentedLagrangian<Real>>(raw_obj,con_,*l_,1.0,*x_,*c_,parlist);
       bnd_ = opt.getBoundConstraint();
     }
     else if( stepType == STEP_MOREAUYOSIDAPENALTY ) {
-      RCP<OBJ> raw_obj = opt.getObjective();
-      bnd_ = opt.getBoundConstraint();        
-      eqcon_ = opt.getEqualityConstraint(); 
-
+      ROL::SharedPointer<Objective<Real> > raw_obj = opt.getObjective();
+      bnd_ = opt.getBoundConstraint();
+      con_ = opt.getConstraint();
       // TODO: Provide access to change initial penalty
-      obj_ = rcp( new MoreauYosidaPenalty<Real>(raw_obj,bnd_,*x_,1.0) );
+      obj_ = ROL::makeShared<MoreauYosidaPenalty<Real>>(raw_obj,bnd_,*x_,parlist);
+    }
+    else if( stepType == STEP_INTERIORPOINT ) {
+      ROL::SharedPointer<Objective<Real> > raw_obj = opt.getObjective();
+      bnd_ = opt.getBoundConstraint();
+      con_ = opt.getConstraint();
+      // TODO: Provide access to change initial penalty
+      obj_ = ROL::makeShared<InteriorPoint::PenalizedObjective<Real>>(raw_obj,bnd_,*x_,parlist);
     }
     else {
-      obj_   = opt.getObjective();   
+      obj_   = opt.getObjective();
       bnd_   = opt.getBoundConstraint();
-      eqcon_ = opt.getEqualityConstraint();
+      con_   = opt.getConstraint();
     }
   }
 
-  virtual std::vector<std::string> getOutput() {
+  std::vector<std::string> getOutput(void) const {
     return output_;
   }
 
-  virtual int solve() {
+  int solve(void) {
     Teuchos::oblackholestream bhs;
     return solve(bhs);
   }
 
-  virtual int solve( std::ostream &outStream ) {
+  int solve( std::ostream &outStream,
+       const ROL::SharedPointer<StatusTest<Real> > &status = ROL::nullPointer,
+       const bool combineStatus = true ) {
+    // Build algorithm
+    status_->reset();       // Clear previous status test
+    status_->add(status0_); // Default StatusTest
+    if (status != ROL::nullPointer) {
+      if (!combineStatus) { // Use only user-defined StatusTest
+        status_->reset();
+      }
+      status_->add(status); // Add user-defined StatusTest
+    }
+    algo_ = ROL::makeShared<Algorithm<Real>>( step_, status_, state_ );
 
     switch(problemType_) {
       case TYPE_U:
-        output_ = algo_->run(*x_,*g_,*obj_,true,outStream);    
+        output_ = algo_->run(*x_,*g_,*obj_,true,outStream);
       break;
       case TYPE_B:
         output_ = algo_->run(*x_,*g_,*obj_,*bnd_,true,outStream);
       break;
       case TYPE_E:
-        output_ = algo_->run(*x_,*g_,*l_,*c_,*obj_,*eqcon_,true,outStream);
+        output_ = algo_->run(*x_,*g_,*l_,*c_,*obj_,*con_,true,outStream);
       break;
       case TYPE_EB:
-        output_ = algo_->run(*x_,*g_,*l_,*c_,*obj_,*eqcon_,*bnd_,true,outStream);
+        output_ = algo_->run(*x_,*g_,*l_,*c_,*obj_,*con_,*bnd_,true,outStream);
       break;
       case TYPE_LAST:
         TEUCHOS_TEST_FOR_EXCEPTION(true,std::invalid_argument,
-          "Error in OptimizationSolver::solve() : Unsupported problem type"); 
+          "Error in OptimizationSolver::solve() : Unsupported problem type");
       break;
     }
 
     // TODO: Interrogate AlgorithmState and StatusTest to generate a return code
     //       that indicates why the solver has stopped
 
-
-    // Return an integer code 
+    // Return an integer code
     return 0;
   }
 
-  Teuchos::RCP<const AlgorithmState<Real> > getAlgorithmState() {
+  ROL::SharedPointer<const AlgorithmState<Real> > getAlgorithmState(void) const {
     return state_;
   }
 
- 
+  void resetAlgorithmState(void) {
+    state_ = ROL::makeShared<AlgorithmState<Real>>();
+  }
 
 }; // class OptimizationSolver
 

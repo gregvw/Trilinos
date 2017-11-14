@@ -44,8 +44,8 @@
 /** \class ROL::CArrayVector
     \brief Provides the C array implementation of the ROL::Vector interface
            for use with NumPy->C Array passing by pointer. This class in intended
-           to be used with the Python ROL interface. 
- 
+           to be used with the Python ROL interface.
+
     \details See https://github.com/cython/cython/wiki/tutorials-NumpyPointerToC
     \author Greg von Winckel (gvonwin@sandia.gov)
 */
@@ -56,19 +56,19 @@ template <class Real, class Element=Real>
 class CArrayVector : public Vector<Real> {
 
     private:
-        unsigned int dim_; 
+        unsigned int dim_;
         Teuchos::ArrayRCP<Element> array_;
     public:
         // Create from C array with raw ptr
-        CArrayVector(Element* array, unsigned int dim) : 
+        CArrayVector(Element* array, unsigned int dim) :
             dim_(dim),array_(array,0,dim,false) {}
- 
+
         // Create from Teuchos ArrayRCP
-        CArrayVector(const Teuchos::ArrayRCP<Element> array) : 
+        CArrayVector(const Teuchos::ArrayRCP<Element> array) :
             dim_(array.size()),array_(array) {}
- 
+
         // Create an array of all zeros
-        CArrayVector(unsigned int dim) : 
+        CArrayVector(unsigned int dim) :
             dim_(dim),array_(dim) {}
 
         Teuchos::ArrayRCP<Element> getVector() const {
@@ -78,10 +78,10 @@ class CArrayVector : public Vector<Real> {
         Teuchos::ArrayRCP<Element> getVector() {
             return array_;
         }
-       
+
         void plus( const Vector<Real> &x ) {
             // Need to make sure object has a getVector method
-            const CArrayVector &ex = Teuchos::dyn_cast<const CArrayVector>(x);            
+            const CArrayVector &ex = dynamic_cast<const CArrayVector&>(x);
 
             Teuchos::ArrayRCP<Element> xp(ex.getVector());
             for(unsigned int i=0; i<dim_; ++i) {
@@ -90,47 +90,46 @@ class CArrayVector : public Vector<Real> {
         }
 
         Real dot( const Vector<Real> &x ) const {
-            const CArrayVector &ex = Teuchos::dyn_cast<const CArrayVector>(x);
-            
+            const CArrayVector &ex = dynamic_cast<const CArrayVector&>(x);
+
             Teuchos::ArrayRCP<Element> xp(ex.getVector());
             Real val = 0;
             for(unsigned int i=0; i<dim_; ++i){
                 val += (array_)[i]*(xp)[i];
-            }            
+            }
              return val;
         }
-      
+
         Real norm() const {
             Real val = 0;
             val = std::sqrt( dot(*this) );
-            return val; 
+            return val;
         }
 
         void scale( const Real alpha ) {
            for(unsigned int i=0; i<dim_; ++i) {
                (array_)[i] *= alpha;
            }
-        } 
- 
+        }
+
         int dimension() const {
             return dim_;
         }
 
-        Teuchos::RCP<Vector<Real> > clone() const {
-            return Teuchos::rcp( new CArrayVector( Teuchos::ArrayRCP<Element>(dim_) ) );   
+        ROL::SharedPointer<Vector<Real> > clone() const {
+          return ROL::makeShared<CArrayVector>( Teuchos::ArrayRCP<Element>(dim_) );
         }
-        
-        Teuchos::RCP<Vector<Real> > basis (const int i ) const {
-            Teuchos::RCP<CArrayVector> e = 
-                Teuchos::rcp( new CArrayVector(dim_) );
-            (e->getVector())[i] = 1.0;
-            return e; 
-        }         
 
-};    
+        ROL::SharedPointer<Vector<Real> > basis (const int i ) const {
+            ROL::SharedPointer<CArrayVector> e =
+                ROL::makeShared<CArrayVector>(dim_);
+            (e->getVector())[i] = 1.0;
+            return e;
+        }
+
+};
 
 
 }
 
 #endif
-

@@ -63,12 +63,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -77,25 +77,24 @@ int main(int argc, char *argv[]) {
   try {
 
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile(filename);
 
     // Loop Through Test Objectives
     for ( ROL::ETestObjectives objFunc = ROL::TESTOBJECTIVES_ROSENBROCK; objFunc < ROL::TESTOBJECTIVES_LAST; objFunc++ ) {
       *outStream << std::endl << std::endl << ROL::ETestObjectivesToString(objFunc) << std::endl << std::endl;
 
       // Set Up Optimization Problem
-      Teuchos::RCP<ROL::Vector<RealT> > x0, z;
-      Teuchos::RCP<ROL::Objective<RealT> > obj = Teuchos::null;
+      ROL::SharedPointer<ROL::Vector<RealT> > x0, z;
+      ROL::SharedPointer<ROL::Objective<RealT> > obj = ROL::nullPointer;
       ROL::getTestObjectives<RealT>(obj,x0,z,objFunc);
-      Teuchos::RCP<ROL::Vector<RealT> > x = x0->clone();
+      ROL::SharedPointer<ROL::Vector<RealT> > x = x0->clone();
 
       // Get Dimension of Problem
       int dim = x0->dimension();
       parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 5*dim);
 
       // Error Vector
-      Teuchos::RCP<ROL::Vector<RealT> > e = x0->clone();
+      ROL::SharedPointer<ROL::Vector<RealT> > e = x0->clone();
       e->zero();
 
       for ( ROL::ETrustRegion tr = ROL::TRUSTREGION_CAUCHYPOINT; tr < ROL::TRUSTREGION_LAST; tr++ ) {
@@ -109,7 +108,7 @@ int main(int argc, char *argv[]) {
         x->set(*x0);
         algo.run(*x, *obj, true, *outStream);
 
-        // Compute Error 
+        // Compute Error
         e->set(*x);
         e->axpy(-1.0,*z);
         *outStream << std::endl << "Norm of Error: " << e->norm() << std::endl;
@@ -129,4 +128,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

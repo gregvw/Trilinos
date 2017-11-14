@@ -132,8 +132,9 @@ postRegistrationSetup(typename Traits::SetupData d,
   std::vector< Teuchos::RCP<PHX::FieldTag> >::const_iterator  var;
 
   for (var = var_list.begin(); var != var_list.end(); ++var) {
-    // skip allocation if this is an aliased field
-    if (aliased_fields_.find((*var)->identifier()) == aliased_fields_.end()) {
+    // skip allocation if this is an aliased field or an unmanaged field
+    if ( aliased_fields_.find((*var)->identifier()) == aliased_fields_.end() &&
+         unmanaged_fields_.find((*var)->identifier()) == unmanaged_fields_.end() ) {
       typedef typename PHX::eval_scalar_types<EvalT>::type EvalDataTypes;
       Sacado::mpl::for_each_no_kokkos<EvalDataTypes>(PHX::KokkosViewFactoryFunctor<EvalT>(fields_,*(*var),kokkos_extended_data_type_dimensions_));
       
@@ -144,13 +145,23 @@ postRegistrationSetup(typename Traits::SetupData d,
     }
   }
 
+  // Set the unmanaged field memory (not allocated above)
+  for (const auto& field : unmanaged_fields_)
+    fields_[field.first] = field.second;
+
   // Assign aliased fields to the target field memory
-  for (auto& field : aliased_fields_)
+  for (const auto& field : aliased_fields_)
     fields_[field.first] = fields_[field.second];
   
   // Bind memory to all fields in all required evaluators
   for (const auto& field : var_list)
     this->bindField(*field,fields_[field->identifier()]);
+
+  // This needs to be set before the dag_manager calls each
+  // evaluator's postRegistrationSetup() so that the evaluators can
+  // use functions that are only valid after post registration setup
+  // is called (e.g query for kokkos extended data type dimensions).
+  post_registration_setup_called_ = true;
 
   // Allow users to perform special setup. This used to include
   // manually binding memory for all fields in the evaluators via
@@ -158,8 +169,6 @@ postRegistrationSetup(typename Traits::SetupData d,
   // anymore in the postRegistrationSetup() as we now do it for them
   // above.
   this->dag_manager_.postRegistrationSetup(d,fm);
-
-  post_registration_setup_called_ = true;
 }
 
 // *************************************************************************
@@ -253,6 +262,23 @@ PHX::EvaluationContainer<EvalT, Traits>::getFieldData(const PHX::FieldTag& f)
 // *************************************************************************
 template <typename EvalT, typename Traits>
 void PHX::EvaluationContainer<EvalT, Traits>::
+setUnmanagedField(const PHX::FieldTag& f, const PHX::any& a)
+{
+  // An unmanaged field is a MDField where the user has manually
+  // allocated the underlying memory for the field. If setup was
+  // already called, we need to reassign the memory and rebind all
+  // the evalautors that use the unmanaged field. If setup has not
+  // been called, then we can store off the memory and assign normally
+  // as part of the postRegistrationSetup() process.
+  if (this->setupCalled())
+    this->bindField(f,a);
+  else
+    unmanaged_fields_[f.identifier()] = a;
+}
+
+// *************************************************************************
+template <typename EvalT, typename Traits>
+void PHX::EvaluationContainer<EvalT, Traits>::
 bindField(const PHX::FieldTag& f, const PHX::any& a)
 {
   auto s = fields_.find(f.identifier());
@@ -318,6 +344,22 @@ void PHX::EvaluationContainer<EvalT, Traits>::
 analyzeGraph(double& speedup, double& parallelizability) const
 {
   this->dag_manager_.analyzeGraph(speedup,parallelizability);
+}
+
+// *************************************************************************
+template <typename EvalT, typename Traits>
+void
+PHX::EvaluationContainer<EvalT, Traits>::buildDag()
+{
+  this->dag_manager_.sortAndOrderEvaluators();
+}
+
+// *************************************************************************
+template <typename EvalT, typename Traits>
+const std::vector<Teuchos::RCP<PHX::FieldTag>>&
+PHX::EvaluationContainer<EvalT, Traits>::getFieldTags()
+{
+  return this->dag_manager_.getFieldTags();
 }
 
 // *************************************************************************

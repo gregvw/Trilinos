@@ -84,9 +84,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-/** \file   Intrepid_PolylibDef.hpp
+/** \file   Intrepid2_PolylibDef.hpp
     \brief  Definition file for a set of functions providing orthogonal polynomial
-    polynomial calculus and interpolation.
+    calculus and interpolation.
     \author Created by Spencer Sherwin, Aeronautics, Imperial College London,
             modified and redistributed by D. Ridzal.
             modified and Kokkorized by Kyungjoo Kim
@@ -94,8 +94,6 @@
 
 #ifndef __INTREPID2_POLYLIB_DEF_HPP__
 #define __INTREPID2_POLYLIB_DEF_HPP__
-
-#include "Kokkos_ViewFactory.hpp"
 
 namespace Intrepid2 {
 
@@ -109,8 +107,8 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::Cubature<POLYTYPE_GAUSS>::
-  getValues(/**/  zViewType z,
-            /**/  wViewType w,
+  getValues(      zViewType z,
+                  wViewType w,
             const ordinal_type np,
             const double alpha,
             const double beta) {
@@ -133,8 +131,8 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::Cubature<POLYTYPE_GAUSS_RADAU_LEFT>::
-  getValues(/**/  zViewType z,
-            /**/  wViewType w,
+  getValues(      zViewType z,
+                  wViewType w,
             const ordinal_type np,
             const double alpha,
             const double beta) {
@@ -168,8 +166,8 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::Cubature<POLYTYPE_GAUSS_RADAU_RIGHT>::
-  getValues(/**/  zViewType z,
-            /**/  wViewType w,
+  getValues(      zViewType z,
+                  wViewType w,
             const ordinal_type np,
             const double alpha,
             const double beta) {
@@ -201,8 +199,8 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::Cubature<POLYTYPE_GAUSS_LOBATTO>::
-  getValues(/**/  zViewType z,
-            /**/  wViewType w,
+  getValues(      zViewType z,
+                  wViewType w,
             const ordinal_type np,
             const double alpha,
             const double beta) {
@@ -243,7 +241,7 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::Derivative<POLYTYPE_GAUSS>::
-  getValues(/**/  DViewType D,
+  getValues(      DViewType D,
             const zViewType z,
             const ordinal_type np,
             const double alpha,
@@ -277,7 +275,7 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::Derivative<POLYTYPE_GAUSS_RADAU_LEFT>::
-  getValues(/**/  DViewType D,
+  getValues(      DViewType D,
             const zViewType z,
             const ordinal_type np,
             const double alpha,
@@ -322,7 +320,7 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::Derivative<POLYTYPE_GAUSS_RADAU_RIGHT>::
-  getValues(/**/  DViewType D,
+  getValues(      DViewType D,
             const zViewType z,
             const ordinal_type np,
             const double alpha,
@@ -364,7 +362,7 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::Derivative<POLYTYPE_GAUSS_LOBATTO>::
-  getValues(/**/  DViewType D,
+  getValues(      DViewType D,
             const zViewType z,
             const ordinal_type np,
             const double alpha,
@@ -568,7 +566,7 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::InterpolationOperator<polyType>::
-  getMatrix(/**/  imViewType im,
+  getMatrix(      imViewType im,
             const zgrjViewType zgrj,
             const zmViewType zm,
             const ordinal_type nz,
@@ -592,8 +590,8 @@ namespace Intrepid2 {
   Polylib::Serial::
   JacobiPolynomial(const ordinal_type np,
                    const zViewType z,
-                   /**/  polyiViewType polyi,
-                   /**/  polydViewType polyd,
+                         polyiViewType polyi,
+                         polydViewType polyd,
                    const ordinal_type n,
                    const double alpha,
                    const double beta) {
@@ -622,7 +620,7 @@ namespace Intrepid2 {
       const double apb = alpha + beta;
 
       typename zViewType::value_type
-        poly[MaxPolylibPoint], polyn1[MaxPolylibPoint], polyn2[MaxPolylibPoint];
+        poly[MaxPolylibPoint]={}, polyn1[MaxPolylibPoint]={}, polyn2[MaxPolylibPoint]={};
 
       if (polyi.data()) 
         for (ordinal_type i=0;i<np;++i)
@@ -679,7 +677,7 @@ namespace Intrepid2 {
   Polylib::Serial::
   JacobiPolynomialDerivative(const ordinal_type np,
                              const zViewType z,
-                             /**/  polydViewType polyd,
+                                   polydViewType polyd,
                              const ordinal_type n,
                              const double alpha,
                              const double beta) {
@@ -702,7 +700,7 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::
-  JacobiZeros(/**/  zViewType z,
+  JacobiZeros(         zViewType z,
               const ordinal_type n,
               const double alpha,
               const double beta) {
@@ -716,7 +714,7 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::
-  JacobiZerosPolyDeflation(/**/  zViewType z,
+  JacobiZerosPolyDeflation(      zViewType z,
                            const ordinal_type n,
                            const double alpha,
                            const double beta) {
@@ -762,7 +760,7 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::
-  JacobiZerosTriDiagonal(/**/  aViewType a,
+  JacobiZerosTriDiagonal(      aViewType a,
                          const ordinal_type n,
                          const double alpha,
                          const double beta) {
@@ -806,8 +804,8 @@ namespace Intrepid2 {
   KOKKOS_INLINE_FUNCTION
   void
   Polylib::Serial::
-  TriQL(/**/  dViewType d,
-        /**/  eViewType e,
+  TriQL(      dViewType d,
+              eViewType e,
         const ordinal_type n) {
     ordinal_type m,l,iter,i,k;
 

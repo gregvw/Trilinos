@@ -48,7 +48,7 @@
 #include "ROL_Vector.hpp"
 #include "ROL_Objective.hpp"
 #include "ROL_BoundConstraint.hpp"
-#include "ROL_EqualityConstraint.hpp"
+#include "ROL_Constraint.hpp"
 #include "ROL_Types.hpp"
 #include "ROL_Algorithm.hpp"
 #include "ROL_StatusTest.hpp"
@@ -68,8 +68,9 @@ namespace ROL {
 template <class Real>
 class AugmentedLagrangianStep : public Step<Real> {
 private:
-  Teuchos::RCP<Algorithm<Real> > algo_;
-  Teuchos::RCP<Vector<Real> > x_; 
+  ROL::SharedPointer<Algorithm<Real> > algo_;
+  ROL::SharedPointer<Vector<Real> > x_; 
+  ROL::SharedPointer<BoundConstraint<Real> > bnd_;
 
   Teuchos::ParameterList parlist_;
   // Lagrange multiplier update
@@ -101,7 +102,7 @@ private:
                        const Real mu, Objective<Real> &obj,
                        BoundConstraint<Real> &bnd) {
     AugmentedLagrangian<Real> &augLag
-      = Teuchos::dyn_cast<AugmentedLagrangian<Real> >(obj);
+      = dynamic_cast<AugmentedLagrangian<Real>&>(obj);
     Real gnorm = 0., tol = std::sqrt(ROL_EPSILON<Real>());
     augLag.gradient(g,x,tol);
     if ( scaleLagrangian_ ) {
@@ -130,8 +131,8 @@ public:
   ~AugmentedLagrangianStep() {}
 
   AugmentedLagrangianStep(Teuchos::ParameterList &parlist)
-    : Step<Real>(), algo_(Teuchos::null),
-      x_(Teuchos::null), parlist_(parlist), subproblemIter_(0) {
+    : Step<Real>(), algo_(ROL::nullPointer),
+      x_(ROL::nullPointer), parlist_(parlist), subproblemIter_(0) {
     Real one(1), p1(0.1), p9(0.9), ten(1.e1), oe8(1.e8), oem8(1.e-8);
     Teuchos::ParameterList& sublist = parlist.sublist("Step").sublist("Augmented Lagrangian");
     Step<Real>::getState()->searchSize = sublist.get("Initial Penalty Parameter",ten);
@@ -163,12 +164,22 @@ public:
   /** \brief Initialize step with equality constraint.
   */
   void initialize( Vector<Real> &x, const Vector<Real> &g, Vector<Real> &l, const Vector<Real> &c,
-                   Objective<Real> &obj, EqualityConstraint<Real> &con, BoundConstraint<Real> &bnd,
+                   Objective<Real> &obj, Constraint<Real> &con,
+                   AlgorithmState<Real> &algo_state ) {
+    bnd_ = ROL::makeShared<BoundConstraint<Real>>();
+    bnd_->deactivate();
+    initialize(x,g,l,c,obj,con,*bnd_,algo_state);
+  }
+
+  /** \brief Initialize step with equality and bound constraints.
+  */
+  void initialize( Vector<Real> &x, const Vector<Real> &g, Vector<Real> &l, const Vector<Real> &c,
+                   Objective<Real> &obj, Constraint<Real> &con, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state ) {
     AugmentedLagrangian<Real> &augLag
-      = Teuchos::dyn_cast<AugmentedLagrangian<Real> >(obj);
+      = dynamic_cast<AugmentedLagrangian<Real>&>(obj);
     // Initialize step state
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
     state->constraintVec = c.clone();
@@ -203,17 +214,25 @@ public:
                               feasToleranceInitial_*std::pow(minPenaltyReciprocal_,feasDecreaseExponent_));
   }
 
+  /** \brief Compute step (equality constraint).
+  */
+  void compute( Vector<Real> &s, const Vector<Real> &x, const Vector<Real> &l,
+                Objective<Real> &obj, Constraint<Real> &con, 
+                AlgorithmState<Real> &algo_state ) {
+    compute(s,x,l,obj,con,*bnd_,algo_state);
+  }
+
   /** \brief Compute step (equality and bound constraints).
   */
   void compute( Vector<Real> &s, const Vector<Real> &x, const Vector<Real> &l,
-                Objective<Real> &obj, EqualityConstraint<Real> &con, 
+                Objective<Real> &obj, Constraint<Real> &con, 
                 BoundConstraint<Real> &bnd, AlgorithmState<Real> &algo_state ) {
     Real one(1);
     AugmentedLagrangian<Real> &augLag
-      = Teuchos::dyn_cast<AugmentedLagrangian<Real> >(obj);
+      = dynamic_cast<AugmentedLagrangian<Real>&>(obj);
     parlist_.sublist("Status Test").set("Gradient Tolerance",optTolerance_);
     parlist_.sublist("Status Test").set("Step Tolerance",1.e-6*optTolerance_);
-    algo_ = Teuchos::rcp(new Algorithm<Real>(subStep_,parlist_,false));
+    algo_ = ROL::makeShared<Algorithm<Real>>(subStep_,parlist_,false);
     x_->set(x);
     if ( bnd.isActivated() ) {
       algo_->run(*x_,augLag,bnd,print_);
@@ -225,16 +244,24 @@ public:
     subproblemIter_ = (algo_->getState())->iter;
   }
 
+  /** \brief Update step, if successful (equality constraint).
+  */
+  void update( Vector<Real> &x, Vector<Real> &l, const Vector<Real> &s,
+               Objective<Real> &obj, Constraint<Real> &con,
+               AlgorithmState<Real> &algo_state ) {
+    update(x,l,s,obj,con,*bnd_,algo_state);
+  }
+
   /** \brief Update step, if successful (equality and bound constraints).
   */
   void update( Vector<Real> &x, Vector<Real> &l, const Vector<Real> &s,
-               Objective<Real> &obj, EqualityConstraint<Real> &con,
+               Objective<Real> &obj, Constraint<Real> &con,
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real> &algo_state ) {
     Real one(1), oem2(1.e-2);
     AugmentedLagrangian<Real> &augLag
-      = Teuchos::dyn_cast<AugmentedLagrangian<Real> >(obj);
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+      = dynamic_cast<AugmentedLagrangian<Real>&>(obj);
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     // Update the step and store in state
     x.plus(s);
     algo_state.iterateVec->set(x);

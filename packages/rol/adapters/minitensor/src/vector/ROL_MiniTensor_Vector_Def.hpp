@@ -49,7 +49,7 @@ minitensor::Vector<T, N>
 MTfromROL(Vector<T> const & x)
 {
   MiniTensorVector<T, N> const &
-  xe = Teuchos::dyn_cast<MiniTensorVector<T, N> const>(x);
+  xe = dynamic_cast<MiniTensorVector<T, N> const&>(x);
 
   minitensor::Vector<T, N> const &
   xval = xe.getVector();
@@ -65,7 +65,7 @@ void
 MTtoROL(minitensor::Vector<T, N> const & xval, Vector<T> & x)
 {
   MiniTensorVector<T, N> &
-  xe = Teuchos::dyn_cast<MiniTensorVector<T, N>>(x);
+  xe = dynamic_cast<MiniTensorVector<T, N>&>(x);
 
   xe.set(xval);
 }
@@ -199,7 +199,7 @@ norm() const
 //
 //
 template<typename T, minitensor::Index N>
-Teuchos::RCP<Vector<T>>
+ROL::SharedPointer<Vector<T>>
 MiniTensorVector<T, N>::
 clone() const
 {
@@ -207,10 +207,10 @@ clone() const
   dim = vector_.get_dimension();
 
   minitensor::Vector<T, N>
-  val(dim, minitensor::ZEROS);
+  val(dim, minitensor::Filler::ZEROS);
 
-  Teuchos::RCP<MiniTensorVector>
-  e = Teuchos::rcp(new MiniTensorVector(val));
+  ROL::SharedPointer<MiniTensorVector>
+  e = ROL::makeShared<MiniTensorVector>(val);
 
   return e;
 }
@@ -241,7 +241,7 @@ getVector()
 //
 //
 template<typename T, minitensor::Index N>
-Teuchos::RCP<Vector<T>>
+ROL::SharedPointer<Vector<T>>
 MiniTensorVector<T, N>::
 basis(int const i) const
 {
@@ -249,12 +249,12 @@ basis(int const i) const
   dim = vector_.get_dimension();
 
   minitensor::Vector<T, N>
-  val(dim, minitensor::ZEROS);
+  val(dim, minitensor::Filler::ZEROS);
 
   val(i) = 1.0;
 
-  Teuchos::RCP<MiniTensorVector>
-  e = Teuchos::rcp(new MiniTensorVector(val));
+  ROL::SharedPointer<MiniTensorVector>
+  e = ROL::makeShared<MiniTensorVector>(val);
 
   return e;
 }

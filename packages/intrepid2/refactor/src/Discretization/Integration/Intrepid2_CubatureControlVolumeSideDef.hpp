@@ -40,7 +40,7 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_CubatureControlVolumeSideDef.hpp
+/** \file   Intrepid2_CubatureControlVolumeSideDef.hpp
     \brief  Header file for the Intrepid2::CubatureControlVolume class.
     \author Created by K. Peterson, P. Bochev and D. Ridzal.
             Kokkorized by Kyungjoo Kim
@@ -88,6 +88,7 @@ namespace Intrepid2 {
         sideNodeMapHost(i,j+1) = subcvCellTopo_.getNodeMap(sideDim, side, j);
     }
     sideNodeMap_ = Kokkos::create_mirror_view(typename SpT::memory_space(), sideNodeMapHost);
+    Kokkos::deep_copy(sideNodeMap_, sideNodeMapHost);
 
     Kokkos::DynRankView<PT,SpT> sideCenterLocal("CubatureControlVolumeSide::sideCenterLocal",
                                                 1, sideDim);

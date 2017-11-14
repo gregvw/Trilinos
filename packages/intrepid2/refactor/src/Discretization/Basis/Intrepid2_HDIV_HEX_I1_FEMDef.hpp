@@ -40,7 +40,7 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_HDIV_HEX_I1_FEMDef.hpp
+/** \file   Intrepid2_HDIV_HEX_I1_FEMDef.hpp
     \brief  Definition file for FEM basis functions of degree 1 for H(div) functions on HEX cells.
     \author Created by P. Bochev, D. Ridzal and K. Peterson.
             Kokkorized by Kyungjoo Kim
@@ -249,6 +249,22 @@ namespace Intrepid2 {
 
     this->dofCoords_ = Kokkos::create_mirror_view(typename SpT::memory_space(), dofCoords);
     Kokkos::deep_copy(this->dofCoords_, dofCoords);
+
+    // dofCoeffs on host and create its mirror view to device
+    Kokkos::DynRankView<typename scalarViewType::value_type,typename SpT::array_layout,Kokkos::HostSpace>
+      dofCoeffs("dofCoeffsHost", this->basisCardinality_,this->basisCellTopology_.getDimension());
+
+    // for HDIV_HEX_I1 dofCoeffs are the normals on the hexahedron faces (with normals magnitude equal to faces' areas)
+    dofCoeffs(0,0)  =  0.0;   dofCoeffs(0,1)  = -4.0;   dofCoeffs(0,2)  =  0.0;
+    dofCoeffs(1,0)  =  4.0;   dofCoeffs(1,1)  =  0.0;   dofCoeffs(1,2)  =  0.0;
+    dofCoeffs(2,0)  =  0.0;   dofCoeffs(2,1)  =  4.0;   dofCoeffs(2,2)  =  0.0;
+    dofCoeffs(3,0)  = -4.0;   dofCoeffs(3,1)  =  0.0;   dofCoeffs(3,2)  =  0.0;
+    dofCoeffs(4,0)  =  0.0;   dofCoeffs(4,1)  =  0.0;   dofCoeffs(4,2)  = -4.0;
+    dofCoeffs(5,0)  =  0.0;   dofCoeffs(5,1)  =  0.0;   dofCoeffs(5,2)  =  4.0;
+
+    this->dofCoeffs_ = Kokkos::create_mirror_view(typename SpT::memory_space(), dofCoeffs);
+    Kokkos::deep_copy(this->dofCoeffs_, dofCoeffs);
+
   }
 
 }// namespace Intrepid2

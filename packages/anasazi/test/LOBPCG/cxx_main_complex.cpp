@@ -54,7 +54,8 @@
 #include "AnasaziTypes.hpp"
 
 #include "AnasaziBasicEigenproblem.hpp"
-#include "AnasaziLOBPCGSolMgr.hpp"
+#include "AnasaziBasicOutputManager.hpp"
+#include "AnasaziFactory.hpp"
 #include "Teuchos_CommandLineProcessor.hpp"
 
 #ifdef HAVE_MPI
@@ -201,6 +202,10 @@ int main(int argc, char *argv[])
     return -1;
   }
 
+  // Get a formatted output stream
+  RCP<Anasazi::OutputManager<ScalarType> > MyOM = rcp( new Anasazi::BasicOutputManager<ScalarType>() );
+  RCP<Teuchos::FancyOStream> fos = MyOM->getFancyOStream();
+
   // Set verbosity level
   int verbosity = Anasazi::Errors + Anasazi::Warnings;
   if (verbose) {
@@ -218,6 +223,7 @@ int main(int argc, char *argv[])
   // Create parameter list to pass into the solver manager
   ParameterList MyPL;
   MyPL.set( "Verbosity", verbosity );
+  MyPL.set( "Output Stream", fos );
   MyPL.set( "Which", which );
   MyPL.set( "Block Size", blockSize );
   MyPL.set( "Maximum Iterations", maxIters );
@@ -227,10 +233,10 @@ int main(int argc, char *argv[])
   MyPL.set( "Full Ortho", true );
   //
   // Create the solver manager
-  Anasazi::LOBPCGSolMgr<ScalarType,MV,OP> MySolverMan(problem, MyPL);
+  auto MySolverMan = Anasazi::Factory::create("LOBPCG", problem, MyPL);
 
   // Solve the problem to the specified tolerances or length
-  Anasazi::ReturnType returnCode = MySolverMan.solve();
+  Anasazi::ReturnType returnCode = MySolverMan->solve();
   testFailed = false;
   if (returnCode != Anasazi::Converged) {
     testFailed = true;

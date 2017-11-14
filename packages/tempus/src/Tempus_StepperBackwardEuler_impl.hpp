@@ -11,6 +11,7 @@
 
 #include "Tempus_config.hpp"
 #include "Tempus_StepperFactory.hpp"
+#include "Tempus_WrapperModelEvaluatorBasic.hpp"
 #include "Teuchos_VerboseObjectParameterListHelpers.hpp"
 #include "NOX_Thyra.H"
 
@@ -21,25 +22,10 @@ namespace Tempus {
 template<class Scalar> class StepperFactory;
 
 
-template <typename Scalar>
-std::function<void (const Thyra::VectorBase<Scalar> &,
-                          Thyra::VectorBase<Scalar> &)>
-StepperBackwardEuler<Scalar>::xDotFunction(
-  Scalar dt, Teuchos::RCP<const Thyra::VectorBase<Scalar> > x_old)
-{
-  return [=](const Thyra::VectorBase<Scalar> & x,
-                   Thyra::VectorBase<Scalar> & x_dot)
-    {
-      // this is the Euler x dot vector
-      Thyra::V_StVpStV(Teuchos::ptrFromRef(x_dot),1.0/dt,x,-1.0/dt,*x_old);
-    };
-}
-
-
 // StepperBackwardEuler definitions:
 template<class Scalar>
 StepperBackwardEuler<Scalar>::StepperBackwardEuler(
-  const Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >& transientModel,
+  const Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >& appModel,
   Teuchos::RCP<Teuchos::ParameterList> pList)
 {
   using Teuchos::RCP;
@@ -47,30 +33,27 @@ StepperBackwardEuler<Scalar>::StepperBackwardEuler(
 
   // Set all the input parameters and call initialize
   this->setParameterList(pList);
-  this->setModel(transientModel);
+  this->setModel(appModel);
   this->initialize();
 }
 
 
 template<class Scalar>
 void StepperBackwardEuler<Scalar>::setModel(
-  const Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >& transientModel)
+  const Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >& appModel)
 {
-  this->validImplicitODE_DAE(transientModel);
-  if (residualModel_ != Teuchos::null) residualModel_ = Teuchos::null;
-  residualModel_ =
-    Teuchos::rcp(new ResidualModelEvaluator<Scalar>(transientModel));
-
-  inArgs_  = residualModel_->getNominalValues();
-  outArgs_ = residualModel_->createOutArgs();
+  this->validImplicitODE_DAE(appModel);
+  if (wrapperModel_ != Teuchos::null) wrapperModel_ = Teuchos::null;
+  wrapperModel_ =
+    Teuchos::rcp(new WrapperModelEvaluatorBasic<Scalar>(appModel));
 }
 
 
 template<class Scalar>
 void StepperBackwardEuler<Scalar>::setNonConstModel(
-  const Teuchos::RCP<Thyra::ModelEvaluator<Scalar> >& transientModel)
+  const Teuchos::RCP<Thyra::ModelEvaluator<Scalar> >& appModel)
 {
-  this->setModel(transientModel);
+  this->setModel(appModel);
 }
 
 
@@ -188,7 +171,7 @@ void StepperBackwardEuler<Scalar>::setPredictor(
       RCP<StepperFactory<Scalar> > sf =
         Teuchos::rcp(new StepperFactory<Scalar>());
       predictorStepper_ =
-        sf->createStepper(residualModel_->getTransientModel(), predPL);
+        sf->createStepper(wrapperModel_->getAppModel(), predPL);
     }
   } else {
     TEUCHOS_TEST_FOR_EXCEPTION( predictorName == predPL->name(),
@@ -203,7 +186,23 @@ void StepperBackwardEuler<Scalar>::setPredictor(
     RCP<StepperFactory<Scalar> > sf =
       Teuchos::rcp(new StepperFactory<Scalar>());
     predictorStepper_ =
-      sf->createStepper(residualModel_->getTransientModel(), predPL);
+      sf->createStepper(wrapperModel_->getAppModel(), predPL);
+  }
+}
+
+
+template<class Scalar>
+void StepperBackwardEuler<Scalar>::setObserver(
+  Teuchos::RCP<StepperBackwardEulerObserver<Scalar> > obs)
+{
+  if (obs == Teuchos::null) {
+    // Create default observer, otherwise keep current observer.
+    if (stepperBEObserver_ == Teuchos::null) {
+      stepperBEObserver_ =
+        Teuchos::rcp(new StepperBackwardEulerObserver<Scalar>());
+    }
+  } else {
+    stepperBEObserver_ = obs;
   }
 }
 
@@ -213,6 +212,7 @@ void StepperBackwardEuler<Scalar>::initialize()
 {
   this->setSolver();
   this->setPredictor();
+  this->setObserver();
 }
 
 
@@ -224,6 +224,7 @@ void StepperBackwardEuler<Scalar>::takeStep(
 
   TEMPUS_FUNC_TIME_MONITOR("Tempus::StepperBackardEuler::takeStep()");
   {
+    stepperBEObserver_->observeBeginTakeStep(solutionHistory, *this);
     RCP<SolutionState<Scalar> > workingState=solutionHistory->getWorkingState();
     RCP<SolutionState<Scalar> > currentState=solutionHistory->getCurrentState();
 
@@ -235,31 +236,42 @@ void StepperBackwardEuler<Scalar>::takeStep(
     if (workingState->getStepperState()->stepperStatus_ == Status::FAILED)
       return;
 
-    //typedef Thyra::ModelEvaluatorBase MEB;
     const Scalar time = workingState->getTime();
     const Scalar dt   = workingState->getTimeStep();
 
-    // constant variable capture of xOld pointer
-    auto computeXDot = xDotFunction(dt, xOld);
+    // Setup TimeDerivative
+    Teuchos::RCP<TimeDerivative<Scalar> > timeDer =
+      Teuchos::rcp(new StepperBackwardEulerTimeDerivative<Scalar>(1.0/dt,xOld));
 
-    Scalar alpha = 1.0/dt;
-    Scalar beta = 1.0;
-    Scalar t = time+dt;
+    // Setup InArgs and OutArgs
+    typedef Thyra::ModelEvaluatorBase MEB;
+    MEB::InArgs<Scalar>  inArgs  = wrapperModel_->getInArgs();
+    MEB::OutArgs<Scalar> outArgs = wrapperModel_->getOutArgs();
+    inArgs.set_x(x);
+    if (inArgs.supports(MEB::IN_ARG_x_dot    )) inArgs.set_x_dot    (xDot);
+    if (inArgs.supports(MEB::IN_ARG_t        )) inArgs.set_t        (time+dt);
+    if (inArgs.supports(MEB::IN_ARG_step_size)) inArgs.set_step_size(dt);
+    if (inArgs.supports(MEB::IN_ARG_alpha    )) inArgs.set_alpha    (1.0/dt);
+    if (inArgs.supports(MEB::IN_ARG_beta     )) inArgs.set_beta     (1.0);
 
-    residualModel_->initialize(computeXDot, t, alpha, beta);
+    wrapperModel_->setForSolve(timeDer, inArgs, outArgs);
+
+    stepperBEObserver_->observeBeforeSolve(solutionHistory, *this);
 
     const Thyra::SolveStatus<double> sStatus =
-      this->solveNonLinear(residualModel_, *solver_, x, inArgs_);
+      this->solveNonLinear(wrapperModel_, *solver_, x);
 
-    computeXDot(*x, *xDot);
+    stepperBEObserver_->observeAfterSolve(solutionHistory, *this);
+
+    timeDer->compute(x, xDot);
 
     if (sStatus.solveStatus == Thyra::SOLVE_STATUS_CONVERGED )
       workingState->getStepperState()->stepperStatus_ = Status::PASSED;
     else
       workingState->getStepperState()->stepperStatus_ = Status::FAILED;
     workingState->setOrder(this->getOrder());
+    stepperBEObserver_->observeEndTakeStep(solutionHistory, *this);
   }
-
   return;
 }
 
@@ -315,7 +327,7 @@ void StepperBackwardEuler<Scalar>::describe(
    const Teuchos::EVerbosityLevel      verbLevel) const
 {
   out << description() << "::describe:" << std::endl
-      << "residualModel_ = " << residualModel_->description() << std::endl;
+      << "wrapperModel_ = " << wrapperModel_->description() << std::endl;
 }
 
 

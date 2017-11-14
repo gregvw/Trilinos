@@ -50,7 +50,7 @@
 
 #include <Kokkos_UnorderedMap.hpp>
 #include <Kokkos_StaticCrsGraph.hpp>
-#include <Kokkos_Sparse.hpp>
+#include <KokkosSparse_spmv.hpp>
 #include <Kokkos_Blas1.hpp>
 #include <impl/Kokkos_Timer.hpp>
 
@@ -160,7 +160,7 @@ Perf fenl(
 {
   typedef Kokkos::Example::BoxElemFixture< Device , ElemOrder > FixtureType ;
 
-  typedef Kokkos::CrsMatrix< double , unsigned , Device , void , unsigned >
+  typedef KokkosSparse::CrsMatrix< double , unsigned , Device , void , unsigned >
     SparseMatrixType ;
 
   typedef typename SparseMatrixType::StaticCrsGraphType

@@ -53,7 +53,6 @@ using Teuchos::rcp;
 
 #include "Panzer_Workset_Builder.hpp"
 #include "Panzer_FieldManagerBuilder.hpp"
-#include "Panzer_EpetraLinearObjFactory.hpp"
 #include "Panzer_AssemblyEngine.hpp"
 #include "Panzer_AssemblyEngine_TemplateManager.hpp"
 #include "Panzer_AssemblyEngine_TemplateBuilder.hpp"
@@ -68,8 +67,6 @@ using Teuchos::rcp;
 #include "Panzer_STK_ScatterFields.hpp"
 #include "Panzer_STK_ScatterCellAvgQuantity.hpp"
 
-#include "Phalanx_KokkosUtilities.hpp"
-
 #include "user_app_EquationSetFactory.hpp"
 #include "user_app_ClosureModel_Factory_TemplateBuilder.hpp"
 #include "user_app_BCStrategy_Factory.hpp"
@@ -78,7 +75,7 @@ using Teuchos::rcp;
 #include "Teuchos_OpaqueWrapper.hpp"
 
 #include "Phalanx_Evaluator_Macros.hpp"
-#include "Phalanx_Field.hpp"
+#include "Phalanx_MDField.hpp"
 
 #include "Epetra_MpiComm.h"
 
@@ -107,7 +104,7 @@ namespace panzer {
      this->addEvaluatedField(xcoord);
   }
 
-  PHX_POST_REGISTRATION_SETUP(XCoordinate,sd,fm)
+  PHX_POST_REGISTRATION_SETUP(XCoordinate, /* sd */, fm)
   { this->utils.setFieldData(xcoord,fm); }
 
   PHX_EVALUATE_FIELDS(XCoordinate,workset)
@@ -190,15 +187,16 @@ namespace panzer {
     //////////////////////////////////////////////////////////////
     Teuchos::RCP<panzer::PhysicsBlock> physics_block_one = panzer::findPhysicsBlock("eblock-0_0",physicsBlocks);
 
-    Teuchos::RCP<std::vector<panzer::Workset> > volume_worksets = panzer_stk::buildWorksets(*mesh,*physics_block_one);
+    Teuchos::RCP<std::vector<panzer::Workset> > volume_worksets = panzer_stk::buildWorksets(*mesh,physics_block_one->elementBlockID(),
+                                                                                            physics_block_one->getWorksetNeeds()); 
 
-    panzer::Traits::SetupData sd;
+    panzer::Traits::SD sd;
     sd.worksets_ = volume_worksets;
     fm->postRegistrationSetupForType<panzer::Traits::Residual>(sd);
     fm->writeGraphvizFile<panzer::Traits::Residual>("resi-eval-graph.dot");
 
     std::vector<panzer::Workset> & worksets = *volume_worksets;
-    panzer::Traits::PreEvalData preEvalData;
+    panzer::Traits::PED preEvalData;
     fm->preEvaluate<panzer::Traits::Residual>(preEvalData);
     for(std::size_t ws=0;ws<worksets.size();ws++) {
        fm->evaluateFields<panzer::Traits::Residual>(worksets[ws]);
@@ -308,16 +306,17 @@ namespace panzer {
     //////////////////////////////////////////////////////////////
 
     Teuchos::RCP<panzer::PhysicsBlock> physics_block_one = panzer::findPhysicsBlock("eblock-0_0",physicsBlocks);
-    Teuchos::RCP<std::vector<panzer::Workset> > volume_worksets = panzer_stk::buildWorksets(*mesh,*physics_block_one);
+    Teuchos::RCP<std::vector<panzer::Workset> > volume_worksets = panzer_stk::buildWorksets(*mesh,physics_block_one->elementBlockID(),
+                                                                                            physics_block_one->getWorksetNeeds()); 
 
 
-    panzer::Traits::SetupData sd;
+    panzer::Traits::SD sd;
     sd.worksets_ = volume_worksets;
     fm->postRegistrationSetupForType<panzer::Traits::Residual>(sd);
     fm->writeGraphvizFile<panzer::Traits::Residual>("resi-eval-graph.dot");
 
     std::vector<panzer::Workset> & worksets = *volume_worksets;
-    panzer::Traits::PreEvalData preEvalData;
+    panzer::Traits::PED preEvalData;
     fm->preEvaluate<panzer::Traits::Residual>(preEvalData);
     for(std::size_t ws=0;ws<worksets.size();ws++) {
        fm->evaluateFields<panzer::Traits::Residual>(worksets[ws]);

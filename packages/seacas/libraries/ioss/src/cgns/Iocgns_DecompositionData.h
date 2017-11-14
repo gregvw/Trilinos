@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2015, 2016 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
- * the U.S. Government retains certain rights in this software.
+ * Copyright(C) 1999-2010 National Technology & Engineering Solutions
+ * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+ * NTESS, the U.S. Government retains certain rights in this software.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -15,7 +15,7 @@
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
  *
- *     * Neither the name of Sandia Corporation nor the names of its
+ *     * Neither the name of NTESS nor the names of its
  *       contributors may be used to endorse or promote products derived
  *       from this software without specific prior written permission.
  *
@@ -30,12 +30,9 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 #ifndef IOCGNS_DECOMPOSITONDATA_H
 #define IOCGNS_DECOMPOSITONDATA_H
-
-#include <mpi.h>
 
 #include <string>
 #include <unordered_map>
@@ -108,6 +105,11 @@ namespace Iocgns {
 
     void get_block_connectivity(int filePtr, void *data, int blk_seq) const;
 
+    void get_element_field(int filePtr, int solution_index, int blk_seq, int field_index,
+                           double *data) const;
+
+    void get_node_field(int filePtr, int solution_index, int field_index, double *data) const;
+
     void get_node_entity_proc_data(void *entity_proc, const Ioss::MapContainer &node_map,
                                    bool do_map) const;
 
@@ -173,14 +175,19 @@ namespace Iocgns {
       m_decomposition.communicate_node_data(file_data, ioss_data, comp_count);
     }
 
-    template <typename T>
-    void communicate_block_data(cgsize_t *file_data, T *ioss_data,
+    template <typename U, typename T>
+    void communicate_block_data(U *file_data, T *ioss_data,
                                 const Ioss::BlockDecompositionData &block, size_t comp_count) const
     {
       m_decomposition.communicate_block_data(file_data, ioss_data, block, comp_count);
     }
 
     void get_block_connectivity(int filePtr, INT *data, int blk_seq) const;
+
+    void get_element_field(int filePtr, int solution_index, int blk_seq, int field_index,
+                           double *data) const;
+
+    void get_node_field(int filePtr, int solution_index, int field_index, double *data) const;
 
     size_t get_commset_node_size() const { return m_decomposition.m_nodeCommMap.size() / 2; }
 
@@ -240,7 +247,8 @@ namespace Iocgns {
     void get_file_node_coordinates(int filePtr, int direction, double *ioss_data) const;
     void get_node_coordinates(int filePtr, double *ioss_data, const Ioss::Field &field) const;
 
-    double m_loadBalanceThreshold;
+    double      m_loadBalanceThreshold;
+    std::string m_preferentialOrdinals;
 
   public:
     Ioss::Decomposition<INT> m_decomposition;

@@ -160,7 +160,7 @@ TEST_F(TestBalanceMxNRebalanceUsingInputFiles, MxN_decompositionWithoutAura)
 {
     set_options();
     setup_initial_mesh_from_last_time_step(stk::mesh::BulkData::NO_AUTO_AURA);
-    stk::balance::internal::rebalanceMtoN(get_bulk(), get_num_procs_target_decomp(), get_output_filename(), numSteps, maxTime);
+    stk::balance::internal::rebalanceMtoN(get_bulk(), *targetDecompField, get_num_procs_target_decomp(), get_output_filename(), numSteps, maxTime);
 }
 
 class BulkDataForBalance : public stk::mesh::BulkData
@@ -231,7 +231,9 @@ TEST_F(MxNRebalanceOnNProcs, testHexplateFrom4to8procs)
         setup_mesh(filename, stk::mesh::BulkData::NO_AUTO_AURA);
 
         if(running_as_unit_test)
+        {
             EXPECT_TRUE(thereAre16ElementsIn(get_bulk()));
+        }
 
         bulk_ptr = &get_bulk();
         meta_ptr = &get_meta();
@@ -260,7 +262,9 @@ TEST_F(MxNRebalanceOnNProcs, testHexplateFrom4to8procs)
     read_and_rebalance_mesh(*bulkDataBalance, outputFilename);
 
     if(running_as_unit_test)
+    {
         EXPECT_TRUE(thereAre16ElementsIn(*bulkDataBalance));
+    }
 
     bool doesProcHaveLocallyAllocatedMesh = color == 1;
     if(doesProcHaveLocallyAllocatedMesh)

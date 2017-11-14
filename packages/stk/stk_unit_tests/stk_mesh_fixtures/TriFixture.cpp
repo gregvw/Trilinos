@@ -31,18 +31,18 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-#include <stk_mesh/fixtures/TriFixture.hpp>
+#include <stk_unit_tests/stk_mesh_fixtures/TriFixture.hpp>
 #include <stk_mesh/base/Entity.hpp>     // for Entity
 #include <stk_mesh/base/FEMHelpers.hpp>  // for declare_element
 #include <stk_mesh/base/Types.hpp>      // for EntityId, EntityIdVector
-#include <stk_mesh/fixtures/FixtureNodeSharing.hpp>
+#include <stk_unit_tests/stk_mesh_fixtures/FixtureNodeSharing.hpp>
 #include <stk_util/environment/ReportHandler.hpp>  // for ThrowRequireMsg
 #include "mpi.h"                        // for ompi_communicator_t
 #include "stk_mesh/base/BulkData.hpp"   // for BulkData, etc
 #include "stk_mesh/base/Field.hpp"      // for Field
 #include "stk_mesh/base/FieldBase.hpp"  // for field_data
 #include "stk_mesh/base/MetaData.hpp"   // for MetaData, put_field
-#include "stk_mesh/fixtures/CoordinateMapping.hpp"
+#include "stk_unit_tests/stk_mesh_fixtures/CoordinateMapping.hpp"
 #include "stk_util/parallel/Parallel.hpp"  // for ParallelMachine
 namespace stk { namespace mesh { struct ConnectivityMap; } }
 
@@ -75,6 +75,38 @@ TriFixture::TriFixture(   stk::ParallelMachine pm
     m_elem_parts( 1, &m_meta.declare_part_with_topology("tri_part", stk::topology::TRI_3) ),
     m_node_parts( 1, &m_meta.declare_part_with_topology("node_part", stk::topology::NODE) ),
     m_coord_field( m_meta.declare_field<CoordFieldType>(stk::topology::NODE_RANK, "Coordinates") )
+{
+
+  //put coord-field on all nodes:
+  put_field(
+    m_coord_field,
+    m_meta.universal_part(),
+    m_spatial_dimension);
+
+}
+
+TriFixture::TriFixture(   stk::ParallelMachine pm
+              , size_t nx
+              , size_t ny
+              , const std::string& coordsName
+              , stk::mesh::BulkData::AutomaticAuraOption autoAuraOption
+              , ConnectivityMap const* connectivity_map
+            )
+  : m_spatial_dimension(2),
+    m_nx(nx),
+    m_ny(ny),
+    m_meta( m_spatial_dimension ),
+    m_bulk_data(  m_meta
+                , pm
+                , autoAuraOption
+#ifdef SIERRA_MIGRATION
+                , false
+#endif
+                , connectivity_map
+               ),
+    m_elem_parts( 1, &m_meta.declare_part_with_topology("tri_part", stk::topology::TRI_3) ),
+    m_node_parts( 1, &m_meta.declare_part_with_topology("node_part", stk::topology::NODE) ),
+    m_coord_field( m_meta.declare_field<CoordFieldType>(stk::topology::NODE_RANK, coordsName) )
 {
 
   //put coord-field on all nodes:

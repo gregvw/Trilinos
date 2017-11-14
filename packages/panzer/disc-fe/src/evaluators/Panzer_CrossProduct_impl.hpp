@@ -70,8 +70,8 @@ PHX_EVALUATOR_CTOR(CrossProduct,p)
   else 
     vec_a_cross_vec_b = PHX::MDField<ScalarT>(result_name, pr->dl_scalar);
 
-  vec_a = PHX::MDField<ScalarT>(vec_a_name, pr->dl_vector);
-  vec_b = PHX::MDField<ScalarT>(vec_b_name, pr->dl_vector);
+  vec_a = PHX::MDField<const ScalarT>(vec_a_name, pr->dl_vector);
+  vec_b = PHX::MDField<const ScalarT>(vec_b_name, pr->dl_vector);
 
   this->addEvaluatedField(vec_a_cross_vec_b);
   this->addDependentField(vec_a);
@@ -82,7 +82,7 @@ PHX_EVALUATOR_CTOR(CrossProduct,p)
 }
 
 //**********************************************************************
-PHX_POST_REGISTRATION_SETUP(CrossProduct,sd,fm)
+PHX_POST_REGISTRATION_SETUP(CrossProduct, /* sd */, fm)
 {
   this->utils.setFieldData(vec_a_cross_vec_b,fm);
   this->utils.setFieldData(vec_a,fm);

@@ -82,6 +82,9 @@ namespace PHX {
 
     PHX::any getFieldData(const PHX::FieldTag& f);
 
+    //! Set the memory for an unmanaged field
+    void setUnmanagedField(const PHX::FieldTag& f, const PHX::any& a);
+
     //! Bind the memory pointer for a field in all evaluators
     void bindField(const PHX::FieldTag& f, const PHX::any& a);
 
@@ -117,11 +120,33 @@ namespace PHX {
 
     void analyzeGraph(double& speedup, double& parallelizability) const;
 
+    /*! Build the DAG. This is automatically called by the
+        postRegistrationSetup() method. This function is a power user
+        feature that allows for cases where the user would like to
+        build the dag and query it to use information from the DAG
+        prior to allocating and binding the memory to fields.
+     */
+    void buildDag();
+
+    /*! Returns the FieldTags for all fields involved in the
+        evaluation. Will return an empty vector unless the user has
+        built the DAG using one of the following calls:
+        postRegistrationSetup(), postRegistrationSetupForType() or
+        buildDagForType().
+
+        WARNING: This is a dangerous power user feature. It returns
+        non-const field tags so that the fields can be sized after the
+        DAG has been created.
+     */
+    const std::vector<Teuchos::RCP<PHX::FieldTag>>& getFieldTags();
+
   protected:
 
     bool post_registration_setup_called_;
 
     std::unordered_map<std::string,PHX::any> fields_;
+
+    std::unordered_map<std::string,PHX::any> unmanaged_fields_;
 
     std::unordered_map<std::string,std::string> aliased_fields_;
     

@@ -35,7 +35,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Questions? Contact lead developers:
-//         
+//
 //              Drew Kouri   (dpkouri@sandia.gov) and
 //              Denis Ridzal (dridzal@sandia.gov)
 //
@@ -54,12 +54,12 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp; 
+
+
 
   typedef std::vector<RealT>            vec;
   typedef ROL::StdVector<RealT>         SV;
-  typedef RCP<ROL::Vector<RealT> >      RCPV;
+  typedef ROL::SharedPointer<ROL::Vector<RealT> >      ROL::SharedPointerV;
 
 //  typedef ROL::PartitionedVector<RealT> PV;
 
@@ -67,12 +67,12 @@ int main(int argc, char *argv[]) {
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
@@ -83,32 +83,32 @@ int main(int argc, char *argv[]) {
     int ci_dim = 4;    // Dimension of inequality constraint
 
     // Exact solution
-    RCP<vec> x_exact_rcp = rcp( new vec(xopt_dim,0.0) );
+    ROL::SharedPointer<vec> x_exact_rcp = ROL::makeShared<vec>(xopt_dim,0.0);
     (*x_exact_rcp)[xopt_dim-1] = 1.0;
 
-    RCP<vec> xopt_rcp = rcp( new vec(xopt_dim,0.0) ); // Optimization variables
+    ROL::SharedPointer<vec> xopt_rcp = ROL::makeShared<vec>(xopt_dim,0.0); // Optimization variables
 
-    RCP<vec> le_rcp  = rcp( new vec(ce_dim,0.0) );    // Equality multiplier
-    RCP<vec> li_rcp  = rcp( new vec(ci_dim,0.0) );    // Inequality multiplier
-     
+    ROL::SharedPointer<vec> le_rcp  = ROL::makeShared<vec>(ce_dim,0.0);    // Equality multiplier
+    ROL::SharedPointer<vec> li_rcp  = ROL::makeShared<vec>(ci_dim,0.0);    // Inequality multiplier
+
     // Feasible initial guess
     (*xopt_rcp)[0] = 0.1;
     (*xopt_rcp)[1] = 0.7;
     (*xopt_rcp)[2] = 0.2;
 
-    RCPV xopt = rcp( new SV(xopt_rcp) );
-    RCPV le  = rcp( new SV(le_rcp) );
-    RCPV li  = rcp( new SV(li_rcp) );
+    ROL::SharedPointerV xopt = ROL::makeShared<SV>(xopt_rcp);
+    ROL::SharedPointerV le  = ROL::makeShared<SV>(le_rcp);
+    ROL::SharedPointerV li  = ROL::makeShared<SV>(li_rcp);
 
     using ROL::ZOO::Objective_HS32;
     using ROL::ZOO::EqualityConstraint_HS32;
-    using ROL::ZOO::InequalityConstraint_HS32;    
+    using ROL::ZOO::InequalityConstraint_HS32;
 
-    RCP<ROL::Objective<RealT> > obj_hs32 = rcp( new Objective_HS32<RealT> ); 
-    RCP<ROL::EqualityConstraint<RealT> > eqcon_hs32 = rcp( new EqualityConstraint_HS32<RealT> );
-    RCP<ROL::InequalityConstraint<RealT> > incon_hs32 = rcp( new  InequalityConstraint_HS32<RealT> );
-    
-    RCP<Teuchos::ParameterList> parlist = rcp(new Teuchos::ParameterList);
+    ROL::SharedPointer<ROL::Objective<RealT> > obj_hs32 = ROL::makeShared<Objective_HS32<RealT>>();
+    ROL::SharedPointer<ROL::EqualityConstraint<RealT> > eqcon_hs32 = ROL::makeShared<EqualityConstraint_HS32<RealT>>();
+    ROL::SharedPointer<ROL::InequalityConstraint<RealT> > incon_hs32 = ROL::makeShared<InequalityConstraint_HS32<RealT>>();
+
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     std::string stepname = "Interior Point";
 
     RealT mu = 0.1;            // Initial penalty parameter
@@ -131,16 +131,16 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Step Tolerance",1.e-8);
     parlist->sublist("Status Test").set("Iteration Limit",100);
 
-    ROL::OptimizationProblem<RealT> problem( obj_hs32, xopt, eqcon_hs32, le, incon_hs32, li, parlist);  
+    ROL::OptimizationProblem<RealT> problem( obj_hs32, xopt, eqcon_hs32, le, incon_hs32, li, parlist);
 
     // Define algorithm.
-    RCP<ROL::Algorithm<RealT> > algo;    
-    algo = rcp( new ROL::Algorithm<RealT>(stepname,*parlist) );
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>(stepname,*parlist);
 
-    algo->run(problem,true,*outStream);   
-  
+    algo->run(problem,true,*outStream);
+
     *outStream << std::endl << std::setw(20) << "Computed Minimizer" << std::setw(20) << "Exact Minimizer" << std::endl;
-    for( int i=0;i<xopt_dim;++i ) {   
+    for( int i=0;i<xopt_dim;++i ) {
       *outStream << std::setw(20) << (*xopt_rcp)[i] << std::setw(20) << (*x_exact_rcp)[i] << std::endl;
     }
   }
@@ -156,4 +156,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-

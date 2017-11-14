@@ -90,7 +90,7 @@ private:
 
   Real thresh_;
 
-  Teuchos::RCP<Vector<Real> > dualVector_;
+  ROL::SharedPointer<Vector<Real> > dualVector_;
 
   Real xlam_;
   Real xmu_;
@@ -161,10 +161,12 @@ public:
   */
   virtual Real Fdual(Real x, int deriv = 0) = 0;
 
-  void reset(Teuchos::RCP<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
     RiskMeasure<Real>::reset(x0,x);
-    xlam_ = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatistic(0);
-    xmu_  = Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatistic(1);
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    xlam_ = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[0];
+    xmu_  = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index))[1];
     if (firstReset_) {
       dualVector_ = (x0->dual()).clone();
       firstReset_ = false;
@@ -173,13 +175,15 @@ public:
     valLam_ = 0; valLam2_ = 0; valMu_ = 0; valMu2_ = 0;
   }
 
-  void reset(Teuchos::RCP<Vector<Real> > &x0, const Vector<Real> &x, 
-             Teuchos::RCP<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x, 
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
-    v0    = Teuchos::rcp_const_cast<Vector<Real> >(
-            Teuchos::dyn_cast<const RiskVector<Real> >(v).getVector());
-    vlam_ = Teuchos::dyn_cast<const RiskVector<Real> >(v).getStatistic(0);
-    vmu_  = Teuchos::dyn_cast<const RiskVector<Real> >(v).getStatistic(1);
+    v0    = ROL::constPointerCast<Vector<Real> >(
+            dynamic_cast<const RiskVector<Real>&>(v).getVector());
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    vlam_ = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index))[0];
+    vmu_  = (*dynamic_cast<const RiskVector<Real>&>(v).getStatistic(comp,index))[1];
   }
 
   // Value update and get functions
@@ -207,7 +211,7 @@ public:
   }
 
   void getGradient(Vector<Real> &g, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &gs = Teuchos::dyn_cast<RiskVector<Real> >(g);
+    RiskVector<Real> &gs = dynamic_cast<RiskVector<Real>&>(g);
 
     std::vector<Real> mygval(3), gval(3);
     mygval[0] = RiskMeasure<Real>::val_;
@@ -218,7 +222,9 @@ public:
     std::vector<Real> stat(2);
     stat[0] = thresh_ + gval[0] + gval[1];
     stat[1] = (Real)1 + gval[2];
-    gs.setStatistic(stat);
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    gs.setStatistic(stat,comp,index);
 
     sampler.sumAll(*(RiskMeasure<Real>::g_),*dualVector_);
     gs.setVector(*dualVector_);
@@ -238,7 +244,7 @@ public:
   }
 
   void getHessVec(Vector<Real> &hv, SampleGenerator<Real> &sampler) {
-    RiskVector<Real> &hs = Teuchos::dyn_cast<RiskVector<Real> >(hv);
+    RiskVector<Real> &hs = dynamic_cast<RiskVector<Real>&>(hv);
 
     std::vector<Real> myhval(5), hval(5);
     myhval[0] = RiskMeasure<Real>::val_;
@@ -251,7 +257,9 @@ public:
     std::vector<Real> stat(2);
     stat[0] = (vlam_ * hval[1] + vmu_ * hval[0] + hval[2])/xlam_;
     stat[1] = (vlam_ * hval[0] + vmu_ * hval[3] + hval[4])/xlam_;
-    hs.setStatistic(stat);
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    hs.setStatistic(stat,comp,index);
 
     sampler.sumAll(*(RiskMeasure<Real>::hv_),*dualVector_);
     hs.setVector(*dualVector_);

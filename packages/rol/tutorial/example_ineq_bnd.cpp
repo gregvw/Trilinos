@@ -51,7 +51,8 @@
 
 #include "ROL_RandomVector.hpp"
 #include "ROL_StdObjective.hpp"
-#include "ROL_StdInequalityConstraint.hpp"
+#include "ROL_StdConstraint.hpp"
+#include "ROL_Bounds.hpp"
 
 #include "Teuchos_oblackholestream.hpp"
 #include "Teuchos_GlobalMPISession.hpp"
@@ -92,7 +93,7 @@ public:
 /* INEQUALITY CONSTRAINT */
 
 template<class Real> 
-class InequalityQL : public ROL::StdInequalityConstraint<Real> {
+class InequalityQL : public ROL::StdConstraint<Real> {
 private:
   std::vector<Real> coeff;
   Real offset;
@@ -130,16 +131,16 @@ public:
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP; using Teuchos::rcp;
+   
 
   typedef double RealT;
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs, false;
 
 
   int errorFlag   = 0;
@@ -150,26 +151,31 @@ int main(int argc, char *argv[]) {
     parlist.sublist("Step").set("Type","Augmented Lagrangian");
     
 
-    RCP<std::vector<RealT> > l_rcp = rcp( new std::vector<RealT>(5,-100.0) );
-    RCP<std::vector<RealT> > u_rcp = rcp( new std::vector<RealT>(5, 100.0) );
+    ROL::SharedPointer<std::vector<RealT> > l_rcp = ROL::makeShared<std::vector<RealT>>(5,-100.0);
+    ROL::SharedPointer<std::vector<RealT> > u_rcp = ROL::makeShared<std::vector<RealT>>(5, 100.0);
 
-    RCP<ROL::Vector<RealT> > lower = rcp( new ROL::StdVector<RealT>( l_rcp ) );
-    RCP<ROL::Vector<RealT> > upper = rcp( new ROL::StdVector<RealT>( u_rcp ) ); 
+    ROL::SharedPointer<ROL::Vector<RealT> > lower = ROL::makeShared<ROL::StdVector<RealT>>( l_rcp );
+    ROL::SharedPointer<ROL::Vector<RealT> > upper = ROL::makeShared<ROL::StdVector<RealT>>( u_rcp ); 
 
-    RCP<std::vector<RealT> > x_rcp  = rcp( new std::vector<RealT>(5,1.0) );
-    RCP<std::vector<RealT> > li_rcp = rcp( new std::vector<RealT>(1,0.0) );
+    ROL::SharedPointer<std::vector<RealT> > x_rcp  = ROL::makeShared<std::vector<RealT>>(5,1.0);
+    ROL::SharedPointer<std::vector<RealT> > li_rcp = ROL::makeShared<std::vector<RealT>>(1,0.0);
+    ROL::SharedPointer<std::vector<RealT> > ll_rcp = ROL::makeShared<std::vector<RealT>>(1,0.0);
+    ROL::SharedPointer<std::vector<RealT> > lu_rcp = ROL::makeShared<std::vector<RealT>(1,ROL::ROL_INF<RealT>>());
 
-    RCP<ROL::Vector<RealT> > x  = rcp( new ROL::StdVector<RealT>(x_rcp) );
-    RCP<ROL::Vector<RealT> > li = rcp( new ROL::StdVector<RealT>(li_rcp) );
+    ROL::SharedPointer<ROL::Vector<RealT> > x  = ROL::makeShared<ROL::StdVector<RealT>>(x_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > li = ROL::makeShared<ROL::StdVector<RealT>>(li_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > ll = ROL::makeShared<ROL::StdVector<RealT>>(ll_rcp);
+    ROL::SharedPointer<ROL::Vector<RealT> > lu = ROL::makeShared<ROL::StdVector<RealT>>(lu_rcp);
 
-    RCP<ROL::Objective<RealT> >             obj  = rcp( new ObjectiveQL<RealT>() );
-    RCP<ROL::InequalityConstraint<RealT> >  ineq = rcp( new InequalityQL<RealT>() );
-    RCP<ROL::BoundConstraint<RealT> >       bnd  = rcp( new ROL::BoundConstraint<RealT>(lower,upper) );
+    ROL::SharedPointer<ROL::Objective<RealT> >             obj  = ROL::makeShared<ObjectiveQL<RealT>>();
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> >       bnd  = ROL::makeShared<ROL::Bounds<RealT>>(lower,upper);
+    ROL::SharedPointer<ROL::Constraint<RealT> >            ineq = ROL::makeShared<InequalityQL<RealT>>();
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> >       ibnd = ROL::makeShared<ROL::Bounds<RealT>>(ll,lu);
 
-    ROL::OptimizationProblem<RealT> problem( obj, x, bnd, Teuchos::null, Teuchos::null, ineq, li );    
+    ROL::OptimizationProblem<RealT> problem( obj, x, bnd, ineq, li, ibnd);    
 
     /* checkAdjointJacobianConsistency fails for the OptimizationProblem if we don't do this first... why? */
-    RCP<ROL::Vector<RealT> > u = x->clone(); 
+    ROL::SharedPointer<ROL::Vector<RealT> > u = x->clone(); 
     RandomizeVector(*u);
     ineq->checkAdjointConsistencyJacobian(*li,*x,*u,true,*outStream);
     /*******************************************************************************************************/

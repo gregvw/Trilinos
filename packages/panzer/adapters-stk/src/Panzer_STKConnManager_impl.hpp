@@ -56,10 +56,10 @@
 
 #include "Teuchos_FancyOStream.hpp"
 
+namespace panzer_stk {
+
 using Teuchos::RCP;
 using Teuchos::rcp;
-
-namespace panzer_stk {
 
 // Object describing how to sort a vector of elements using
 // local ID as the key
@@ -76,7 +76,7 @@ private:
 };
 
 template <typename GO>
-STKConnManager<GO>::STKConnManager(const Teuchos::RCP<STK_Interface> & stkMeshDB)
+STKConnManager<GO>::STKConnManager(const Teuchos::RCP<const STK_Interface> & stkMeshDB)
    : stkMeshDB_(stkMeshDB), ownedElementCount_(0)
 {
 }
@@ -311,7 +311,7 @@ std::string STKConnManager<GO>::getBlockId(STKConnManager::LocalOrdinal localElm
 
 template <typename GO>
 void STKConnManager<GO>::applyPeriodicBCs( const panzer::FieldPattern & fp, GlobalOrdinal nodeOffset, GlobalOrdinal edgeOffset, 
-                                                                        GlobalOrdinal faceOffset, GlobalOrdinal cellOffset)
+                                                                        GlobalOrdinal faceOffset, GlobalOrdinal /* cellOffset */)
 {
    using Teuchos::RCP;
    using Teuchos::rcp;

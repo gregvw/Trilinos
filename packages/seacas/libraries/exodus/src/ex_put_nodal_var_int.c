@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2005 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
- * retains certain rights in this software.
+ * Copyright (c) 2005 National Technology & Engineering Solutions
+ * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+ * NTESS, the U.S. Government retains certain rights in this software.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -15,7 +15,7 @@
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
  *
- *     * Neither the name of Sandia Corporation nor the names of its
+ *     * Neither the name of NTESS nor the names of its
  *       contributors may be used to endorse or promote products derived
  *       from this software without specific prior written permission.
  *
@@ -33,7 +33,7 @@
  *
  */
 
-#include "exodusII.h"     // for exerrval, ex_err, etc
+#include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_WARN, ex_comp_ws, etc
 #include "netcdf.h"       // for nc_inq_varid, NC_NOERR, etc
 #include <stddef.h>       // for size_t
@@ -110,15 +110,14 @@ int ex_put_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t 
   size_t start[3], count[3];
   char   errmsg[MAX_ERR_LENGTH];
 
-  exerrval = 0; /* clear error code */
+  ex_check_valid_file_id(exoid);
 
   if (ex_large_model(exoid) == 0) {
     /* write values of the nodal variable */
     if ((status = nc_inq_varid(exoid, VAR_NOD_VAR, &varid)) != NC_NOERR) {
-      exerrval = status;
       snprintf(errmsg, MAX_ERR_LENGTH, "Warning: could not find nodal variables in file id %d",
                exoid);
-      ex_err("ex_put_nodal_var", errmsg, exerrval);
+      ex_err("ex_put_nodal_var", errmsg, status);
       return (EX_WARN);
     }
     start[0] = --time_step;
@@ -133,10 +132,9 @@ int ex_put_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t 
     /* nodal variables stored separately, find variable for this variable
        index */
     if ((status = nc_inq_varid(exoid, VAR_NOD_VAR_NEW(nodal_var_index), &varid)) != NC_NOERR) {
-      exerrval = status;
       snprintf(errmsg, MAX_ERR_LENGTH, "Warning: could not find nodal variable %d in file id %d",
                nodal_var_index, exoid);
-      ex_err("ex_put_nodal_var", errmsg, exerrval);
+      ex_err("ex_put_nodal_var", errmsg, status);
       return (EX_WARN);
     }
 
@@ -157,9 +155,8 @@ int ex_put_nodal_var_int(int exoid, int time_step, int nodal_var_index, int64_t 
   }
 
   if (status != NC_NOERR) {
-    exerrval = status;
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to store nodal variables in file id %d", exoid);
-    ex_err("ex_put_nodal_var", errmsg, exerrval);
+    ex_err("ex_put_nodal_var", errmsg, status);
     return (EX_FATAL);
   }
   return (EX_NOERR);

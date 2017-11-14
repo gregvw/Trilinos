@@ -74,7 +74,7 @@ PHX_EVALUATOR_CTOR(GlobalStatistics,p)
 
   field_values.clear();
   for (typename std::vector<std::string>::const_iterator name = names.begin(); name != names.end(); ++name)
-    field_values.push_back(PHX::MDField<ScalarT,Cell,IP>(*name, ir->dl_scalar));
+    field_values.push_back(PHX::MDField<const ScalarT,Cell,IP>(*name, ir->dl_scalar));
 
   Teuchos::RCP<PHX::MDALayout<Cell> > cell_dl = Teuchos::rcp(new PHX::MDALayout<Cell>(ir->dl_scalar->dimension(0)));
   volumes = PHX::MDField<ScalarT,Cell>("Cell Volumes",cell_dl);
@@ -85,7 +85,7 @@ PHX_EVALUATOR_CTOR(GlobalStatistics,p)
   this->addEvaluatedField(volumes);
   this->addEvaluatedField(tmp);
   this->addEvaluatedField(ones);
-  for (typename std::vector<PHX::MDField<ScalarT,Cell,IP> >::const_iterator field = field_values.begin();
+  for (typename std::vector<PHX::MDField<const ScalarT,Cell,IP> >::const_iterator field = field_values.begin();
        field != field_values.end(); ++field) {
     this->addDependentField(*field);
   }
@@ -110,7 +110,7 @@ PHX_POST_REGISTRATION_SETUP(GlobalStatistics,sd,fm)
   this->utils.setFieldData(tmp,fm);
   this->utils.setFieldData(ones,fm);
   
-  for (typename std::vector<PHX::MDField<ScalarT,Cell,IP> >::iterator field = field_values.begin();
+  for (typename std::vector<PHX::MDField<const ScalarT,Cell,IP> >::iterator field = field_values.begin();
        field != field_values.end(); ++field)
     this->utils.setFieldData(*field,fm);
 
@@ -135,7 +135,7 @@ PHX_EVALUATE_FIELDS(GlobalStatistics,workset)
     total_volume += volumes(cell);
 
   typename std::vector<PHX::MDField<ScalarT,Cell,IP> >::size_type field_index = 0;
-  for (typename std::vector<PHX::MDField<ScalarT,Cell,IP> >::iterator field = field_values.begin();
+  for (typename std::vector<PHX::MDField<const ScalarT,Cell,IP> >::iterator field = field_values.begin();
        field != field_values.end(); ++field,++field_index) {
     
     Intrepid2::FunctionSpaceTools<PHX::Device::execution_space>::integrate(tmp.get_view(),
@@ -155,7 +155,7 @@ PHX_EVALUATE_FIELDS(GlobalStatistics,workset)
 }
 
 //**********************************************************************
-PHX_PRE_EVALUATE_FIELDS(GlobalStatistics,data)
+PHX_PRE_EVALUATE_FIELDS(GlobalStatistics, /* data */)
 {
   total_volume = Teuchos::ScalarTraits<ScalarT>::zero();
 
@@ -170,14 +170,14 @@ PHX_PRE_EVALUATE_FIELDS(GlobalStatistics,data)
 }
 
 //**********************************************************************
-PHX_POST_EVALUATE_FIELDS(GlobalStatistics,data)
+PHX_POST_EVALUATE_FIELDS(GlobalStatistics, /* data */)
 {
   this->postprocess(*(global_data->os));
 }
 
 //**********************************************************************
 template<typename EvalT, typename TRAITS>
-void GlobalStatistics<EvalT, TRAITS>::postprocess(std::ostream& os)
+void GlobalStatistics<EvalT, TRAITS>::postprocess(std::ostream& /* os */)
 {
   // throw unless specialized for residual evaluations
   TEUCHOS_TEST_FOR_EXCEPTION(true,std::logic_error,"SHOULD NEVER BE CALLED!");

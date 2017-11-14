@@ -40,7 +40,7 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_HCURL_TRI_I1_FEMDef.hpp
+/** \file   Intrepid2_HCURL_TRI_I1_FEMDef.hpp
     \brief  Definition file for default FEM basis functions of degree 1 for H(curl) functions on Triangle cells.
     \author Created by P. Bochev and D. Ridzal and K. Peterson.
             Kokkorized by Kyungjoo Kim
@@ -60,7 +60,7 @@ namespace Intrepid2 {
     KOKKOS_INLINE_FUNCTION                                                                                            
     void     
     Basis_HCURL_TRI_I1_FEM::Serial<opType>::
-    getValues( /**/  outputViewType output,                                                                           
+    getValues(       outputViewType output,                                                                           
                const inputViewType input ) {
       switch (opType) {
       case OPERATOR_VALUE: {
@@ -224,6 +224,17 @@ namespace Intrepid2 {
 
     this->dofCoords_ = Kokkos::create_mirror_view(typename SpT::memory_space(), dofCoords);
     Kokkos::deep_copy(this->dofCoords_, dofCoords);
+
+    // dofCoeffs on host and create its mirror view to device
+    Kokkos::DynRankView<typename scalarViewType::value_type,typename SpT::array_layout,Kokkos::HostSpace>
+      dofCoeffs("dofCoeffsHost", this->basisCardinality_,this->basisCellTopology_.getDimension());
+
+    dofCoeffs(0,0) =  1.0;   dofCoeffs(0,1) =  0.0;
+    dofCoeffs(1,0) = -1.0;   dofCoeffs(1,1) =  1.0;
+    dofCoeffs(2,0) =  0.0;   dofCoeffs(2,1) = -1.0;
+
+    this->dofCoeffs_ = Kokkos::create_mirror_view(typename SpT::memory_space(), dofCoeffs);
+    Kokkos::deep_copy(this->dofCoeffs_, dofCoeffs);
 
   }
 

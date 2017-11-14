@@ -270,6 +270,17 @@ CommandLineProcessor::parse(
   const std::string  help_opt = "help";
   const std::string  pause_opt = "pause-for-debugging";
   int procRank = GlobalMPISession::getRank();
+
+  // check for help options before any others as we modify
+  // the values afterwards
+  for( int i = 1; i < argc; ++i ) {
+    bool gov_return = get_opt_val( argv[i], &opt_name, &opt_val_str );
+    if( gov_return && opt_name == help_opt ) {
+      if(errout) printHelpMessage( argv[0], *errout );
+      return PARSE_HELP_PRINTED;
+    }
+  }
+  // check all other options
   for( int i = 1; i < argc; ++i ) {
     bool gov_return = get_opt_val( argv[i], &opt_name, &opt_val_str );
     if( !gov_return ) {
@@ -289,10 +300,6 @@ CommandLineProcessor::parse(
         *errout << "\n\n";
       }
       continue;
-    }
-    if( opt_name == help_opt ) {
-      if(errout) printHelpMessage( argv[0], *errout );
-      return PARSE_HELP_PRINTED;
     }
     if( opt_name == pause_opt ) {
       if(procRank == 0) {
@@ -417,9 +424,9 @@ void CommandLineProcessor::printHelpMessage( const char program_name[],
       ++itr
       )
     {
-      opt_name_w = my_max(opt_name_w,itr->opt_name.length());
+      opt_name_w = my_max(opt_name_w,static_cast<int>(itr->opt_name.length()));
       if( itr->opt_type )
-        opt_name_w = my_max(opt_name_w,itr->opt_name_false.length());
+        opt_name_w = my_max(opt_name_w,static_cast<int>(itr->opt_name_false.length()));
     }
     opt_name_w += 2;
 
@@ -665,7 +672,7 @@ void CommandLineProcessor::setEnumOption(
   enum_opt_data_list_.push_back(
     enum_opt_data_t(enum_option_val,num_enum_opt_values,enum_opt_values,enum_opt_names)
     );
-  const int opt_id = enum_opt_data_list_.size()-1;
+  const int opt_id = static_cast<int>(enum_opt_data_list_.size())-1;
   options_list_[std::string(enum_option_name)]
     = opt_val_val_t(OPT_ENUM_INT,any(opt_id),required);
   options_documentation_list_.push_back(
@@ -706,7 +713,7 @@ bool CommandLineProcessor::set_enum_value(
     }
 #undef CLP_ERR_MSG
   }
-  const int enum_opt_val_index = itr - itr_begin;
+  const int enum_opt_val_index = static_cast<int>(itr - itr_begin);
   *enum_opt_data.enum_option_val = enum_opt_data.enum_opt_values.at(enum_opt_val_index);
   return true;
 }
@@ -772,7 +779,7 @@ int CommandLineProcessor::find_enum_opt_index(
       TEUCHOS_TEST_FOR_EXCEPTION( true, std::invalid_argument, CLP_ERR_MSG );
 #undef CLP_ERR_MSG
   }
-  return itr - itr_begin;
+  return static_cast<int>(itr - itr_begin);
 }
 
 
@@ -782,7 +789,7 @@ bool CommandLineProcessor::get_opt_val(
   ,std::string   *opt_val_str
   ) const
 {
-  const int len = std::strlen(str);
+  const int len = static_cast<int>(std::strlen(str));
   if( len < 3 )
     return false; // Can't be an option with '--' followed by at least one char
   if( str[0] != '-' || str[1] != '-' )

@@ -59,19 +59,19 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP; using Teuchos::rcp;
+
 
   typedef std::vector<RealT>    vector;
   typedef ROL::Vector<RealT>    V;
   typedef ROL::StdVector<RealT> SV;
-  
+
   typedef ROL::LinearOperator<RealT>     LinearOperator;
-  typedef ROL::DiagonalOperator<RealT>   DiagonalOperator;  
+  typedef ROL::DiagonalOperator<RealT>   DiagonalOperator;
 
   typedef ROL::RieszPrimalVector<RealT>  PrimalVector;
   typedef ROL::RieszDualVector<RealT>    DualVector;
 
-  
+
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
 
   int iprint = argc - 1;
@@ -85,25 +85,25 @@ int main(int argc, char *argv[]) {
   try {
     // Dimension of the optimization vector
 
-    int dim = 10; 
+    int dim = 10;
 
-    // Create Tpetra::MultiVectors (single vectors) 
-    RCP<vector> x_rcp = rcp( new vector(dim) );
-    RCP<vector> y_rcp = rcp( new vector(dim) );
-    RCP<vector> w_rcp = rcp( new vector(dim,2.0) );
+    // Create Tpetra::MultiVectors (single vectors)
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>(dim);
+    ROL::SharedPointer<vector> y_rcp = ROL::makeShared<vector>(dim);
+    ROL::SharedPointer<vector> w_rcp = ROL::makeShared<vector>(dim,2.0);
 
-    RCP<V> xs = rcp( new SV( x_rcp ) );
-    RCP<V> ys = rcp( new SV( y_rcp ) );
-    
+    ROL::SharedPointer<V> xs = ROL::makeShared<SV>( x_rcp );
+    ROL::SharedPointer<V> ys = ROL::makeShared<SV>( y_rcp );
+
     SV ws( w_rcp );
 
     ROL::RandomizeVector(*xs);
     ROL::RandomizeVector(*ys);
 
-    RCP<LinearOperator> W = rcp( new DiagonalOperator(ws) );
- 
+    ROL::SharedPointer<LinearOperator> W = ROL::makeShared<DiagonalOperator>(ws);
+
     PrimalVector x(xs,W);
-    DualVector   y(ys,W);    
+    DualVector   y(ys,W);
 
     RealT xy = x.dot(y.dual());
     RealT yx = y.dot(x.dual());
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clone z from x, deep copy x into z, norm of z
-    Teuchos::RCP<ROL::Vector<RealT> > z = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > z = x.clone();
     z->set(x);
     RealT znorm = z->norm();
     outStream << "\nNorm of ROL::Vector z (clone of x): " << znorm << "\n";
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
       outStream << "---> POSSIBLE ERROR ABOVE!\n";
       errorFlag++;
     }
-    Teuchos::RCP<ROL::Vector<RealT> > w = y.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > w = y.clone();
     w = y.clone();
     w->set(y);
     RealT wnorm = w->norm();
@@ -158,13 +158,13 @@ int main(int argc, char *argv[]) {
     }
 
     // Standard tests.
-    RCP<vector> x1_rcp = rcp( new vector(dim) );
-    RCP<vector> y1_rcp = rcp( new vector(dim) );
-    RCP<vector> z1_rcp = rcp( new vector(dim) );
+    ROL::SharedPointer<vector> x1_rcp = ROL::makeShared<vector>(dim);
+    ROL::SharedPointer<vector> y1_rcp = ROL::makeShared<vector>(dim);
+    ROL::SharedPointer<vector> z1_rcp = ROL::makeShared<vector>(dim);
 
-    RCP<V> x1s = rcp( new SV( x1_rcp ) );
-    RCP<V> y1s = rcp( new SV( y1_rcp ) );
-    RCP<V> z1s = rcp( new SV( z1_rcp ) );
+    ROL::SharedPointer<V> x1s = ROL::makeShared<SV>( x1_rcp );
+    ROL::SharedPointer<V> y1s = ROL::makeShared<SV>( y1_rcp );
+    ROL::SharedPointer<V> z1s = ROL::makeShared<SV>( z1_rcp );
 
     ROL::RandomizeVector(*x1s);
     ROL::RandomizeVector(*y1s);
@@ -175,8 +175,8 @@ int main(int argc, char *argv[]) {
     PrimalVector y1(y1s,W);
     PrimalVector z1(z1s,W);
 
-    std::vector<RealT> consistency = x1.checkVector(y1, z1, true, outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    auto consistency = ROL::makeShared<std::vector<RealT>>(x1.checkVector(y1, z1, true, outStream));
+    ROL::StdVector<RealT> checkvec(consistency);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }

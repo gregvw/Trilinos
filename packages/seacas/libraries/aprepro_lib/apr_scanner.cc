@@ -117,10 +117,10 @@ typedef unsigned int       flex_uint32_t;
 
 /* %if-c++-only */
 /* begin standard C++ headers. */
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <errno.h>
 #include <iostream>
 /* end standard C++ headers. */
 /* %endif */
@@ -972,50 +972,16 @@ static yyconst flex_int16_t yy_rule_linenum[102] = {
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 #line 1 "/scratch/gdsjaar/seacas/packages/seacas/libraries/aprepro_lib/aprepro.ll"
-/*
- * Copyright (c) 2014, Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
- * the U.S. Government retains certain rights in this software.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of Sandia Corporation nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
 /* -*- Mode: c++ -*- */
 #line 39 "/scratch/gdsjaar/seacas/packages/seacas/libraries/aprepro_lib/aprepro.ll"
 
+#include <cstdio>
+#include <cstring>
 #include <fcntl.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stack>
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 
 #include "apr_getline_int.h"
@@ -1239,9 +1205,9 @@ static int yy_flex_strlen(yyconst char *);
  */
 YY_DECL
 {
-  register yy_state_type yy_current_state;
-  register char *        yy_cp, *yy_bp;
-  register int           yy_act;
+  yy_state_type yy_current_state;
+  char *        yy_cp, *yy_bp;
+  int           yy_act;
 
 /* %% [7.0] user's declarations go here */
 #line 127 "/scratch/gdsjaar/seacas/packages/seacas/libraries/aprepro_lib/aprepro.ll"
@@ -1280,7 +1246,7 @@ YY_DECL
     yy_load_buffer_state();
   }
 
-  while (1) /* loops until end-of-file is reached */
+  while (true) /* loops until end-of-file is reached */
   {
     /* %% [8.0] yymore()-related code goes here */
     yy_cp = (yy_c_buf_p);
@@ -1297,7 +1263,7 @@ YY_DECL
     yy_current_state = (yy_start);
   yy_match:
     do {
-      register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
+      YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
       if (yy_accept[yy_current_state]) {
         (yy_last_accepting_state) = yy_current_state;
         (yy_last_accepting_cpos)  = yy_cp;
@@ -1998,7 +1964,7 @@ YY_DECL
         symrec *s;
         s = aprepro.getsym(yytext);
         if (s == nullptr)
-          s          = aprepro.putsym(yytext, SEAMS::Aprepro::UNDEFINED_VARIABLE, 0);
+          s          = aprepro.putsym(yytext, SEAMS::Aprepro::UNDEFINED_VARIABLE, false);
         yylval->tptr = s;
         return ((token::yytokentype)s->type);
       }
@@ -2496,10 +2462,10 @@ void yyFlexLexer::LexerOutput(const char *buf, int size) { (void)yyout->write(bu
 int yyFlexLexer::yy_get_next_buffer()
 /* %endif */
 {
-  register char *dest   = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
-  register char *source = (yytext_ptr);
-  register int   number_to_move, i;
-  int            ret_val;
+  char *dest   = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
+  char *source = (yytext_ptr);
+  int   number_to_move, i;
+  int   ret_val;
 
   if ((yy_c_buf_p) > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars) + 1])
     YY_FATAL_ERROR("fatal flex scanner internal error--end of buffer missed");
@@ -2621,15 +2587,15 @@ int yyFlexLexer::yy_get_next_buffer()
 yy_state_type yyFlexLexer::yy_get_previous_state()
 /* %endif */
 {
-  register yy_state_type yy_current_state;
-  register char *        yy_cp;
+  yy_state_type yy_current_state;
+  char *        yy_cp;
 
   /* %% [15.0] code to get the start state into yy_current_state goes here */
   yy_current_state = (yy_start);
 
   for (yy_cp = (yytext_ptr) + YY_MORE_ADJ; yy_cp < (yy_c_buf_p); ++yy_cp) {
     /* %% [16.0] code to find the next state goes here */
-    register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
+    YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
     if (yy_accept[yy_current_state]) {
       (yy_last_accepting_state) = yy_current_state;
       (yy_last_accepting_cpos)  = yy_cp;
@@ -2656,11 +2622,11 @@ yy_state_type yyFlexLexer::yy_get_previous_state()
 yy_state_type yyFlexLexer::yy_try_NUL_trans(yy_state_type yy_current_state)
 /* %endif */
 {
-  register int yy_is_jam;
+  int yy_is_jam;
   /* %% [17.0] code to find the next state, and perhaps do backing up, goes here */
-  register char *yy_cp = (yy_c_buf_p);
+  char *yy_cp = (yy_c_buf_p);
 
-  register YY_CHAR yy_c = 1;
+  YY_CHAR yy_c = 1;
   if (yy_accept[yy_current_state]) {
     (yy_last_accepting_state) = yy_current_state;
     (yy_last_accepting_cpos)  = yy_cp;
@@ -2679,10 +2645,10 @@ yy_state_type yyFlexLexer::yy_try_NUL_trans(yy_state_type yy_current_state)
 /* %if-c-only */
 /* %endif */
 /* %if-c++-only */
-void yyFlexLexer::yyunput(int c, register char *yy_bp)
+void yyFlexLexer::yyunput(int c, char *yy_bp)
 /* %endif */
 {
-  register char *yy_cp;
+  char *yy_cp;
 
   yy_cp = (yy_c_buf_p);
 
@@ -2691,10 +2657,9 @@ void yyFlexLexer::yyunput(int c, register char *yy_bp)
 
   if (yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2) { /* need to shift things up to make room */
     /* +2 for EOB chars. */
-    register yy_size_t number_to_move = (yy_n_chars) + 2;
-    register char *    dest =
-        &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-    register char *source = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
+    yy_size_t number_to_move = (yy_n_chars) + 2;
+    char *dest   = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
+    char *source = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
 
     while (source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf)
       *--dest = *--source;
@@ -3157,8 +3122,8 @@ int yyFlexLexer::yy_top_state()
 /* %if-c++-only */
 void yyFlexLexer::LexerError(yyconst char msg[])
 {
-  std::cerr << msg << std::endl;
-  exit(YY_EXIT_FAILURE);
+  std::cerr << msg << '\n';
+  throw std::runtime_error(std::string(msg));
 }
 /* %endif */
 
@@ -3206,7 +3171,7 @@ void yyFlexLexer::LexerError(yyconst char msg[])
 #ifndef yytext_ptr
 static void yy_flex_strncpy(char *s1, yyconst char *s2, int n)
 {
-  register int i;
+  int i;
   for (i  = 0; i < n; ++i)
     s1[i] = s2[i];
 }
@@ -3215,7 +3180,7 @@ static void yy_flex_strncpy(char *s1, yyconst char *s2, int n)
 #ifdef YY_NEED_STRLEN
 static int yy_flex_strlen(yyconst char *s)
 {
-  register int n;
+  int n;
   for (n = 0; s[n]; ++n)
     ;
 
@@ -3262,7 +3227,7 @@ namespace SEAMS {
     aprepro.outputStream.push(out);
   }
 
-  Scanner::~Scanner() {}
+  Scanner::~Scanner() = default;
 
   void Scanner::add_include_file(const std::string &filename, bool must_exist)
   {
@@ -3524,7 +3489,7 @@ namespace SEAMS {
       if_state[if_lvl] = IF_SKIP;
     }
     else {
-      suppress_nl         = 1;
+      suppress_nl         = true;
       if_state[if_lvl]    = INITIAL;
       if_case_run[if_lvl] = true;
     }

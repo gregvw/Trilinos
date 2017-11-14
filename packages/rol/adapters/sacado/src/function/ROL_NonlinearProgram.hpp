@@ -48,11 +48,11 @@
 #include "Sacado.hpp"
 
 #include "ROL_StdVector.hpp"
+#include "ROL_Bounds.hpp"
 #include "ROL_PartitionedVector.hpp"
 #include "ROL_OptimizationProblem.hpp"
 #include "ROL_Sacado_StdObjective.hpp"
-#include "ROL_Sacado_StdEqualityConstraint.hpp"
-#include "ROL_Sacado_StdInequalityConstraint.hpp"
+#include "ROL_Sacado_StdConstraint.hpp"
 #include <cmath>
 
 /* \class ROL::NonlinearProgram 
@@ -85,18 +85,17 @@ protected:
   typedef PartitionedVector<Real>     PV;
 
   typedef Objective<Real>             OBJ;
-  typedef EqualityConstraint<Real>    EQCON;
-  typedef InequalityConstraint<Real>  INCON;
-  typedef BoundConstraint<Real>       BND;
+  typedef Constraint<Real>            CON;
+  typedef Bounds<Real>                BND;
   typedef OptimizationProblem<Real>   OPT;
 
   typedef typename vector<Real>::size_type size_type;
 
 private:
 
-  Teuchos::RCP<vector<Real> > lp_;
-  Teuchos::RCP<vector<Real> > up_;
-  Teuchos::RCP<BND> bnd_;
+  ROL::SharedPointer<vector<Real> > lp_;
+  ROL::SharedPointer<vector<Real> > up_;
+  ROL::SharedPointer<BND> bnd_;
 
 protected:
 
@@ -120,12 +119,12 @@ protected:
 
   /* Set the lower bound to l */
   void setLower(Real l[]) {
-    lp_ = Teuchos::rcp( new vector<Real>(l, l+dimension_x() ) );
+    lp_ = ROL::makeShared<vector<Real>(l, l+dimension_x>() );
   }
 
   /* Set the upper bound to u */
   void setUpper(Real u[]) {
-    up_ = Teuchos::rcp( new vector<Real>(u, u+dimension_x() ) );
+    up_ = ROL::makeShared<vector<Real>(u, u+dimension_x>() );
   }
 
   /* \brief Call this function in your problem's constructor to turn 
@@ -135,63 +134,80 @@ protected:
   }
   
   /* \brief Return the objective function. */
-  virtual const Teuchos::RCP<OBJ> getObjective() = 0;
+  virtual const ROL::SharedPointer<OBJ> getObjective() = 0;
 
   /* \brief Return the equality constraint. Do not overload if you 
             have no equality constraint. */
-  virtual const Teuchos::RCP<EQCON> getEqualityConstraint() {
-    return Teuchos::null;
+  virtual const ROL::SharedPointer<CON> getEqualityConstraint() {
+    return ROL::nullPointer;
   }
 
-  /* \brief Return the equality constraint vector (used for cloning). 
-            Returns a Teuchos::null if there is no equality constraint */
-  const Teuchos::RCP<V> getEqualityMultiplier() { 
+  /* \brief Return the equality constraint vector (used for cloning).
+            Returns a ROL::nullPointer if there is no equality constraint */
+  const ROL::SharedPointer<V> getEqualityMultiplier() { 
     int n = dimension_ce();
     if( n > 0 ) {
-      Teuchos::RCP<vector<Real> > l = Teuchos::rcp( new vector<Real>(n,1.0) );
-      return Teuchos::rcp( new SV(l) );        
+      ROL::SharedPointer<vector<Real> > l = ROL::makeShared<vector<Real>>(n,1.0);
+      return ROL::makeShared<SV>(l);
     }
     else {
-      return Teuchos::null;
+      return ROL::nullPointer;
     }
   }
 
   /* \brief Return the inequality constraint. Do not overload if you 
             have no inequality constraint. */
-  virtual const Teuchos::RCP<INCON> getInequalityConstraint() {
-    return Teuchos::null;
+  virtual const ROL::SharedPointer<CON> getInequalityConstraint() {
+    return ROL::nullPointer;
   }
 
   /* \brief Return the inequality constraint vector (used for cloning). 
-            Returns a Teuchos::null if there is no inequality constraint */
-  const Teuchos::RCP<V> getInequalityMultiplier() {
+            Returns a ROL::nullPointer if there is no inequality constraint */
+  const ROL::SharedPointer<V> getInequalityMultiplier() {
     int n = dimension_ci();
     if( n > 0 ) {
-      Teuchos::RCP<vector<Real> > l = Teuchos::rcp( new vector<Real>(n,1.0) );
-      return Teuchos::rcp( new SV(l) );        
+      ROL::SharedPointer<vector<Real> > l = ROL::makeShared<vector<Real>>(n,1.0);
+      return ROL::makeShared<SV>(l);
     }
     else {
-      return Teuchos::null;
+      return ROL::nullPointer;
+    }
+  }
+
+  /* \brief Return the bounds on the inequality constraint.
+            Returns a ROL::nullPointer if there is no inequality constraint */
+  const ROL::SharedPointer<BND> getInequalityBoundConstraint() {
+    int n = dimension_ci();
+    if( n > 0 ) {
+      const Real lval(0), uval(ROL_INF<Real>());
+      ROL::SharedPointer<V> l = Teuchos::rcp( new SV(
+                          ROL::makeShared<vector<Real>>(n,lval) ) );
+      ROL::SharedPointer<V> u = Teuchos::rcp( new SV(
+                          ROL::makeShared<vector<Real>>(n,uval) ) );
+      return ROL::makeShared<BND>(l,u);
+    }
+    else {
+      return ROL::nullPointer;
     }
   }
 
   /* \brief Create vector */
-  Teuchos::RCP<V> createOptVector( const Real * const array ) {
-    Teuchos::RCP<vector<Real> > x = 
-      Teuchos::rcp( new vector<Real>(array,array+dimension_x()) );
-    return Teuchos::rcp( new SV( x ) ); 
+  ROL::SharedPointer<V> createOptVector( const Real * const array ) {
+    ROL::SharedPointer<vector<Real> > x = 
+      ROL::makeShared<vector<Real>(array,array+dimension_x>());
+    return ROL::makeShared<SV>( x ); 
   }
 
-  // Create an RCP to a std::vector with dimensionality of the optimization space
-//  Teuchos::RCP<vector<Real> > createOptVector() {
+  // Create an ROL::SharedPointer to a std::vector with dimensionality of the optimization space
+//  ROL::SharedPointer<vector<Real> > createOptVector() {
 //    int n = dimension_x();
-//    Teuchos::RCP<V> x = Teuchos::rcp( new vector<Real>(n) );
+//    ROL::SharedPointer<V> x = ROL::makeShared<vector<Real>>(n);
 //    return x;
 //  } 
 
   // Default deactivated bound
-  Teuchos::RCP<BND> getBoundConstraint() {
-    return bnd_;  
+  ROL::SharedPointer<BND> getBoundConstraint() {
+    return bnd_;
   }
 
 public:
@@ -207,29 +223,30 @@ public:
 
   NonlinearProgram(int n) {
      // Create lower and upper bounds of negative and positive infinity respectively
-     lp_ = Teuchos::rcp( new vector<Real>(n,ROL::ROL_NINF<Real>()) );
-     up_ = Teuchos::rcp( new vector<Real>(n,ROL::ROL_INF<Real>()) );
-     Teuchos::RCP<V> l = Teuchos::rcp( new SV( lp_ ) );
-     Teuchos::RCP<V> u = Teuchos::rcp( new SV( up_ ) );
-     bnd_ = Teuchos::rcp( new BND( l, u ) ); 
+     lp_ = ROL::makeShared<vector<Real>(n,ROL::ROL_NINF<Real>>());
+     up_ = ROL::makeShared<vector<Real>(n,ROL::ROL_INF<Real>>());
+     ROL::SharedPointer<V> l = ROL::makeShared<SV>( lp_ );
+     ROL::SharedPointer<V> u = ROL::makeShared<SV>( up_ );
+     bnd_ = ROL::makeShared<BND>( l, u ); 
   }
 
    /* \brief Create the OptimizationProblem from the supplied components and 
              return it */
-  Teuchos::RCP<OPT> getOptimizationProblem() {
-    Teuchos::RCP<V> x = getInitialGuess()->clone();
+  ROL::SharedPointer<OPT> getOptimizationProblem() {
+    ROL::SharedPointer<V> x = getInitialGuess()->clone();
     x->set(*getInitialGuess());
-    return Teuchos::rcp( new OPT ( getObjective(),
+    return ROL::makeShared<OPT ( getObjective(>(),
                                    x,
                                    getBoundConstraint(),
                                    getEqualityConstraint(),
                                    getEqualityMultiplier(),
                                    getInequalityConstraint(),
-                                   getInequalityMultiplier() ) );
+                                   getInequalityMultiplier(),
+                                   getInequalityBoundConstraint() ) );
   }
 
   /* \brief Return the initial guess for the optimization vector */
-  virtual const Teuchos::RCP<const V> getInitialGuess() = 0;
+  virtual const ROL::SharedPointer<const V> getInitialGuess() = 0;
 
   /* \brief Return whether or not the initial guess is feasible */
   virtual bool initialGuessIsFeasible() = 0;
@@ -239,7 +256,7 @@ public:
 
   /* \brief Return the set of vectors that solve the nonlinear program if
             they are known */
-  virtual Teuchos::RCP<const V> getSolutionSet() { return Teuchos::null; } 
+  virtual ROL::SharedPointer<const V> getSolutionSet() { return ROL::nullPointer; } 
   
   /* \brief Return the value of the objective function for a solution vector. 
             If not known, return infinity */
@@ -248,19 +265,27 @@ public:
   };
    
    /* \brief If the problem has known solutions, return whether ROL
-             has acceptibly solved problem */ 
+             has acceptibly solved problem */
   bool foundAcceptableSolution( const V &x, const Real &tolerance=std::sqrt(ROL_EPSILON<Real>()) ) {
-    Teuchos::RCP<const PV> sol = Teuchos::rcp_dynamic_cast<const PV>( getSolutionSet() );
-    Teuchos::RCP<V> error = x.clone();    
+    ROL::SharedPointer<const PV> sol = ROL::dynamicPointerCast<const PV>( getSolutionSet() );
+    ROL::SharedPointer<V> error;
+    ROL::SharedPointer<const V> xv;
+    if ( dimension_ci() > 0 ) {
+      xv = dynamic_cast<const PV&>(x).get(0);
+      error = xv->clone();
+    }
+    else {
+      xv = &x, false;
+      error = x.clone();
+    }
  
     Real minerror = ROL::ROL_INF<Real>();
     for( size_type k=0; k<sol->numVectors(); ++k) {
-      error->set(x);
-      error->axpy(-1.0,*(sol->get(k))); 
+      error->set(*xv);
+      error->axpy(-1.0,*(sol->get(k)));
       minerror = std::min(minerror,error->norm());
-    } 
+    }
     return (minerror < tolerance);
-
   }
   
    

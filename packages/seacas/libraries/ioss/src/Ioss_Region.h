@@ -1,7 +1,6 @@
-// Copyright(C) 1999-2010
-// Sandia Corporation. Under the terms of Contract
-// DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-// certain rights in this software.
+// Copyright(C) 1999-2010 National Technology & Engineering Solutions
+// of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+// NTESS, the U.S. Government retains certain rights in this software.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,7 +13,8 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of Sandia Corporation nor the names of its
+//
+//     * Neither the name of NTESS nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -40,11 +40,11 @@
 #include <Ioss_MeshType.h>
 #include <Ioss_Property.h> // for Property
 #include <Ioss_State.h>    // for State
+#include <cstddef>         // for size_t, nullptr
+#include <cstdint>         // for int64_t
 #include <functional>      // for less
 #include <iosfwd>          // for ostream
 #include <map>             // for map, map<>::value_compare
-#include <stddef.h>        // for size_t, nullptr
-#include <stdint.h>        // for int64_t
 #include <string>          // for string, operator<
 #include <utility>         // for pair
 #include <vector>          // for vector
@@ -62,7 +62,7 @@ namespace Ioss {
   class SideBlock;
   class SideSet;
   class StructuredBlock;
-}
+} // namespace Ioss
 // Needed for node_global_to_local inline function.
 
 namespace Ioss {
@@ -108,6 +108,7 @@ namespace Ioss {
 
     MeshType          mesh_type() const;
     const std::string mesh_type_string() const;
+    bool              node_major() const;
 
     void output_summary(std::ostream &strm, bool do_transient = true);
 
@@ -263,6 +264,16 @@ namespace Ioss {
                                     size_t data_size) const override;
 
   private:
+    // Add the name 'alias' as an alias for the database entity with the
+    // name 'db_name'. Returns true if alias added; false if problems
+    // adding alias. Not protected by mutex -- call internally only.
+    bool add_alias__(const std::string &db_name, const std::string &alias);
+    bool add_alias__(const GroupingEntity *ge);
+    std::string get_alias__(const std::string &alias) const;
+
+    bool begin_mode__(State new_state);
+    bool end_mode__(State current_state);
+
     void delete_database() override;
 
     AliasMap aliases_; ///< Stores alias mappings
@@ -289,7 +300,7 @@ namespace Ioss {
     bool        modelDefined;
     bool        transientDefined;
   };
-}
+} // namespace Ioss
 
 /** \brief Get the index (1-based) of the currently-active state.
  *
@@ -299,7 +310,7 @@ inline int Ioss::Region::get_current_state() const { return currentState; }
 
 inline bool Ioss::Region::supports_field_type(Ioss::EntityType fld_type) const
 {
-  return static_cast<unsigned int>((get_database()->entity_field_support() & fld_type) != 0u);
+  return static_cast<unsigned int>((get_database()->entity_field_support() & fld_type) != 0u) != 0u;
 }
 
 inline int64_t Ioss::Region::node_global_to_local(int64_t global, bool must_exist) const
@@ -313,6 +324,7 @@ inline int64_t Ioss::Region::node_global_to_local(int64_t global, bool must_exis
  */
 inline const std::vector<std::string> &Ioss::Region::get_information_records() const
 {
+  IOSS_FUNC_ENTER(m_);
   return get_database()->get_information_records();
 }
 
@@ -322,6 +334,7 @@ inline const std::vector<std::string> &Ioss::Region::get_information_records() c
  */
 inline void Ioss::Region::add_information_records(const std::vector<std::string> &info)
 {
+  IOSS_FUNC_ENTER(m_);
   return get_database()->add_information_records(info);
 }
 
@@ -331,6 +344,7 @@ inline void Ioss::Region::add_information_records(const std::vector<std::string>
  */ inline void
 Ioss::Region::add_information_record(const std::string &info)
 {
+  IOSS_FUNC_ENTER(m_);
   return get_database()->add_information_record(info);
 }
 
@@ -347,6 +361,7 @@ Ioss::Region::add_information_record(const std::string &info)
 inline void Ioss::Region::add_qa_record(const std::string &code, const std::string &code_qa,
                                         const std::string &date, const std::string &time)
 {
+  IOSS_FUNC_ENTER(m_);
   return get_database()->add_qa_record(code, code_qa, date, time);
 }
 
@@ -367,6 +382,7 @@ inline void Ioss::Region::add_qa_record(const std::string &code, const std::stri
  */
 inline const std::vector<std::string> &Ioss::Region::get_qa_records() const
 {
+  IOSS_FUNC_ENTER(m_);
   return get_database()->get_qa_records();
 }
 

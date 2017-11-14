@@ -64,10 +64,10 @@ class CompositeStep : public Step<Real> {
 private:
 
   // Vectors used for cloning.
-  Teuchos::RCP<Vector<Real> > xvec_;
-  Teuchos::RCP<Vector<Real> > gvec_;
-  Teuchos::RCP<Vector<Real> > cvec_;
-  Teuchos::RCP<Vector<Real> > lvec_;
+  ROL::SharedPointer<Vector<Real> > xvec_;
+  ROL::SharedPointer<Vector<Real> > gvec_;
+  ROL::SharedPointer<Vector<Real> > cvec_;
+  ROL::SharedPointer<Vector<Real> > lvec_;
 
   // Diagnostic return flags for subalgorithms. 
   int flagCG_;
@@ -94,6 +94,7 @@ private:
   Real Delta_;
   Real penalty_;
   Real eta_;
+  bool useConHess_;
 
   Real ared_;
   Real pred_;
@@ -147,7 +148,7 @@ public:
   virtual ~CompositeStep() {}
 
   CompositeStep( Teuchos::ParameterList & parlist ) : Step<Real>() {
-    //Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    //ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     flagCG_ = 0;
     flagAC_ = 0;
     iterCG_ = 0;
@@ -161,6 +162,7 @@ public:
     maxiterCG_   = steplist.sublist("Tangential Subproblem Solver").get("Iteration Limit", 20);
     tolCG_       = steplist.sublist("Tangential Subproblem Solver").get("Relative Tolerance", 1e-2);
     Delta_       = steplist.get("Initial Radius", 1e2);
+    useConHess_  = steplist.get("Use Constraint Hessian", true);
 
     int outLvl   = steplist.get("Output Level", 0);
 
@@ -205,10 +207,10 @@ public:
   /** \brief Initialize step.
   */
   void initialize( Vector<Real> &x, const Vector<Real> &g, Vector<Real> &l, const Vector<Real> &c,
-                   Objective<Real> &obj, EqualityConstraint<Real> &con,
+                   Objective<Real> &obj, Constraint<Real> &con,
                    AlgorithmState<Real> &algo_state ) {
-    //Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    //ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
     state->constraintVec = c.clone();
@@ -218,8 +220,8 @@ public:
     lvec_ = l.clone();
     cvec_ = c.clone();
 
-    Teuchos::RCP<Vector<Real> > ajl = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > gl  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ajl = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gl  = gvec_->clone();
 
     algo_state.nfval = 0;
     algo_state.ncval = 0;
@@ -248,25 +250,25 @@ public:
   /** \brief Compute step.
   */
   void compute( Vector<Real> &s, const Vector<Real> &x, const Vector<Real> &l,
-                Objective<Real> &obj, EqualityConstraint<Real> &con,
+                Objective<Real> &obj, Constraint<Real> &con,
                 AlgorithmState<Real> &algo_state ) {
-    //Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    //ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());
     Real f = 0.0;
-    Teuchos::RCP<Vector<Real> > n   = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > c   = cvec_->clone();
-    Teuchos::RCP<Vector<Real> > t   = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > tCP = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > g   = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > gf  = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > Wg  = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > ajl = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > n   = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > c   = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > t   = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > tCP = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > g   = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gf  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Wg  = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ajl = gvec_->clone();
 
     Real f_new = 0.0;
-    Teuchos::RCP<Vector<Real> > l_new  = lvec_->clone();
-    Teuchos::RCP<Vector<Real> > c_new  = cvec_->clone();
-    Teuchos::RCP<Vector<Real> > g_new  = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > gf_new = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > l_new  = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > c_new  = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > g_new  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gf_new = gvec_->clone();
 
     // Evaluate objective ... should have been stored.
     f = obj.value(x, zerotol);
@@ -296,9 +298,9 @@ public:
   /** \brief Update step, if successful.
   */
   void update( Vector<Real> &x, Vector<Real> &l, const Vector<Real> &s,
-               Objective<Real> &obj, EqualityConstraint<Real> &con,
+               Objective<Real> &obj, Constraint<Real> &con,
                AlgorithmState<Real> &algo_state ) {
-    //Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    //ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
 
     Real zero(0);
     Real one(1);
@@ -311,10 +313,10 @@ public:
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());//zero;
     Real ratio(zero);
 
-    Teuchos::RCP<Vector<Real> > g   = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > ajl = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > gl  = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > c   = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > g   = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ajl = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gl  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > c   = cvec_->clone();
 
     // Determine if the step gives sufficient reduction in the merit function,
     // update the trust-region radius.
@@ -350,7 +352,7 @@ public:
     algo_state.ngrad++;
     con.value(*c, x, zerotol);
 
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->gradientVec->set(*gl);
     state->constraintVec->set(*c);
 
@@ -411,7 +413,7 @@ public:
   /** \brief Print iterate status.
   */
   std::string print( AlgorithmState<Real> & algo_state, bool pHeader = false ) const  {
-    //const Teuchos::RCP<const StepState<Real> >& step_state = Step<Real>::getStepState();
+    //const ROL::SharedPointer<const StepState<Real> >& step_state = Step<Real>::getStepState();
 
     std::stringstream hist;
     hist << std::scientific << std::setprecision(6);
@@ -463,7 +465,7 @@ public:
 
              On return ... fill the blanks.
   */
-  void computeLagrangeMultiplier(Vector<Real> &l, const Vector<Real> &x, const Vector<Real> &gf, EqualityConstraint<Real> &con) {
+  void computeLagrangeMultiplier(Vector<Real> &l, const Vector<Real> &x, const Vector<Real> &gf, Constraint<Real> &con) {
 
     Real one(1);
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());
@@ -476,20 +478,20 @@ public:
     }
 
     /* Apply adjoint of constraint Jacobian to current multiplier. */
-    Teuchos::RCP<Vector<Real> > ajl = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ajl = gvec_->clone();
     con.applyAdjointJacobian(*ajl, l, x, zerotol);
 
     /* Form right-hand side of the augmented system. */
-    Teuchos::RCP<Vector<Real> > b1 = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > b2 = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > b1 = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > b2 = cvec_->clone();
     // b1 is the negative gradient of the Lagrangian
     b1->set(gf); b1->plus(*ajl); b1->scale(-one);
     // b2 is zero
     b2->zero();
 
     /* Declare left-hand side of augmented system. */
-    Teuchos::RCP<Vector<Real> > v1 = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > v2 = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > v1 = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > v2 = lvec_->clone();
 
     /* Compute linear solver tolerance. */
     Real b1norm  = b1->norm();
@@ -530,7 +532,7 @@ public:
              @param[in]       con   is the equality constraint object
 
   */
-  void computeQuasinormalStep(Vector<Real> &n, const Vector<Real> &c, const Vector<Real> &x, Real delta, EqualityConstraint<Real> &con) {
+  void computeQuasinormalStep(Vector<Real> &n, const Vector<Real> &c, const Vector<Real> &x, Real delta, Constraint<Real> &con) {
 
     if (infoQN_) {
       std::stringstream hist;
@@ -544,11 +546,11 @@ public:
     std::vector<Real> augiters;
 
     /* Compute Cauchy step nCP. */
-    Teuchos::RCP<Vector<Real> > nCP     = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > nCPdual = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > nN      = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > ctemp   = cvec_->clone();
-    Teuchos::RCP<Vector<Real> > dualc0  = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > nCP     = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > nCPdual = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > nN      = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ctemp   = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > dualc0  = lvec_->clone();
     dualc0->set(c.dual());
     con.applyAdjointJacobian(*nCPdual, *dualc0, x, zerotol);
     nCP->set(nCPdual->dual());
@@ -584,8 +586,8 @@ public:
     nCPdual->set(nCP->dual());
     nCPdual->scale(-one);
     // Declare left-hand side of augmented system.
-    Teuchos::RCP<Vector<Real> > dn = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > y  = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > dn = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > y  = lvec_->clone();
     // Solve augmented system.
     augiters = con.solveAugmentedSystem(*dn, *y, *nCPdual, *ctemp, x, tol);
     totalCallLS_++;
@@ -642,7 +644,7 @@ public:
   */
   void solveTangentialSubproblem(Vector<Real> &t, Vector<Real> &tCP, Vector<Real> &Wg,
                                  const Vector<Real> &x, const Vector<Real> &g, const Vector<Real> &n, const Vector<Real> &l,
-                                 Real delta, Objective<Real> &obj, EqualityConstraint<Real> &con) {
+                                 Real delta, Objective<Real> &obj, Constraint<Real> &con) {
 
     /* Initialization of the CG step. */
     bool orthocheck = true;  // set to true if want to check orthogonality
@@ -660,21 +662,23 @@ public:
     flagCG_ = 0;
     t.zero();
     tCP.zero();
-    Teuchos::RCP<Vector<Real> > r     = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > pdesc = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > tprev = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > Wr    = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > Hp    = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > xtemp = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > gtemp = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > ltemp = lvec_->clone();
-    Teuchos::RCP<Vector<Real> > czero = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > r     = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > pdesc = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > tprev = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Wr    = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Hp    = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > xtemp = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gtemp = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ltemp = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > czero = cvec_->clone();
     czero->zero();
     r->set(g);
     obj.hessVec(*gtemp, n, x, zerotol);
     r->plus(*gtemp);
-    con.applyAdjointHessian(*gtemp, l, n, x, zerotol);
-    r->plus(*gtemp);
+    if (useConHess_) {
+      con.applyAdjointHessian(*gtemp, l, n, x, zerotol);
+      r->plus(*gtemp);
+    }
     Real normg  = r->norm();
     Real normWg = zero;
     Real pHp    = zero;
@@ -685,10 +689,10 @@ public:
     Real normt  = zero;
     std::vector<Real> normWr(maxiterCG_+1, zero);
 
-    std::vector<Teuchos::RCP<Vector<Real > > >  p;    // stores search directions
-    std::vector<Teuchos::RCP<Vector<Real > > >  Hps;  // stores duals of hessvec's applied to p's
-    std::vector<Teuchos::RCP<Vector<Real > > >  rs;   // stores duals of residuals
-    std::vector<Teuchos::RCP<Vector<Real > > >  Wrs;  // stores duals of projected residuals
+    std::vector<ROL::SharedPointer<Vector<Real > > >  p;    // stores search directions
+    std::vector<ROL::SharedPointer<Vector<Real > > >  Hps;  // stores duals of hessvec's applied to p's
+    std::vector<ROL::SharedPointer<Vector<Real > > >  rs;   // stores duals of residuals
+    std::vector<ROL::SharedPointer<Vector<Real > > >  Wrs;  // stores duals of projected residuals
 
     Real rptol(1e-12);
 
@@ -770,7 +774,7 @@ public:
       normWr[iterCG_-1] = Wr->norm();
 
       if (infoTS_) {
-        Teuchos::RCP<Vector<Real> > ct = cvec_->clone();
+        ROL::SharedPointer<Vector<Real> > ct = cvec_->clone();
         con.applyJacobian(*ct, t, x, zerotol);
         Real linc = ct->norm();
         std::stringstream hist;
@@ -837,7 +841,7 @@ public:
       (p[iterCG_-1])->scale(-one);
       for (int j=1; j<iterCG_; j++) {
         Real scal = (p[iterCG_-1])->dot(*(Hps[j-1])) / (p[j-1])->dot(*(Hps[j-1]));
-        Teuchos::RCP<Vector<Real> > pj = xvec_->clone();
+        ROL::SharedPointer<Vector<Real> > pj = xvec_->clone();
         pj->set(*p[j-1]);
         pj->scale(-scal);
         (p[iterCG_-1])->plus(*pj);
@@ -847,9 +851,11 @@ public:
       Hps.push_back(xvec_->clone());
       // change obj.hessVec(*(Hps[iterCG_-1]), *(p[iterCG_-1]), x, zerotol);
       obj.hessVec(*Hp, *(p[iterCG_-1]), x, zerotol);
-      con.applyAdjointHessian(*gtemp, l, *(p[iterCG_-1]), x, zerotol);
-      // change (Hps[iterCG_-1])->plus(*gtemp);
-      Hp->plus(*gtemp);
+      if (useConHess_) {
+        con.applyAdjointHessian(*gtemp, l, *(p[iterCG_-1]), x, zerotol);
+        // change (Hps[iterCG_-1])->plus(*gtemp);
+        Hp->plus(*gtemp);
+      }
       // "Preconditioning" step.
       (Hps[iterCG_-1])->set(Hp->dual());
 
@@ -967,7 +973,7 @@ public:
               Vector<Real> &gf_new, Vector<Real> &l_new, Vector<Real> &g_new,
               const Vector<Real> &x, const Vector<Real> &l, Real f, const Vector<Real> &gf, const Vector<Real> &c,
               const Vector<Real> &g, Vector<Real> &tCP, Vector<Real> &Wg,
-              Objective<Real> &obj, EqualityConstraint<Real> &con, AlgorithmState<Real> &algo_state) {
+              Objective<Real> &obj, Constraint<Real> &con, AlgorithmState<Real> &algo_state) {
 
     Real beta         = 1e-8;              // predicted reduction parameter
     Real tol_red_tang = 1e-3;              // internal reduction factor for tangtol
@@ -1008,21 +1014,21 @@ public:
     bool try_tCP = false;
     Real fdiff = zero;
 
-    Teuchos::RCP<Vector<Real> > xtrial  = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > Jl      = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > gfJl    = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > Jnc     = cvec_->clone();
-    Teuchos::RCP<Vector<Real> > t_orig  = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > t_dual  = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > Jt_orig = cvec_->clone();
-    Teuchos::RCP<Vector<Real> > t_m_tCP = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > ltemp   = lvec_->clone();
-    Teuchos::RCP<Vector<Real> > xtemp   = xvec_->clone();
-    Teuchos::RCP<Vector<Real> > rt      = cvec_->clone();
-    Teuchos::RCP<Vector<Real> > Hn      = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > Hto     = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > cxxvec  = gvec_->clone();
-    Teuchos::RCP<Vector<Real> > czero   = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > xtrial  = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Jl      = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > gfJl    = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Jnc     = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > t_orig  = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > t_dual  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Jt_orig = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > t_m_tCP = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > ltemp   = lvec_->clone();
+    ROL::SharedPointer<Vector<Real> > xtemp   = xvec_->clone();
+    ROL::SharedPointer<Vector<Real> > rt      = cvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Hn      = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > Hto     = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > cxxvec  = gvec_->clone();
+    ROL::SharedPointer<Vector<Real> > czero   = cvec_->clone();
     czero->zero();
     Real Jnc_normsquared = zero;
     Real c_normsquared = zero;
@@ -1087,11 +1093,15 @@ public:
 
         // Compute some quantities before updating the objective and the constraint.
         obj.hessVec(*Hn, n, x, zerotol);
-        con.applyAdjointHessian(*cxxvec, l, n, x, zerotol);
-        Hn->plus(*cxxvec);
+        if (useConHess_) {
+          con.applyAdjointHessian(*cxxvec, l, n, x, zerotol);
+          Hn->plus(*cxxvec);
+        }
         obj.hessVec(*Hto, *t_orig, x, zerotol);
-        con.applyAdjointHessian(*cxxvec, l, *t_orig, x, zerotol);
-        Hto->plus(*cxxvec);
+        if (useConHess_) {
+          con.applyAdjointHessian(*cxxvec, l, *t_orig, x, zerotol);
+          Hto->plus(*cxxvec);
+        }
 
         // Compute objective, constraint, etc. values at the trial point.
         xtrial->set(x);
@@ -1128,7 +1138,7 @@ public:
         // Computation of rpred.
         // change rpred = - ltemp->dot(*rt) - penalty_ * rt->dot(*rt) - two * penalty_ * rt->dot(*Jnc);
         rpred = - rt->dot(ltemp->dual()) - penalty_ * rt->dot(*rt) - two * penalty_ * rt->dot(*Jnc);
-        // change Teuchos::RCP<Vector<Real> > lrt   = lvec_->clone();
+        // change ROL::SharedPointer<Vector<Real> > lrt   = lvec_->clone();
         //lrt->set(*rt);
         //rpred = - ltemp->dot(*rt) - penalty_ * std::pow(rt->norm(), 2) - two * penalty_ * lrt->dot(*Jnc);
         flag = 1;

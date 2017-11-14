@@ -63,12 +63,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   // Save the format state of the original std::cout.
   Teuchos::oblackholestream oldFormatState;
@@ -84,9 +84,9 @@ int main(int argc, char *argv[]) {
   try {
 
     int dim = 128;
-    Teuchos::RCP<std::vector<RealT> > x_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > y_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > z_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > y_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > z_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     ROL::StdVector<RealT> x(x_rcp);
     ROL::StdVector<RealT> y(y_rcp);
     ROL::StdVector<RealT> z(z_rcp);
@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
                  << std::setw(20) << (eigenvals[1])[i]
                  << "\n";
     }
-  
+
   }
   catch (std::logic_error err) {
     *outStream << err.what() << "\n";
@@ -193,4 +193,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

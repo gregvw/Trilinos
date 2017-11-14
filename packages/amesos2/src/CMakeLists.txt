@@ -131,6 +131,7 @@ APPEND_SET(HEADERS
   Amesos2_TypeMap.hpp
   Amesos2_TypeDecl.hpp
   Amesos2_Util.hpp
+  Amesos2_VectorTraits.hpp
   Amesos2_Version.hpp
   )
 
@@ -248,16 +249,50 @@ IF (${PACKAGE_NAME}_ENABLE_Basker)
       Amesos2_Basker.cpp
       )
 
-      IF(NOT Trilinos_ENABLE_ShyLUBasker)      
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/basker)
-    APPEND_SET(HEADERS				
-        basker/basker.hpp
-        basker/basker_decl.hpp
-        basker/basker_def.hpp
-        basker/basker_scalartraits.hpp
-        basker/basker_types.hpp
-     )
-     ENDIF()
+   IF(NOT ${PACKAGE_NAME}_ENABLE_ShyLU_NodeBasker)
+   	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/basker)
+   	APPEND_SET(HEADERS				
+       basker/basker.hpp
+       basker/basker_decl.hpp
+       basker/basker_def.hpp
+       basker/basker_scalartraits.hpp
+       basker/basker_types.hpp
+   	  )
+   ENDIF()
+
+ENDIF()
+
+ASSERT_DEFINED(${PACKAGE_NAME}_ENABLE_UMFPACK)
+IF (${PACKAGE_NAME}_ENABLE_UMFPACK)
+
+  APPEND_SET(HEADERS
+    Amesos2_Umfpack.hpp
+    Amesos2_Umfpack_decl.hpp
+    Amesos2_Umfpack_def.hpp
+    Amesos2_Umfpack_FunctionMap.hpp
+    Amesos2_Umfpack_TypeMap.hpp
+    )
+
+  APPEND_SET(SOURCES
+    Amesos2_Umfpack.cpp
+    )
+
+ENDIF()
+
+#ASSERT_DEFINED(${PACKAGE_NAME}_ENABLE_ShyLU_NodeTacho)
+IF (${PACKAGE_NAME}_ENABLE_ShyLU_NodeTacho)
+
+  APPEND_SET(HEADERS
+    Amesos2_Tacho.hpp
+    Amesos2_Tacho_decl.hpp
+    Amesos2_Tacho_def.hpp
+    Amesos2_Tacho_FunctionMap.hpp
+    Amesos2_Tacho_TypeMap.hpp
+    )
+
+  APPEND_SET(SOURCES
+    Amesos2_Tacho.cpp
+    )
 
 ENDIF()
 
@@ -365,7 +400,7 @@ IF (${PACKAGE_NAME}_ENABLE_Epetra)
 ENDIF()
 ENDIF()
 
-IF (Trilinos_ENABLE_TrilinosSS)
+IF (${PACKAGE_NAME}_ENABLE_TrilinosSS)
     ADD_SUBDIRECTORY(KLU2/Source)
 ENDIF()
 
@@ -384,7 +419,6 @@ IF (${PACKAGE_NAME}_ENABLE_Experimental)
         )
 ENDIF()
 ENDIF()
-
 
 
 #

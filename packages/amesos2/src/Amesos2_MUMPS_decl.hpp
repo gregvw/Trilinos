@@ -221,6 +221,8 @@ private:
 
   mutable MUMPS_STRUC_C mumps_par;
 
+  bool is_contiguous_;
+
 };                              // End class MUMPS
 
 
@@ -340,6 +342,7 @@ private:
   MPI_Comm MUMPSComm;
 #endif
 
+    bool is_contiguous_;
 
 };
 

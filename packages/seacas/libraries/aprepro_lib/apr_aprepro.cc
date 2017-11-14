@@ -1,6 +1,6 @@
-// Copyright (c) 2014, Sandia Corporation.
-// Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-// the U.S. Government retains certain rights in this software.
+// Copyright (c) 2014 National Technology & Engineering Solutions
+// of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+// NTESS, the U.S. Government retains certain rights in this software.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,7 +14,7 @@
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
 //
-//     * Neither the name of Sandia Corporation nor the names of its
+//     * Neither the name of NTESS nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -31,38 +31,40 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <climits>
-#include <cstring>
-#include <ctime>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <vector>
-
-#include "apr_scanner.h"
-#include "apr_stats.h"
-#include "apr_util.h"
-#include "aprepro.h"
-#include "aprepro_parser.h"
+#include "apr_scanner.h"    // for Scanner
+#include "apr_stats.h"      // for Stats
+#include "aprepro.h"        // for Aprepro, symrec, file_rec, etc
+#include "aprepro_parser.h" // for Parser, Parser::token, etc
+#include <climits>          // for INT_MAX
+#include <cstddef>          // for size_t
+#include <cstdlib>          // for exit, EXIT_SUCCESS, etc
+#include <cstring>          // for memset, strcmp
+#include <fstream>          // for operator<<, basic_ostream, etc
+#include <iomanip>          // for operator<<, setw, etc
+#include <iostream>         // for left, cerr, cout, streampos
+#include <stack>            // for stack
+#include <stdexcept>
+#include <string> // for string, operator==, etc
+#include <vector> // for allocator, vector
 
 namespace {
   const unsigned int HASHSIZE       = 5939;
-  const char *       version_string = "4.33 (2017/01/12)";
+  const char *       version_string = "4.35 (2017/08/14)";
 
   unsigned hash_symbol(const char *symbol)
   {
     unsigned hashval;
-    for (hashval = 0; *symbol != '\0'; symbol++)
+    for (hashval = 0; *symbol != '\0'; symbol++) {
       hashval = *symbol + 65599 * hashval;
+    }
     return (hashval % HASHSIZE);
   }
   void output_copyright();
-}
+} // namespace
 
 namespace SEAMS {
   Aprepro *aprepro; // A global for use in the library.  Clean this up...
-  int      echo = true;
+  bool     echo = true;
 
   Aprepro::Aprepro()
       : lexer(nullptr), infoStream(&std::cout), sym_table(HASHSIZE), stringInteractive(false),
@@ -79,8 +81,9 @@ namespace SEAMS {
   {
     outputStream.top()->flush();
 
-    if (stringScanner && stringScanner != lexer)
+    if ((stringScanner != nullptr) && stringScanner != lexer) {
       delete stringScanner;
+    }
 
     delete lexer;
 
@@ -113,7 +116,7 @@ namespace SEAMS {
 
     if (!ap_options.include_file.empty()) {
       stateImmutable = true;
-      echo           = false;
+      echo           = 0;
       scanner->add_include_file(ap_options.include_file, true);
     }
 
@@ -125,8 +128,9 @@ namespace SEAMS {
   bool Aprepro::parse_file(const std::string &filename)
   {
     std::ifstream in(filename.c_str());
-    if (!in.good())
+    if (!in.good()) {
       return false;
+    }
     return parse_stream(in, filename);
   }
 
@@ -149,15 +153,16 @@ namespace SEAMS {
   {
     stringInteractive = true;
 
-    if (ap_file_list.size() == 1)
+    if (ap_file_list.size() == 1) {
       ap_file_list.top().name = "interactive_input";
-
-    if (!stringScanner)
+    }
+    if (stringScanner == nullptr) {
       stringScanner = new Scanner(*this, &stringInput, &parsingResults);
+    }
 
     if (!ap_options.include_file.empty()) {
       stateImmutable = true;
-      echo           = false;
+      echo           = 0;
       stringScanner->add_include_file(ap_options.include_file, true);
     }
 
@@ -195,8 +200,9 @@ namespace SEAMS {
 
   void Aprepro::warning(const std::string &msg, bool line_info, bool prefix) const
   {
-    if (!ap_options.warning_msg)
+    if (!ap_options.warning_msg) {
       return;
+    }
 
     std::stringstream ss;
     if (prefix) {
@@ -216,8 +222,9 @@ namespace SEAMS {
 
   void Aprepro::info(const std::string &msg, bool line_info, bool prefix) const
   {
-    if (!ap_options.info_msg)
+    if (!ap_options.info_msg) {
       return;
+    }
 
     std::stringstream ss;
     if (prefix) {
@@ -237,9 +244,15 @@ namespace SEAMS {
   void Aprepro::set_error_streams(std::ostream *c_error, std::ostream *c_warning,
                                   std::ostream *c_info)
   {
-    errorStream   = c_error;
-    warningStream = c_warning;
-    infoStream    = c_info;
+    if (c_error != nullptr) {
+      errorStream = c_error;
+    }
+    if (c_warning != nullptr) {
+      warningStream = c_warning;
+    }
+    if (c_info != nullptr) {
+      infoStream = c_info;
+    }
   }
 
   /* Two methods for opening files:
@@ -253,8 +266,9 @@ namespace SEAMS {
   std::fstream *Aprepro::open_file(const std::string &file, const char *mode)
   {
     std::ios::openmode smode = std::ios::in;
-    if (mode[0] == 'w')
+    if (mode[0] == 'w') {
       smode = std::ios::out;
+    }
 
     /* See if file exists in current directory (or as specified) */
     auto pointer = new std::fstream(file.c_str(), smode);
@@ -269,9 +283,10 @@ namespace SEAMS {
 
     /* If pointer still null, print error message */
     if (pointer == nullptr || pointer->bad() || !pointer->good()) {
-      error("Can't open " + file, false);
+      std::string err = "Can't open " + file;
+      error(err, false);
       if (!stringInteractive) {
-        exit(EXIT_FAILURE);
+        throw std::runtime_error(err);
       }
     }
 
@@ -281,8 +296,9 @@ namespace SEAMS {
   std::fstream *Aprepro::check_open_file(const std::string &file, const char *mode)
   {
     std::ios::openmode smode = std::ios::in;
-    if (mode[0] == 'w')
+    if (mode[0] == 'w') {
       smode = std::ios::out;
+    }
 
     auto pointer = new std::fstream(file.c_str(), smode);
 
@@ -332,8 +348,9 @@ namespace SEAMS {
       symrec *ptr = getsym(sym_name.c_str());
       if (ptr != nullptr) {
         if (ptr->type != parser_type) {
-          error("Overloaded function " + sym_name + "does not return same type", false);
-          exit(EXIT_FAILURE);
+          std::string err = "Overloaded function " + sym_name + "does not return same type";
+          error(err, false);
+          throw std::runtime_error(err);
         }
         // Function with this name already exists; return that
         // pointer.
@@ -344,8 +361,9 @@ namespace SEAMS {
     }
 
     auto ptr = new symrec(sym_name, parser_type, is_internal);
-    if (ptr == nullptr)
+    if (ptr == nullptr) {
       return nullptr;
+    }
 
     unsigned hashval   = hash_symbol(ptr->name.c_str());
     ptr->next          = sym_table[hashval];
@@ -399,7 +417,7 @@ namespace SEAMS {
       ap_options.end_on_exit = true;
     }
     else if (option.find("--include") != std::string::npos || (option[1] == 'I')) {
-      std::string value("");
+      std::string value;
 
       size_t index = option.find_first_of('=');
       if (index != std::string::npos) {
@@ -422,7 +440,7 @@ namespace SEAMS {
     }
 
     else if (option.find("--comment") != std::string::npos || (option[1] == 'c')) {
-      std::string comment = "";
+      std::string comment;
       // In short version, do not require equal sign (-c# -c// )
       if (option[1] == 'c' && option.length() > 2 && option[2] != '=') {
         comment = option.substr(2);
@@ -469,6 +487,7 @@ namespace SEAMS {
           << "                var=val: Assign value 'val' to variable 'var'    \n"
           << "                         Use var=\\\"sval\\\" for a string variable\n\n"
           << "\tUnits Systems: si, cgs, cgs-ev, shock, swap, ft-lbf-s, ft-lbm-s, in-lbf-s\n"
+          << "\tEnter {DUMP()} for list of user-defined variables\n"
           << "\tEnter {DUMP_FUNC()} for list of functions recognized by aprepro\n"
           << "\tEnter {DUMP_PREVAR()} for list of predefined variables in aprepro\n\n"
           << "\t->->-> Send email to gdsjaar@sandia.gov for aprepro support.\n\n";
@@ -510,8 +529,9 @@ namespace SEAMS {
 
     for (unsigned int hashval = 0; hashval < HASHSIZE; hashval++) {
       for (symrec *ptr = sym_table[hashval]; ptr != nullptr; ptr = ptr->next) {
-        if (ptr->isInternal != doInternal)
+        if (ptr->isInternal != doInternal) {
           continue;
+        }
 
         switch (ptr->type) {
         case Parser::token::VAR:
@@ -564,8 +584,9 @@ namespace SEAMS {
         // linked list, in which case hash_ptr->next will not be nullptr until we
         // reach the end of the list. hash_ptr->next should be equal to ptr
         // before that happens.
-        while (hash_ptr->next != ptr)
+        while (hash_ptr->next != ptr) {
           hash_ptr = hash_ptr->next;
+        }
 
         // NOTE: If ptr is at the end of the list ptr->next will be nullptr, in
         // which case this will change hash_ptr to be the end of the list.
@@ -581,10 +602,22 @@ namespace SEAMS {
   symrec *Aprepro::getsym(const char *sym_name) const
   {
     symrec *ptr = nullptr;
-    for (ptr = sym_table[hash_symbol(sym_name)]; ptr != nullptr; ptr = ptr->next)
-      if (strcmp(ptr->name.c_str(), sym_name) == 0)
+    for (ptr = sym_table[hash_symbol(sym_name)]; ptr != nullptr; ptr = ptr->next) {
+      if (strcmp(ptr->name.c_str(), sym_name) == 0) {
         return ptr;
+      }
+    }
     return nullptr;
+  }
+
+  void Aprepro::dumpsym(const char *type, bool doInternal) const
+  {
+    if (type[0] == 'v') {
+      dumpsym(Parser::token::VAR, doInternal);
+    }
+    else if (type[0] == 'f') {
+      dumpsym(Parser::token::FNCT, doInternal);
+    }
   }
 
   void Aprepro::dumpsym(int type, bool doInternal) const
@@ -598,19 +631,23 @@ namespace SEAMS {
       for (unsigned hashval = 0; hashval < HASHSIZE; hashval++) {
         for (symrec *ptr = sym_table[hashval]; ptr != nullptr; ptr = ptr->next) {
           if ((doInternal && ptr->isInternal) || (!doInternal && !ptr->isInternal)) {
-            if (ptr->type == Parser::token::VAR)
+            if (ptr->type == Parser::token::VAR) {
               (*infoStream) << comment << "  {" << std::left << std::setw(width) << ptr->name
                             << "\t= " << std::setprecision(10) << ptr->value.var << "}" << '\n';
-            else if (ptr->type == Parser::token::IMMVAR)
+            }
+            else if (ptr->type == Parser::token::IMMVAR) {
               (*infoStream) << comment << "  {" << std::left << std::setw(width) << ptr->name
                             << "\t= " << std::setprecision(10) << ptr->value.var << "}\t(immutable)"
                             << '\n';
-            else if (ptr->type == Parser::token::SVAR)
+            }
+            else if (ptr->type == Parser::token::SVAR) {
               (*infoStream) << comment << "  {" << std::left << std::setw(width) << ptr->name
                             << "\t= \"" << ptr->value.svar << "\"}" << '\n';
-            else if (ptr->type == Parser::token::IMMSVAR)
+            }
+            else if (ptr->type == Parser::token::IMMSVAR) {
               (*infoStream) << comment << "  {" << std::left << std::setw(width) << ptr->name
                             << "\t= \"" << ptr->value.svar << "\"}\t(immutable)" << '\n';
+            }
             else if (ptr->type == Parser::token::AVAR) {
               array *arr = ptr->value.avar;
               (*infoStream) << comment << "  {" << std::left << std::setw(width) << ptr->name
@@ -662,8 +699,9 @@ namespace SEAMS {
   void Aprepro::statistics(std::ostream *out) const
   {
     std::ostream *output = out;
-    if (output == nullptr)
+    if (output == nullptr) {
       output = &std::cout;
+    }
 
     symrec * ptr;
     unsigned entries = 0;
@@ -679,42 +717,50 @@ namespace SEAMS {
 
     for (unsigned hashval = 0; hashval < HASHSIZE; hashval++) {
       int chain_len = 0;
-      for (ptr = sym_table[hashval]; ptr != nullptr; ptr = ptr->next)
+      for (ptr = sym_table[hashval]; ptr != nullptr; ptr = ptr->next) {
         chain_len++;
+      }
 
       hash_ratio += chain_len * (chain_len + 1.0);
       entries += chain_len;
-      if (chain_len >= MAXLEN)
+      if (chain_len >= MAXLEN) {
         ++longer;
-      else
+      }
+      else {
         ++lengths[chain_len];
+      }
 
       minlen = min(minlen, chain_len);
       maxlen = max(maxlen, chain_len);
 
-      if (chain_len > 0)
+      if (chain_len > 0) {
         stats.newsample(chain_len);
+      }
     }
 
-    hash_ratio = hash_ratio / ((float)entries / HASHSIZE * (float)(entries + 2.0 * HASHSIZE - 1.0));
+    hash_ratio = hash_ratio / (static_cast<float>(entries) / HASHSIZE *
+                               static_cast<float>(entries + 2.0 * HASHSIZE - 1.0));
     (*output) << entries << " entries in " << HASHSIZE << " element hash table, " << lengths[0]
-              << " (" << ((double)lengths[0] / HASHSIZE) * 100.0 << "%) empty.\n"
+              << " (" << (static_cast<double>(lengths[0]) / HASHSIZE) * 100.0 << "%) empty.\n"
               << "Hash ratio = " << hash_ratio << "\n"
               << "Mean (nonempty) chain length = " << stats.mean() << ", max = " << maxlen
               << ", min = " << minlen << ", deviation = " << stats.deviation() << "\n";
 
-    for (int i = 0; i < MAXLEN; i++)
-      if (lengths[i])
+    for (int i = 0; i < MAXLEN; i++) {
+      if (lengths[i] != 0) {
         (*output) << lengths[i] << " chain(s) of length " << i << "\n";
-
-    if (longer)
-      (*output) << longer << " chain(s) of length " << MAXLEN << " or longer\n";
+      }
+      if (longer != 0) {
+        (*output) << longer << " chain(s) of length " << MAXLEN << " or longer\n";
+      }
+    }
   }
 
   void Aprepro::add_history(const std::string &original, const std::string &substitution)
   {
-    if (!ap_options.keep_history)
+    if (!ap_options.keep_history) {
       return;
+    }
 
     if (!original.empty()) {
       history_data hist;
@@ -730,17 +776,18 @@ namespace SEAMS {
 
   void Aprepro::clear_history()
   {
-    if (ap_options.keep_history)
+    if (ap_options.keep_history) {
       history.clear();
+    }
   }
-}
+} // namespace SEAMS
 
 namespace {
   void output_copyright()
   {
-    std::cerr << "\n\tCopyright (c) 2014 Sandia Corporation.\n"
-              << "\tUnder the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,\n"
-              << "\tthe U.S. Government retains certain rights in this software.\n"
+    std::cerr << "\n\tCopyright (c) 2014 National Technology & Engineering Solutions\n"
+              << "of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with\n"
+              << "NTESS, the U.S. Government retains certain rights in this software.\n"
               << "\n"
               << "\tRedistribution and use in source and binary forms, with or without\n"
               << "\tmodification, are permitted provided that the following conditions\n"
@@ -752,7 +799,7 @@ namespace {
               << "\t     copyright notice, this list of conditions and the following\n"
               << "\t     disclaimer in the documentation and/or other materials provided\n"
               << "\t     with the distribution.\n"
-              << "\t   * Neither the name of Sandia Corporation nor the names of its\n"
+              << "\t   * Neither the name of NTESS nor the names of its\n"
               << "\t     contributors may be used to endorse or promote products derived\n"
               << "\t     from this software without specific prior written permission.\n"
               << "\n"
@@ -768,4 +815,4 @@ namespace {
               << "\t(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
               << "\tOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
   }
-}
+} // namespace

@@ -60,19 +60,12 @@ INCLUDE("${CTEST_SCRIPT_DIRECTORY}/TrilinosCTestDriverCore.sems.cmake")
 # Set the options specific to this build case
 #
 
-SET(COMM_TYPE MPI)
-SET(BUILD_TYPE RELEASE)
 SET(BUILD_DIR_NAME MPI_RELEASE_DEBUG_SHARED_PT_CI)
 #SET(CTEST_TEST_TIMEOUT 900)
 
 #override the default number of processors to run on.
 SET( CTEST_BUILD_FLAGS "-j8 -i" )
 SET( CTEST_PARALLEL_LEVEL "8" )
-
-SET(TRIBITS_2ND_CTEST_DROP_SITE
-  "testing.sandia.gov" )
-SET(TRIBITS_2ND_CTEST_DROP_LOCATION
-  "/extended/cdash/submit.php?project=Trilinos" )
 
 SET(Trilinos_ENABLE_SECONDARY_TESTED_CODE OFF)
 

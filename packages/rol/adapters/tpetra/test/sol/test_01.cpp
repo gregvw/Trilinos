@@ -46,7 +46,7 @@
 typedef double RealT;
 
 template<class Real>
-Real random(const Teuchos::RCP<const Teuchos::Comm<int> > &comm) {
+Real random(const ROL::SharedPointer<const Teuchos::Comm<int> > &comm) {
   Real val = 0.0;
   if ( Teuchos::rank<int>(*comm)==0 ) {
     val = (Real)rand()/(Real)RAND_MAX;
@@ -58,17 +58,17 @@ Real random(const Teuchos::RCP<const Teuchos::Comm<int> > &comm) {
 int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Teuchos::DefaultComm<int>::getComm();
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0 && Teuchos::rank<int>(*comm)==0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -78,37 +78,37 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Get ROL parameterlist
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     /**********************************************************************************************/
     /************************* CONSTRUCT VECTORS **************************************************/
     /**********************************************************************************************/
     // Build control vectors
     int nx = 1024;
-    Teuchos::RCP<std::vector<RealT> > x1_rcp  = Teuchos::rcp( new std::vector<RealT>(nx+2,0.0) );
+    ROL::SharedPointer<std::vector<RealT> > x1_rcp  = ROL::makeShared<std::vector<RealT>>(nx+2,0.0);
     ROL::StdVector<RealT> x1(x1_rcp);
-    Teuchos::RCP<std::vector<RealT> > x2_rcp  = Teuchos::rcp( new std::vector<RealT>(nx+2,0.0) );
+    ROL::SharedPointer<std::vector<RealT> > x2_rcp  = ROL::makeShared<std::vector<RealT>>(nx+2,0.0);
     ROL::StdVector<RealT> x2(x2_rcp);
-    Teuchos::RCP<std::vector<RealT> > x3_rcp  = Teuchos::rcp( new std::vector<RealT>(nx+2,0.0) );
+    ROL::SharedPointer<std::vector<RealT> > x3_rcp  = ROL::makeShared<std::vector<RealT>>(nx+2,0.0);
     ROL::StdVector<RealT> x3(x3_rcp);
-    Teuchos::RCP<std::vector<RealT> > z_rcp  = Teuchos::rcp( new std::vector<RealT>(nx+2,0.0) );
+    ROL::SharedPointer<std::vector<RealT> > z_rcp  = ROL::makeShared<std::vector<RealT>>(nx+2,0.0);
     ROL::StdVector<RealT> z(z_rcp);
-    Teuchos::RCP<std::vector<RealT> > xr_rcp = Teuchos::rcp( new std::vector<RealT>(nx+2,0.0) );
+    ROL::SharedPointer<std::vector<RealT> > xr_rcp = ROL::makeShared<std::vector<RealT>>(nx+2,0.0);
     ROL::StdVector<RealT> xr(xr_rcp);
-    Teuchos::RCP<std::vector<RealT> > d_rcp  = Teuchos::rcp( new std::vector<RealT>(nx+2,0.0) );
+    ROL::SharedPointer<std::vector<RealT> > d_rcp  = ROL::makeShared<std::vector<RealT>>(nx+2,0.0);
     ROL::StdVector<RealT> d(d_rcp);
     for ( int i = 0; i < nx+2; i++ ) {
       (*xr_rcp)[i] = random<RealT>(comm);
       (*d_rcp)[i]  = random<RealT>(comm);
     }
     // Build state and adjoint vectors
-    Teuchos::RCP<std::vector<RealT> > u_rcp  = Teuchos::rcp( new std::vector<RealT>(nx,1.0) );
+    ROL::SharedPointer<std::vector<RealT> > u_rcp  = ROL::makeShared<std::vector<RealT>>(nx,1.0);
     ROL::StdVector<RealT> u(u_rcp);
-    Teuchos::RCP<std::vector<RealT> > p_rcp  = Teuchos::rcp( new std::vector<RealT>(nx,0.0) );
+    ROL::SharedPointer<std::vector<RealT> > p_rcp  = ROL::makeShared<std::vector<RealT>>(nx,0.0);
     ROL::StdVector<RealT> p(p_rcp);
-    Teuchos::RCP<ROL::Vector<RealT> > up = Teuchos::rcp(&u,false);
-    Teuchos::RCP<ROL::Vector<RealT> > zp = Teuchos::rcp(&z,false);
-    Teuchos::RCP<ROL::Vector<RealT> > pp = Teuchos::rcp(&p,false);
+    ROL::SharedPointer<ROL::Vector<RealT> > up = &u,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > zp = &z,false;
+    ROL::SharedPointer<ROL::Vector<RealT> > pp = &p,false;
     /**********************************************************************************************/
     /************************* CONSTRUCT SOL COMPONENTS *******************************************/
     /**********************************************************************************************/
@@ -117,22 +117,22 @@ int main(int argc, char* argv[]) {
     int nSamp = parlist->sublist("Problem Description").get("Number of Samples", 20);
     std::vector<RealT> tmp(2,0.0); tmp[0] = -1.0; tmp[1] = 1.0;
     std::vector<std::vector<RealT> > bounds(dim,tmp);
-    Teuchos::RCP<ROL::BatchManager<RealT> > bman
-      = Teuchos::rcp(new ROL::StdTeuchosBatchManager<RealT,int>(comm));
-    Teuchos::RCP<ROL::SampleGenerator<RealT> > sampler
-      = Teuchos::rcp(new ROL::MonteCarloGenerator<RealT>(nSamp,bounds,bman,false,false,100));
+    ROL::SharedPointer<ROL::BatchManager<RealT> > bman
+      = ROL::makeShared<ROL::StdTeuchosBatchManager<RealT,int>>(comm);
+    ROL::SharedPointer<ROL::SampleGenerator<RealT> > sampler
+      = ROL::makeShared<ROL::MonteCarloGenerator<RealT>>(nSamp,bounds,bman,false,false,100);
     /**********************************************************************************************/
     /************************* CONSTRUCT OBJECTIVE FUNCTION ***************************************/
     /**********************************************************************************************/
     // Build risk-averse objective function
     RealT alpha = 1.e-3;
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > pobjSimOpt
-      = Teuchos::rcp(new Objective_BurgersControl<RealT>(alpha,nx));
-    Teuchos::RCP<ROL::EqualityConstraint_SimOpt<RealT> > pconSimOpt
-      = Teuchos::rcp(new EqualityConstraint_BurgersControl<RealT>(nx));
-    Teuchos::RCP<ROL::Objective<RealT> > pObj
-      = Teuchos::rcp(new ROL::Reduced_Objective_SimOpt<RealT>(pobjSimOpt,pconSimOpt,up,zp,pp));
-    Teuchos::RCP<ROL::Objective<RealT> > obj = Teuchos::rcp(new ROL::RiskNeutralObjective<RealT>(pObj, sampler, true));
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > pobjSimOpt
+      = ROL::makeShared<Objective_BurgersControl<RealT>>(alpha,nx);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > pconSimOpt
+      = ROL::makeShared<Constraint_BurgersControl<RealT>>(nx);
+    ROL::SharedPointer<ROL::Objective<RealT> > pObj
+      = ROL::makeShared<ROL::Reduced_Objective_SimOpt<RealT>>(pobjSimOpt,pconSimOpt,up,zp,pp);
+    ROL::SharedPointer<ROL::Objective<RealT> > obj = ROL::makeShared<ROL::RiskNeutralObjective<RealT>>(pObj, sampler, true);
     // Test parametrized objective functions
     *outStream << "Check Derivatives of Parametrized Objective Function\n";
     x1.set(xr);
@@ -147,21 +147,21 @@ int main(int argc, char* argv[]) {
     /****************** CONSTRUCT SIMULATED CONSTRAINT AND VECTORS ********************************/
     /**********************************************************************************************/
 
-    // Construct SimulatedEqualityConstraint.
+    // Construct SimulatedConstraint.
     int useW = parlist->sublist("Problem Description").get("Use Constraint Weights", true);
-    ROL::SimulatedEqualityConstraint<RealT> simcon(sampler, pconSimOpt, useW);
+    ROL::SimulatedConstraint<RealT> simcon(sampler, pconSimOpt, useW);
     // Construct SimulatedObjective.
     ROL::SimulatedObjective<RealT> simobj(sampler, pobjSimOpt);
     // Simulated vectors.
-    std::vector<Teuchos::RCP<ROL::Vector<RealT> > > xu_rcp;
-    std::vector<Teuchos::RCP<ROL::Vector<RealT> > > vu_rcp;
+    std::vector<ROL::SharedPointer<ROL::Vector<RealT> > > xu_rcp;
+    std::vector<ROL::SharedPointer<ROL::Vector<RealT> > > vu_rcp;
     int nvecloc = sampler->numMySamples();
     RealT right = 1, left = 0;
     for( int k=0; k<nvecloc; ++k ) {
-      Teuchos::RCP<std::vector<RealT> > xuk_rcp = Teuchos::rcp( new std::vector<RealT>(nx,1.0) );
-      Teuchos::RCP<std::vector<RealT> > vuk_rcp = Teuchos::rcp( new std::vector<RealT>(nx,1.0) );
-      Teuchos::RCP<ROL::Vector<RealT> > xuk = Teuchos::rcp( new ROL::StdVector<RealT>( xuk_rcp ) );
-      Teuchos::RCP<ROL::Vector<RealT> > vuk = Teuchos::rcp( new ROL::StdVector<RealT>( vuk_rcp ) );
+      ROL::SharedPointer<std::vector<RealT> > xuk_rcp = ROL::makeShared<std::vector<RealT>>(nx,1.0);
+      ROL::SharedPointer<std::vector<RealT> > vuk_rcp = ROL::makeShared<std::vector<RealT>>(nx,1.0);
+      ROL::SharedPointer<ROL::Vector<RealT> > xuk = ROL::makeShared<ROL::StdVector<RealT>>( xuk_rcp );
+      ROL::SharedPointer<ROL::Vector<RealT> > vuk = ROL::makeShared<ROL::StdVector<RealT>>( vuk_rcp );
       for( int i=0; i<nx; ++i ) {
         (*xuk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
         (*vuk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
@@ -169,20 +169,20 @@ int main(int argc, char* argv[]) {
       xu_rcp.push_back(xuk);
       vu_rcp.push_back(vuk);
     }
-    Teuchos::RCP<ROL::SimulatedVector<RealT> > xu = Teuchos::rcp(new ROL::SimulatedVector<RealT>(xu_rcp, bman));
-    Teuchos::RCP<ROL::SimulatedVector<RealT> > vu = Teuchos::rcp(new ROL::SimulatedVector<RealT>(vu_rcp, bman));
+    ROL::SharedPointer<ROL::SimulatedVector<RealT> > xu = ROL::makeShared<ROL::SimulatedVector<RealT>>(xu_rcp, bman);
+    ROL::SharedPointer<ROL::SimulatedVector<RealT> > vu = ROL::makeShared<ROL::SimulatedVector<RealT>>(vu_rcp, bman);
     // SimOpt vectors.
-    Teuchos::RCP<std::vector<RealT> > zvec_rcp = Teuchos::rcp(new std::vector<RealT>(nx+2,0.0));
-    Teuchos::RCP<ROL::StdVector<RealT> > zvec = Teuchos::rcp(new ROL::StdVector<RealT>(zvec_rcp));
-    Teuchos::RCP<std::vector<RealT> > dvec_rcp = Teuchos::rcp(new std::vector<RealT>(nx+2,0.0));
-    Teuchos::RCP<ROL::StdVector<RealT> > dvec = Teuchos::rcp(new ROL::StdVector<RealT>(dvec_rcp));
+    ROL::SharedPointer<std::vector<RealT> > zvec_rcp = ROL::makeShared<std::vector<RealT>>(nx+2,0.0);
+    ROL::SharedPointer<ROL::StdVector<RealT> > zvec = ROL::makeShared<ROL::StdVector<RealT>>(zvec_rcp);
+    ROL::SharedPointer<std::vector<RealT> > dvec_rcp = ROL::makeShared<std::vector<RealT>>(nx+2,0.0);
+    ROL::SharedPointer<ROL::StdVector<RealT> > dvec = ROL::makeShared<ROL::StdVector<RealT>>(dvec_rcp);
     for ( int i = 0; i < nx+2; i++ ) {
       (*zvec_rcp)[i] = random<RealT>(comm);
       (*dvec_rcp)[i] = random<RealT>(comm);
     }
     ROL::Vector_SimOpt<RealT> x(xu, zvec);
     ROL::Vector_SimOpt<RealT> v(vu, dvec);
-    *outStream << std::endl << "TESTING SimulatedEqualityConstraint" << std::endl; 
+    *outStream << std::endl << "TESTING SimulatedConstraint" << std::endl; 
     simcon.checkApplyJacobian(x, v, *vu, true, *outStream);
     simcon.checkAdjointConsistencyJacobian(*vu, v, x, *vu, x, true, *outStream);
     simcon.checkApplyAdjointHessian(x, *vu, v, x, true, *outStream);

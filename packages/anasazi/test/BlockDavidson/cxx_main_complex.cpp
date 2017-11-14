@@ -54,7 +54,9 @@
 #include "AnasaziTypes.hpp"
 
 #include "AnasaziBasicEigenproblem.hpp"
-#include "AnasaziBlockDavidsonSolMgr.hpp"
+#include "AnasaziBasicOutputManager.hpp"
+#include "AnasaziFactory.hpp"
+
 #include "Teuchos_CommandLineProcessor.hpp"
 
 #ifdef HAVE_MPI
@@ -217,6 +219,9 @@ int main(int argc, char *argv[])
     verbosity += Anasazi::Debug;
   }
 
+  // Get a formatted output stream
+  RCP<Anasazi::OutputManager<ScalarType> > MyOM = rcp( new Anasazi::BasicOutputManager<ScalarType>() );
+  RCP<Teuchos::FancyOStream> fos = MyOM->getFancyOStream();
 
   // Eigensolver parameters
   int numBlocks = 8;
@@ -232,6 +237,7 @@ int main(int argc, char *argv[])
   // Create parameter list to pass into the solver manager
   ParameterList MyPL;
   MyPL.set( "Verbosity", verbosity );
+  MyPL.set( "Output Stream", fos );
   MyPL.set( "Which", which );
   MyPL.set( "Block Size", blockSize );
   MyPL.set( "Num Blocks", numBlocks );
@@ -242,8 +248,9 @@ int main(int argc, char *argv[])
   MyPL.set( "In Situ Restarting", insitu );
   //
   // Create the solver manager
-  Anasazi::BlockDavidsonSolMgr<ScalarType,MV,OP> MySolverMan(problem, MyPL);
-  // 
+  RCP<Anasazi::SolverManager<ScalarType,MV,OP>> MySolverMan =
+          Anasazi::Factory::create("BLOCK_DAVIDSON", problem, MyPL);
+  //
   // Check that the parameters were all consumed
   if (MyPL.getEntryPtr("Verbosity")->isUsed() == false ||
       MyPL.getEntryPtr("Which")->isUsed() == false ||
@@ -261,7 +268,7 @@ int main(int argc, char *argv[])
   }
 
   // Solve the problem to the specified tolerances or length
-  Anasazi::ReturnType returnCode = MySolverMan.solve();
+  Anasazi::ReturnType returnCode = MySolverMan->solve();
   testFailed = false;
   if (returnCode != Anasazi::Converged && shortrun==false) {
     testFailed = true;

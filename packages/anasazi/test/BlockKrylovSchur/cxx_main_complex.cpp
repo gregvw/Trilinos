@@ -54,7 +54,8 @@
 #include "AnasaziTypes.hpp"
 
 #include "AnasaziBasicEigenproblem.hpp"
-#include "AnasaziBlockKrylovSchurSolMgr.hpp"
+#include "AnasaziBasicOutputManager.hpp"
+#include "AnasaziFactory.hpp"
 #include "Teuchos_CommandLineProcessor.hpp"
 
 #ifdef HAVE_MPI
@@ -217,15 +218,17 @@ int main(int argc, char *argv[])
 
 
   // Set verbosity level
-  int verbosity = Anasazi::Errors + Anasazi::Warnings + Anasazi::FinalSummary + Anasazi::TimingDetails;
+  int verbosity = Anasazi::Errors + Anasazi::Warnings;
   if (verbose) {
-    verbosity += Anasazi::IterationDetails;
+    verbosity += Anasazi::FinalSummary + Anasazi::TimingDetails;
   }
   if (debug) {
     verbosity += Anasazi::Debug;
   }
 
-
+  // Get a formatted output stream
+  RCP<Anasazi::OutputManager<ST> > MyOM = rcp( new Anasazi::BasicOutputManager<ST>() );
+  RCP<Teuchos::FancyOStream> fos = MyOM->getFancyOStream();
 
   // Eigensolver parameters
   int numBlocks;
@@ -243,6 +246,7 @@ int main(int argc, char *argv[])
   // Create parameter list to pass into the solver manager
   ParameterList MyPL;
   MyPL.set( "Verbosity", verbosity );
+  MyPL.set( "Output Stream", fos );
   MyPL.set( "Which", which );
   MyPL.set( "Block Size", blockSize );
   MyPL.set( "Num Blocks", numBlocks );
@@ -251,10 +255,11 @@ int main(int argc, char *argv[])
   MyPL.set( "In Situ Restarting", insitu );
   //
   // Create the solver manager
-  Anasazi::BlockKrylovSchurSolMgr<ST,MV,OP> MySolverMgr(problem, MyPL);
+  RCP<Anasazi::SolverManager<ST,MV,OP>> MySolverMgr =
+          Anasazi::Factory::create("BLOCK_KRYLOV_SCHUR", problem, MyPL);
 
   // Solve the problem to the specified tolerances or length
-  Anasazi::ReturnType returnCode = MySolverMgr.solve();
+  Anasazi::ReturnType returnCode = MySolverMgr->solve();
   testFailed = false;
   if (returnCode != Anasazi::Converged && shortrun==false) {
     testFailed = true;

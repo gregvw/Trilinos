@@ -1,7 +1,6 @@
-// Copyright(C) 1999-2010
-// Sandia Corporation. Under the terms of Contract
-// DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-// certain rights in this software.
+// Copyright(C) 1999-2010 National Technology & Engineering Solutions
+// of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+// NTESS, the U.S. Government retains certain rights in this software.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,7 +13,8 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of Sandia Corporation nor the names of its
+//
+//     * Neither the name of NTESS nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -43,12 +43,12 @@
 #include <exodusII.h>
 
 #include <algorithm>
+#include <cstdint>
+#include <ctime>
 #include <map>
 #include <set>
 #include <sstream>
-#include <stdint.h>
 #include <string>
-#include <time.h>
 #include <vector>
 
 namespace Ioss {
@@ -69,11 +69,11 @@ namespace Ioss {
   class StructuredBlock;
   class CommSet;
   class ElementTopology;
-}
+} // namespace Ioss
 
 namespace Ioex {
   struct CommunicationMetaData;
-}
+} // namespace Ioex
 
 /** \brief A namespace for the file-per-process version of the
  *  parallel exodus database format.
@@ -86,21 +86,21 @@ namespace Iofx {
                MPI_Comm communicator, const Ioss::PropertyManager &props);
     DatabaseIO(const DatabaseIO &from) = delete;
     DatabaseIO &operator=(const DatabaseIO &from) = delete;
-    ~DatabaseIO(){};
+    ~DatabaseIO() override{};
+
+  private:
+    const std::string &decoded_filename() const;
 
     // Check to see if database state is ok...
     // If 'write_message' true, then output a warning message indicating the problem.
     // If 'error_message' non-null, then put the warning message into the string and return it.
     // If 'bad_count' non-null, it counts the number of processors where the file does not exist.
     //    if ok returns false, but *bad_count==0, then the routine does not support this argument.
-    bool ok(bool write_message = false, std::string *error_msg = nullptr,
-            int *bad_count = nullptr) const override;
+    bool ok__(bool write_message = false, std::string *error_msg = nullptr,
+              int *bad_count = nullptr) const override;
 
-    void get_step_times() override;
+    void get_step_times__() override;
 
-    const std::string &decoded_filename() const;
-
-  private:
     bool open_input_file(bool write_message, std::string *error_msg, int *bad_count,
                          bool abort_if_error) const;
     bool handle_output_file(bool write_message, std::string *error_msg, int *bad_count,
@@ -186,7 +186,7 @@ namespace Iofx {
     void compute_node_status() const;
 
     // Metadata-related functions.
-    void read_meta_data() override;
+    void read_meta_data__() override;
     void read_communication_metadata();
 
     int64_t read_transient_field(ex_entity_type type, const Ioex::VariableNameMap &variables,
@@ -238,12 +238,12 @@ namespace Iofx {
     const Ioss::Map &get_map(Ioss::Map &entity_map, int64_t entityCount, ex_entity_type entity_type,
                              ex_inquiry inquiry_type) const;
 
-    int64_t node_global_to_local(int64_t global, bool must_exist) const override
+    int64_t node_global_to_local__(int64_t global, bool must_exist) const override
     {
       return nodeMap.global_to_local(global, must_exist);
     }
 
-    int64_t element_global_to_local(int64_t global) const override
+    int64_t element_global_to_local__(int64_t global) const override
     {
       return elemMap.global_to_local(global);
     }
@@ -270,5 +270,5 @@ namespace Iofx {
     mutable std::string decodedFilename; /// The actual processor-specific filename.
     mutable bool isSerialParallel; //!< true if application code is controlling the processor id.
   };
-}
+} // namespace Iofx
 #endif

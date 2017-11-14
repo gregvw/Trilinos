@@ -40,7 +40,7 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_HDIV_HEX_In_FEMDef.hpp
+/** \file   Intrepid2_HDIV_HEX_In_FEMDef.hpp
     \brief  Definition file for FEM basis functions of degree n for H(div) functions on HEX cells.
     \author Created by R. Kirby, P. Bochev, D. Ridzal and K. Peterson.
             Kokkorized by Kyungjoo Kim
@@ -475,6 +475,10 @@ namespace Intrepid2 {
     Kokkos::DynRankView<typename scalarViewType::value_type,typename SpT::array_layout,Kokkos::HostSpace>
       dofCoordsHost("dofCoordsHost", this->basisCardinality_, this->basisCellTopology_.getDimension());
 
+    // dofCoeffs on host and create its mirror view to device
+    Kokkos::DynRankView<typename scalarViewType::value_type,typename SpT::array_layout,Kokkos::HostSpace>
+      dofCoeffsHost("dofCoeffsHost", this->basisCardinality_, this->basisCellTopology_.getDimension());
+
     Kokkos::DynRankView<typename scalarViewType::value_type,SpT>
       dofCoordsLine("dofCoordsLine", cardLine, 1),
       dofCoordsBubble("dofCoordsBubble", cardBubble, 1);
@@ -497,6 +501,7 @@ namespace Intrepid2 {
             dofCoordsHost(idx,0) = dofCoordsLineHost(i,0);
             dofCoordsHost(idx,1) = dofCoordsBubbleHost(j,0);
             dofCoordsHost(idx,2) = dofCoordsBubbleHost(k,0);
+            dofCoeffsHost(idx,0) = 1.0;
           }
         }
       }
@@ -508,6 +513,7 @@ namespace Intrepid2 {
             dofCoordsHost(idx,0) = dofCoordsBubbleHost(i,0);
             dofCoordsHost(idx,1) = dofCoordsLineHost(j,0);
             dofCoordsHost(idx,2) = dofCoordsBubbleHost(k,0);
+            dofCoeffsHost(idx,1) = 1.0;
           }
         }
       }
@@ -517,8 +523,9 @@ namespace Intrepid2 {
         for (ordinal_type j=0;j<cardBubble;++j) { // y
           for (ordinal_type i=0;i<cardBubble;++i,++idx) { // x
             dofCoordsHost(idx,0) = dofCoordsBubbleHost(i,0);
-            dofCoordsHost(idx,2) = dofCoordsBubbleHost(j,0);
-            dofCoordsHost(idx,1) = dofCoordsLineHost(k,0);
+            dofCoordsHost(idx,1) = dofCoordsBubbleHost(j,0);
+            dofCoordsHost(idx,2) = dofCoordsLineHost(k,0);
+            dofCoeffsHost(idx,2) = 1.0;
           }
         }
       }
@@ -526,6 +533,9 @@ namespace Intrepid2 {
 
     this->dofCoords_ = Kokkos::create_mirror_view(typename SpT::memory_space(), dofCoordsHost);
     Kokkos::deep_copy(this->dofCoords_, dofCoordsHost);
+
+    this->dofCoeffs_ = Kokkos::create_mirror_view(typename SpT::memory_space(), dofCoeffsHost);
+    Kokkos::deep_copy(this->dofCoeffs_, dofCoeffsHost);
   }
 }
 

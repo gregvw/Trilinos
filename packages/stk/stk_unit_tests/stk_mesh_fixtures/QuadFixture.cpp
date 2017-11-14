@@ -31,14 +31,14 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-#include <stk_mesh/fixtures/QuadFixture.hpp>
+#include <stk_unit_tests/stk_mesh_fixtures/QuadFixture.hpp>
 #include <stddef.h>                     // for size_t
 #include <algorithm>                    // for sort, unique
 #include <stk_mesh/base/Entity.hpp>     // for Entity
 #include <stk_mesh/base/FEMHelpers.hpp>  // for declare_element
 #include <stk_mesh/base/MetaData.hpp>   // for MetaData, put_field
 #include <stk_mesh/base/Types.hpp>      // for EntityId, EntityIdVector
-#include <stk_mesh/fixtures/FixtureNodeSharing.hpp>
+#include <stk_unit_tests/stk_mesh_fixtures/FixtureNodeSharing.hpp>
 #include <stk_util/environment/ReportHandler.hpp>  // for ThrowRequireMsg
 #include "mpi.h"                        // for ompi_communicator_t
 #include "stk_mesh/base/BulkData.hpp"   // for BulkData, etc
@@ -60,6 +60,28 @@ QuadFixture::QuadFixture( stk::ParallelMachine pm ,
     m_elem_parts(1, &m_quad_part),
     m_node_parts( 1, &m_meta.declare_part_with_topology("node_part", stk::topology::NODE) ),
     m_coord_field( m_meta.declare_field<CoordFieldType>(stk::topology::NODE_RANK, "Coordinates") ),
+    m_nx( nx ),
+    m_ny( ny )
+{
+  //put coord-field on all nodes:
+  put_field(
+      m_coord_field,
+      m_meta.universal_part(),
+      m_spatial_dimension
+      );
+}
+
+QuadFixture::QuadFixture( stk::ParallelMachine pm ,
+                          unsigned nx , unsigned ny,
+                          const std::string& coordsName,
+                          const std::vector<std::string>& rank_names )
+  : m_spatial_dimension(2),
+    m_meta( m_spatial_dimension, rank_names ),
+    m_bulk_data( m_meta, pm ),
+    m_quad_part( m_meta.declare_part_with_topology("quad_part", stk::topology::QUAD_4 ) ),
+    m_elem_parts(1, &m_quad_part),
+    m_node_parts( 1, &m_meta.declare_part_with_topology("node_part", stk::topology::NODE) ),
+    m_coord_field( m_meta.declare_field<CoordFieldType>(stk::topology::NODE_RANK, coordsName) ),
     m_nx( nx ),
     m_ny( ny )
 {

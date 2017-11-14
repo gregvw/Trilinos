@@ -30,6 +30,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
+#ifndef STK_PARAMETER_TEST_UTILS_H
+#define STK_PARAMETER_TEST_UTILS_H
 
 #include <gtest/gtest.h>
 #include <stk_util/util/ParameterList.hpp>
@@ -45,11 +47,6 @@ inline void validate_parameters_equal_value(const stk::util::Parameter &paramete
 	ASSERT_EQ(boost::any_cast<int>(parameter.value), boost::any_cast<int>(gold_parameter.value));
 	break;
       }
-    //case stk::util::ParameterType::INT64:
-    //  {
-    //    ASSERT_EQ(boost::any_cast<int64_t>(parameter.value), boost::any_cast<int64_t>(gold_parameter.value));
-    //    break;
-    //  }
     case stk::util::ParameterType::DOUBLE:
       {
 	ASSERT_EQ(boost::any_cast<double>(parameter.value), boost::any_cast<double>(gold_parameter.value));
@@ -79,3 +76,4 @@ inline void validate_parameters_equal_value(const stk::util::Parameter &paramete
       ASSERT_EQ(1,0) << "Invalid type found in validate_parameters_equal_value";
     }
 }
+#endif

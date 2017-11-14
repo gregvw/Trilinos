@@ -67,8 +67,6 @@ using Teuchos::rcp;
 #include "Panzer_STKConnManager.hpp"
 #include "Panzer_STK_WorksetFactory.hpp"
 
-#include "Phalanx_KokkosUtilities.hpp"
-
 #include "Teuchos_DefaultMpiComm.hpp"
 #include "Teuchos_OpaqueWrapper.hpp"
 
@@ -151,10 +149,16 @@ namespace panzer {
     std::vector<Teuchos::RCP<panzer::PhysicsBlock> > physicsBlocks;
     physicsBlocks.push_back(physicsBlock); // pushing back singular
 
-    panzer::WorksetContainer wkstContainer(Teuchos::rcp(new panzer_stk::WorksetFactory(mesh)),physicsBlocks,workset_size);
-    wkstContainer.setGlobalIndexer(dofManager);
+    panzer::WorksetContainer wkstContainer; // (Teuchos::rcp(new panzer_stk::WorksetFactory(mesh)),physicsBlocks,workset_size);
 
-    Teuchos::RCP<std::vector<panzer::Workset> > work_sets = wkstContainer.getVolumeWorksets(physicsBlock->elementBlockID()); 
+    wkstContainer.setFactory(Teuchos::rcp(new panzer_stk::WorksetFactory(mesh)));
+    for(size_t i=0;i<physicsBlocks.size();i++) 
+      wkstContainer.setNeeds(physicsBlocks[i]->elementBlockID(),physicsBlocks[i]->getWorksetNeeds());
+    wkstContainer.setGlobalIndexer(dofManager);
+    wkstContainer.setWorksetSize(workset_size);
+
+    const panzer::WorksetDescriptor wd = panzer::blockDescriptor(eBlockID);
+    Teuchos::RCP<std::vector<panzer::Workset> > work_sets = wkstContainer.getWorksets(wd);
     TEST_EQUALITY(work_sets->size(),1);
 
     // setup field manager, add evaluator under test
@@ -180,7 +184,7 @@ namespace panzer {
        Teuchos::ParameterList pl;
        pl.set("Residual Name","Residual");
        pl.set("Value Name","Integrand");
-       pl.set("Test Field Name",fieldName_qedge1);
+//       pl.set("Test Field Name",fieldName_qedge1);
        pl.set("Basis",layout_qedge1);
        pl.set("IR",ir);
        pl.set<double>("Multiplier", 1.0);
@@ -199,7 +203,7 @@ namespace panzer {
     derivative_dimensions.push_back(8);
     fm.setKokkosExtendedDataTypeDimensions<panzer::Traits::Jacobian>(derivative_dimensions);
 
-    panzer::Traits::SetupData sd;
+    panzer::Traits::SD sd;
     sd.worksets_ = work_sets;
     fm.postRegistrationSetup(sd);
 
@@ -217,7 +221,7 @@ namespace panzer {
     PHX::MDField<panzer::Traits::Residual::ScalarT,panzer::Cell,panzer::BASIS> 
        fieldData_qedge1("Residual",basis_qedge1->functional);
 
-    fm.getFieldData<panzer::Traits::Residual::ScalarT,panzer::Traits::Residual>(fieldData_qedge1);
+    fm.getFieldData<panzer::Traits::Residual>(fieldData_qedge1);
 
     TEST_EQUALITY(fieldData_qedge1.dimension(0),1);
     TEST_EQUALITY(fieldData_qedge1.dimension(1),4);

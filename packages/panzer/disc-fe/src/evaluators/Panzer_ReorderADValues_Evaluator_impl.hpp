@@ -57,9 +57,9 @@ panzer::ReorderADValues_Evaluator<EvalT, TRAITS>::
 ReorderADValues_Evaluator(const std::string & outPrefix,
                           const std::vector<std::string> & inFieldNames,
                           const std::vector<Teuchos::RCP<PHX::DataLayout> > & fieldLayouts,
-                          const std::string & elementBlock,
-                          const UniqueGlobalIndexerBase & indexerSrc,
-                          const UniqueGlobalIndexerBase & indexerDest)
+                          const std::string & /* elementBlock */,
+                          const UniqueGlobalIndexerBase & /* indexerSrc */,
+                          const UniqueGlobalIndexerBase & /* indexerDest */)
 { 
   TEUCHOS_ASSERT(inFieldNames.size()==fieldLayouts.size());
 
@@ -84,9 +84,9 @@ ReorderADValues_Evaluator(const std::string & outPrefix,
                           const std::vector<std::string> & inDOFs,
                           const std::vector<std::string> & outDOFs,
                           const std::vector<Teuchos::RCP<PHX::DataLayout> > & fieldLayouts,
-                          const std::string & elementBlock,
-                          const UniqueGlobalIndexerBase & indexerSrc,
-                          const UniqueGlobalIndexerBase & indexerDest)
+                          const std::string & /* elementBlock */,
+                          const UniqueGlobalIndexerBase & /* indexerSrc */,
+                          const UniqueGlobalIndexerBase & /* indexerDest */)
 { 
   TEUCHOS_ASSERT(inFieldNames.size()==fieldLayouts.size());
   TEUCHOS_ASSERT(inDOFs.size()==outDOFs.size());
@@ -107,7 +107,7 @@ ReorderADValues_Evaluator(const std::string & outPrefix,
 // **********************************************************************
 template<typename EvalT,typename TRAITS>
 void panzer::ReorderADValues_Evaluator<EvalT, TRAITS>::
-postRegistrationSetup(typename TRAITS::SetupData d, 
+postRegistrationSetup(typename TRAITS::SetupData /* d */, 
 		      PHX::FieldManager<TRAITS>& fm)
 {
   // load required field numbers for fast use
@@ -121,7 +121,7 @@ postRegistrationSetup(typename TRAITS::SetupData d,
 // **********************************************************************
 template<typename EvalT,typename TRAITS>
 void panzer::ReorderADValues_Evaluator<EvalT, TRAITS>::
-evaluateFields(typename TRAITS::EvalData workset)
+evaluateFields(typename TRAITS::EvalData /* workset */)
 {
   // just copy fields if there is no AD data
   //for(std::size_t i = 0; i < inFields_.size(); ++i)
@@ -147,9 +147,11 @@ ReorderADValues_Evaluator(const std::string & outPrefix,
   TEUCHOS_ASSERT(inFieldNames.size()==fieldLayouts.size());
 
   // build the vector of fields that this is dependent on
+  inFields_.resize(inFieldNames.size());
+  outFields_.resize(inFieldNames.size());
   for (std::size_t eq = 0; eq < inFieldNames.size(); ++eq) {
-    inFields_.push_back(PHX::MDField<const ScalarT>(inFieldNames[eq],fieldLayouts[eq]));
-    outFields_.push_back(PHX::MDField<ScalarT>(outPrefix+inFieldNames[eq],fieldLayouts[eq]));
+    inFields_[eq] = PHX::MDField<const ScalarT>(inFieldNames[eq],fieldLayouts[eq]);
+    outFields_[eq] = PHX::MDField<ScalarT>(outPrefix+inFieldNames[eq],fieldLayouts[eq]);
 
     // tell the field manager that we depend on this field
     this->addDependentField(inFields_[eq]);
@@ -211,7 +213,7 @@ ReorderADValues_Evaluator(const std::string & outPrefix,
 // **********************************************************************
 template<typename TRAITS>
 void panzer::ReorderADValues_Evaluator<typename TRAITS::Jacobian, TRAITS>::
-postRegistrationSetup(typename TRAITS::SetupData d, 
+postRegistrationSetup(typename TRAITS::SetupData /* d */, 
 		      PHX::FieldManager<TRAITS>& fm)
 {
   // load required field numbers for fast use
@@ -225,7 +227,7 @@ postRegistrationSetup(typename TRAITS::SetupData d,
 // **********************************************************************
 template<typename TRAITS>
 void panzer::ReorderADValues_Evaluator<typename TRAITS::Jacobian, TRAITS>::
-evaluateFields(typename TRAITS::EvalData workset)
+evaluateFields(typename TRAITS::EvalData /* workset */)
 {
   // for AD data do a reordering
 

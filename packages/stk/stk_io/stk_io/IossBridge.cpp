@@ -32,6 +32,7 @@
 //
 
 #include <stk_io/IossBridge.hpp>
+#include <stk_util/diag/StringUtil.hpp>
 #include <Ioss_NullEntity.h>            // for NullEntity
 #include <assert.h>                     // for assert
 #include <stdint.h>                     // for int64_t
@@ -576,18 +577,6 @@ namespace stk {
       static const std::string matrix_22("matrix_22");
       static const std::string matrix_33("matrix_33");
 
-#if 0
-      // Not currently handled...
-      static const std::string quaternion_2d("quaternion_2d");
-      static const std::string quaternion_3d("quaternion_3d");
-      static const std::string sym_tensor_13("sym_tensor_13");
-      static const std::string sym_tensor_11("sym_tensor_11");
-      static const std::string sym_tensor_10("sym_tensor_10");
-      static const std::string asym_tensor_03("asym_tensor_03");
-      static const std::string asym_tensor_02("asym_tensor_02");
-      static const std::string asym_tensor_01("asym_tensor_01");
-#endif
-
       const unsigned rank = field->field_array_rank();
       const shards::ArrayDimTag * const * const tags = field->dimension_tags();
 
@@ -660,15 +649,6 @@ namespace stk {
     }
 
     //----------------------------------------------------------------------
-    const Ioss::GroupingEntity *get_associated_ioss_entity(const mesh::Part &part)
-    {
-      const Ioss::GroupingEntity *entity = part.attribute<Ioss::GroupingEntity>();
-      if (!entity || entity->type() == Ioss::INVALID_TYPE) {
-        return NULL;
-      } else {
-        return entity;
-      }
-    }
 
     void put_io_part_attribute(mesh::Part & part)
     {
@@ -698,18 +678,35 @@ namespace stk {
       }
     }
 
-    stk::topology map_ioss_topology_to_stk( const Ioss::ElementTopology *topology)
+    stk::topology get_start_topology(const Ioss::ElementTopology* topology, unsigned mesh_spatial_dimension)
     {
-      for (stk::topology topo=stk::topology::BEGIN_ELEMENT_RANK; topo < stk::topology::END_TOPOLOGY; ++topo) {
-        if (topology->is_alias(topo.name()) /*&& topology->spatial_dimension()==topo.rank()*/) {
-          return topo;
+        if (topology->is_element() && topology->spatial_dimension() == (int)mesh_spatial_dimension)
+        {
+            return stk::topology::BEGIN_ELEMENT_RANK;
+        }
+        return stk::topology::BEGIN_TOPOLOGY;
+    }
+
+    stk::topology map_ioss_topology_to_stk(const Ioss::ElementTopology *topology,
+                                           unsigned mesh_spatial_dimension)
+    {
+      stk::topology begin_topo = get_start_topology(topology, mesh_spatial_dimension);
+      for (stk::topology topo=begin_topo; topo < stk::topology::END_TOPOLOGY; ++topo) {
+        if (topology->is_alias(topo.name()))
+        {
+           bool bothAreElements = topology->is_element() && topo.rank()==stk::topology::ELEM_RANK;
+           bool dimensionsMatch = topology->spatial_dimension()==(int)topo.dimension();
+           bool iossNotElemButParametricDimMatchesDim = !topology->is_element() && topology->parametric_dimension() == (int)topo.dimension();
+           if (bothAreElements || dimensionsMatch || iossNotElemButParametricDimMatchesDim) {
+               return topo;
+           }
         }
       }
-      std::string tmpCopy = Ioss::Utils::lowercase(topology->name().substr(0,5));
-      if (tmpCopy=="super")
-        {
-          return stk::create_superelement_topology(topology->number_nodes());
-        }
+      std::string tmpCopy = sierra::make_lower(topology->name().substr(0,5));
+      if (tmpCopy == "super")
+      {
+        return stk::create_superelement_topology(topology->number_nodes());
+      }
 
       return stk::topology::INVALID_TOPOLOGY;
     }
@@ -767,7 +764,7 @@ namespace stk {
           }
         }
 
-        stk::topology stk_topology = map_ioss_topology_to_stk(topology);
+        stk::topology stk_topology = map_ioss_topology_to_stk(topology, meta.spatial_dimension());
         stk::mesh::set_topology(*part, stk_topology);
         stk::io::define_io_fields(entity, Ioss::Field::ATTRIBUTE, *part, type);
       }
@@ -1249,7 +1246,7 @@ namespace stk {
 
           if (element_topo != NULL) {
             element_topo_name = element_topo->name();
-            stk_element_topology = map_ioss_topology_to_stk(element_topo);
+            stk_element_topology = map_ioss_topology_to_stk(element_topo, bulk.mesh_meta_data().spatial_dimension());
           }
         }
 
@@ -1273,7 +1270,7 @@ namespace stk {
         if (df != NULL) {
           int nodes_per_side = side_topology.num_nodes();
           std::string storage_type = "Real[";
-          storage_type += Ioss::Utils::to_string(nodes_per_side);
+          storage_type += sierra::to_string(nodes_per_side);
           storage_type += "]";
           side_block->field_add(Ioss::Field("distribution_factors", Ioss::Field::REAL, storage_type,
                                             Ioss::Field::MESH, side_count));
@@ -1698,7 +1695,7 @@ namespace stk {
       {
         std::vector<INT> elem_side_ids;
         stk::mesh::EntityVector sides;
-        stk::topology stk_elem_topology = map_ioss_topology_to_stk(element_topology);
+        stk::topology stk_elem_topology = map_ioss_topology_to_stk(element_topology, bulk_data.mesh_meta_data().spatial_dimension());
 
         fill_element_and_side_ids(io, part, bulk_data, stk_elem_topology, subset_selector, sides, elem_side_ids);
         size_t num_sides = sides.size();
@@ -2080,7 +2077,8 @@ namespace stk {
         if (*check != *my_role) {
           std::ostringstream msg ;
           msg << " FAILED in IossBridge -- set_field_role:"
-              << " The role type had already been set to " << *check
+              << " The role type for field name= " << f.name() 
+              << " was already set to " << *check
               << ", so it is not possible to change it to " << *my_role;
           delete my_role;
           throw std::runtime_error( msg.str() );

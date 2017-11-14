@@ -15,7 +15,6 @@
 #include "stk_mesh/baseImpl/MeshImplUtils.hpp"
 #include "stk_mesh/baseImpl/elementGraph/BulkDataIdMapper.hpp"
 #include "stk_mesh/baseImpl/elementGraph/ElemGraphCoincidentElems.hpp"
-#include "stk_util/parallel/DebugTool.hpp"
 
 namespace stk { namespace mesh {
 
@@ -63,6 +62,7 @@ SplitCoincidentInfo get_split_coincident_elements_from_received_element_sides(st
     impl::ParallelElementDataVector localElementsAttachedToReceivedNodes;
     for (SideNodeToReceivedElementDataMap::value_type & receivedElementData: elementSidesReceived)
     {
+        localElementsAttachedToReceivedNodes.clear();
         stk::mesh::impl::ParallelElementDataVector &parallelElementDatas = receivedElementData.second;
         impl::get_elements_connected_via_sidenodes<impl::ParallelElementData>(bulkData,
                                                                               parallelElementDatas[0].get_element_identifier(),
@@ -496,7 +496,6 @@ std::vector<std::string> get_messages_for_solo_sides(const stk::mesh::BulkData& 
     {
       std::ofstream out("solo_faces." + std::to_string(bulkData.parallel_size()) + "." + std::to_string(bulkData.parallel_rank()),std::ios_base::app);
       for (const std::string& s : errorList) { out << s; }
-      out << getStackTrace() << "\n";
       out.close();
     }
     return errorList;

@@ -1,8 +1,8 @@
 Level 0
  Setup Smoother (MueLu::Ifpack2Smoother{type = SCHWARZ})
  keep smoother data = 0   [default]
- PreSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
- PostSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
+ PreSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<ignored> >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
+ PostSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<ignored> >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
  smoother -> 
   schwarz: overlap level = 1   [unused]
   schwarz: combine mode = Zero   [unused]
@@ -36,6 +36,7 @@ Level 1
   aggregation: enable phase 3 = 1   [default]
   aggregation: preserve Dirichlet points = 0   [default]
   aggregation: allow user-specified singletons = 0   [default]
+  aggregation: error on nodes with no on-rank neighbors = 0   [default]
   OnePt aggregate map name =    [default]
   OnePt aggregate map factory =    [default]
   
@@ -47,6 +48,7 @@ Level 1
   Strided block id = -1   [default]
   Domain GID offsets = {0}   [default]
   
+ tentative: calculate qr = 1   [default]
  matrixmatrix: kernel params -> 
   [empty list]
  
@@ -60,8 +62,8 @@ Level 1
  
  Setup Smoother (MueLu::Ifpack2Smoother{type = SCHWARZ})
  keep smoother data = 0   [default]
- PreSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
- PostSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
+ PreSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<ignored> >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
+ PostSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<ignored> >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
  smoother -> 
   schwarz: overlap level = 1   [unused]
   schwarz: combine mode = Zero   [unused]
@@ -95,6 +97,7 @@ Level 2
   aggregation: enable phase 3 = 1   [default]
   aggregation: preserve Dirichlet points = 0   [default]
   aggregation: allow user-specified singletons = 0   [default]
+  aggregation: error on nodes with no on-rank neighbors = 0   [default]
   OnePt aggregate map name =    [default]
   OnePt aggregate map factory =    [default]
   
@@ -106,6 +109,7 @@ Level 2
   Strided block id = -1   [default]
   Domain GID offsets = {0}   [default]
   
+ tentative: calculate qr = 1   [default]
  matrixmatrix: kernel params -> 
   [empty list]
  
@@ -117,10 +121,10 @@ Level 2
  matrixmatrix: kernel params -> 
   [empty list]
  
- Setup Smoother (MueLu::Amesos2Smoother{type = Klu})
+ Setup Smoother (MueLu::Amesos2Smoother{type = <ignored>})
  keep smoother data = 0   [default]
- PreSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
- PostSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
+ PreSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<ignored> >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
+ PostSmoother data = Teuchos::RCP<MueLu::SmootherPrototype<ignored> >{ptr=0,node=0,strong_count=0,weak_count=0}   [default]
  presmoother -> 
   [empty list]
  
@@ -142,6 +146,6 @@ Smoother (level 0) both : "Ifpack2::AdditiveSchwarz": {Initialized: true, Comput
 
 Smoother (level 1) both : "Ifpack2::AdditiveSchwarz": {Initialized: true, Computed: true, Iterations: 1, Overlap level: 0, Subdomain reordering: "none", Combine mode: "ZERO", Global matrix dimensions: [3333, 3333], Inner solver: {"Ifpack2::RILUK": {Initialized: true, Computed: true, Level-of-fill: 0, Global matrix dimensions: [3333, 3333], Global nnz: 9997, "Ifpack2::LocalSparseTriangularSolver": {Initialized: true, Computed: true, Matrix: not null, Global matrix dimensions: [3333, 3333]}, "Ifpack2::LocalSparseTriangularSolver": {Initialized: true, Computed: true, Matrix: not null, Global matrix dimensions: [3333, 3333]}}}}
 
-Smoother (level 2) pre  : KLU2 solver interface
+Smoother (level 2) pre  : <Direct> solver interface
 Smoother (level 2) post : no smoother
 

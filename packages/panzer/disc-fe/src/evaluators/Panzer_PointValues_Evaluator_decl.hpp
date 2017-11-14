@@ -45,10 +45,8 @@
 
 #include <string>
 #include "Phalanx_Evaluator_Macros.hpp"
-#include "Phalanx_Field.hpp"
-
+#include "Phalanx_MDField.hpp"
 #include "Panzer_PointValues2.hpp"
-
 #include "Panzer_Evaluator_Macros.hpp"
 
 namespace panzer {
@@ -57,9 +55,9 @@ namespace panzer {
 PANZER_EVALUATOR_CLASS(PointValues_Evaluator)
 
   // is anything other than ScalarT really needed here?
-  PointValues2<ScalarT,PHX::MDField> pointValues;
+  PointValues2<ScalarT> pointValues;
  
-  Kokkos::DynRankView<double,PHX::Device> refPointArray;
+  PHX::MDField<double,NODE,Dim> refPointArray;
 
   bool useBasisValuesRefArray; // if true then basis is non-null
   Teuchos::RCP<const panzer::PureBasis> basis;

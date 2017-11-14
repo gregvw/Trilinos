@@ -31,10 +31,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-#include <Intrepid_FieldContainer.hpp>
 #include <boost/shared_ptr.hpp>
-
-
 #include <stk_mesh/base/Comm.hpp>
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/MetaData.hpp>
@@ -46,6 +43,7 @@
 #include <stk_io/StkMeshIoBroker.hpp>
 #include <init/Ionit_Initializer.h>
 
+#include <stk_util/parallel/ParallelReduceBool.hpp>
 #include <stk_util/use_cases/UseCaseEnvironment.hpp>
 #include <stk_util/diag/PrintTimer.hpp>
 
@@ -225,6 +223,6 @@ bool use_case_6_driver(stk::ParallelMachine  comm,
   }
   timer.stop();
 
-  const bool collective_result = use_case::print_status(comm, status);
+  const bool collective_result = stk::is_true_on_all_procs(comm, status);
   return collective_result;
 }

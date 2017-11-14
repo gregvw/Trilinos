@@ -60,7 +60,6 @@
 #include "Panzer_BlockedDOFManager.hpp"
 #include "Panzer_BlockedDOFManagerFactory.hpp"
 #include "Panzer_LinearObjFactory.hpp"
-#include "Panzer_EpetraLinearObjFactory.hpp"
 #include "Panzer_TpetraLinearObjFactory.hpp"
 #include "Panzer_EpetraLinearObjContainer.hpp"
 #include "Panzer_ThyraObjContainer.hpp"
@@ -395,7 +394,7 @@ namespace panzer_stk {
 
     mesh->print(fout);
     if(p.sublist("Output").get<bool>("Write to Exodus"))
-      mesh->setupTransientExodusFile(p.sublist("Output").get<std::string>("File Name"));
+      mesh->setupExodusFile(p.sublist("Output").get<std::string>("File Name"));
 
     // build a workset factory that depends on STK
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -556,7 +555,7 @@ namespace panzer_stk {
        if (has_interface_condition)
          checkInterfaceConnections(conn_manager, dofManager->getComm());
 
-       linObjFactory = Teuchos::rcp(new panzer::EpetraLinearObjFactory<panzer::Traits,int>(mpi_comm,dofManager,useDiscreteAdjoint));
+       linObjFactory = Teuchos::rcp(new panzer::BlockedEpetraLinearObjFactory<panzer::Traits,int>(mpi_comm,dofManager,useDiscreteAdjoint));
 
        // build load balancing string for informative output
        loadBalanceString = printUGILoadBalancingInformation(*dofManager);
@@ -573,14 +572,29 @@ namespace panzer_stk {
 
     // build worksets
     //////////////////////////////////////////////////////////////
+   
+    // build up needs array for workset container
+    std::map<std::string,panzer::WorksetNeeds> needs;  
+    for(std::size_t i=0;i<physicsBlocks.size();i++)
+      needs[physicsBlocks[i]->elementBlockID()] = physicsBlocks[i]->getWorksetNeeds();
 
     Teuchos::RCP<panzer::WorksetContainer> wkstContainer     // attach it to a workset container (uses lazy evaluation)
-       = Teuchos::rcp(new panzer::WorksetContainer(wkstFactory,physicsBlocks,workset_size));
+       = Teuchos::rcp(new panzer::WorksetContainer(wkstFactory,needs));
+
+    wkstContainer->setWorksetSize(workset_size);
+    wkstContainer->setGlobalIndexer(globalIndexer); // set the global indexer so the orientations are evaluated
 
     m_wkstContainer = wkstContainer;
 
-    // set the global indexer so the orientations are evaluated
-    wkstContainer->setGlobalIndexer(globalIndexer);
+    // find max number of worksets
+    std::size_t max_wksets = 0;
+    for(std::size_t p=0;p<physicsBlocks.size();p++) {
+      const panzer::WorksetDescriptor wd = panzer::blockDescriptor(physicsBlocks[p]->elementBlockID());
+      Teuchos::RCP< std::vector<panzer::Workset> >works = wkstContainer->getWorksets(wd);
+      max_wksets = std::max(max_wksets,works->size());
+    }
+    user_data_params.set<std::size_t>("Max Worksets",max_wksets);
+    wkstContainer->clear(); 
 
     // Setup lagrangian type coordinates
     /////////////////////////////////////////////////////////////

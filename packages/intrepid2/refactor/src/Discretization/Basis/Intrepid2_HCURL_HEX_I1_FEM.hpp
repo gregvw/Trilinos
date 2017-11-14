@@ -40,8 +40,8 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_HCURL_HEX_I1_FEM.hpp
-    \brief  Header file for the Intrepid2::HCURL_HEX_I1_FEM class.
+/** \file   Intrepid2_HCURL_HEX_I1_FEM.hpp
+    \brief  Header file for the Intrepid2::Basis_HCURL_HEX_I1_FEM class.
     \author Created by P. Bochev, D. Ridzal and K. Peterson.
             Kokkorized by Kyungjoo Kim
  */
@@ -115,8 +115,16 @@ namespace Intrepid2 {
 
   namespace Impl {
 
+    /**
+     \brief See Intrepid2::Basis_HCURL_HEX_I1_FEM
+    */
     class Basis_HCURL_HEX_I1_FEM {
     public:
+      typedef struct Hexahedron<8> cell_topology_type;
+
+      /**
+       \brief See Intrepid2::Basis_HCURL_HEX_I1_FEM
+      */
       template<EOperator opType>
       struct Serial {
         template<typename outputViewType,
@@ -135,6 +143,9 @@ namespace Intrepid2 {
                  const Kokkos::DynRankView<inputPointValueType, inputPointProperties...>  inputPoints,
                  const EOperator operatorType);
 
+      /**
+       \brief See Intrepid2::Basis_HCURL_HEX_I1_FEM
+      */
       template<typename outputValueViewType,
                typename inputPointViewType,
                EOperator opType>
@@ -222,6 +233,24 @@ namespace Intrepid2 {
 #endif
       Kokkos::deep_copy(dofCoords, this->dofCoords_);
     }
+
+      
+  virtual
+  void
+  getDofCoeffs( scalarViewType dofCoeffs ) const {
+#ifdef HAVE_INTREPID2_DEBUG
+    // Verify rank of output array.
+    INTREPID2_TEST_FOR_EXCEPTION( dofCoeffs.rank() != 2, std::invalid_argument,
+        ">>> ERROR: (Intrepid2::Basis_HCURL_HEX_I1_FEM::getDofCoeffs) rank = 2 required for dofCoeffs array");
+    // Verify 0th dimension of output array.
+    INTREPID2_TEST_FOR_EXCEPTION( static_cast<ordinal_type>(dofCoeffs.dimension(0)) != this->getCardinality(), std::invalid_argument,
+        ">>> ERROR: (Intrepid2::Basis_HCURL_HEX_I1_FEM::getDofCoeffs) mismatch in number of dof and 0th dimension of dofCoeffs array");
+    // Verify 1st dimension of output array.
+    INTREPID2_TEST_FOR_EXCEPTION( dofCoeffs.dimension(1) != this->getBaseCellTopology().getDimension(), std::invalid_argument,
+        ">>> ERROR: (Intrepid2::Basis_HCURL_HEX_I1_FEM::getDofCoeffs) incorrect reference cell (1st) dimension in dofCoeffs array");
+#endif
+    Kokkos::deep_copy(dofCoeffs, this->dofCoeffs_);
+  }
 
     virtual
     const char*

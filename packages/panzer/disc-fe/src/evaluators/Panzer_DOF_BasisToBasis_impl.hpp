@@ -64,7 +64,7 @@ DOF_BasisToBasis(const std::string & fieldName,
   // **************
   // Declare fields
   // **************
-  dof_source_coeff = PHX::MDField<ScalarT>(fieldName,sourceBasis.functional);
+  dof_source_coeff = PHX::MDField<const ScalarT>(fieldName,sourceBasis.functional);
   dof_target_coeff = PHX::MDField<ScalarT>(fieldName,targetBasis.functional);
 
   this->addDependentField(dof_source_coeff);
@@ -98,8 +98,8 @@ DOF_BasisToBasis(const std::string & fieldName,
 
 //**********************************************************************
 template <typename EvalT, typename TRAITST>
-void DOF_BasisToBasis<EvalT,TRAITST>::postRegistrationSetup(typename TRAITST::SetupData d,
-			                                  PHX::FieldManager<TRAITST>& fm)
+void DOF_BasisToBasis<EvalT,TRAITST>::postRegistrationSetup(typename TRAITST::SetupData /* d */,
+			                                  PHX::FieldManager<TRAITST>& /* fm */)
 {
   // not needed anymore
   // this->utils.setFieldData(dof_source_coeff,fm);

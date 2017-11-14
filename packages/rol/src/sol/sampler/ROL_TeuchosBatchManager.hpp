@@ -45,7 +45,7 @@
 #define ROLTEUCHOSBATCHMANAGER_HPP
 
 #include "ROL_BatchManager.hpp"
-#include "Teuchos_RCP.hpp"
+#include "ROL_SharedPointer.hpp"
 #include "Teuchos_Comm.hpp"
 #include "Teuchos_CommHelpers.hpp"
 
@@ -54,10 +54,10 @@ namespace ROL {
 template<class Real, class Ordinal>
 class TeuchosBatchManager : public BatchManager<Real> {
 private:
-  const Teuchos::RCP<const Teuchos::Comm<Ordinal> > comm_;
+  const ROL::SharedPointer<const Teuchos::Comm<Ordinal> > comm_;
 
 public:
-  TeuchosBatchManager(const Teuchos::RCP<const Teuchos::Comm<Ordinal> > &comm)
+  TeuchosBatchManager(const ROL::SharedPointer<const Teuchos::Comm<Ordinal> > &comm)
     : comm_(comm) {}
 
   int batchID(void) {
@@ -68,7 +68,7 @@ public:
     return Teuchos::size<Ordinal>(*comm_);
   }
 
-  void reduceAll(Real* input, Real* output,
+  void reduceAll(Real* input, Real* output, int dim,
                  const Elementwise::ReductionOp<Real> &r) {
     int nB = this->numBatches();
     std::vector<Real> receiveBuffer(nB);
@@ -95,6 +95,10 @@ public:
       dim, input, output);
   }
 
+  void broadcast(Real* input, int cnt, int root) {
+    Teuchos::broadcast<Ordinal,Real>(*comm_,root,cnt,input);
+  }
+
   virtual void sumAll(Vector<Real> &input, Vector<Real> &output) {
     TEUCHOS_TEST_FOR_EXCEPTION( true, std::invalid_argument,
       ">>> ERROR (ROL::TeuchosBatchManager): sumAll(Vector<Real> &input, Vector<Real> &output) is not implemented");
@@ -103,6 +107,7 @@ public:
   void barrier(void) {
     Teuchos::barrier<Ordinal>(*comm_); 
   }
+
 };
 
 }

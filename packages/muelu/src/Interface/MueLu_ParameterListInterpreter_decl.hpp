@@ -73,6 +73,7 @@
 #include "MueLu_PatternFactory_fwd.hpp"
 #include "MueLu_PgPFactory_fwd.hpp"
 #include "MueLu_RAPFactory_fwd.hpp"
+#include "MueLu_RAPShiftFactory_fwd.hpp"
 #include "MueLu_RebalanceAcFactory_fwd.hpp"
 #include "MueLu_RebalanceTransferFactory_fwd.hpp"
 #include "MueLu_RepartitionFactory_fwd.hpp"
@@ -86,12 +87,17 @@
 #include "MueLu_UncoupledAggregationFactory_fwd.hpp"
 #include "MueLu_ZoltanInterface_fwd.hpp"
 #include "MueLu_Zoltan2Interface_fwd.hpp"
+#ifdef HAVE_MUELU_MATLAB
+#include "MueLu_MatlabSmoother_fwd.hpp"
+#include "MueLu_TwoLevelMatlabFactory_fwd.hpp"
+#include "MueLu_SingleLevelMatlabFactory_fwd.hpp"
+#endif
+
 
 #ifdef HAVE_MUELU_KOKKOS_REFACTOR
 #include "MueLu_CoalesceDropFactory_kokkos_fwd.hpp"
 #include "MueLu_CoarseMapFactory_kokkos_fwd.hpp"
 #include "MueLu_CoordinatesTransferFactory_kokkos_fwd.hpp"
-#include "MueLu_FilteredAFactory_kokkos_fwd.hpp"
 #include "MueLu_NullspaceFactory_kokkos_fwd.hpp"
 #include "MueLu_SaPFactory_kokkos_fwd.hpp"
 #include "MueLu_TentativePFactory_kokkos_fwd.hpp"
@@ -184,6 +190,7 @@ namespace MueLu {
 
     int       blockSize_;     ///< block size of matrix (fixed block size)
     CycleType Cycle_;         ///< multigrid cycle type (V-cycle or W-cycle)
+    double    scalingFactor_; ///< prolongator scaling factor
     GlobalOrdinal dofOffset_; ///< global offset variable describing offset of DOFs in operator
 
     //! Easy interpreter stuff
@@ -198,7 +205,40 @@ namespace MueLu {
     void UpdateFactoryManager(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
                               int levelID, std::vector<keep_pair>& keeps) const;
 
+    // "Generic components" for UpdateFactoryManager
+    void UpdateFactoryManager_Smoothers(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                        int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_CoarseSolvers(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                            int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_Aggregation_TentativeP(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                                     int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_Restriction(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                        int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_RAP(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                  int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_Coordinates(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                          int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_Repartition(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                          int levelID, std::vector<keep_pair>& keeps, RCP<Factory> & nullSpaceFactory) const;
+    void UpdateFactoryManager_Nullspace(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                        int levelID, std::vector<keep_pair>& keeps, RCP<Factory> & nullSpaceFactory) const;
+
+    // Algorithm-specific components for UpdateFactoryManager
+    void UpdateFactoryManager_SemiCoarsen(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                          int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_PCoarsen(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                       int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_SA(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                 int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_Emin(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                   int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_PG(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                 int levelID, std::vector<keep_pair>& keeps) const;
+    void UpdateFactoryManager_Matlab(Teuchos::ParameterList& paramList, const Teuchos::ParameterList& defaultList, FactoryManager& manager,
+                                     int levelID, std::vector<keep_pair>& keeps) const;
+
     bool useCoordinates_;
+    bool useKokkos_;
     //@}
 
     //! Factory interpreter stuff

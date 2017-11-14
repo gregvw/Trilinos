@@ -42,7 +42,7 @@
 // @HEADER
 
 /*! \file  test_12.cpp
-    \brief Validate that the Householder Reflector implmentation 
+    \brief Validate that the Householder Reflector implmentation
            works correctly.
 */
 
@@ -53,11 +53,11 @@
 #include "Teuchos_oblackholestream.hpp"
 #include "Teuchos_GlobalMPISession.hpp"
 
-template<class Real> 
+template<class Real>
 void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 
-  Teuchos::RCP<const std::vector<Real> > xp = 
-    Teuchos::dyn_cast<const ROL::StdVector<Real> >(x).getVector();
+  ROL::SharedPointer<const std::vector<Real> > xp =
+    dynamic_cast<const ROL::StdVector<Real>&>(x).getVector();
 
   outStream << "Standard Vector" << std::endl;
   for( size_t i=0; i<xp->size(); ++i ) {
@@ -70,22 +70,22 @@ void printVector( const ROL::Vector<Real> &x, std::ostream &outStream ) {
 typedef double RealT;
 
 int main(int argc, char *argv[]) {
-  
+
   typedef ROL::Vector<RealT>    V;
   typedef ROL::StdVector<RealT> SV;
 
-  using Teuchos::RCP; using Teuchos::rcp;
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
@@ -93,14 +93,14 @@ int main(int argc, char *argv[]) {
 
     int dim = 10;
 
-    RealT tol = std::sqrt(ROL::ROL_EPSILON<RealT>());  
+    RealT tol = std::sqrt(ROL::ROL_EPSILON<RealT>());
 
 
-    RCP<V> v   = rcp( new SV( rcp( new std::vector<RealT>(dim) ) ) );
-    RCP<V> Hv  = v->clone();
-    RCP<V> HHv = v->clone();
+    ROL::SharedPointer<V> v   = ROL::makeShared<SV>(ROL::makeShared<std::vector<RealT>>(dim));
+    ROL::SharedPointer<V> Hv  = v->clone();
+    ROL::SharedPointer<V> HHv = v->clone();
 
-    RCP<V> e0 = v->basis(0);
+    ROL::SharedPointer<V> e0 = v->basis(0);
 
     RandomizeVector(*v);
 
@@ -112,17 +112,17 @@ int main(int argc, char *argv[]) {
     printVector(*v,*outStream);
 
     H.apply(*Hv, *v, tol);
-  
+
     printVector(*Hv,*outStream);
 
     H.apply(*HHv, *Hv, tol);
-  
+
     printVector(*HHv,*outStream);
 
 
 
   }
-  
+
   catch (std::logic_error err) {
     *outStream << err.what() << "\n";
     errorFlag = -1000;
@@ -135,5 +135,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
-

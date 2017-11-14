@@ -43,17 +43,17 @@
 #ifndef PANZER_TEST_SCATTER_IMPL_HPP
 #define PANZER_TEST_SCATTER_IMPL_HPP
 
+namespace panzer {
+
 template <typename EvalT,typename TRAITS>
 int panzer::TestScatter<EvalT, TRAITS>::offset = 0;
-
-namespace panzer {
 
 PHX_EVALUATOR_CTOR(TestScatter,p)
 {
   std::string test_name     = p.get<std::string>("Test Name");
   std::string test_name_res = p.get<std::string>("Test Name Residual");
   Teuchos::RCP<PHX::DataLayout> dl = p.get< Teuchos::RCP<PHX::DataLayout> >("Data Layout");
-  value = PHX::MDField<ScalarT,Cell,NODE>(p.get<std::string>("Test Name"), dl);
+  value = PHX::MDField<const ScalarT,Cell,NODE>(p.get<std::string>("Test Name"), dl);
   scatter_value = PHX::MDField<ScalarT,Cell,NODE>(test_name_res, dl);
 
   this->addDependentField(value);
@@ -68,7 +68,7 @@ PHX_EVALUATOR_CTOR(TestScatter,p)
   this->setName(n);
 }
 
-PHX_POST_REGISTRATION_SETUP(TestScatter,setupData,fm)
+PHX_POST_REGISTRATION_SETUP(TestScatter, /* setupData */, fm)
 {
   this->utils.setFieldData(scatter_value,fm);
   this->utils.setFieldData(value,fm);

@@ -65,7 +65,7 @@ PHX_EVALUATOR_CTOR(VectorToScalar,p)
       PHX::MDField<ScalarT,Cell,Point>(scalar_names[i], scalar_dl);
 
   vector_field = 
-    PHX::MDField<ScalarT,Cell,Point,Dim>(p.get<std::string>
+    PHX::MDField<const ScalarT,Cell,Point,Dim>(p.get<std::string>
 					 ("Vector Name"), vector_dl);
 
   this->addDependentField(vector_field);
@@ -78,7 +78,7 @@ PHX_EVALUATOR_CTOR(VectorToScalar,p)
 }
 
 //**********************************************************************
-PHX_POST_REGISTRATION_SETUP(VectorToScalar,worksets,fm)
+PHX_POST_REGISTRATION_SETUP(VectorToScalar, /* worksets */, fm)
 {
   for (std::size_t i=0; i < scalar_fields.size(); ++i)
     this->utils.setFieldData(scalar_fields[i],fm);

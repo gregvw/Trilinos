@@ -45,7 +45,7 @@
 
 #include <string>
 #include "Phalanx_Evaluator_Macros.hpp"
-#include "Phalanx_Field.hpp"
+#include "Phalanx_MDField.hpp"
 #include "Panzer_IntegrationRule.hpp"
 
 namespace panzer {
@@ -74,13 +74,13 @@ PHX_EVALUATOR_CTOR(UnitValueEvaluator,p)
 }
 
 //**********************************************************************
-PHX_POST_REGISTRATION_SETUP(UnitValueEvaluator,sd,fm)
+PHX_POST_REGISTRATION_SETUP(UnitValueEvaluator, /* sd */, fm)
 {
   this->utils.setFieldData(unitValue,fm);
 }
 
 //**********************************************************************
-PHX_EVALUATE_FIELDS(UnitValueEvaluator,workset)
+PHX_EVALUATE_FIELDS(UnitValueEvaluator, /* workset */)
 { 
   for(int cell=0;cell<unitValue.extent_int(0);++cell)
     for(int ip=0;ip<unitValue.extent_int(1);++ip)

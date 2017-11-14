@@ -45,7 +45,7 @@
 
 #include <map>
 
-#include "mpi.h"
+#include <mpi.h>
 
 #include "PanzerDofMgr_config.hpp"
 #include "Panzer_FieldPattern.hpp"
@@ -147,13 +147,15 @@ void DOFManager<LO,GO>::setConnManager(const Teuchos::RCP<ConnManager<LO,GO> > &
 //Adds a field to be used in creating the Global Numbering
 //Returns the index for the field pattern
 template <typename LO, typename GO>
-int DOFManager<LO,GO>::addField(const std::string & str, const Teuchos::RCP<const FieldPattern> & pattern)
+int DOFManager<LO,GO>::addField(const std::string & str, const Teuchos::RCP<const FieldPattern> & pattern,
+                                const panzer::FieldType& type)
 {
   TEUCHOS_TEST_FOR_EXCEPTION(buildConnectivityRun_,std::logic_error,
                       "DOFManager::addField: addField cannot be called after "
                       "buildGlobalUnknowns has been called");
 
   fieldPatterns_.push_back(pattern);
+  fieldTypes_.push_back(type);
   fieldNameToAID_.insert(std::map<std::string,int>::value_type(str, numFields_));
 
   //The default values for IDs are the sequential order they are added in.
@@ -169,7 +171,8 @@ int DOFManager<LO,GO>::addField(const std::string & str, const Teuchos::RCP<cons
 }
 
 template <typename LO, typename GO>
-int DOFManager<LO,GO>::addField(const std::string & blockID, const std::string & str, const Teuchos::RCP<const FieldPattern> & pattern)
+int DOFManager<LO,GO>::addField(const std::string & blockID, const std::string & str, const Teuchos::RCP<const FieldPattern> & pattern,
+                                const panzer::FieldType& type)
 {
   TEUCHOS_TEST_FOR_EXCEPTION(buildConnectivityRun_,std::logic_error,
                       "DOFManager::addField: addField cannot be called after "
@@ -197,6 +200,7 @@ int DOFManager<LO,GO>::addField(const std::string & blockID, const std::string &
 
   if(!found){
     fieldPatterns_.push_back(pattern);
+    fieldTypes_.push_back(type);
     fieldNameToAID_.insert(std::map<std::string,int>::value_type(str, numFields_));
     //The default values for IDs are the sequential order they are added in.
     fieldStringOrder_.push_back(str);
@@ -260,22 +264,91 @@ Teuchos::RCP<const FieldPattern> DOFManager<LO,GO>::getFieldPattern(const std::s
   return Teuchos::null;
 }
 
-template <typename LO, typename GO>
-void DOFManager<LO, GO>::getOwnedIndices(std::vector<GO>& indices) const
+///////////////////////////////////////////////////////////////////////////////
+//
+//  getOwnedIndices()
+//
+///////////////////////////////////////////////////////////////////////////////
+template<typename LO, typename GO>
+void
+DOFManager<LO, GO>::
+getOwnedIndices(
+  std::vector<GO>& indices) const
 {
   indices = owned_;
-}
+} // end of getOwnedIndices()
 
-template <typename LO, typename GO>
-void DOFManager<LO, GO>::getOwnedAndGhostedIndices(std::vector<GO>& indices)
-	const
+///////////////////////////////////////////////////////////////////////////////
+//
+//  getGhostedIndices()
+//
+///////////////////////////////////////////////////////////////////////////////
+template<typename LO, typename GO>
+void
+DOFManager<LO, GO>::
+getGhostedIndices(
+  std::vector<GO>& indices) const
 {
+  indices = ghosted_;
+} // end of getGhostedIndices()
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  getOwnedAndGhostedIndices()
+//
+///////////////////////////////////////////////////////////////////////////////
+template<typename LO, typename GO>
+void
+DOFManager<LO, GO>::
+getOwnedAndGhostedIndices(
+  std::vector<GO>& indices) const
+{
+  using std::size_t;
   indices.resize(owned_.size() + ghosted_.size());
-  for (size_t i = 0; i < owned_.size(); ++i)
+  for (size_t i(0); i < owned_.size(); ++i)
     indices[i] = owned_[i];
-  for (size_t i = 0; i < ghosted_.size(); ++i)
+  for (size_t i(0); i < ghosted_.size(); ++i)
     indices[owned_.size() + i] = ghosted_[i];
-}
+} // end of getOwnedAndGhostedIndices()
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  getNumOwned()
+//
+///////////////////////////////////////////////////////////////////////////////
+template<typename LO, typename GO>
+int
+DOFManager<LO, GO>::
+getNumOwned() const
+{
+  return owned_.size();
+} // end of getNumOwned()
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  getNumGhosted()
+//
+///////////////////////////////////////////////////////////////////////////////
+template<typename LO, typename GO>
+int
+DOFManager<LO, GO>::
+getNumGhosted() const
+{
+  return ghosted_.size();
+} // end of getNumGhosted()
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  getNumOwnedAndGhosted()
+//
+///////////////////////////////////////////////////////////////////////////////
+template<typename LO, typename GO>
+int
+DOFManager<LO, GO>::
+getNumOwnedAndGhosted() const
+{
+  return owned_.size() + ghosted_.size();
+} // end of getNumOwnedAndGhosted()
 
   //gets the number of fields
 template <typename LO, typename GO>
@@ -301,7 +374,7 @@ const std::vector<int> & DOFManager<LO,GO>::getGIDFieldOffsets(const std::string
 }
 
 template <typename LO, typename GO>
-void DOFManager<LO,GO>::getElementGIDs(LO localElementID, std::vector<GO> & gids, const std::string & blockIdHint) const
+void DOFManager<LO,GO>::getElementGIDs(LO localElementID, std::vector<GO>& gids, const std::string& /* blockIdHint */) const
 {
   gids = elementGIDs_[localElementID];
 }
@@ -314,9 +387,15 @@ void DOFManager<LocalOrdinalT,GlobalOrdinalT>::buildGlobalUnknowns()
    */
   if(requireOrientations_){
     fieldPatterns_.push_back(Teuchos::rcp(new NodalFieldPattern(fieldPatterns_[0]->getCellTopology())));
+    fieldTypes_.push_back(FieldType::CG);
   }
-  RCP<GeometricAggFieldPattern> aggFieldPattern = Teuchos::rcp(new GeometricAggFieldPattern);;
-  aggFieldPattern = Teuchos::rcp(new GeometricAggFieldPattern(fieldPatterns_));
+
+  TEUCHOS_ASSERT(fieldPatterns_.size() == fieldTypes_.size());
+  std::vector<std::pair<FieldType,Teuchos::RCP<const FieldPattern>>> tmp;
+  for (std::size_t i=0; i < fieldPatterns_.size(); ++i)
+    tmp.push_back(std::make_pair(fieldTypes_[i],fieldPatterns_[i]));
+
+  RCP<GeometricAggFieldPattern> aggFieldPattern = Teuchos::rcp(new GeometricAggFieldPattern(tmp));
 
   connMngr_->buildConnectivity(*aggFieldPattern);
 
@@ -750,7 +829,7 @@ DOFManager<LO,GO>::buildTaggedMultiVector(const ElementBlockAccess & ownedAccess
   //each of them.
 
   for (size_t b = 0; b < blockOrder_.size(); ++b) {
-    std::vector<std::pair< int, RCP<const panzer::FieldPattern> > > faConstruct;
+    std::vector<std::tuple< int, panzer::FieldType, RCP<const panzer::FieldPattern> > > faConstruct;
     //The ID is going to be the AID, and then everything will work.
     //The ID should not be the AID, it should be the ID it has in the ordering.
 
@@ -760,7 +839,7 @@ DOFManager<LO,GO>::buildTaggedMultiVector(const ElementBlockAccess & ownedAccess
       //Check if in b's fp list
       std::vector<int>::const_iterator reu = std::find(blockToAssociatedFP_[b].begin(), blockToAssociatedFP_[b].end(), looking);
       if(!(reu==blockToAssociatedFP_[b].end())){
-        faConstruct.push_back(std::make_pair(i, fieldPatterns_[fieldAIDOrder_[i]]));
+        faConstruct.push_back(std::make_tuple(i, fieldTypes_[fieldAIDOrder_[i]], fieldPatterns_[fieldAIDOrder_[i]]));
       }
 
     }

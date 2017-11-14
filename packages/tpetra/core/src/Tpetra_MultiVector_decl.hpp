@@ -632,6 +632,17 @@ namespace Tpetra {
                  const dual_view_type& view,
                  const dual_view_type& origView);
 
+  protected:
+
+    /// \brief Single-column subview constructor, for derived classes ONLY.
+    ///
+    /// \param X [in] Input MultiVector to view (in possibly nonconst fashion).
+    /// \param j [in] The column of X to view.
+    MultiVector (const MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>& X,
+                 const size_t j);
+
+  public:
+
     /// \brief Expert mode constructor for noncontiguous views.
     ///
     /// \warning This constructor is only for expert users.  We make
@@ -1554,7 +1565,18 @@ namespace Tpetra {
     /// \post <tt>dots(j) == (this->getVector[j])->dot (* (A.getVector[j]))</tt>
     void
     dot (const MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>& A,
-         const Kokkos::View<dot_type*, device_type>& dots) const;
+         const Kokkos::View<dot_type*, Kokkos::HostSpace>& norms) const;
+
+    template<class ViewType>
+    void
+    dot (typename std::enable_if<std::is_same<typename ViewType::value_type,dot_type>::value &&
+                                 std::is_same<typename ViewType::memory_space,typename device_type::memory_space>::value,
+                                 const MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>>::type& A,
+         const ViewType& dots) const {
+      const Kokkos::View<dot_type*, Kokkos::HostSpace> h_dots("Tpetra::Dots",dots.extent(0));
+      this->dot (A, h_dots);
+      Kokkos::deep_copy(dots,h_dots);
+    }
 
     /// \brief Compute the dot product of each corresponding pair of
     ///   vectors (columns) in A and B, storing the result in a device
@@ -1583,6 +1605,7 @@ namespace Tpetra {
       // case.  It could also come up for Kokkos::complex ->
       // std::complex conversions, but those two implementations
       // should generally be bitwise compatible.
+      // CT: no this can't possible work .....
       Kokkos::deep_copy (dots, dts);
     }
 
@@ -1660,19 +1683,36 @@ namespace Tpetra {
     /// \brief Compute the one-norm of each vector (column), storing
     ///   the result in a device view.
     ///
-    /// The one-norm of a vector is the sum of squares of the
-    /// magnitudes of the vector's entries.  On exit, norms(j) is the
-    /// one-norm of column j of this MultiVector.
-    ///
     /// \param norms [out] Device View with getNumVectors() entries.
     ///
     /// \pre <tt>norms.dimension_0 () == this->getNumVectors ()</tt>
     /// \post <tt>norms(j) == (this->getVector[j])->norm1 (* (A.getVector[j]))</tt>
-    void norm1 (const Kokkos::View<mag_type*, device_type>& norms) const;
+    ///
+    /// The one-norm of a vector is the sum of the magnitudes of the
+    /// vector's entries.  On exit, norms(j) is the one-norm of column
+    /// j of this MultiVector.
+    ///
+    /// We use Kokkos::Details::InnerProductSpaceTraits to define
+    /// "magnitude."  See the KokkosKernels package, and that class'
+    /// documentation in particular, for details.  This matters only
+    /// for "interesting" Scalar types, such as one might find in the
+    /// Stokhos package.
+    template<class ViewType>
+      typename std::enable_if<std::is_same<typename ViewType::value_type,mag_type>::value &&
+                              std::is_same<typename ViewType::memory_space,typename device_type::memory_space>::value>::type
+    norm1 (const ViewType& norms) const {
+      typedef typename Kokkos::View<mag_type*, Kokkos::HostSpace> host_norms_view_type;
+      host_norms_view_type h_norms("Tpetra::MV::h_norms",norms.extent(0));
+      this->normImpl (h_norms, NORM_ONE);
+      Kokkos::deep_copy(norms,h_norms);
+    }
+    void norm1 (const Kokkos::View<mag_type*, Kokkos::HostSpace>& norms) const;
 
     /// \brief Compute the one-norm of each vector (column), storing
     ///   the result in a device view.
     /// \tparam T The output type of the dot products.
+    ///
+    /// See the above norm1() method for documentation.
     ///
     /// This method only exists if mag_type and T are different types.
     /// For example, if Teuchos::ScalarTraits<Scalar>::magnitudeType
@@ -1699,16 +1739,15 @@ namespace Tpetra {
       Kokkos::deep_copy (norms, tmpNorms);
     }
 
-
     /// \brief Compute the one-norm of each vector (column).
     ///
-    /// The one-norm of a vector is the sum of squares of the
-    /// magnitudes of the vector's entries.  On exit, norms[j] is the
-    /// one-norm of column j of this MultiVector.
+    /// See the uppermost norm1() method above for documentation.
     void norm1 (const Teuchos::ArrayView<mag_type>& norms) const;
 
     /// \brief Compute the one-norm of each vector (column).
     /// \tparam T The output type of the norms.
+    ///
+    /// See the uppermost norm1() method above for documentation.
     ///
     /// This method only exists if mag_type and T are different types.
     /// For example, if Teuchos::ScalarTraits<Scalar>::magnitudeType
@@ -1736,19 +1775,36 @@ namespace Tpetra {
     /// \brief Compute the two-norm of each vector (column), storing
     ///   the result in a device view.
     ///
+    /// \param norms [out] Device View with getNumVectors() entries.
+    ///
+    /// \pre <tt>norms.dimension_0 () == this->getNumVectors ()</tt>
+    /// \post <tt>norms(j) == (this->getVector[j])->dot (* (A.getVector[j]))</tt>
+    ///
     /// The two-norm of a vector is the standard Euclidean norm, the
     /// square root of the sum of squares of the magnitudes of the
     /// vector's entries.  On exit, norms(k) is the two-norm of column
     /// k of this MultiVector.
     ///
-    /// \param norms [out] Device View with getNumVectors() entries.
-    ///
-    /// \pre <tt>norms.dimension_0 () == this->getNumVectors ()</tt>
-    /// \post <tt>norms(j) == (this->getVector[j])->dot (* (A.getVector[j]))</tt>
-    void norm2 (const Kokkos::View<mag_type*, device_type>& norms) const;
+    /// We use Kokkos::Details::InnerProductSpaceTraits to define
+    /// "magnitude."  See the KokkosKernels package, and that class'
+    /// documentation in particular, for details.  This matters only
+    /// for "interesting" Scalar types, such as one might find in the
+    /// Stokhos package.
+    template<class ViewType>
+      typename std::enable_if<std::is_same<typename ViewType::value_type,mag_type>::value &&
+                              std::is_same<typename ViewType::memory_space,typename device_type::memory_space>::value>::type
+    norm2 (const ViewType& norms) const {
+      typedef typename Kokkos::View<mag_type*, Kokkos::HostSpace> host_norms_view_type;
+      host_norms_view_type h_norms("Tpetra::MV::h_norms",norms.extent(0));
+      this->normImpl (h_norms, NORM_TWO);
+      Kokkos::deep_copy(norms,h_norms);
+    }
+    void norm2 (const Kokkos::View<mag_type*, Kokkos::HostSpace>& norms) const;
 
     /// \brief Compute the two-norm of each vector (column), storing
     ///   the result in a device view.
+    ///
+    /// See the above norm2() method for documentation.
     ///
     /// This method only exists if mag_type and T are different types.
     /// For example, if Teuchos::ScalarTraits<Scalar>::magnitudeType
@@ -1776,14 +1832,13 @@ namespace Tpetra {
 
     /// \brief Compute the two-norm of each vector (column).
     ///
-    /// The two-norm of a vector is the standard Euclidean norm, the
-    /// square root of the sum of squares of the magnitudes of the
-    /// vector's entries.  On exit, norms[k] is the two-norm of column
-    /// k of this MultiVector.
+    /// See the uppermost norm2() method above for documentation.
     void norm2 (const Teuchos::ArrayView<mag_type>& norms) const;
 
     /// \brief Compute the two-norm of each vector (column).
     /// \tparam T The output type of the norms.
+    ///
+    /// See the uppermost norm2() method above for documentation.
     ///
     /// This method only exists if mag_type and T are different types.
     /// For example, if Teuchos::ScalarTraits<Scalar>::magnitudeType
@@ -1814,10 +1869,27 @@ namespace Tpetra {
     /// The infinity-norm of a vector is the maximum of the magnitudes
     /// of the vector's entries.  On exit, norms(j) is the
     /// infinity-norm of column j of this MultiVector.
-    void normInf (const Kokkos::View<mag_type*, device_type>& norms) const;
+    ///
+    /// We use Kokkos::Details::InnerProductSpaceTraits to define
+    /// "magnitude."  See the KokkosKernels package, and that class'
+    /// documentation in particular, for details.  This matters only
+    /// for "interesting" Scalar types, such as one might find in the
+    /// Stokhos package.
+    template<class ViewType>
+      typename std::enable_if<std::is_same<typename ViewType::value_type,mag_type>::value &&
+                              std::is_same<typename ViewType::memory_space,typename device_type::memory_space>::value>::type
+    normInf (const ViewType& norms) const {
+      typedef typename Kokkos::View<mag_type*, Kokkos::HostSpace> host_norms_view_type;
+      host_norms_view_type h_norms("Tpetra::MV::h_norms",norms.extent(0));
+      this->normImpl (h_norms, NORM_INF);
+      Kokkos::deep_copy(norms,h_norms);
+    }
+    void normInf (const Kokkos::View<mag_type*, Kokkos::HostSpace>& norms) const;
 
     /// \brief Compute the two-norm of each vector (column), storing
     ///   the result in a device view.
+    ///
+    /// See the above normInf() method for documentation.
     ///
     /// This method only exists if mag_type and T are different types.
     /// For example, if Teuchos::ScalarTraits<Scalar>::magnitudeType
@@ -1843,15 +1915,17 @@ namespace Tpetra {
       Kokkos::deep_copy (norms, theNorms);
     }
 
-    /// \brief Compute the infinity-norm of each vector (column).
+    /// \brief Compute the infinity-norm of each vector (column),
+    ///   storing the result in a Teuchos::ArrayView.
     ///
-    /// The infinity-norm of a vector is the maximum of the magnitudes
-    /// of the vector's entries.  On exit, norms[j] is the
-    /// infinity-norm of column j of this MultiVector.
+    /// See the uppermost normInf() method above for documentation.
     void normInf (const Teuchos::ArrayView<mag_type>& norms) const;
 
-    /// \brief Compute the infinity-norm of each vector (column).
+    /// \brief Compute the infinity-norm of each vector (column),
+    ///   storing the result in a Teuchos::ArrayView.
     /// \tparam T The output type of the norms.
+    ///
+    /// See the uppermost normInf() method above for documentation.
     ///
     /// This method only exists if mag_type and T are different types.
     /// For example, if Teuchos::ScalarTraits<Scalar>::magnitudeType
@@ -2187,7 +2261,7 @@ namespace Tpetra {
     /// norms(j) is the norm (of the selected type) of column j of
     /// this MultiVector.
     void
-    normImpl (const Kokkos::View<mag_type*, device_type>& norms,
+    normImpl (const Kokkos::View<mag_type*, Kokkos::HostSpace>& norms,
               const EWhichNorm whichNorm) const;
 
     //@}
@@ -2265,6 +2339,13 @@ namespace Tpetra {
     //! Whether this class implements the old or new interface of DistObject.
     virtual bool useNewInterface () { return true; }
 
+    /// \typedef buffer_device_type
+    /// \brief Kokkos::Device specialization for communication buffers.
+    ///
+    /// See #1088 for why this is not just <tt>device_type::device_type</tt>.
+    typedef typename DistObject<Scalar, LocalOrdinal, GlobalOrdinal, Node,
+                                classic>::buffer_device_type buffer_device_type;
+
     virtual void
     copyAndPermuteNew (const SrcDistObject& sourceObj,
                        const size_t numSameIDs,
@@ -2274,15 +2355,15 @@ namespace Tpetra {
     virtual void
     packAndPrepareNew (const SrcDistObject& sourceObj,
                        const Kokkos::DualView<const local_ordinal_type*, device_type>& exportLIDs,
-                       Kokkos::DualView<impl_scalar_type*, device_type>& exports,
-                       const Kokkos::DualView<size_t*, device_type>& /* numPacketsPerLID */,
+                       Kokkos::DualView<impl_scalar_type*, buffer_device_type>& exports,
+                       const Kokkos::DualView<size_t*, buffer_device_type>& /* numPacketsPerLID */,
                        size_t& constantNumPackets,
                        Distributor& /* distor */);
 
     virtual void
     unpackAndCombineNew (const Kokkos::DualView<const LocalOrdinal*, device_type>& importLIDs,
-                         const Kokkos::DualView<const impl_scalar_type*, device_type>& imports,
-                         const Kokkos::DualView<const size_t*, device_type>& /* numPacketsPerLID */,
+                         const Kokkos::DualView<const impl_scalar_type*, buffer_device_type>& imports,
+                         const Kokkos::DualView<const size_t*, buffer_device_type>& /* numPacketsPerLID */,
                          const size_t constantNumPackets,
                          Distributor& /* distor */,
                          const CombineMode CM);

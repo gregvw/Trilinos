@@ -64,7 +64,6 @@ using Teuchos::rcp;
 #include "Panzer_STK_SquareQuadMeshFactory.hpp"
 #include "Panzer_STK_SetupUtilities.hpp"
 #include "Panzer_STKConnManager.hpp"
-#include "Phalanx_KokkosUtilities.hpp"
 
 #include "Teuchos_DefaultMpiComm.hpp"
 #include "Teuchos_OpaqueWrapper.hpp"
@@ -109,7 +108,8 @@ namespace panzer {
     Teuchos::RCP<panzer::PhysicsBlock> physicsBlock = 
       Teuchos::rcp(new PhysicsBlock(ipb,eBlockID,default_int_order,cellData,eqset_factory,gd,false));
 
-    Teuchos::RCP<std::vector<panzer::Workset> > work_sets = panzer_stk::buildWorksets(*mesh,*physicsBlock); 
+    Teuchos::RCP<std::vector<panzer::Workset> > work_sets = panzer_stk::buildWorksets(*mesh,physicsBlock->elementBlockID(),
+                                                                                            physicsBlock->getWorksetNeeds()); 
     TEST_EQUALITY(work_sets->size(),1);
 
     // build connection manager and field manager
@@ -192,8 +192,8 @@ namespace panzer {
     PHX::MDField<panzer::Traits::Residual::ScalarT> 
        fieldData_qedge1(evalField_qedge1->name(),basis_qedge1->functional);
 
-    fm.getFieldData<panzer::Traits::Residual::ScalarT,panzer::Traits::Residual>(fieldData_q1);
-    fm.getFieldData<panzer::Traits::Residual::ScalarT,panzer::Traits::Residual>(fieldData_qedge1);
+    fm.getFieldData<panzer::Traits::Residual>(fieldData_q1);
+    fm.getFieldData<panzer::Traits::Residual>(fieldData_qedge1);
 
     for(int i=0;i<static_cast<int>(fieldData_q1.size());i++) {
        TEST_EQUALITY(fieldData_q1[i],1);

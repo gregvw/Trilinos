@@ -62,17 +62,17 @@ void print_vector( const ROL::Vector<Real> &x ) {
   typedef ROL::PartitionedVector<Real> PV;
   typedef typename PV::size_type       size_type;
 
-  const PV eb = Teuchos::dyn_cast<const PV>(x);
+  const PV eb = dynamic_cast<const PV&>(x);
   size_type n = eb.numVectors();
-    
+
   for(size_type k=0; k<n; ++k) {
     std::cout << "[subvector " << k << "]" << std::endl;
-    Teuchos::RCP<const V> vec = eb.get(k);
-    Teuchos::RCP<const std::vector<Real> > vp = 
-      Teuchos::dyn_cast<const SV>(*vec).getVector();  
+    ROL::SharedPointer<const V> vec = eb.get(k);
+    ROL::SharedPointer<const std::vector<Real> > vp =
+      dynamic_cast<const SV&>(*vec).getVector();
    for(size_type i=0;i<vp->size();++i) {
       std::cout << (*vp)[i] << std::endl;
-    }  
+    }
   }
 }
 
@@ -89,13 +89,13 @@ int main(int argc, char *argv[]) {
 
   int iprint = argc - 1;
 
-  RCP<std::ostream> outStream;
+  std::ostream* outStream;
   oblackholestream bhs; // no output
- 
-  if( iprint>0 ) 
-    outStream = rcp(&std::cout,false);
+
+  if( iprint>0 )
+    outStream = &std::cout;
   else
-    outStream = rcp(&bhs,false);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
 
   try {
 
-    PV::size_type nvec = 3;    
+    PV::size_type nvec = 3;
     std::vector<int> dim;
 
     dim.push_back(4);
@@ -111,49 +111,49 @@ int main(int argc, char *argv[]) {
     dim.push_back(5);
 
     int total_dim = 0;
-     
+
     RealT left = -1e0, right = 1e0;
 
-    std::vector<RCP<V> > x_rcp;
-    std::vector<RCP<V> > y_rcp;
-    std::vector<RCP<V> > z_rcp;
+    std::vector<ROL::SharedPointer<V> > x_rcp;
+    std::vector<ROL::SharedPointer<V> > y_rcp;
+    std::vector<ROL::SharedPointer<V> > z_rcp;
 
     for( PV::size_type k=0; k<nvec; ++k ) {
-      RCP<std::vector<RealT> > xk_rcp = rcp( new std::vector<RealT>(dim[k]) );
-      RCP<std::vector<RealT> > yk_rcp = rcp( new std::vector<RealT>(dim[k]) );
-      RCP<std::vector<RealT> > zk_rcp = rcp( new std::vector<RealT>(dim[k]) );
-       
+      ROL::SharedPointer<std::vector<RealT> > xk_rcp = ROL::makeShared<std::vector<RealT>>(dim[k]);
+      ROL::SharedPointer<std::vector<RealT> > yk_rcp = ROL::makeShared<std::vector<RealT>>(dim[k]);
+      ROL::SharedPointer<std::vector<RealT> > zk_rcp = ROL::makeShared<std::vector<RealT>>(dim[k]);
+
       for( int i=0; i<dim[k]; ++i ) {
         (*xk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
         (*yk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
         (*zk_rcp)[i] = ( (RealT)rand() / (RealT)RAND_MAX ) * (right - left) + left;
       }
-   
-      RCP<V> xk = rcp( new SV( xk_rcp ) );
-      RCP<V> yk = rcp( new SV( yk_rcp ) );
-      RCP<V> zk = rcp( new SV( zk_rcp ) );
+
+      ROL::SharedPointer<V> xk = ROL::makeShared<SV>( xk_rcp );
+      ROL::SharedPointer<V> yk = ROL::makeShared<SV>( yk_rcp );
+      ROL::SharedPointer<V> zk = ROL::makeShared<SV>( zk_rcp );
 
       x_rcp.push_back(xk);
       y_rcp.push_back(yk);
       z_rcp.push_back(zk);
-      
+
       total_dim += dim[k];
     }
 
     PV x(x_rcp);
-    RCP<V> y = ROL::CreatePartitionedVector<RealT>(y_rcp[0],y_rcp[1],y_rcp[2]);
+    ROL::SharedPointer<V> y = ROL::CreatePartitionedVector<RealT>(y_rcp[0],y_rcp[1],y_rcp[2]);
     PV z(z_rcp);
 
     // Standard tests.
-    std::vector<RealT> consistency = x.checkVector(*y, z, true, *outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    auto consistency = ROL::makeShared<std::vector<RealT>>(x.checkVector(*y, z, true, *outStream));
+    ROL::StdVector<RealT> checkvec(consistency);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }
 
     // Basis tests.
     // set x to first basis vector
-    Teuchos::RCP<ROL::Vector<RealT> > zp = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > zp = x.clone();
     zp = x.basis(0);
     RealT znorm = zp->norm();
     *outStream << "Norm of ROL::Vector z (first basis vector): " << znorm << "\n";
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
 
     // Repeat the checkVector tests with a zero vector.
     x.scale(0.0);
-    consistency = x.checkVector(x, x, true, *outStream);
+    *consistency = x.checkVector(x, x, true, *outStream);
     if (checkvec.norm() > 0.0) {
       errorFlag++;
     }

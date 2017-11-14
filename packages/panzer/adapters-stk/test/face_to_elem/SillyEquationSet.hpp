@@ -20,7 +20,6 @@
 #include "Panzer_EquationSet_Factory_Defines.hpp"
 #include "Panzer_CellData.hpp"
 #include "Phalanx_FieldManager.hpp"
-#include "Phalanx_KokkosUtilities.hpp"
 #include "Panzer_PhysicsBlock.hpp"
 #include "Panzer_STK_Interface.hpp"
 #include "Panzer_STK_SetupUtilities.hpp"
@@ -58,9 +57,9 @@ public:
 
   }
 
-  void buildAndRegisterEquationSetEvaluators(PHX::FieldManager<panzer::Traits>& fm,
-      const panzer::FieldLibrary& field_library,
-      const Teuchos::ParameterList& user_data) const{}
+  void buildAndRegisterEquationSetEvaluators(PHX::FieldManager<panzer::Traits>& /* fm */,
+      const panzer::FieldLibrary& /* field_library */,
+      const Teuchos::ParameterList& /* user_data */) const{}
 private:
   int dimension_;
 

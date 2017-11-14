@@ -15,6 +15,7 @@ constexpr int nfloats  = 4;
 }
 }
 
+// IWYU pragma: begin_exports
 #include "./SseDouble.hpp"
 #include "./SseFloat.hpp"
 #include "./SseBool.hpp"
@@ -27,5 +28,20 @@ constexpr int nfloats  = 4;
 #include "./SseFloatOperators.hpp"
 #include "./SseFloatLoadStore.hpp"
 #include "./SseFloatMath.hpp"
+// IWYU pragma: end_exports
+
+namespace stk {
+namespace simd {
+
+inline double reduce_sum(const Double& x) {
+  return x[0]+x[1];
+}
+
+inline float reduce_sum(const Float& x) {
+  return x[0]+x[1]+x[2]+x[3];
+}
+
+}
+}
 
 #endif // STK_SIMD_SSE_H

@@ -1,6 +1,6 @@
-C Copyright(C) 2011 Sandia Corporation.  Under the terms of Contract
-C DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-C certain rights in this software
+C Copyright(C) 2011 National Technology & Engineering Solutions of
+C Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+C NTESS, the U.S. Government retains certain rights in this software.
 C 
 C Redistribution and use in source and binary forms, with or without
 C modification, are permitted provided that the following conditions are
@@ -14,7 +14,7 @@ C   copyright notice, this list of conditions and the following
 C   disclaimer in the documentation and/or other materials provided
 C   with the distribution.
 C                         
-C * Neither the name of Sandia Corporation nor the names of its
+C * Neither the name of NTESS nor the names of its
 C   contributors may be used to endorse or promote products derived
 C   from this software without specific prior written permission.
 C                                                 
@@ -29,7 +29,6 @@ C DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 C THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 C (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 C OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-C 
 
 C=======================================================================
       PROGRAM GREPOS
@@ -420,7 +419,7 @@ C     .. Set up status arrays for element to nodal variable conversion
      &     IA(KLTESS), IA(KLTSSS), A(KFACSS),
      &     A(KXN), A(KYN), A(KZN),
      &     A(KXEXPL), A(KYEXPL), A(KZEXPL), MODBLK,
-     &     ISATRB, A(KATRSC), IA(KIXNP), IA(KMAPNN),
+     &     ISATRB, A(KATRSC), IA(KIXNP), IA(KMAPNN), IA(KMAPEL),
      &     IA(KIELBS), IA(KINPSS), IA(KIESSS),
      &     NQAREC, C(KQAREC), NINFO, c(kinfo), c(kbktyp),
      *     c(knameb), c(knamnp), c(knamss), c(knamatt),
@@ -857,7 +856,8 @@ C     --Squeeze the nodal point sets
 
          IF (DELNP) THEN
             CALL ZMNPS (NUMNPS, IA(KINPSS), LNPSNL, LNPSDF,
-     *       IA(KIDNS), IA(KNNNS), IA(KIXNNS), IA(KLTNNS), A(KFACNS))
+     *       IA(KIDNS), IA(KNNNS), IA(KIXNNS), IA(KLTNNS), A(KFACNS),
+     *       C(KNAMNP))
          END IF
 
 C     ... Fix up the truth table if the nodeset count changes... 
@@ -871,9 +871,9 @@ C     ... Fix up the truth table if the nodeset count changes...
            call muntt(numnps0, numnps, nvarns, 
      $       ia(knsvok0), ia(knsvok), ia(kinpss))
 
-C ... check that the sidesets that are retained contain the same number
-C     of faces that the original sidesets contain.  At the current time,
-C     can only map sideset variables if the sidesets are the same...
+C ... check that the nodesets that are retained contain the same number
+C     of nodes that the original nodesets contain.  At the current time,
+C     can only map nodeset variables if the nodesets are the same...
             i1 = 0
             do i=0,numnps0-1
                if (ia(kinpss+i) .eq.0) then

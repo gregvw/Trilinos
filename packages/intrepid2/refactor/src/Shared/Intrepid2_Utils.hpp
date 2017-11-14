@@ -40,8 +40,8 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_Utils.hpp
-    \brief  Intrepid utilities.
+/** \file   Intrepid2_Utils.hpp
+    \brief  Header function for Intrepid2::Util class and other utility functions.
     \author Created by P. Bochev and D. Ridzal.
             Kokkorized by Kyungjoo Kim
 */
@@ -63,9 +63,9 @@ namespace Intrepid2 {
 #define INTREPID2_USE_IVDEP
 #endif
 
-  ///
-  /// test macros
-  ///
+  //
+  // test macros
+  //
 
 #define INTREPID2_TEST_FOR_WARNING(test, msg)                           \
   if (test) {                                                           \
@@ -110,55 +110,88 @@ namespace Intrepid2 {
   }
 #endif
 
-  /// 
-  /// scalar type traits
-  /// 
-
+  /**
+   \brief scalar type traits
+  */ 
   template<typename T> 
   struct ScalarTraits {
     typedef typename T::scalar_type scalar_type;
   };
 
   // this is built in types to support
+  /**
+   \brief Built in support for float
+  */ 
   template<>
   struct ScalarTraits<float> {
     typedef float scalar_type;
   };
+  /**
+   \brief Built in support for double
+  */ 
   template<>
   struct ScalarTraits<double> {
     typedef double scalar_type;
   };
+  /**
+   \brief Built in support for int
+  */ 
   template<>
   struct ScalarTraits<int> {
     typedef int scalar_type;
   };
+  /**
+   \brief Built in support for long int
+  */ 
   template<>
   struct ScalarTraits<long int> {
     typedef long int scalar_type;
   };
+  /**
+   \brief Built in support for long long
+  */ 
   template<>
   struct ScalarTraits<long long> {
     typedef long long scalar_type;
   };
 
 
-  /// 
-  /// space overload
-  /// 
 
+  /**
+   \brief space overload
+  */ 
   template<typename ViewSpaceType, typename UserSpaceType>
   struct ExecSpace {
     typedef UserSpaceType ExecSpaceType;
   };
 
+  /**
+   \brief space overload
+  */ 
   template<typename ViewSpaceType>
   struct ExecSpace<ViewSpaceType,void> {
     typedef ViewSpaceType ExecSpaceType;
   };
 
-  ///
-  /// utilities device compirable
-  ///
+
+  /**
+   \brief layout deduction (temporary meta-function)
+  */ 
+  template <typename ViewType>
+  struct DeduceLayout {
+    using input_layout = typename ViewType::array_layout;
+    using default_layout = typename ViewType::device_type::execution_space::array_layout;
+    using result_layout  =
+      typename std::conditional<
+        std::is_same< input_layout, Kokkos::LayoutStride >::value,
+        default_layout,
+        input_layout >::type;
+  };
+
+
+  //
+  // utilities device comparible
+  //
 
   // this will be gone 
   template<typename IdxType, typename DimType, typename IterType>
@@ -194,6 +227,9 @@ namespace Intrepid2 {
     unrollIndex( j, k,   dim1,      dim2,  tmp);
   }
   
+  /**
+   \brief small utility functions
+  */ 
   template<typename T>
   class Util {
   public:
@@ -214,6 +250,23 @@ namespace Intrepid2 {
 
   };
 
+  template<typename T>
+  KOKKOS_FORCEINLINE_FUNCTION
+  static T min(const T &a, const T &b) {
+    return (a < b ? a : b);
+  }
+
+  template<typename T>
+  KOKKOS_FORCEINLINE_FUNCTION
+  static T max(const T &a, const T &b) {
+    return (a > b ? a : b);
+  }
+
+  template<typename T>
+  KOKKOS_FORCEINLINE_FUNCTION
+  static T abs(const T &a) {
+    return (a > 0 ? a : T(-a));
+  }
 
 } // end namespace Intrepid2
 

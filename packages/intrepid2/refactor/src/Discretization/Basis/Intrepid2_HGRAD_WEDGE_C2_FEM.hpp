@@ -40,8 +40,8 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_HGRAD_WEDGE_C2_FEM.hpp
-    \brief  Header file for the Intrepid2::G_WEDGE_C2_FEM class.
+/** \file   Intrepid2_HGRAD_WEDGE_C2_FEM.hpp
+    \brief  Header file for the Intrepid2::Basis_HGRAD_WEDGE_C2_FEM class.
     \author Created by P. Bochev and D. Ridzal.
             Kokkorized by Kyungjoo Kim
 */
@@ -119,8 +119,15 @@ namespace Intrepid2 {
 
   namespace Impl {
 
+    /**
+      \brief See Intrepid2::Basis_HGRAD_WEDGE_C2_FEM
+    */
     class Basis_HGRAD_WEDGE_C2_FEM {
     public:
+      typedef struct Wedge<18> cell_topology_type;
+      /**
+        \brief See Intrepid2::Basis_HGRAD_WEDGE_C2_FEM
+      */
       template<EOperator opType>
       struct Serial {
         template<typename outputViewType,
@@ -140,6 +147,9 @@ namespace Intrepid2 {
                  const Kokkos::DynRankView<inputPointValueType, inputPointProperties...>  inputPoints,
                  const EOperator operatorType);
 
+      /**
+        \brief See Intrepid2::Basis_HGRAD_WEDGE_C2_FEM
+      */
       template<typename outputValueViewType,
                typename inputPointViewType,
                EOperator opType>
@@ -236,6 +246,20 @@ namespace Intrepid2 {
                                     ">>> ERROR: (Intrepid2::Basis_HGRAD_WEDGE_C2_FEM::getDofCoords) incorrect reference cell (1st) dimension in dofCoords array");
 #endif
       Kokkos::deep_copy(dofCoords, this->dofCoords_);
+    }
+
+    virtual
+    void
+    getDofCoeffs( scalarViewType dofCoeffs ) const {
+#ifdef HAVE_INTREPID2_DEBUG
+      // Verify rank of output array.
+      INTREPID2_TEST_FOR_EXCEPTION( dofCoeffs.rank() != 1, std::invalid_argument,
+                                    ">>> ERROR: (Intrepid2::Basis_HGRAD_WEDGE_C2_FEM::getdofCoeffs) rank = 1 required for dofCoeffs array");
+      // Verify 0th dimension of output array.
+      INTREPID2_TEST_FOR_EXCEPTION( static_cast<ordinal_type>(dofCoeffs.dimension(0)) != this->getCardinality(), std::invalid_argument,
+                                    ">>> ERROR: (Intrepid2::Basis_HGRAD_WEDGE_C2_FEM::getdofCoeffs) mismatch in number of dof and 0th dimension of dofCoeffs array");
+#endif
+      Kokkos::deep_copy(dofCoeffs, 1.0);
     }
 
     virtual

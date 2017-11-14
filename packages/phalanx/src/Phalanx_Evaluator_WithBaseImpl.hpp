@@ -51,6 +51,7 @@
 #include "Phalanx_Evaluator.hpp"
 #include "Phalanx_Field.hpp"
 #include "Phalanx_MDField.hpp"
+#include "Kokkos_View.hpp"
 
 namespace PHX {
 
@@ -76,20 +77,20 @@ namespace PHX {
 
     virtual void addEvaluatedField(const PHX::FieldTag& ft);
 
-    template<typename DataT>
-    void addEvaluatedField(const PHX::Field<DataT>& f);
-
     template<typename DataT,
 	     typename Tag0, typename Tag1, typename Tag2, typename Tag3,
 	     typename Tag4, typename Tag5, typename Tag6, typename Tag7>
     void addEvaluatedField(const PHX::MDField<DataT,Tag0,Tag1,Tag2,Tag3,
 			   Tag4,Tag5,Tag6,Tag7>& f);
 
+    template<typename DataT,int Rank>
+    void addEvaluatedField(const PHX::Field<DataT,Rank>& f);
 
+    template<typename DataT,typename... Properties>
+    void addEvaluatedField(const PHX::FieldTag& ft,
+                           const Kokkos::View<DataT,Properties...>& f);
+    
     virtual void addContributedField(const PHX::FieldTag& ft);
-
-    template<typename DataT>
-    void addContributedField(const PHX::Field<DataT>& f);
 
     template<typename DataT,
 	     typename Tag0, typename Tag1, typename Tag2, typename Tag3,
@@ -97,15 +98,14 @@ namespace PHX {
     void addContributedField(const PHX::MDField<DataT,Tag0,Tag1,Tag2,Tag3,
                              Tag4,Tag5,Tag6,Tag7>& f);
 
+    template<typename DataT,int Rank>
+    void addContributedField(const PHX::Field<DataT,Rank>& f);
+
+    template<typename DataT,typename... Properties>
+    void addContributedField(const PHX::FieldTag& ft,
+                             const Kokkos::View<DataT,Properties...>& f);
+
     virtual void addDependentField(const PHX::FieldTag& ft);
-
-    // DEPRECATED: use new const version below
-    template<typename DataT>
-    PHALANX_DEPRECATED
-    void addDependentField(const PHX::Field<DataT>& f);
-
-    template<typename DataT>
-    void addDependentField(const PHX::Field<const DataT>& f);
 
     // DEPRECATED: use new const version below
     template<typename DataT,
@@ -120,6 +120,23 @@ namespace PHX {
 	     typename Tag4, typename Tag5, typename Tag6, typename Tag7>
     void addDependentField(const PHX::MDField<const DataT,Tag0,Tag1,Tag2,Tag3,
 			   Tag4,Tag5,Tag6,Tag7>& f);
+
+    template<typename DataT,int Rank>
+    void addDependentField(const PHX::Field<const DataT,Rank>& f);
+
+    /** Add dependent field using raw Kokkos::View, DataT must be const. 
+
+        NOTE: Since DataT is not a true scalar (it contains rank
+        information as well), the template deduction fails if we try
+        to enforce const on the DataT within the view (as we do for
+        the other addDependentField() methods). We will enforce with a
+        static_assert within this function instead. Not ideal. Could
+        also work around with SFINAE but debugging would be more
+        difficult.
+    */
+    template<typename DataT,typename... Properties>
+    void addDependentField(const PHX::FieldTag& ft,
+                           const Kokkos::View<DataT,Properties...>& f);
 
     virtual void setName(const std::string& name);
 
@@ -166,8 +183,12 @@ namespace PHX {
 
     std::string name_;
 
-    //! functors that bind memory for evaluator fields
-    std::unordered_map<std::string,std::function<void(const PHX::any& f)>> field_binders_;
+    /** \brief Functors that bind memory for evaluator fields. Note
+     *  that two MDFields might point to the same underlying field in
+     *  a single evaluator. For this reason we use
+     *  std::unordered_multimap instead of std::unordered_map.
+     */
+    std::unordered_multimap<std::string,std::function<void(const PHX::any& f)>> field_binders_;
   };
 
 }

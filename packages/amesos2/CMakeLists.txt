@@ -20,6 +20,15 @@ IF (NOT Tpetra_INST_INT_INT)
 
 ENDIF ()
 
+IF (Amesos2_ENABLE_UMFPACK)
+  IF (Trilinos_ENABLE_COMPLEX_FLOAT AND NOT Trilinos_ENABLE_COMPLEX_DOUBLE)
+    MESSAGE(WARNING "*****Amesos2 is building Umfpack without a complex<double> type. Umfpack natively supports only complex<double> types, not complex<float> types, and this will lead to type conversions. *****")
+  ENDIF()
+  # This may not happen anyways… right now it seems we can’t compile this package with Trilinos_ENABLE_FLOAT and TPetra_INST_DOUBLE turned off - need to resolve.
+  IF (NOT Tpetra_INST_DOUBLE)
+    MESSAGE(WARNING "*****Amesos2 is building Umfpack without a double type. Umfpack natively supports only double types, not float types, and this will lead to type conversions. *****")
+  ENDIF()
+ENDIF()
 
 
 
@@ -57,6 +66,18 @@ TRIBITS_ADD_OPTION_AND_DEFINE(${PACKAGE_NAME}_ENABLE_KLU2
   HAVE_AMESOS2_KLU2
   "Enable KLU2 in Amesos2"
   ON
+)
+
+IF (Trilinos_ENABLE_ShyLU_NodeTacho AND NOT Kokkos_ENABLE_Cuda)
+  SET(Amesos2_HAVE_TACHO ON)
+ELSE()
+  SET(Amesos2_HAVE_TACHO OFF)
+ENDIF()
+
+TRIBITS_ADD_OPTION_AND_DEFINE(${PACKAGE_NAME}_ENABLE_ShyLU_NodeTacho
+  HAVE_AMESOS2_TACHO
+  "Enable Tacho in Amesos2"
+  ${Amesos2_HAVE_TACHO}
 )
 
 TRIBITS_ADD_OPTION_AND_DEFINE(${PACKAGE_NAME}_ENABLE_Basker

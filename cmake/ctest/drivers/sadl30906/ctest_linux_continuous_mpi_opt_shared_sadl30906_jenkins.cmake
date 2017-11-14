@@ -80,6 +80,9 @@ SET(Trilinos_BRANCH develop)
 
 SET(EXTRA_EXCLUDE_PACKAGES Claps Optika)
 
+SET(Trilinos_ENABLE_Phalanx OFF)
+SET(Trilinos_ENABLE_Panzer OFF)
+
 SET( EXTRA_CONFIGURE_OPTIONS
   "-DTrilinos_ENABLE_COMPLEX=OFF"
   "-DTrilinos_TEST_CATEGORIES=BASIC"
@@ -87,7 +90,6 @@ SET( EXTRA_CONFIGURE_OPTIONS
   "-DTrilinos_ENABLE_DEBUG:BOOL=ON"
   "-DTrilinos_ENABLE_DEBUG_SYMBOLS=OFF"
   "-DBUILD_SHARED_LIBS:BOOL=ON"
-  "-DMPI_BASE_DIR:PATH=/projects/install/rhel6-x86_64/sems/compiler/gcc/4.7.2/openmpi/1.6.5"
   "-DTPL_ENABLE_Pthread:BOOL=ON"
   "-DTPL_ENABLE_Boost:BOOL=ON"
   "-DTPL_ENABLE_BoostLib:BOOL=ON"
@@ -99,6 +101,8 @@ SET( EXTRA_CONFIGURE_OPTIONS
 #  "-DTPL_ENABLE_CppUnit:BOOL=ON"
   "-DSTK_stk_mesh_unit_tests_MPI_4_DISABLE=ON"
   "-DSTK_util_parallel_UnitTest_MPI_4_DISABLE=ON"
+  "-DTrilinos_ENABLE_Phalanx=OFF"
+  "-DTrilinos_ENABLE_Panzer=OFF"
   "-DAmesos2_ENABLE_KLU2=ON"
   "-DTeuchos_ENABLE_DEFAULT_STACKTRACE=OFF"
   "-DTrilinos_TRACE_ADD_TEST=ON"

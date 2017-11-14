@@ -88,16 +88,18 @@ namespace ROL {
 template<class Real>
 class SpectralRisk : public RiskMeasure<Real> {
 private:
-  Teuchos::RCP<MixedQuantileQuadrangle<Real> > mqq_;
-  Teuchos::RCP<PlusFunction<Real> > plusFunction_;
+  ROL::SharedPointer<MixedQuantileQuadrangle<Real> > mqq_;
+  ROL::SharedPointer<PlusFunction<Real> > plusFunction_;
 
   std::vector<Real> wts_;
   std::vector<Real> pts_;
 
-  void checkInputs(Teuchos::RCP<Distribution<Real> > &dist = Teuchos::null) const {
-    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == Teuchos::null, std::invalid_argument,
+  bool isSet_;
+
+  void checkInputs(ROL::SharedPointer<Distribution<Real> > &dist = ROL::nullPointer) const {
+    TEUCHOS_TEST_FOR_EXCEPTION(plusFunction_ == ROL::nullPointer, std::invalid_argument,
       ">>> ERROR (ROL::SpectralRisk): PlusFunction pointer is null!");
-    if ( dist != Teuchos::null) {
+    if ( dist != ROL::nullPointer) {
       Real lb = dist->lowerBound();
       Real ub = dist->upperBound();
       TEUCHOS_TEST_FOR_EXCEPTION(lb < static_cast<Real>(0), std::invalid_argument,
@@ -109,15 +111,15 @@ private:
 
 protected:
   void buildMixedQuantile(const std::vector<Real> &pts, const std::vector<Real> &wts,
-                          const Teuchos::RCP<PlusFunction<Real> > &pf) {
+                          const ROL::SharedPointer<PlusFunction<Real> > &pf) {
      pts_.clear(); pts_.assign(pts.begin(),pts.end());
      wts_.clear(); wts_.assign(wts.begin(),wts.end());
      plusFunction_ = pf;
-     mqq_ = Teuchos::rcp(new MixedQuantileQuadrangle<Real>(pts,wts,pf));
+     mqq_ = ROL::makeShared<MixedQuantileQuadrangle<Real>>(pts,wts,pf);
   }
 
   void buildQuadFromDist(std::vector<Real> &pts, std::vector<Real> &wts,
-                   const int nQuad, const Teuchos::RCP<Distribution<Real> > &dist) const {
+                   const int nQuad, const ROL::SharedPointer<Distribution<Real> > &dist) const {
     const Real lo = dist->lowerBound(), hi = dist->upperBound();
     const Real half(0.5), one(1), N(nQuad);
     wts.clear(); wts.resize(nQuad);
@@ -161,13 +163,23 @@ protected:
     }
   }
 
-public:
-  SpectralRisk(void) : RiskMeasure<Real>() {}
+  void setInfo(void) {
+    if (!isSet_) {
+      int comp = RiskMeasure<Real>::getComponent();
+      int index = RiskMeasure<Real>::getIndex();
+      mqq_->setRiskVectorInfo(comp,index);
+      isSet_ = true;
+    }
+  }
 
-  SpectralRisk( const Teuchos::RCP<Distribution<Real> > &dist,
+
+public:
+  SpectralRisk(void) : RiskMeasure<Real>(), isSet_(false) {}
+
+  SpectralRisk( const ROL::SharedPointer<Distribution<Real> > &dist,
                 const int nQuad,
-                const Teuchos::RCP<PlusFunction<Real> > &pf)
-    : RiskMeasure<Real>() {
+                const ROL::SharedPointer<PlusFunction<Real> > &pf)
+    : RiskMeasure<Real>(), isSet_(false) {
     // Build generalized trapezoidal rule
     std::vector<Real> wts(nQuad), pts(nQuad);
     buildQuadFromDist(pts,wts,nQuad,dist);
@@ -178,16 +190,16 @@ public:
   }
 
   SpectralRisk(Teuchos::ParameterList &parlist)
-    : RiskMeasure<Real>() {
+    : RiskMeasure<Real>(), isSet_(false) {
     // Parse parameter list
     Teuchos::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Spectral Risk");
     int nQuad  = list.get("Number of Quadrature Points",5);
     bool print = list.get("Print Quadrature to Screen",false);
     // Build distribution
-    Teuchos::RCP<Distribution<Real> > dist = DistributionFactory<Real>(list);
+    ROL::SharedPointer<Distribution<Real> > dist = DistributionFactory<Real>(list);
     // Build plus function approximation
-    Teuchos::RCP<PlusFunction<Real> > pf = Teuchos::rcp(new PlusFunction<Real>(list));
+    ROL::SharedPointer<PlusFunction<Real> > pf = ROL::makeShared<PlusFunction<Real>>(list);
     // Build generalized trapezoidal rule
     std::vector<Real> wts(nQuad), pts(nQuad);
     buildQuadFromDist(pts,wts,nQuad,dist);
@@ -199,16 +211,19 @@ public:
   }
 
   SpectralRisk( const std::vector<Real> &pts, const std::vector<Real> &wts,
-                const Teuchos::RCP<PlusFunction<Real> > &pf)
-    : RiskMeasure<Real>() {
+                const ROL::SharedPointer<PlusFunction<Real> > &pf)
+    : RiskMeasure<Real>(), isSet_(false) {
     buildMixedQuantile(pts,wts,pf);
     // Check inputs
     checkInputs();
   }
 
-  Real computeStatistic(const Vector<Real> &x) const {
+  Real computeStatistic(const Vector<Real> &x) {
+    setInfo();
     std::vector<Real> xstat;
-    Teuchos::dyn_cast<const RiskVector<Real> >(x).getStatistic(xstat);
+    int index = RiskMeasure<Real>::getIndex();
+    int comp  = RiskMeasure<Real>::getComponent();
+    xstat = (*dynamic_cast<const RiskVector<Real>&>(x).getStatistic(comp,index));
     Real stat(0);
     int nQuad = static_cast<int>(wts_.size());
     for (int i = 0; i < nQuad; ++i) {
@@ -217,12 +232,14 @@ public:
     return stat;
   }
 
-  void reset(Teuchos::RCP<Vector<Real> > &x0, const Vector<Real> &x) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
+    setInfo();
     mqq_->reset(x0,x);
   }
 
-  void reset(Teuchos::RCP<Vector<Real> > &x0, const Vector<Real> &x,
-             Teuchos::RCP<Vector<Real> > &v0, const Vector<Real> &v) {
+  void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
+             ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
+    setInfo();
     mqq_->reset(x0,x,v0,v);
   }
 

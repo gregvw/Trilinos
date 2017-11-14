@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2009 Sandia Corporation.  Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
- * certain rights in this software
+ * Copyright (C) 2009 National Technology & Engineering Solutions of
+ * Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+ * NTESS, the U.S. Government retains certain rights in this software.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -15,7 +15,7 @@
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
  *
- *     * Neither the name of Sandia Corporation nor the names of its
+ *     * Neither the name of NTESS nor the names of its
  *       contributors may be used to endorse or promote products derived
  *       from this software without specific prior written permission.
  *
@@ -40,6 +40,7 @@
 #include <cstdio>     // for sprintf
 #include <cstdlib>    // for exit
 #include <cstring>    // for strncasecmp
+#include <vector>     // for vector
 
 #if __cplusplus > 199711L
 #define TOPTR(x) x.data()
@@ -53,11 +54,12 @@ namespace {
   template <typename INT>
   inline int numbermatch(INT *sidenodes, size_t i, size_t j, size_t k, size_t value)
   {
-    if ((size_t)sidenodes[(i + j) % k] == value)
+    if ((size_t)sidenodes[(i + j) % k] == value) {
       return 1;
+    }
     return 0;
   }
-}
+} // namespace
 
 /*****************************************************************************/
 /* Function get_elem_type() begins:
@@ -71,12 +73,12 @@ namespace {
 const char *elem_name_from_enum(const E_Type elem_type)
 {
   static const char *elem_names[NULL_EL] = {
-      "SPHERE",  "BAR2",    "BAR3",    "QUAD4",    "QUAD8",     "QUAD9",  "SHELL4",
-      "SHELL8",  "SHELL9",  "TRI3",    "TRI4",     "TRI6",      "TRI7",   "TSHELL3",
-      "TSHELL4", "TSHELL6", "TSHELL7", "HEX8",     "HEX20",     "HEX27",  "HEXSHELL",
-      "TET4",    "TET10",   "TET8",    "TET14",    "TET15",     "WEDGE6", "WEDGE15",
-      "WEDGE16", "WEDGE20", "WEDGE21", "PYRAMID5", "PYRAMID13", "PYRAMID14", "PYRAMID18", "PYRAMID19",
-      "SHELL2", "SHELL3"};
+      "SPHERE",    "BAR2",    "BAR3",    "QUAD4",    "QUAD8",     "QUAD9",     "SHELL4",
+      "SHELL8",    "SHELL9",  "TRI3",    "TRI4",     "TRI6",      "TRI7",      "TSHELL3",
+      "TSHELL4",   "TSHELL6", "TSHELL7", "HEX8",     "HEX20",     "HEX27",     "HEXSHELL",
+      "TET4",      "TET10",   "TET8",    "TET14",    "TET15",     "WEDGE6",    "WEDGE15",
+      "WEDGE16",   "WEDGE20", "WEDGE21", "PYRAMID5", "PYRAMID13", "PYRAMID14", "PYRAMID18",
+      "PYRAMID19", "SHELL2",  "SHELL3"};
   return elem_names[elem_type];
 }
 
@@ -103,19 +105,22 @@ E_Type get_elem_type(const char *elem_name, const int num_nodes, const int num_d
 
   case 'c':
   case 'C':
-    if (strncasecmp(elem_name, "CIRCLE", 6) == 0)
+    if (strncasecmp(elem_name, "CIRCLE", 6) == 0) {
       answer = SPHERE;
+    }
     break;
 
   case 's':
   case 'S':
-    if (strncasecmp(elem_name, "SPHERE", 6) == 0)
+    if (strncasecmp(elem_name, "SPHERE", 6) == 0) {
       answer = SPHERE;
+    }
     else if (strncasecmp(elem_name, "SHELL", 5) == 0) {
       switch (num_nodes) {
       case 2:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = SHELL2;
+        }
         else {
           Gen_Error(0, "fatal: unsupported SHELL element");
           error_report();
@@ -123,8 +128,9 @@ E_Type get_elem_type(const char *elem_name, const int num_nodes, const int num_d
         }
         break;
       case 3:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = SHELL3;
+        }
         else {
           Gen_Error(0, "fatal: unsupported SHELL element");
           error_report();
@@ -162,28 +168,36 @@ E_Type get_elem_type(const char *elem_name, const int num_nodes, const int num_d
     else if (strncasecmp(elem_name, "TRI", 3) == 0) {
       switch (num_nodes) {
       case 3:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = TRI3;
-        else
+        }
+        else {
           answer = TSHELL3;
+        }
         break;
       case 4:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = TRI4;
-        else
+        }
+        else {
           answer = TSHELL4;
+        }
         break;
       case 6:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = TRI6;
-        else
+        }
+        else {
           answer = TSHELL6;
+        }
         break;
       case 7:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = TRI7;
-        else
+        }
+        else {
           answer = TSHELL7;
+        }
         break;
       default:
         Gen_Error(0, "fatal: unsupported TRI element");
@@ -211,22 +225,28 @@ E_Type get_elem_type(const char *elem_name, const int num_nodes, const int num_d
     if (strncasecmp(elem_name, "QUAD", 4) == 0) {
       switch (num_nodes) {
       case 4:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = QUAD4;
-        else
+        }
+        else {
           answer = SHELL4;
+        }
         break;
       case 8:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = QUAD8;
-        else
+        }
+        else {
           answer = SHELL8;
+        }
         break;
       case 9:
-        if (num_dim == 2)
+        if (num_dim == 2) {
           answer = QUAD9;
-        else
+        }
+        else {
           answer = SHELL9;
+        }
         break;
       default:
         Gen_Error(0, "fatal: unsupported QUAD element");
@@ -864,8 +884,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
         break;
       }
     }
-    if (num == nsnodes)
+    if (num == nsnodes) {
       break;
+    }
   }
 
   /* printf("%s::%d num = %d and nsnodes = %d\n",__FILE__,__LINE__,num,nsnodes); */
@@ -881,8 +902,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
 
   if (((partial_adj == 1) && (num < nsnodes - 1) && (num >= 2)) ||
       ((partial_adj != 1) && (num != nsnodes))) {
-    if (skip_check)
+    if (skip_check) {
       Gen_Error(0, "warning: not all side nodes in connect table for element");
+    }
     else {
       Gen_Error(0, "fatal: not all side nodes in connect table for element");
       return -1;
@@ -900,27 +922,32 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
   case SHELL2:
   case SHELL3:
     /* SIDE 1 */
-    if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1])
+    if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1]) {
       return 1;
+    }
     break;
   case QUAD4:
   case QUAD8:
   case QUAD9:
     /* SIDE 1 */
-    if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1])
+    if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1]) {
       return 1;
+    }
 
     /* SIDE 2 */
-    if (side_nodes[0] == connect[1] && side_nodes[1] == connect[2])
+    if (side_nodes[0] == connect[1] && side_nodes[1] == connect[2]) {
       return 2;
+    }
 
     /* SIDE 3 */
-    if (side_nodes[0] == connect[2] && side_nodes[1] == connect[3])
+    if (side_nodes[0] == connect[2] && side_nodes[1] == connect[3]) {
       return 3;
+    }
 
     /* SIDE 4 */
-    if (side_nodes[0] == connect[3] && side_nodes[1] == connect[0])
+    if (side_nodes[0] == connect[3] && side_nodes[1] == connect[0]) {
       return 4;
+    }
 
     break;
 
@@ -929,16 +956,19 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
   case TRI6:
   case TRI7:
     /* SIDE 1 */
-    if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1])
+    if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1]) {
       return 1;
+    }
 
     /* SIDE 2 */
-    if (side_nodes[0] == connect[1] && side_nodes[1] == connect[2])
+    if (side_nodes[0] == connect[1] && side_nodes[1] == connect[2]) {
       return 2;
+    }
 
     /* SIDE 3 */
-    if (side_nodes[0] == connect[2] && side_nodes[1] == connect[0])
+    if (side_nodes[0] == connect[2] && side_nodes[1] == connect[0]) {
       return 3;
+    }
 
     break;
 
@@ -948,31 +978,36 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
   case TET15:
   case TET8:
     /* check the # of side nodes */
-    if (nsnodes < 3)
+    if (nsnodes < 3) {
       return 0;
+    }
 
     /* SIDE 1 */
     if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
-      if (side_nodes[(1 + num) % 3] == connect[1] && side_nodes[(2 + num) % 3] == connect[3])
+      if (side_nodes[(1 + num) % 3] == connect[1] && side_nodes[(2 + num) % 3] == connect[3]) {
         return 1;
+      }
     }
 
     /* SIDE 2 */
     if ((num = in_list(connect[1], nsnodes, side_nodes)) >= 0) {
-      if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[3])
+      if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[3]) {
         return 2;
+      }
     }
 
     /* SIDE 3 */
     if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
-      if (side_nodes[(1 + num) % 3] == connect[3] && side_nodes[(2 + num) % 3] == connect[2])
+      if (side_nodes[(1 + num) % 3] == connect[3] && side_nodes[(2 + num) % 3] == connect[2]) {
         return 3;
+      }
     }
 
     /* SIDE 4 */
     if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
-      if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[1])
+      if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[1]) {
         return 4;
+      }
     }
 
     break;
@@ -982,8 +1017,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
   case HEX27:
   case HEXSHELL: /* this should be the same as a HEX element */
     /* check the # of side nodes */
-    if (nsnodes < 4)
+    if (nsnodes < 4) {
       return 0;
+    }
 
     /* SIDE 1 */
     if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
@@ -991,8 +1027,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       count += numbermatch(side_nodes, 1, num, 4, connect[1]);
       count += numbermatch(side_nodes, 2, num, 4, connect[5]);
       count += numbermatch(side_nodes, 3, num, 4, connect[4]);
-      if (count >= min_match)
+      if (count >= min_match) {
         return 1;
+      }
 
       /* if this is the duplicated node, then find the next occurence */
       if (dup) {
@@ -1003,8 +1040,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
             count += numbermatch(side_nodes, 1, num, 4, connect[1]);
             count += numbermatch(side_nodes, 2, num, 4, connect[5]);
             count += numbermatch(side_nodes, 3, num, 4, connect[4]);
-            if (count >= min_match)
+            if (count >= min_match) {
               return 1;
+            }
           }
         }
       }
@@ -1016,8 +1054,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       count += numbermatch(side_nodes, 1, num, 4, connect[2]);
       count += numbermatch(side_nodes, 2, num, 4, connect[6]);
       count += numbermatch(side_nodes, 3, num, 4, connect[5]);
-      if (count >= min_match)
+      if (count >= min_match) {
         return 2;
+      }
 
       /* if this is the duplicated node, then find the next occurence */
       if (dup) {
@@ -1028,8 +1067,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
             count += numbermatch(side_nodes, 1, num, 4, connect[2]);
             count += numbermatch(side_nodes, 2, num, 4, connect[6]);
             count += numbermatch(side_nodes, 3, num, 4, connect[5]);
-            if (count >= min_match)
+            if (count >= min_match) {
               return 2;
+            }
           }
         }
       }
@@ -1041,8 +1081,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       count += numbermatch(side_nodes, 1, num, 4, connect[3]);
       count += numbermatch(side_nodes, 2, num, 4, connect[7]);
       count += numbermatch(side_nodes, 3, num, 4, connect[6]);
-      if (count >= min_match)
+      if (count >= min_match) {
         return 3;
+      }
 
       /* if this is the duplicated node, then find the next occurence */
       if (dup) {
@@ -1053,8 +1094,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
             count += numbermatch(side_nodes, 1, num, 4, connect[3]);
             count += numbermatch(side_nodes, 2, num, 4, connect[7]);
             count += numbermatch(side_nodes, 3, num, 4, connect[6]);
-            if (count >= min_match)
+            if (count >= min_match) {
               return 3;
+            }
           }
         }
       }
@@ -1066,8 +1108,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       count += numbermatch(side_nodes, 1, num, 4, connect[0]);
       count += numbermatch(side_nodes, 2, num, 4, connect[4]);
       count += numbermatch(side_nodes, 3, num, 4, connect[7]);
-      if (count >= min_match)
+      if (count >= min_match) {
         return 4;
+      }
 
       /* if this is the duplicated node, then find the next occurence */
       if (dup) {
@@ -1078,8 +1121,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
             count += numbermatch(side_nodes, 1, num, 4, connect[0]);
             count += numbermatch(side_nodes, 2, num, 4, connect[4]);
             count += numbermatch(side_nodes, 3, num, 4, connect[7]);
-            if (count >= min_match)
+            if (count >= min_match) {
               return 4;
+            }
           }
         }
       }
@@ -1091,8 +1135,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       count += numbermatch(side_nodes, 1, num, 4, connect[3]);
       count += numbermatch(side_nodes, 2, num, 4, connect[2]);
       count += numbermatch(side_nodes, 3, num, 4, connect[1]);
-      if (count >= min_match)
+      if (count >= min_match) {
         return 5;
+      }
 
       /* if this is the duplicated node, then find the next occurence */
       if (dup) {
@@ -1103,8 +1148,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
             count += numbermatch(side_nodes, 1, num, 4, connect[3]);
             count += numbermatch(side_nodes, 2, num, 4, connect[2]);
             count += numbermatch(side_nodes, 3, num, 4, connect[1]);
-            if (count >= min_match)
+            if (count >= min_match) {
               return 5;
+            }
           }
         }
       }
@@ -1116,8 +1162,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       count += numbermatch(side_nodes, 1, num, 4, connect[5]);
       count += numbermatch(side_nodes, 2, num, 4, connect[6]);
       count += numbermatch(side_nodes, 3, num, 4, connect[7]);
-      if (count >= min_match)
+      if (count >= min_match) {
         return 6;
+      }
 
       /* if this is the duplicated node, then find the next occurence */
       if (dup) {
@@ -1128,8 +1175,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
             count += numbermatch(side_nodes, 1, num, 4, connect[5]);
             count += numbermatch(side_nodes, 2, num, 4, connect[6]);
             count += numbermatch(side_nodes, 3, num, 4, connect[7]);
-            if (count >= min_match)
+            if (count >= min_match) {
               return 6;
+            }
           }
         }
       }
@@ -1144,20 +1192,24 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
     /* 2D sides */
     if (nsnodes == 2 || nsnodes == 3) {
       /* SIDE 3 */
-      if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1])
+      if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1]) {
         return 3;
+      }
 
       /* SIDE 4 */
-      if (side_nodes[0] == connect[1] && side_nodes[1] == connect[2])
+      if (side_nodes[0] == connect[1] && side_nodes[1] == connect[2]) {
         return 4;
+      }
 
       /* SIDE 5 */
-      if (side_nodes[0] == connect[2] && side_nodes[1] == connect[3])
+      if (side_nodes[0] == connect[2] && side_nodes[1] == connect[3]) {
         return 5;
+      }
 
       /* SIDE 6 */
-      if (side_nodes[0] == connect[3] && side_nodes[1] == connect[0])
+      if (side_nodes[0] == connect[3] && side_nodes[1] == connect[0]) {
         return 6;
+      }
     }
 
     /* 3D faces */
@@ -1166,15 +1218,17 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       /* SIDE 1 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
         if (side_nodes[(1 + num) % 4] == connect[1] && side_nodes[(2 + num) % 4] == connect[2] &&
-            side_nodes[(3 + num) % 4] == connect[3])
+            side_nodes[(3 + num) % 4] == connect[3]) {
           return 1;
+        }
       }
 
       /* SIDE 2 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
         if (side_nodes[(1 + num) % 4] == connect[3] && side_nodes[(2 + num) % 4] == connect[2] &&
-            side_nodes[(3 + num) % 4] == connect[1])
+            side_nodes[(3 + num) % 4] == connect[1]) {
           return 2;
+        }
       }
     }
 
@@ -1191,22 +1245,25 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       /* SIDE 1 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
         if (side_nodes[(1 + num) % 4] == connect[1] && side_nodes[(2 + num) % 4] == connect[4] &&
-            side_nodes[(3 + num) % 4] == connect[3])
+            side_nodes[(3 + num) % 4] == connect[3]) {
           return 1;
+        }
       }
 
       /* SIDE 2 */
       if ((num = in_list(connect[1], nsnodes, side_nodes)) >= 0) {
         if (side_nodes[(1 + num) % 4] == connect[2] && side_nodes[(2 + num) % 4] == connect[5] &&
-            side_nodes[(3 + num) % 4] == connect[4])
+            side_nodes[(3 + num) % 4] == connect[4]) {
           return 2;
+        }
       }
 
       /* SIDE 3 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
         if (side_nodes[(1 + num) % 4] == connect[3] && side_nodes[(2 + num) % 4] == connect[5] &&
-            side_nodes[(3 + num) % 4] == connect[2])
+            side_nodes[(3 + num) % 4] == connect[2]) {
           return 3;
+        }
       }
     }
 
@@ -1214,14 +1271,16 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
     else if (nsnodes == 3 || nsnodes == 6 || nsnodes == 7) {
       /* SIDE 4 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
-        if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[1])
+        if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[1]) {
           return 4;
+        }
       }
 
       /* SIDE 5 */
       if ((num = in_list(connect[3], nsnodes, side_nodes)) >= 0) {
-        if (side_nodes[(1 + num) % 3] == connect[4] && side_nodes[(2 + num) % 3] == connect[5])
+        if (side_nodes[(1 + num) % 3] == connect[4] && side_nodes[(2 + num) % 3] == connect[5]) {
           return 5;
+        }
       }
     }
 
@@ -1235,16 +1294,19 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
     /* 2D sides */
     if (nsnodes == 2 || (etype == TSHELL6 && nsnodes == 3) || (etype == TSHELL7 && nsnodes == 3)) {
       /* SIDE 3 */
-      if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1])
+      if (side_nodes[0] == connect[0] && side_nodes[1] == connect[1]) {
         return 3;
+      }
 
       /* SIDE 4 */
-      if (side_nodes[0] == connect[1] && side_nodes[1] == connect[2])
+      if (side_nodes[0] == connect[1] && side_nodes[1] == connect[2]) {
         return 4;
+      }
 
       /* SIDE 5 */
-      if (side_nodes[0] == connect[2] && side_nodes[1] == connect[0])
+      if (side_nodes[0] == connect[2] && side_nodes[1] == connect[0]) {
         return 5;
+      }
     }
 
     /* 3D faces */
@@ -1252,14 +1314,16 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
 
       /* SIDE 1 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
-        if (side_nodes[(1 + num) % 3] == connect[1] && side_nodes[(2 + num) % 3] == connect[2])
+        if (side_nodes[(1 + num) % 3] == connect[1] && side_nodes[(2 + num) % 3] == connect[2]) {
           return 1;
+        }
       }
 
       /* SIDE 2 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
-        if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[1])
+        if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[1]) {
           return 2;
+        }
       }
     }
 
@@ -1274,26 +1338,30 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
     if (nsnodes == 3 || nsnodes == 6 || nsnodes == 7) {
       /* SIDE 1 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
-        if (side_nodes[(1 + num) % 3] == connect[1] && side_nodes[(2 + num) % 3] == connect[4])
+        if (side_nodes[(1 + num) % 3] == connect[1] && side_nodes[(2 + num) % 3] == connect[4]) {
           return 1;
+        }
       }
 
       /* SIDE 2 */
       if ((num = in_list(connect[1], nsnodes, side_nodes)) >= 0) {
-        if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[4])
+        if (side_nodes[(1 + num) % 3] == connect[2] && side_nodes[(2 + num) % 3] == connect[4]) {
           return 2;
+        }
       }
 
       /* SIDE 3 */
       if ((num = in_list(connect[2], nsnodes, side_nodes)) >= 0) {
-        if (side_nodes[(1 + num) % 3] == connect[3] && side_nodes[(2 + num) % 3] == connect[4])
+        if (side_nodes[(1 + num) % 3] == connect[3] && side_nodes[(2 + num) % 3] == connect[4]) {
           return 3;
+        }
       }
 
       /* SIDE 4 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
-        if (side_nodes[(1 + num) % 3] == connect[4] && side_nodes[(2 + num) % 3] == connect[3])
+        if (side_nodes[(1 + num) % 3] == connect[4] && side_nodes[(2 + num) % 3] == connect[3]) {
           return 4;
+        }
       }
     }
 
@@ -1301,8 +1369,9 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
       /* SIDE 5 */
       if ((num = in_list(connect[0], nsnodes, side_nodes)) >= 0) {
         if (side_nodes[(1 + num) % 4] == connect[3] && side_nodes[(2 + num) % 4] == connect[2] &&
-            side_nodes[(3 + num) % 4] == connect[1])
+            side_nodes[(3 + num) % 4] == connect[1]) {
           return 5;
+        }
       }
     }
 
@@ -1312,7 +1381,8 @@ int get_side_id(const E_Type etype, const INT *connect, const int nsnodes, INT s
 
   default: {
     char err_buff[300];
-    sprintf(err_buff, "fatal: unknown element type %d in function %s", (int)etype, func_name);
+    sprintf(err_buff, "fatal: unknown element type %d in function %s", static_cast<int>(etype),
+            func_name);
     Gen_Error(0, err_buff);
     error_report();
     exit(1);
@@ -1360,8 +1430,9 @@ int get_side_id_hex_tet(const E_Type etype,        /* The element type */
         break;
       }
     }
-    if (lcnt == nsnodes)
+    if (lcnt == nsnodes) {
       break;
+    }
   }
 
   switch (etype) {
@@ -1372,23 +1443,27 @@ int get_side_id_hex_tet(const E_Type etype,        /* The element type */
   case TET15:
     /* SIDE 1 */
     if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0 && in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0 &&
-        in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0)
+        in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0) {
       return 1;
+    }
 
     /* SIDE 2 */
     if (in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0 && in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0 &&
-        in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0)
+        in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0) {
       return 2;
+    }
 
     /* SIDE 3 */
     if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0 && in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0 &&
-        in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0)
+        in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0) {
       return 3;
+    }
 
     /* SIDE 4 */
     if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0 && in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0 &&
-        in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0)
+        in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0) {
       return 4;
+    }
 
     break;
 
@@ -1397,87 +1472,118 @@ int get_side_id_hex_tet(const E_Type etype,        /* The element type */
   case HEX27:
     /* SIDE 1 */
     nnodes = 0;
-    if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0)
+    if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(5, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(5, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(6, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(6, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (nnodes > 2)
+    }
+    if (nnodes > 2) {
       return 1;
+    }
 
     /* SIDE 2 */
     nnodes = 0;
-    if (in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0)
+    if (in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(6, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(6, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(7, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(7, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (nnodes > 2)
+    }
+    if (nnodes > 2) {
       return 2;
+    }
 
     /* SIDE 3 */
     nnodes = 0;
-    if (in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0)
+    if (in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(7, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(7, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(8, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(8, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (nnodes > 2)
+    }
+    if (nnodes > 2) {
       return 3;
+    }
 
     /* SIDE 4 */
     nnodes = 0;
-    if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0)
+    if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(5, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(5, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(8, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(8, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (nnodes > 2)
+    }
+    if (nnodes > 2) {
       return 4;
+    }
 
     /* SIDE 5 */
     nnodes = 0;
-    if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0)
+    if (in_list(1, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(2, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(3, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(4, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (nnodes > 2)
+    }
+    if (nnodes > 2) {
       return 5;
+    }
 
     /* SIDE 6 */
     nnodes = 0;
-    if (in_list(5, lcnt, TOPTR(loc_node_ids)) >= 0)
+    if (in_list(5, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(6, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(6, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(7, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(7, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (in_list(8, lcnt, TOPTR(loc_node_ids)) >= 0)
+    }
+    if (in_list(8, lcnt, TOPTR(loc_node_ids)) >= 0) {
       nnodes++;
-    if (nnodes > 2)
+    }
+    if (nnodes > 2) {
       return 6;
+    }
 
     break;
 
   default: {
     char err_buff[300];
-    sprintf(err_buff, "fatal: unknown element type %d in function %s", (int)etype, func_name);
+    sprintf(err_buff, "fatal: unknown element type %d in function %s", static_cast<int>(etype),
+            func_name);
     Gen_Error(0, err_buff);
     error_report();
     exit(1);
@@ -1609,11 +1715,11 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
 
   /* pyramid */
   static int pyramid_table[5][9] = {
-    {1, 2, 5, 6, 11, 10, 15, 0, 0}, // side 1 (tri)
-    {2, 3, 5, 7, 12, 11, 16, 0, 0}, // side 2 (tri)
-    {3, 4, 5, 8, 13, 12, 17, 0, 0}, // side 3 (tri)
-    {1, 5, 4, 10, 13, 9, 18, 0, 0}, // side 4 (tri)
-    {1, 4, 3, 2, 9, 8, 7, 6, 15}    // side 5 (quad)
+      {1, 2, 5, 6, 11, 10, 15, 0, 0}, // side 1 (tri)
+      {2, 3, 5, 7, 12, 11, 16, 0, 0}, // side 2 (tri)
+      {3, 4, 5, 8, 13, 12, 17, 0, 0}, // side 3 (tri)
+      {1, 5, 4, 10, 13, 9, 18, 0, 0}, // side 4 (tri)
+      {1, 4, 3, 2, 9, 8, 7, 6, 15}    // side 5 (quad)
   };
 
   static int bar_table[1][3] = {{1, 2, 3}};
@@ -1626,34 +1732,39 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
   case BAR2:
   case SHELL2:
     /* Bar1 has 1 side */
-    for (i            = 0; i < 2; i++)
+    for (i = 0; i < 2; i++) {
       ss_node_list[i] = connect[(bar_table[side_num][i] - 1)];
+    }
     break;
 
   case BAR3:
   case SHELL3:
     /* Bar has 1 side */
-    for (i            = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
       ss_node_list[i] = connect[(bar_table[side_num][i] - 1)];
+    }
     break;
 
   case QUAD4:
-    for (i            = 0; i < 2; i++)
+    for (i = 0; i < 2; i++) {
       ss_node_list[i] = connect[(quad_table[side_num][i] - 1)];
+    }
     break;
 
   case QUAD8:
   case QUAD9:
-    for (i            = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
       ss_node_list[i] = connect[(quad_table[side_num][i] - 1)];
+    }
     break;
 
   case SHELL4:
     switch (side_num) {
     case 0:
     case 1:
-      for (i            = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         ss_node_list[i] = connect[(shell_table[side_num][i] - 1)];
+      }
       break;
 
     default:
@@ -1661,8 +1772,9 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
        * sides 3, 4, 5, & 6 correspond to sides 1, 2, 3, & 4
        * of the quad element.
        */
-      for (i            = 0; i < 2; i++)
+      for (i = 0; i < 2; i++) {
         ss_node_list[i] = connect[(quad_table[(side_num - 2)][i] - 1)];
+      }
       break;
     }
     break;
@@ -1671,8 +1783,9 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
     switch (side_num) {
     case 0:
     case 1:
-      for (i            = 0; i < 8; i++)
+      for (i = 0; i < 8; i++) {
         ss_node_list[i] = connect[(shell_table[side_num][i] - 1)];
+      }
       break;
 
     default:
@@ -1680,8 +1793,9 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
        * sides 3, 4, 5, & 6 correspond to sides 1, 2, 3, & 4
        * of the quad element.
        */
-      for (i            = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         ss_node_list[i] = connect[(quad_table[(side_num - 2)][i] - 1)];
+      }
       break;
     }
     break;
@@ -1690,8 +1804,9 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
     switch (side_num) {
     case 0:
     case 1:
-      for (i            = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         ss_node_list[i] = connect[(shell_table[side_num][i] - 1)];
+      }
       break;
 
     default:
@@ -1699,22 +1814,25 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
        * sides 3, 4, 5, & 6 correspond to sides 1, 2, 3, & 4
        * of the quad element.
        */
-      for (i            = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         ss_node_list[i] = connect[(quad_table[(side_num - 2)][i] - 1)];
+      }
       break;
     }
     break;
 
   case TRI3:
   case TRI4:
-    for (i            = 0; i < 2; i++)
+    for (i = 0; i < 2; i++) {
       ss_node_list[i] = connect[(tri_table[side_num][i] - 1)];
+    }
     break;
 
   case TRI6:
   case TRI7:
-    for (i            = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
       ss_node_list[i] = connect[(tri_table[side_num][i] - 1)];
+    }
     break;
 
   case TSHELL3:
@@ -1722,8 +1840,9 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
     switch (side_num) {
     case 0:
     case 1:
-      for (i            = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         ss_node_list[i] = connect[(tshell_table[side_num][i] - 1)];
+      }
       break;
 
     default:
@@ -1731,8 +1850,9 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
        * sides 3, 4 & 5 correspond to sides 1, 2 & 3
        * of the tri element.
        */
-      for (i            = 0; i < 2; i++)
+      for (i = 0; i < 2; i++) {
         ss_node_list[i] = connect[(tri_table[(side_num - 2)][i] - 1)];
+      }
       break;
     }
     break;
@@ -1742,8 +1862,9 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
     switch (side_num) {
     case 0:
     case 1:
-      for (i            = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         ss_node_list[i] = connect[(tshell_table[side_num][i] - 1)];
+      }
       break;
 
     default:
@@ -1751,59 +1872,69 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
        * sides 3, 4 & 5 correspond to sides 1, 2 & 3
        * of the tri element.
        */
-      for (i            = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         ss_node_list[i] = connect[(tri_table[(side_num - 2)][i] - 1)];
+      }
       break;
     }
     break;
 
   case HEX8:
-    for (i            = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
       ss_node_list[i] = connect[(hex_table[side_num][i] - 1)];
+    }
     break;
 
   case HEX20:
-    for (i            = 0; i < 8; i++)
+    for (i = 0; i < 8; i++) {
       ss_node_list[i] = connect[(hex_table[side_num][i] - 1)];
+    }
     break;
 
   case HEX27:
-    for (i            = 0; i < 9; i++)
+    for (i = 0; i < 9; i++) {
       ss_node_list[i] = connect[(hex_table[side_num][i] - 1)];
+    }
     break;
 
   case TET4:
-    for (i            = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
       ss_node_list[i] = connect[(tetra_table[side_num][i] - 1)];
+    }
     break;
 
   case TET10:
-    for (i            = 0; i < 6; i++)
+    for (i = 0; i < 6; i++) {
       ss_node_list[i] = connect[(tetra_table[side_num][i] - 1)];
+    }
     break;
 
   case TET14:
   case TET15:
-    for (i            = 0; i < 7; i++)
+    for (i = 0; i < 7; i++) {
       ss_node_list[i] = connect[(tetra_table[side_num][i] - 1)];
+    }
     break;
 
   case TET8:
-    for (i            = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
       ss_node_list[i] = connect[(tetra_table[side_num][i] - 1)];
+    }
     break;
 
   case WEDGE6:
     switch (side_num) {
     case 3:
     case 4:
-      for (i            = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         ss_node_list[i] = connect[(wedge6_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         ss_node_list[i] = connect[(wedge6_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1813,13 +1944,15 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
     switch (side_num) {
     case 3:
     case 4:
-      for (i            = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         ss_node_list[i] = connect[(wedge15_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 8; i++)
+      for (i = 0; i < 8; i++) {
         ss_node_list[i] = connect[(wedge15_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1828,13 +1961,15 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
     switch (side_num) {
     case 3:
     case 4:
-      for (i            = 0; i < 7; i++)
+      for (i = 0; i < 7; i++) {
         ss_node_list[i] = connect[(wedge20_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         ss_node_list[i] = connect[(wedge20_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1843,13 +1978,15 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
     switch (side_num) {
     case 3:
     case 4:
-      for (i            = 0; i < 7; i++)
+      for (i = 0; i < 7; i++) {
         ss_node_list[i] = connect[(wedge21_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         ss_node_list[i] = connect[(wedge21_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1858,13 +1995,15 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
     switch (side_num) {
     case 4:
     case 5:
-      for (i            = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         ss_node_list[i] = connect[(hexshell_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         ss_node_list[i] = connect[(hexshell_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1872,13 +2011,15 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
   case PYRAMID5:
     switch (side_num) {
     case 4:
-      for (i            = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         ss_node_list[i] = connect[(pyramid_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         ss_node_list[i] = connect[(pyramid_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1886,13 +2027,15 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
   case PYRAMID13:
     switch (side_num) {
     case 4:
-      for (i            = 0; i < 8; i++)
+      for (i = 0; i < 8; i++) {
         ss_node_list[i] = connect[(pyramid_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         ss_node_list[i] = connect[(pyramid_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1900,13 +2043,15 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
   case PYRAMID14:
     switch (side_num) {
     case 4:
-      for (i            = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         ss_node_list[i] = connect[(pyramid_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         ss_node_list[i] = connect[(pyramid_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1915,13 +2060,15 @@ int ss_to_node_list(const E_Type etype,          /* The element type */
   case PYRAMID19: /* Pyramid18 with mid-volume node */
     switch (side_num) {
     case 4:
-      for (i            = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         ss_node_list[i] = connect[(pyramid_table[side_num][i] - 1)];
+      }
       break;
 
     default:
-      for (i            = 0; i < 7; i++)
+      for (i = 0; i < 7; i++) {
         ss_node_list[i] = connect[(pyramid_table[side_num][i] - 1)];
+      }
       break;
     }
     break;
@@ -1982,36 +2129,42 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
   switch (etype) {
   case BAR2:
   case SHELL2:
-    for (i                = 0; i < 2; i++)
+    for (i = 0; i < 2; i++) {
       mirror_node_list[i] = ss_node_list[line_table[i]];
+    }
     break;
   case BAR3:
   case SHELL3:
-    for (i                = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
       mirror_node_list[i] = ss_node_list[line_table[i]];
+    }
     break;
   case QUAD4:
-    for (i                = 0; i < 2; i++)
+    for (i = 0; i < 2; i++) {
       mirror_node_list[i] = ss_node_list[line_table[i]];
+    }
     break;
 
   case QUAD8:
   case QUAD9:
-    for (i                = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
       mirror_node_list[i] = ss_node_list[line_table[i]];
+    }
     break;
 
   case SHELL4:
     switch (side_num) {
     case 1:
     case 2:
-      for (i                = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 2; i++)
+      for (i = 0; i < 2; i++) {
         mirror_node_list[i] = ss_node_list[line_table[i]];
+      }
       break;
     }
     break;
@@ -2020,13 +2173,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
     switch (side_num) {
     case 1:
     case 2:
-      for (i                = 0; i < 8; i++)
+      for (i = 0; i < 8; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         mirror_node_list[i] = ss_node_list[line_table[i]];
+      }
       break;
     }
     break;
@@ -2035,40 +2190,46 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
     switch (side_num) {
     case 1:
     case 2:
-      for (i                = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         mirror_node_list[i] = ss_node_list[line_table[i]];
+      }
       break;
     }
     break;
 
   case TRI3:
   case TRI4:
-    for (i                = 0; i < 2; i++)
+    for (i = 0; i < 2; i++) {
       mirror_node_list[i] = ss_node_list[line_table[i]];
+    }
     break;
 
   case TRI6:
   case TRI7:
-    for (i                = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
       mirror_node_list[i] = ss_node_list[line_table[i]];
+    }
     break;
 
   case TSHELL3:
     switch (side_num) {
     case 1:
     case 2:
-      for (i                = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 2; i++)
+      for (i = 0; i < 2; i++) {
         mirror_node_list[i] = ss_node_list[line_table[i]];
+      }
       break;
     }
     break;
@@ -2077,13 +2238,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
     switch (side_num) {
     case 1:
     case 2:
-      for (i                = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 2; i++)
+      for (i = 0; i < 2; i++) {
         mirror_node_list[i] = ss_node_list[line_table[i]];
+      }
       break;
     }
     break;
@@ -2092,13 +2255,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
     switch (side_num) {
     case 1:
     case 2:
-      for (i                = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         mirror_node_list[i] = ss_node_list[line_table[i]];
+      }
       break;
     }
     break;
@@ -2107,64 +2272,75 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
     switch (side_num) {
     case 1:
     case 2:
-      for (i                = 0; i < 7; i++)
+      for (i = 0; i < 7; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         mirror_node_list[i] = ss_node_list[line_table[i]];
+      }
       break;
     }
     break;
 
   case HEX8:
-    for (i                = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
       mirror_node_list[i] = ss_node_list[sqr_table[i]];
+    }
     break;
 
   case HEX27:
-    for (i                = 0; i < 9; i++)
+    for (i = 0; i < 9; i++) {
       mirror_node_list[i] = ss_node_list[sqr_table[i]];
+    }
     break;
 
   case HEX20:
-    for (i                = 0; i < 8; i++)
+    for (i = 0; i < 8; i++) {
       mirror_node_list[i] = ss_node_list[sqr_table[i]];
+    }
     break;
 
   case TET4:
-    for (i                = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
       mirror_node_list[i] = ss_node_list[tri_table[i]];
+    }
     break;
 
   case TET8:
-    for (i                = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
       mirror_node_list[i] = ss_node_list[tri_table[i]];
+    }
     break;
 
   case TET10:
-    for (i                = 0; i < 6; i++)
+    for (i = 0; i < 6; i++) {
       mirror_node_list[i] = ss_node_list[tri_table[i]];
+    }
     break;
 
   case TET14:
   case TET15:
-    for (i                = 0; i < 7; i++)
+    for (i = 0; i < 7; i++) {
       mirror_node_list[i] = ss_node_list[tri_table[i]];
+    }
     break;
 
   case WEDGE6:
     switch (side_num) {
     case 4:
     case 5:
-      for (i                = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
     }
     break;
@@ -2174,13 +2350,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
     switch (side_num) {
     case 4:
     case 5:
-      for (i                = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 8; i++)
+      for (i = 0; i < 8; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
     }
     break;
@@ -2190,13 +2368,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
     switch (side_num) {
     case 4:
     case 5:
-      for (i                = 0; i < 7; i++)
+      for (i = 0; i < 7; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
     }
     break;
@@ -2205,13 +2385,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
     switch (side_num) {
     case 5:
     case 6:
-      for (i                = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         mirror_node_list[i] = ss_node_list[hs_table[i]];
+      }
       break;
     }
     break;
@@ -2219,13 +2401,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
   case PYRAMID5:
     switch (side_num) {
     case 5:
-      for (i                = 0; i < 4; i++)
+      for (i = 0; i < 4; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 3; i++)
+      for (i = 0; i < 3; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
     }
     break;
@@ -2233,13 +2417,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
   case PYRAMID13:
     switch (side_num) {
     case 5:
-      for (i                = 0; i < 8; i++)
+      for (i = 0; i < 8; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
     }
     break;
@@ -2247,13 +2433,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
   case PYRAMID14:
     switch (side_num) {
     case 5:
-      for (i                = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 6; i++)
+      for (i = 0; i < 6; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
     }
     break;
@@ -2262,13 +2450,15 @@ int get_ss_mirror(const E_Type etype,             /* The element type */
   case PYRAMID19:
     switch (side_num) {
     case 5:
-      for (i                = 0; i < 9; i++)
+      for (i = 0; i < 9; i++) {
         mirror_node_list[i] = ss_node_list[sqr_table[i]];
+      }
       break;
 
     default:
-      for (i                = 0; i < 7; i++)
+      for (i = 0; i < 7; i++) {
         mirror_node_list[i] = ss_node_list[tri_table[i]];
+      }
       break;
     }
     break;

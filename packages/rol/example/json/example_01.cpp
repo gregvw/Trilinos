@@ -77,12 +77,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -102,21 +102,21 @@ int main(int argc, char *argv[]) {
     std::string stepname = "Trust Region"; // can we obtain this from parlist?  or jsonFile?
 
     ROL::StepFactory<RealT> stepFactory;
-    Teuchos::RCP<ROL::Step<RealT> > step = stepFactory.getStep(stepname, parlist);
+    ROL::SharedPointer<ROL::Step<RealT> > step = stepFactory.getStep(stepname, parlist);
 
     // Define Status Test
     RealT gtol  = parlist.get("Gradient Tolerance",1e-12); 
     RealT stol  = parlist.get("Step Tolerance",1e-14);  
     int   maxit = parlist.get("Maximum Number of Iterations",100); 
-    Teuchos::RCP<ROL::StatusTest<RealT> > status = Teuchos::rcp(new ROL::StatusTest<RealT>(gtol, stol, maxit));           
+    ROL::SharedPointer<ROL::StatusTest<RealT> > status = ROL::makeShared<ROL::StatusTest<RealT>>(gtol, stol, maxit);           
 
     ROL::Algorithm<RealT> algo(step,status,false);
 
-    Teuchos::RCP<std::vector<RealT> > x_rcp = Teuchos::rcp(new std::vector<RealT> (dim, 1.0) );
-    Teuchos::RCP<std::vector<RealT> > k_rcp = Teuchos::rcp(new std::vector<RealT> (dim, 0.0) );
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(dim, 1.0);
+    ROL::SharedPointer<std::vector<RealT> > k_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
 
     ROL::StdVector<RealT> x(x_rcp);
-    Teuchos::RCP<ROL::Vector<RealT> > k = Teuchos::rcp(new ROL::StdVector<RealT>(k_rcp) );
+    ROL::SharedPointer<ROL::Vector<RealT> > k = ROL::makeShared<ROL::StdVector<RealT>>(k_rcp);
 
     for(int i=0;i<dim;++i) {
         (*k_rcp)[i] = i+1.0;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
     algo.run(x, obj, true, *outStream);
 
     // Get True Solution
-    Teuchos::RCP<std::vector<RealT> > xtrue_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
+    ROL::SharedPointer<std::vector<RealT> > xtrue_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
     ROL::StdVector<RealT> xtrue(xtrue_rcp);
 
     // Compute Error

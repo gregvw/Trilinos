@@ -40,8 +40,8 @@
 // ************************************************************************
 // @HEADER
 
-/** \file   Intrepid_HGRAD_TRI_Cn_FEM.hpp
-    \brief  Header file for the Intrepid2::HGRAD_TRI_Cn_FEM_ORTH class.
+/** \file   Intrepid2_HGRAD_TRI_Cn_FEM_ORTH.hpp
+    \brief  Header file for the Intrepid2::Basis_HGRAD_TRI_Cn_FEM_ORTH class.
     \author Created by Robert Kirby
             Kokkorized by Kyungjoo Kim and Mauro Perego
  */
@@ -64,24 +64,40 @@ namespace Intrepid2 {
 
 namespace Impl {
 
-template<ordinal_type maxOrder,
-ordinal_type maxNumPts,
-typename outputViewType,
+/**
+   \brief See Intrepid2::Basis_HGRAD_TRI_Cn_FEM_ORTH
+*/
+template<typename outputViewType,
 typename inputViewType, bool hasDeriv, ordinal_type n>
-struct OrthPolynomial {
+struct OrthPolynomialTri {
   KOKKOS_INLINE_FUNCTION
   static void
-  generate( outputViewType output,
-      const inputViewType input,
-      const ordinal_type p );
+  generate(       outputViewType output,
+            const inputViewType input,
+            const ordinal_type p );
 };
 
-template<ordinal_type maxOrder,
-ordinal_type maxNumPts,
-typename outputViewType,
+/**
+   \brief See Intrepid2::Basis_HGRAD_TRI_Cn_FEM_ORTH
+*/
+template<typename outputViewType,
 typename inputViewType,
 bool hasDeriv>
-struct OrthPolynomial<maxOrder,maxNumPts,outputViewType,inputViewType,hasDeriv,0> {
+struct OrthPolynomialTri<outputViewType,inputViewType,hasDeriv,0> {
+  KOKKOS_INLINE_FUNCTION
+  static void
+  generate(       outputViewType output,
+            const inputViewType input,
+            const ordinal_type p );
+};
+
+/**
+   \brief See Intrepid2::Basis_HGRAD_TRI_Cn_FEM_ORTH
+*/
+template<typename outputViewType,
+typename inputViewType,
+bool hasDeriv>
+struct OrthPolynomialTri<outputViewType,inputViewType,hasDeriv,1> {
   KOKKOS_INLINE_FUNCTION
   static void
   generate(   outputViewType output,
@@ -89,44 +105,38 @@ struct OrthPolynomial<maxOrder,maxNumPts,outputViewType,inputViewType,hasDeriv,0
       const ordinal_type p );
 };
 
-
-template<ordinal_type maxOrder,
-ordinal_type maxNumPts,
-typename outputViewType,
-typename inputViewType,
-bool hasDeriv>
-struct OrthPolynomial<maxOrder,maxNumPts,outputViewType,inputViewType,hasDeriv,1> {
-  KOKKOS_INLINE_FUNCTION
-  static void
-  generate(   outputViewType output,
-      const inputViewType input,
-      const ordinal_type p );
-};
-
-
+/**
+   \brief See Intrepid2::Basis_HGRAD_TRI_Cn_FEM_ORTH
+*/
 class Basis_HGRAD_TRI_Cn_FEM_ORTH {
 public:
 
+  /**
+     \brief See Intrepid2::Basis_HGRAD_TRI_Cn_FEM_ORTH
+  */
   template<EOperator opType>
   struct Serial {
     template<typename outputViewType,
     typename inputViewType>
     KOKKOS_INLINE_FUNCTION
     static void
-    getValues( outputViewType output,
-        const inputViewType  input,
-        const ordinal_type   order);
+    getValues(       outputViewType output,
+               const inputViewType  input,
+               const ordinal_type   order);
   };
 
   template<typename ExecSpaceType, ordinal_type numPtsPerEval,
   typename outputValueValueType, class ...outputValueProperties,
   typename inputPointValueType,  class ...inputPointProperties>
   static void
-  getValues(  Kokkos::DynRankView<outputValueValueType,outputValueProperties...> outputValues,
-      const Kokkos::DynRankView<inputPointValueType, inputPointProperties...>  inputPoints,
-      const ordinal_type order,
-      const EOperator operatorType );
+  getValues(       Kokkos::DynRankView<outputValueValueType,outputValueProperties...> outputValues,
+             const Kokkos::DynRankView<inputPointValueType, inputPointProperties...>  inputPoints,
+             const ordinal_type order,
+             const EOperator operatorType );
 
+  /**
+     \brief See Intrepid2::Basis_HGRAD_TRI_Cn_FEM_ORTH
+  */
   template<typename outputValueViewType,
   typename inputPointViewType,
   EOperator opType,
@@ -135,14 +145,12 @@ public:
           outputValueViewType _outputValues;
     const inputPointViewType  _inputPoints;
     const ordinal_type        _order;
-    const ordinal_type        _opDn;
 
     KOKKOS_INLINE_FUNCTION
-    Functor(  outputValueViewType outputValues_,
-              inputPointViewType  inputPoints_,
-        const ordinal_type        order_,
-        const ordinal_type        opDn_ = 0 )
-    : _outputValues(outputValues_), _inputPoints(inputPoints_), _order(order_), _opDn(opDn_) {}
+    Functor(       outputValueViewType outputValues_,
+                   inputPointViewType  inputPoints_,
+             const ordinal_type        order_ )
+    : _outputValues(outputValues_), _inputPoints(inputPoints_), _order(order_){}
 
     KOKKOS_INLINE_FUNCTION
     void operator()(const size_type iter) const {
@@ -151,16 +159,6 @@ public:
 
       const auto ptRange = Kokkos::pair<ordinal_type,ordinal_type>(ptBegin, ptEnd);
       const auto input   = Kokkos::subview( _inputPoints, ptRange, Kokkos::ALL() );
-
-      //      typedef typename outputValueViewType::value_type outputValueType;
-      // constexpr ordinal_type bufSize = (Parameters::MaxOrder+1)*(Parameters::MaxOrder+2)/2*numPtsEval;
-      // outputValueType buf[bufSize];
-
-      //Kokkos::DynRankView<outputValueType,
-      //  Kokkos::Impl::ActiveExecutionMemorySpace> work(&buf[0], bufSize);
-
-
-
 
       switch (opType) {
       case OPERATOR_VALUE : {
@@ -217,17 +215,17 @@ class Basis_HGRAD_TRI_Cn_FEM_ORTH
 
   virtual
   void
-  getValues( outputViewType outputValues,
-      const pointViewType  inputPoints,
-      const EOperator operatorType = OPERATOR_VALUE ) const {
-    //#ifdef HAVE_INTREPID2_DEBUG
-    //      Intrepid2::getValues_HGRAD_Args(outputValues,
-    //                                      inputPoints,
-    //                                      operatorType,
-    //                                      this->getBaseCellTopology(),
-    //                                      this->getCardinality() );
-    //#endif
-    constexpr ordinal_type numPtsPerEval = 1;
+  getValues(       outputViewType outputValues,
+             const pointViewType  inputPoints,
+             const EOperator operatorType = OPERATOR_VALUE ) const {
+    #ifdef HAVE_INTREPID2_DEBUG
+          Intrepid2::getValues_HGRAD_Args(outputValues,
+                                          inputPoints,
+                                          operatorType,
+                                          this->getBaseCellTopology(),
+                                          this->getCardinality() );
+    #endif
+    constexpr ordinal_type numPtsPerEval = Parameters::MaxNumPtsPerBasisEval;
     Impl::Basis_HGRAD_TRI_Cn_FEM_ORTH::
     getValues<ExecSpaceType,numPtsPerEval>( outputValues,
         inputPoints,
@@ -235,10 +233,6 @@ class Basis_HGRAD_TRI_Cn_FEM_ORTH
         operatorType );
   }
 };
-
-
-
-
 
 }// namespace Intrepid2
 

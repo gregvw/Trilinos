@@ -66,12 +66,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -79,10 +79,10 @@ int main(int argc, char *argv[]) {
 
   try {
 
-    Teuchos::RCP<ROL::Objective<RealT> > obj;
-    Teuchos::RCP<ROL::EqualityConstraint<RealT> > constr;
-    Teuchos::RCP<std::vector<RealT> > x_rcp = Teuchos::rcp( new std::vector<RealT> (0, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > sol_rcp = Teuchos::rcp( new std::vector<RealT> (0, 0.0) );
+    ROL::SharedPointer<ROL::Objective<RealT> > obj;
+    ROL::SharedPointer<ROL::Constraint<RealT> > constr;
+    ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(0, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > sol_rcp = ROL::makeShared<std::vector<RealT>>(0, 0.0);
     ROL::StdVector<RealT> x(x_rcp);      // Iteration vector.
     ROL::StdVector<RealT> sol(sol_rcp);  // Reference solution vector.
 
@@ -93,12 +93,12 @@ int main(int argc, char *argv[]) {
     int dim = 2;
     int nc = 1;
     RealT left = -1e0, right = 1e0;
-    Teuchos::RCP<std::vector<RealT> > xtest_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > g_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > d_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > v_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > vc_rcp = Teuchos::rcp( new std::vector<RealT> (nc, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > vl_rcp = Teuchos::rcp( new std::vector<RealT> (nc, 0.0) );
+    ROL::SharedPointer<std::vector<RealT> > xtest_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > g_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > d_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > v_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > vc_rcp = ROL::makeShared<std::vector<RealT>>(nc, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > vl_rcp = ROL::makeShared<std::vector<RealT>>(nc, 0.0);
     ROL::StdVector<RealT> xtest(xtest_rcp);
     ROL::StdVector<RealT> g(g_rcp);
     ROL::StdVector<RealT> d(d_rcp);
@@ -123,8 +123,8 @@ int main(int argc, char *argv[]) {
     constr->checkApplyAdjointJacobian(xtest, vl, vc, xtest, true, *outStream);  *outStream << "\n";
     constr->checkApplyAdjointHessian(xtest, vl, d, xtest, true, *outStream);    *outStream << "\n";
 
-    Teuchos::RCP<std::vector<RealT> > v1_rcp = Teuchos::rcp( new std::vector<RealT> (dim, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > v2_rcp = Teuchos::rcp( new std::vector<RealT> (nc, 0.0) );
+    ROL::SharedPointer<std::vector<RealT> > v1_rcp = ROL::makeShared<std::vector<RealT>>(dim, 0.0);
+    ROL::SharedPointer<std::vector<RealT> > v2_rcp = ROL::makeShared<std::vector<RealT>>(nc, 0.0);
     ROL::StdVector<RealT> v1(v1_rcp);
     ROL::StdVector<RealT> v2(v2_rcp);
     RealT augtol = 1e-8;

@@ -10,13 +10,23 @@
 #define Tempus_StepperBackwardEuler_decl_hpp
 
 #include "Tempus_StepperImplicit.hpp"
-#include "Tempus_ResidualModelEvaluator.hpp"
+#include "Tempus_WrapperModelEvaluator.hpp"
+#include "Tempus_StepperBackwardEulerObserver.hpp"
+
 
 namespace Tempus {
 
-
 /** \brief Backward Euler time stepper.
- *  Backward Euler is an implicit time stepper (i.e., with solver).
+ *
+ *  For the implicit ODE system, \f$/mathcal{F}(\dot{x},x,t) = 0\f$,
+ *  the solution, \f$\dot{x}\f$ and \f$x\f$, is determined using a
+ *  solver (e.g., a non-linear solver, like NOX).
+ *
+ *  <b> Algorithm </b>
+ *  The single-timestep algorithm for Backward Euler is simply,
+ *   - Solve \f$f(\dot{x}=(x_n-x_{n-1})/\Delta t_n, x_n, t_n)=0\f$ for \f$x_n\f$
+ *   - \f$\dot{x}_n \leftarrow (x_n-x_{n-1})/\Delta t_n\f$ [Optional]
+ *   - Solve \f$f(\dot{x}_n,x_n,t_n)=0\f$ for \f$\dot{x}_n\f$ [Optional]
  */
 template<class Scalar>
 class StepperBackwardEuler : virtual public Tempus::StepperImplicit<Scalar>
@@ -25,27 +35,29 @@ public:
 
   /// Constructor
   StepperBackwardEuler(
-    const Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >& transientModel,
+    const Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >& appModel,
     Teuchos::RCP<Teuchos::ParameterList> pList = Teuchos::null);
 
   /// \name Basic stepper methods
   //@{
     virtual void setModel(
-      const Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >& transientModel);
+      const Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >& appModel);
     virtual void setNonConstModel(
-      const Teuchos::RCP<Thyra::ModelEvaluator<Scalar> >& transientModel);
+      const Teuchos::RCP<Thyra::ModelEvaluator<Scalar> >& appModel);
     virtual Teuchos::RCP<const Thyra::ModelEvaluator<Scalar> >
-      getModel(){return residualModel_->getTransientModel();}
+      getModel(){return wrapperModel_->getAppModel();}
 
     virtual void setSolver(std::string solverName);
     virtual void setSolver(
       Teuchos::RCP<Teuchos::ParameterList> solverPL=Teuchos::null);
     virtual void setSolver(
       Teuchos::RCP<Thyra::NonlinearSolverBase<Scalar> > solver);
+    virtual void setObserver(
+      Teuchos::RCP<StepperBackwardEulerObserver<Scalar> > obs = Teuchos::null);
 
     /// Set the predictor
     void setPredictor(std::string predictorName);
-    void setPredictor(Teuchos::RCP<Teuchos::ParameterList> predPL=Teuchos::null);
+    void setPredictor(Teuchos::RCP<Teuchos::ParameterList>predPL=Teuchos::null);
 
     /// Initialize during construction and after changing input parameters.
     virtual void initialize();
@@ -88,20 +100,58 @@ private:
 
 private:
 
-  Teuchos::RCP<Teuchos::ParameterList>              stepperPL_;
-  Teuchos::RCP<ResidualModelEvaluator<Scalar> >     residualModel_;
-  Teuchos::RCP<Thyra::NonlinearSolverBase<Scalar> > solver_;
-  Teuchos::RCP<Stepper<Scalar> >                    predictorStepper_;
+  Teuchos::RCP<Teuchos::ParameterList>               stepperPL_;
+  Teuchos::RCP<WrapperModelEvaluator<Scalar> >       wrapperModel_;
+  Teuchos::RCP<Thyra::NonlinearSolverBase<Scalar> >  solver_;
+  Teuchos::RCP<Stepper<Scalar> >                     predictorStepper_;
 
-  Thyra::ModelEvaluatorBase::InArgs<Scalar>         inArgs_;
-  Thyra::ModelEvaluatorBase::OutArgs<Scalar>        outArgs_;
-
-  // Compute the balancing time derivative as a function of x
-  std::function<void (const Thyra::VectorBase<Scalar> &,
-                            Thyra::VectorBase<Scalar> &)>
-  xDotFunction(Scalar dt,Teuchos::RCP<const Thyra::VectorBase<Scalar> > x_old);
-
+  Teuchos::RCP<StepperBackwardEulerObserver<Scalar> > stepperBEObserver_;
 };
+
+/** \brief Time-derivative interface for Backward Euler.
+ *
+ *  Given the state \f$x\f$, compute the Backward Euler time-derivative,
+ *  \f[
+ *    \dot{x}_{n} = \frac{(x_{n} - x_{n-1})}{\Delta t_{n}}.
+ *  \f]
+ *  \f$\ddot{x}\f$ is not used and set to null.
+ */
+template <typename Scalar>
+class StepperBackwardEulerTimeDerivative
+  : virtual public Tempus::TimeDerivative<Scalar>
+{
+public:
+
+  /// Constructor
+  StepperBackwardEulerTimeDerivative(
+    Scalar s, Teuchos::RCP<const Thyra::VectorBase<Scalar> > xOld)
+  { initialize(s, xOld); }
+
+  /// Destructor
+  virtual ~StepperBackwardEulerTimeDerivative() {}
+
+  /// Compute the time derivative.
+  virtual void compute(
+    Teuchos::RCP<const Thyra::VectorBase<Scalar> > x,
+    Teuchos::RCP<      Thyra::VectorBase<Scalar> > xDot,
+    Teuchos::RCP<      Thyra::VectorBase<Scalar> > xDotDot = Teuchos::null)
+  {
+    xDotDot = Teuchos::null;
+    // Calculate the Backward Euler x dot vector
+    Thyra::V_StVpStV(xDot.ptr(),s_,*x,-s_,*xOld_);
+  }
+
+  virtual void initialize(Scalar s,
+    Teuchos::RCP<const Thyra::VectorBase<Scalar> > xOld)
+  { s_ = s; xOld_ = xOld; }
+
+private:
+
+  Teuchos::RCP<const Thyra::VectorBase<Scalar> > xOld_;
+  Scalar                                         s_;    // = 1.0/dt
+};
+
+
 } // namespace Tempus
 
 #endif // Tempus_StepperBackwardEuler_decl_hpp

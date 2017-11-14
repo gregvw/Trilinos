@@ -1,7 +1,6 @@
-// Copyright(C) 1999-2010
-// Sandia Corporation. Under the terms of Contract
-// DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-// certain rights in this software.
+// Copyright(C) 1999-2010 National Technology & Engineering Solutions
+// of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+// NTESS, the U.S. Government retains certain rights in this software.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,7 +13,8 @@
 //       copyright notice, this list of conditions and the following
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
-//     * Neither the name of Sandia Corporation nor the names of its
+//
+//     * Neither the name of NTESS nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -38,9 +38,9 @@
 #include <Ioss_DBUsage.h>    // for DatabaseUsage
 #include <Ioss_DatabaseIO.h> // for DatabaseIO
 #include <Ioss_IOFactory.h>  // for IOFactory
+#include <cstddef>           // for size_t
+#include <cstdint>           // for int64_t
 #include <iostream>          // for ostream
-#include <stddef.h>          // for size_t
-#include <stdint.h>          // for int64_t
 #include <string>            // for string
 namespace Iohb {
   class Layout;
@@ -59,12 +59,12 @@ namespace Iohb {
   class SideBlock;
   class SideSet;
   class StructuredBlock;
-}
+} // namespace Iohb
 
 namespace Ioss {
   class GroupingEntity;
   class EntityBlock;
-}
+} // namespace Ioss
 
 /** \brief A namespace for the heartbeat database format.
  */
@@ -95,29 +95,29 @@ namespace Iohb {
 
     ~DatabaseIO() override;
 
-    int64_t node_global_to_local(int64_t /* global */, bool /* must_exist */) const override
-    {
-      return 0;
-    }
-    int64_t element_global_to_local(int64_t /* global */) const override { return 0; }
-
     // Check capabilities of input/output database...  Returns an
     // unsigned int with the supported Ioss::EntityTypes or'ed
     // together. If "return_value & Ioss::EntityType" is set, then the
     // database supports that type (e.g. return_value & Ioss::FACESET)
     unsigned entity_field_support() const override;
 
-    void read_meta_data() override {}
-
-    void flush_database() const override;
-
-    bool begin(Ioss::State state) override;
-    bool end(Ioss::State state) override;
-
-    bool begin_state(Ioss::Region *region, int state, double time) override;
-    bool end_state(Ioss::Region *region, int state, double time) override;
-
   private:
+    int64_t node_global_to_local__(int64_t /* global */, bool /* must_exist */) const override
+    {
+      return 0;
+    }
+    int64_t element_global_to_local__(int64_t /* global */) const override { return 0; }
+
+    void read_meta_data__() override {}
+
+    void flush_database__() const override;
+
+    bool begin__(Ioss::State state) override;
+    bool end__(Ioss::State state) override;
+
+    bool begin_state__(Ioss::Region *region, int state, double time) override;
+    bool end_state__(Ioss::Region *region, int state, double time) override;
+
     void initialize(const Ioss::Region *region) const;
 
     int64_t get_field_internal(const Ioss::Region *reg, const Ioss::Field &field, void *data,
@@ -200,5 +200,5 @@ namespace Iohb {
     bool        streamNeedsDelete;
     enum Format fileFormat;
   };
-}
+} // namespace Iohb
 #endif // IOSS_Iohb_DatabaseIO_h

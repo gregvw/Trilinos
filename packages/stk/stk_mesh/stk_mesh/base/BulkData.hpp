@@ -737,6 +737,7 @@ public:
   // dump_all_mesh_info(out);
   // out.close();
   void dump_all_mesh_info(std::ostream& out) const;
+  void dump_mesh_per_proc(const std::string& fileNamePrefix) const;
 
   // memoized version
   BucketVector const& get_buckets(EntityRank rank, Selector const& selector) const;
@@ -846,7 +847,7 @@ protected: //functions
 
 
   template<typename PARTVECTOR>
-  Entity declare_element_side(const stk::mesh::EntityId globalSideId,
+  Entity declare_element_side_with_id(const stk::mesh::EntityId globalSideId,
                               Entity elem,
                               const unsigned sideOrd,
                               const PARTVECTOR& parts);
@@ -1495,7 +1496,6 @@ protected: //data
   inline bool should_sort_faces_by_node_ids() const { return m_shouldSortFacesByNodeIds; }
   bool m_shouldSortFacesByNodeIds;
 #endif
-  bool m_do_create_aura;
   enum AutomaticAuraOption m_autoAuraOption;
   stk::mesh::impl::MeshModification m_meshModification;
 

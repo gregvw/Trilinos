@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2016, Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
- * the U.S. Government retains certain rights in this software.
+ * Copyright(C) 1999-2010 National Technology & Engineering Solutions
+ * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+ * NTESS, the U.S. Government retains certain rights in this software.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -15,7 +15,7 @@
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
  *
- *     * Neither the name of Sandia Corporation nor the names of its
+ *     * Neither the name of NTESS nor the names of its
  *       contributors may be used to endorse or promote products derived
  *       from this software without specific prior written permission.
  *
@@ -30,17 +30,16 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 #ifndef IOSS_DECOMPOSITON_H
 #define IOSS_DECOMPOSITON_H
 
+#include <Ioss_CodeTypes.h>
 #include <Ioss_Map.h>
 #include <Ioss_ParallelUtils.h>
 #include <Ioss_PropertyManager.h>
 #include <algorithm>
 #include <assert.h>
-#include <mpi.h>
 #include <string>
 #include <vector>
 
@@ -201,18 +200,18 @@ namespace Ioss {
     void show_progress(const std::string &message) const
     {
       if (m_showProgress) {
-	// Use the output below for debugging...
-	// std::cerr << "[" << m_processor << "].... " << message << "\n";
-	Ioss::ParallelUtils pu(m_comm);
-	pu.progress(message);
+        // Use the output below for debugging...
+        // std::cerr << "[" << m_processor << "].... " << message << "\n";
+        Ioss::ParallelUtils pu(m_comm);
+        pu.progress(message);
       }
     }
-    
+
     void decompose_model(
 #if !defined(NO_ZOLTAN_SUPPORT)
         Zoltan &zz,
 #endif
-        std::vector<BlockDecompositionData> &el_blocks);
+        std::vector<BlockDecompositionData> &element_blocks);
 
     void simple_decompose();
 
@@ -258,8 +257,8 @@ namespace Ioss {
     void communicate_node_data(T *file_data, T *ioss_data, size_t comp_count) const;
 
     MPI_Comm    m_comm;
-    int         m_processor;
-    int         m_processorCount;
+    int         m_processor{};
+    int         m_processorCount{};
     std::string m_method;
 
     // Values for the file decomposition
@@ -277,7 +276,7 @@ namespace Ioss {
     bool m_retainFreeNodes;
     bool m_showProgress;
     bool m_showHWM;
-    
+
     std::vector<double> m_centroids;
     std::vector<INT>    m_pointer;   // Index into adjacency, processor list for each element...
     std::vector<INT>    m_adjacency; // Size is sum of element connectivity sizes

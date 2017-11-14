@@ -60,8 +60,8 @@
 typedef double RealT;
 
 using namespace ROL;
-using Teuchos::RCP;
-using Teuchos::rcp;
+
+
 using Teuchos::ArrayRCP;
 
 
@@ -72,7 +72,7 @@ Real norm_sum(const MultiVector<Real> &A) {
     A.norms(norms);
     Real sum = 0;
     for(int i=0;i<numVectors;++i) {
-        sum += norms[i]; 
+        sum += norms[i];
     }
     return sum;
 }
@@ -83,16 +83,16 @@ int main(int argc, char *argv[]) {
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
 
     int iprint     = argc - 1;
-    Teuchos::RCP<std::ostream> outStream;
+    std::ostream* outStream;
     Teuchos::oblackholestream bhs; // outputs nothing
     if (iprint > 0)
-        outStream = Teuchos::rcp(&std::cout, false);
+        outStream = &std::cout;
     else
-        outStream = Teuchos::rcp(&bhs, false);
+        outStream = &bhs;
 
     int errorFlag = 0;
 
-    try { 
+    try {
 
 	Teuchos::SerialDenseMatrix<int,RealT> M(2,2,true);
 	M(0,0) = 2.0;
@@ -101,10 +101,10 @@ int main(int argc, char *argv[]) {
 	M(1,1) = 3.0;
 
 
-	Teuchos::RCP<std::vector<RealT> > w_rcp = Teuchos::rcp(new std::vector<RealT>(2));
-	Teuchos::RCP<std::vector<RealT> > x_rcp = Teuchos::rcp(new std::vector<RealT>(2));
-	Teuchos::RCP<std::vector<RealT> > y_rcp = Teuchos::rcp(new std::vector<RealT>(2));
-	Teuchos::RCP<std::vector<RealT> > z_rcp = Teuchos::rcp(new std::vector<RealT>(2));
+	ROL::SharedPointer<std::vector<RealT> > w_rcp = ROL::makeShared<std::vector<RealT>>(2);
+	ROL::SharedPointer<std::vector<RealT> > x_rcp = ROL::makeShared<std::vector<RealT>>(2);
+	ROL::SharedPointer<std::vector<RealT> > y_rcp = ROL::makeShared<std::vector<RealT>>(2);
+	ROL::SharedPointer<std::vector<RealT> > z_rcp = ROL::makeShared<std::vector<RealT>>(2);
 
 	(*w_rcp)[0] = 0.0;
 	(*w_rcp)[1] = 1.0;
@@ -117,24 +117,24 @@ int main(int argc, char *argv[]) {
 
 	(*z_rcp)[0] = -1.0;
 	(*z_rcp)[1] =  1.0;
-       
-	RCP<Vector<RealT> > w = rcp(new StdVector<RealT>(w_rcp)); 
-	RCP<Vector<RealT> > x = rcp(new StdVector<RealT>(x_rcp)); 
-	RCP<Vector<RealT> > y = rcp(new StdVector<RealT>(y_rcp)); 
-	RCP<Vector<RealT> > z = rcp(new StdVector<RealT>(z_rcp)); 
 
-	ArrayRCP<RCP<Vector<RealT> > > A_rcp(2);
-	ArrayRCP<RCP<Vector<RealT> > > B_rcp(2);
+	ROL::SharedPointer<Vector<RealT> > w = ROL::makeShared<StdVector<RealT>>(w_rcp);
+	ROL::SharedPointer<Vector<RealT> > x = ROL::makeShared<StdVector<RealT>>(x_rcp);
+	ROL::SharedPointer<Vector<RealT> > y = ROL::makeShared<StdVector<RealT>>(y_rcp);
+	ROL::SharedPointer<Vector<RealT> > z = ROL::makeShared<StdVector<RealT>>(z_rcp);
 
-	A_rcp[0] = x;     
-	A_rcp[1] = y;     
+	ArrayRCP<ROL::SharedPointer<Vector<RealT> > > A_rcp(2);
+	ArrayRCP<ROL::SharedPointer<Vector<RealT> > > B_rcp(2);
 
-	B_rcp[0] = w;     
-	B_rcp[1] = z;     
+	A_rcp[0] = x;
+	A_rcp[1] = y;
 
-	RCP<MultiVector<RealT> > A = rcp(new MultiVectorDefault<RealT>(A_rcp));
-	RCP<MultiVector<RealT> > B = rcp(new MultiVectorDefault<RealT>(B_rcp));
-       
+	B_rcp[0] = w;
+	B_rcp[1] = z;
+
+	ROL::SharedPointer<MultiVector<RealT> > A = ROL::makeShared<MultiVectorDefault<RealT>>(A_rcp);
+	ROL::SharedPointer<MultiVector<RealT> > B = ROL::makeShared<MultiVectorDefault<RealT>>(B_rcp);
+
 	// Test norm
 	if(static_cast<int>(norm_sum(*A)) != 6) {
             *outStream << "Norm test failed!\n";
@@ -142,24 +142,24 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Test clone
-	RCP<MultiVector<RealT> > C = A->clone();    
+	ROL::SharedPointer<MultiVector<RealT> > C = A->clone();
 	if(norm_sum(*C) != 0) {
             *outStream << "Clone test failed!\n";
 	    ++errorFlag;
 	}
 
 	// Test deep copy
-        RCP<MultiVector<RealT> > D = A->deepCopy();
+        ROL::SharedPointer<MultiVector<RealT> > D = A->deepCopy();
 	if(static_cast<int>(norm_sum(*D)) != 6) {
             *outStream << "Deep copy test failed!\n";
 	    ++errorFlag;
 	}
-        
+
         // Test shallow copy
 	std::vector<int> index(1);
 	index[0] = 0;
 
-        RCP<MultiVector<RealT> > S = A->shallowCopy(index);
+        ROL::SharedPointer<MultiVector<RealT> > S = A->shallowCopy(index);
 	if(static_cast<int>(norm_sum(*S)) != 1) {
             *outStream << "Shallow copy test failed!\n";
 	    ++errorFlag;
@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
 	    ++errorFlag;
 	}
 
-	// Test matrix multiplication 
+	// Test matrix multiplication
 	A->gemm(2.0,*B,M,1.0);
 	if(static_cast<int>(norm_sum(*A)) != 53) {
             *outStream << "Matmat multiply test failed!  The norm_sum is " << static_cast<int>(norm_sum(*A)) << ", not equal to 49.\n";
@@ -193,26 +193,26 @@ int main(int argc, char *argv[]) {
         Teuchos::SerialDenseMatrix<int,RealT> P(2,2,true);
         B->innerProducts(1.0,*B,P);
         Teuchos::SerialDenseMatrix<int,RealT> Check(2,2,true);
-        Check(0,0) = 1.0;   
-        Check(0,1) = 1.0;   
-        Check(1,0) = 1.0;   
-        Check(1,1) = 2.0;   
+        Check(0,0) = 1.0;
+        Check(0,1) = 1.0;
+        Check(1,0) = 1.0;
+        Check(1,1) = 2.0;
         if( P != Check ) {
             *outStream << "Inner product test failed!\n";
 	    ++errorFlag;
         }
 
 	// Test dot products
-        std::vector<RealT> dots(2); 
+        std::vector<RealT> dots(2);
         D->dots(*D,dots);
-        if(static_cast<int>(dots[0]) != 1 || 
+        if(static_cast<int>(dots[0]) != 1 ||
            static_cast<int>(dots[1]) != 25 ) {
             *outStream << "Dot product test failed!\n";
             ++errorFlag;
         }
 
-//    StdVector<RealT> d0 = Teuchos::dyn_cast<StdVector<RealT>>(*D->getVector(0));
-//    StdVector<RealT> d1 = Teuchos::dyn_cast<StdVector<RealT>>(*D->getVector(1));
+//    StdVector<RealT> d0 = dynamic_cast<StdVector<RealT>>(*D-&>getVector(0));
+//    StdVector<RealT> d1 = dynamic_cast<StdVector<RealT>>(*D-&>getVector(1));
 
 //    std::cout << (*d0.getVector())[0] << std::endl;
 //    std::cout << (*d0.getVector())[1] << std::endl;
@@ -234,4 +234,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-

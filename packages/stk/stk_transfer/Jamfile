@@ -130,7 +130,7 @@ lib stk_transfer_impl
 exe stk_transfer_utest
   :
     [ glob 
-      $(stk_transfer-root)/unit_tests/*.cpp 
+      $(stk_transfer-root)/../stk_unit_tests/stk_transfer/*.cpp 
      ]
     /sierra/stk_unit_test_utils//stk_unit_main
     stk_transfer
@@ -138,7 +138,6 @@ exe stk_transfer_utest
     /sierra/stk_io//stk_io
     /tpl/gtest//gtest
     /sierra/stk_mesh//stk_mesh_base
-    /tpl/trilinos//teuchos
     /mpi//mpi
   : <tag>@sierra-exec-tag
   ;

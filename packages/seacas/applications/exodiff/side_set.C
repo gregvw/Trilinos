@@ -1,6 +1,6 @@
-// Copyright(C) 2008 Sandia Corporation.  Under the terms of Contract
-// DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-// certain rights in this software
+// Copyright(C) 2008 National Technology & Engineering Solutions
+// of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+// NTESS, the U.S. Government retains certain rights in this software.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,7 +14,7 @@
 //       disclaimer in the documentation and/or other materials provided
 //       with the distribution.
 //
-//     * Neither the name of Sandia Corporation nor the names of its
+//     * Neither the name of NTESS nor the names of its
 //       contributors may be used to endorse or promote products derived
 //       from this software without specific prior written permission.
 //
@@ -31,13 +31,13 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "ED_SystemInterface.h" // for SystemInterface, interface
+#include "ED_SystemInterface.h" // for ERROR, SystemInterface, etc
 #include "exodusII.h"           // for ex_set, etc
 #include "iqsort.h"             // for index_qsort
 #include "side_set.h"
 #include "smart_assert.h" // for SMART_ASSERT
-#include <cstdlib>        // for nullptr, exit
-#include <iostream>       // for operator<<, endl, ostream, etc
+#include <cstdlib>        // for exit
+#include <iostream>       // for operator<<, basic_ostream, etc
 #include <vector>         // for vector
 
 template <typename INT>
@@ -158,11 +158,13 @@ template <typename INT> void Side_Set<INT>::load_sides(const INT *elmt_map) cons
 
 template <typename INT> void Side_Set<INT>::load_df() const
 {
-  if (elmts == nullptr)
+  if (elmts == nullptr) {
     load_sides();
+  }
 
-  if (dist_factors != nullptr)
+  if (dist_factors != nullptr) {
     return; // Already loaded.
+  }
 
   dfIndex = new INT[numEntity + 1];
   SMART_ASSERT(dfIndex != nullptr);
@@ -192,6 +194,13 @@ template <typename INT> void Side_Set<INT>::load_df() const
   dfIndex[numEntity] = index;
 
   // index value should now equal df count for this sideset...
+  if (index != num_dist_factors) {
+    ERROR("Side_Set::load_df(): Mismatch in distribution factor count for sideset "
+          << id_ << ", file says there should be " << num_dist_factors
+          << ",\n\t\tbut ex_get_side_set_node_count says there should be " << index
+          << "!  Aborting...\n");
+    exit(1);
+  }
   SMART_ASSERT(index == num_dist_factors);
   dist_factors = new double[index];
   int err      = ex_get_set_dist_fact(fileId, EX_SIDE_SET, id_, dist_factors);
@@ -230,15 +239,16 @@ template <typename INT> size_t Side_Set<INT>::Side_Index(size_t position) const
 
 template <typename INT> const double *Side_Set<INT>::Distribution_Factors() const
 {
-  if (dist_factors == nullptr)
+  if (dist_factors == nullptr) {
     load_df();
+  }
   return dist_factors;
 }
 
 template <typename INT> void Side_Set<INT>::Free_Distribution_Factors() const
 {
   if (dist_factors) {
-    delete [] dist_factors;
+    delete[] dist_factors;
     dist_factors = nullptr;
   }
 }

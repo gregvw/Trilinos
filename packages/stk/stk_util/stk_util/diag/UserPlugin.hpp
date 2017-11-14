@@ -48,8 +48,6 @@ namespace stk { namespace diag { class Writer; } }
 
 
 /**
- * @file
- *
  * Historically, the term User Subroutine has referred to Fortran subroutines which are
  * generally called from within a procedure, allowing the user to create or select a
  * mathematical calculation to be applied to set of arguments.
@@ -241,24 +239,24 @@ public:
 
   /**
    * @brief Member function <b>getFuncPtr</b> returns the function pointer with the
-   * specfied <it>name</it>.
+   * specified <it>name</it>.
    *
    * @param name		a <b>NamePair</b> const reference to the registered
    *				name pair.
    *
-   * @returns			a <b>void</b> function pointer with the specfied
+   * @returns			a <b>void</b> function pointer with the specified
    *				<it>name_pair</it>.
    */
   Registry *getFactoryPtr(const NamePair &name) const;
 
   /**
    * @brief Member function <b>getFuncPtr</b> returns the function pointer with the
-   * specfied <it>name_pair</it>.
+   * specified <it>name_pair</it>.
    *
    * @param name_pair		a <b>NamePair</b> const reference to the registered
    *				name pair.
    *
-   * @returns			a <b>void</b> function pointer with the specfied
+   * @returns			a <b>void</b> function pointer with the specified
    *				<it>name_pair</it>.
    */
   void *getFuncPtr(const NamePair &name_pair) const;

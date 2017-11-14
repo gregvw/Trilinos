@@ -69,7 +69,6 @@ using Teuchos::rcp;
 
 #include "Phalanx_FieldManager.hpp"
 #include "Phalanx_DataLayout_MDALayout.hpp"
-#include "Phalanx_KokkosUtilities.hpp"
 
 #include "Epetra_MpiComm.h"
 #include "Epetra_Comm.h"
@@ -103,9 +102,9 @@ PHX_EVALUATOR_CTOR(DummyFieldEvaluator,p)
   std::string n = "DummyFieldEvaluator: " + name;
   this->setName(n);
 }
-PHX_POST_REGISTRATION_SETUP(DummyFieldEvaluator,sd,fm)
+PHX_POST_REGISTRATION_SETUP(DummyFieldEvaluator, /* sd */, fm)
 { this->utils.setFieldData(fieldValue,fm); }
-PHX_EVALUATE_FIELDS(DummyFieldEvaluator,workset)
+PHX_EVALUATE_FIELDS(DummyFieldEvaluator, /* workset */)
 { 
   int i = 0;
   for(int cell=0;cell<fieldValue.extent_int(0);cell++) {
@@ -138,9 +137,9 @@ PHX_EVALUATOR_CTOR(RefCoordEvaluator,p)
   std::string n = "RefCoordEvaluator: " + name;
   this->setName(n);
 }
-PHX_POST_REGISTRATION_SETUP(RefCoordEvaluator,sd,fm)
+PHX_POST_REGISTRATION_SETUP(RefCoordEvaluator, /* sd */, fm)
 { this->utils.setFieldData(fieldValue,fm); }
-PHX_EVALUATE_FIELDS(RefCoordEvaluator,workset)
+PHX_EVALUATE_FIELDS(RefCoordEvaluator, /* workset */)
 { 
   for(int cell=0;cell<fieldValue.extent_int(0);cell++)
     for(int pt=0;pt<fieldValue.extent_int(1);pt++)
@@ -307,9 +306,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(dof_pointfield,value,EvalType)
      TEST_EQUALITY(ft->name(),"TestFieldRefCoord");
   }
 
-  panzer::Traits::SetupData setupData;
-  setupData.worksets_ = rcp(new std::vector<panzer::Workset>);
-  setupData.worksets_->push_back(*workset);
+  panzer::Traits::SD setupData;
+  {
+    auto worksets = rcp(new std::vector<panzer::Workset>);
+    worksets->push_back(*workset);
+    setupData.worksets_ = worksets;
+  }
 
   std::vector<PHX::index_size_type> derivative_dimensions;
   derivative_dimensions.push_back(8);
@@ -320,15 +322,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(dof_pointfield,value,EvalType)
   fm->postRegistrationSetup(setupData);
   fm->writeGraphvizFile();
 
-  panzer::Traits::PreEvalData preEvalData;
+  panzer::Traits::PED preEvalData;
 
   fm->preEvaluate<EvalType>(preEvalData);
   fm->evaluateFields<EvalType>(*workset);
   fm->postEvaluate<EvalType>(0);
 
-  fm->getFieldData<typename EvalType::ScalarT,EvalType>(refField);
-  fm->getFieldData<typename EvalType::ScalarT,EvalType>(dofPointField0);
-  fm->getFieldData<typename EvalType::ScalarT,EvalType>(dofPointField1);
+  fm->getFieldData<EvalType>(refField);
+  fm->getFieldData<EvalType>(dofPointField0);
+  fm->getFieldData<EvalType>(dofPointField1);
 
   // check names to make sure they are still correct
   TEST_EQUALITY(refField.fieldTag().name(),"TestField");

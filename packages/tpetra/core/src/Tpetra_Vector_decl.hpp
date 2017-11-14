@@ -217,6 +217,14 @@ public:
           const dual_view_type& view,
           const dual_view_type& origView);
 
+  /// \brief Create a Vector that views a single column of the input
+  ///   MultiVector.
+  ///
+  /// \param X [in] Input MultiVector to view (in possibly nonconst fashion).
+  /// \param j [in] The column of X to view.
+  Vector (const MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>& X,
+          const size_t j);
+
   //! Destructor.
   virtual ~Vector ();
 
@@ -326,19 +334,19 @@ public:
   //@{
 
   using MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>::dot; // overloading, not hiding
-  //! Computes dot product of this Vector against input Vector x.
+  //! Return the dot product of this Vector and the input Vector x.
   dot_type dot (const Vector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>& y) const;
 
   using MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>::norm1; // overloading, not hiding
-  //! Return 1-norm of this Vector.
+  //! Return the one-norm of this Vector.
   mag_type norm1() const;
 
   using MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>::norm2; // overloading, not hiding
-  //! Compute 2-norm of this Vector.
+  //! Return the two-norm of this Vector.
   mag_type norm2() const;
 
   using MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>::normInf; // overloading, not hiding
-  //! Compute Inf-norm of this Vector.
+  //! Return the infinity-norm of this Vector.
   mag_type normInf() const;
 
   using MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node, classic>::normWeighted; // overloading, not hiding

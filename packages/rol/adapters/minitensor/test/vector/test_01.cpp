@@ -83,13 +83,13 @@ TEST(MiniTensor_ROL, VectorAdaptor)
   N{16};
 
   minitensor::Vector<T, N>
-  vx(minitensor::RANDOM);
+  vx(minitensor::Filler::RANDOM);
 
   minitensor::Vector<T, N>
-  vy(minitensor::RANDOM);
+  vy(minitensor::Filler::RANDOM);
 
   minitensor::Vector<T, N>
-  vz(minitensor::RANDOM);
+  vz(minitensor::Filler::RANDOM);
 
   ROL::MiniTensorVector<T, N>
   x(vx);
@@ -116,7 +116,7 @@ TEST(MiniTensor_ROL, VectorAdaptor)
 
   // Basis tests.
   // set x to first basis vector
-  Teuchos::RCP<ROL::Vector<T>>
+  ROL::SharedPointer<ROL::Vector<T>>
   w = x.clone();
 
   w = x.basis(0);
@@ -179,7 +179,7 @@ TEST(MiniTensor_ROL, VectorValue)
   N{4};
 
   minitensor::Vector<T, N> const
-  x(minitensor::ONES);
+  x(minitensor::Filler::ONES);
 
   os << "minitensor::Vector x     : " << x << '\n';
 
@@ -207,7 +207,7 @@ TEST(MiniTensor_ROL, VectorValue)
   ASSERT_LE(error1, epsilon);
 
   minitensor::Vector<T, N> const
-  b(minitensor::SEQUENCE);
+  b(minitensor::Filler::SEQUENCE);
 
   os << "minitensor::Vector b     : " << b << '\n';
 
