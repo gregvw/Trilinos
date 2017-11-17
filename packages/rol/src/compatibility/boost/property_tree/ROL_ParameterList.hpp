@@ -99,19 +99,20 @@ public:
     return *ROL::makeShared<ParameterList>(sublist);
   }
 
-  friend void readParametersFromXml( const string&, ParameterList& parlist );
+  pt::ptree& tree()
+  { return *tree_; }
 
+  //  friend void readParametersFromXml( const string&, ParameterList& parlist );
 
 };
 
 } // namespace details
 
-using ParameterList = details::ParameterList;
+  using ParameterList = details::ParameterList;
 
-inline void readParametersFromXml( const std::string& filename,
-                                   ParameterList& parlist ) {
-
-  boost::property_tree::read_xml(filename,*(parlist.tree_));
-}
+  inline void readParametersFromXml( const std::string& filename,
+                                     ParameterList& parlist ) {
+    boost::property_tree::read_xml(filename, parlist.tree());
+  }
 
 } // namespace ROL
