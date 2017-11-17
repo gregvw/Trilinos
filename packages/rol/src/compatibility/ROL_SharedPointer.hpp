@@ -123,7 +123,7 @@ template<class T> using SharedPointer = std::shared_ptr<T>;
 
 std::nullptr_t nullPointer = nullptr;
 
-template<class T>
+template<class T, class... Args>
 inline
 SharedPointer<T> makeShared( Args&&... args ) {
   return std::make_shared<T>(args...);
@@ -132,19 +132,19 @@ SharedPointer<T> makeShared( Args&&... args ) {
 template< class T, class U >
 inline
 SharedPointer<T> staticPointerCast( const SharedPointer<U>& r ) noexcept {
-  return static_pointer_cast<T>(r);
+  return std::static_pointer_cast<T>(r);
 }
 
 template< class T, class U >
 inline
 SharedPointer<T> constPointerCast( const SharedPointer<U>& r ) noexcept {
-  return const_pointer_cast<T>(r);
+  return std::const_pointer_cast<T>(r);
 }
 
 template< class T, class U >
 inline
 SharedPointer<T> dynamicPointerCast( const SharedPointer<U>& r ) noexcept {
-  return dynamic_pointer_cast<T>(r);
+  return std::dynamic_pointer_cast<T>(r);
 }
 
 } // namespace ROL
