@@ -99,13 +99,13 @@ public:
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp;
+  
+  
   
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
   typedef Tpetra::DefaultPlatform::DefaultPlatformType Platform;
   Platform &platform = Tpetra::DefaultPlatform::getDefaultPlatform();
-  RCP<const Teuchos::Comm<int> > comm = platform.getComm();
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm = platform.getComm();
 
   int iprint = argc - 1;
   Teuchos::oblackholestream bhs; // outputs nothing
@@ -120,17 +120,17 @@ int main(int argc, char *argv[]) {
     int dim = k*k;
     RealT threshValue = 4.0;
 
-    RCP<Map> map = rcp( new Map(dim,0,comm) );
+    ROL::SharedPointer<Map> map = ROL::makeShared<Map>(dim,0,comm);
 
-    // Make RCPs to Tpetra::MultiVectors with single columns, dim elements, 
+    // Make ROL::SharedPointers to Tpetra::MultiVectors with single columns, dim elements, 
     // set all elements initially to zero
-    RCP<MV> w_rcp        = rcp( new MV(map,1,true) );
-    RCP<MV> w2_rcp       = rcp( new MV(map,1,true) );
-    RCP<MV> x_rcp        = rcp( new MV(map,1,true) );
-    RCP<MV> x_recip_rcp  = rcp( new MV(map,1,true) );
-    RCP<MV> y_rcp        = rcp( new MV(map,1,true) );
-    RCP<MV> z_rcp        = rcp( new MV(map,1,true) );
-    RCP<MV> z_thresh_rcp = rcp( new MV(map,1,true) );
+    ROL::SharedPointer<MV> w_rcp        = ROL::makeShared<MV>(map,1,true);
+    ROL::SharedPointer<MV> w2_rcp       = ROL::makeShared<MV>(map,1,true);
+    ROL::SharedPointer<MV> x_rcp        = ROL::makeShared<MV>(map,1,true);
+    ROL::SharedPointer<MV> x_recip_rcp  = ROL::makeShared<MV>(map,1,true);
+    ROL::SharedPointer<MV> y_rcp        = ROL::makeShared<MV>(map,1,true);
+    ROL::SharedPointer<MV> z_rcp        = ROL::makeShared<MV>(map,1,true);
+    ROL::SharedPointer<MV> z_thresh_rcp = ROL::makeShared<MV>(map,1,true);
  
     V w(w_rcp);
     V w2(w2_rcp);

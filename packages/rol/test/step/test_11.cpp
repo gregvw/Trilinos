@@ -35,7 +35,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Questions? Contact lead developers:
-//         
+//
 //              Drew Kouri   (dpkouri@sandia.gov) and
 //              Denis Ridzal (dridzal@sandia.gov)
 //
@@ -52,41 +52,41 @@
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp; 
+
+
 
   typedef double RealT;
 
   typedef ROL::Vector<RealT>               V;
   typedef ROL::BoundConstraint<RealT>      BC;
   typedef ROL::Objective<RealT>            OBJ;
-  typedef ROL::InequalityConstraint<RealT> INEQ; 
+  typedef ROL::InequalityConstraint<RealT> INEQ;
 
-  using Teuchos::RCP; 
+
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
-  try { 
+  try {
 
-    RCP<V>    x     = ROL::ZOO::getInitialGuess_HS24<RealT>();
-    RCP<V>    xs    = ROL::ZOO::getSolution_HS24<RealT>();
-    RCP<V>    inmul = ROL::ZOO::getInequalityMultiplier_HS24<RealT>();    
+    ROL::SharedPointer<V>    x     = ROL::ZOO::getInitialGuess_HS24<RealT>();
+    ROL::SharedPointer<V>    xs    = ROL::ZOO::getSolution_HS24<RealT>();
+    ROL::SharedPointer<V>    inmul = ROL::ZOO::getInequalityMultiplier_HS24<RealT>();
 
-    RCP<BC>   bnd   = ROL::ZOO::getBoundConstraint_HS24<RealT>();
-    RCP<OBJ>  obj   = ROL::ZOO::getObjective_HS24<RealT>();
-    RCP<INEQ> incon = ROL::ZOO::getInequalityConstraint_HS24<RealT>();
-   
-    RCP<Teuchos::ParameterList> parlist = rcp( new Teuchos::ParameterList );
+    ROL::SharedPointer<BC>   bnd   = ROL::ZOO::getBoundConstraint_HS24<RealT>();
+    ROL::SharedPointer<OBJ>  obj   = ROL::ZOO::getObjective_HS24<RealT>();
+    ROL::SharedPointer<INEQ> incon = ROL::ZOO::getInequalityConstraint_HS24<RealT>();
+
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
 
     std::string stepname = "Interior Point";
 
@@ -110,20 +110,20 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Step Tolerance",1.e-8);
     parlist->sublist("Status Test").set("Iteration Limit",100);
 
-    // Define Optimization Problem 
+    // Define Optimization Problem
     ROL::OptimizationProblem<RealT> problem( obj, x, bnd, incon, inmul, parlist );
 
-    RCP<V> d = x->clone();
+    ROL::SharedPointer<V> d = x->clone();
     RandomizeVector(*d);
 
-//    problem.checkObjectiveGradient(*d); 
-//    problem.checkObjectiveHessVec(*d); 
+//    problem.checkObjectiveGradient(*d);
+//    problem.checkObjectiveHessVec(*d);
 
     // Define algorithm.
-    RCP<ROL::Algorithm<RealT> > algo;    
-    algo = rcp( new ROL::Algorithm<RealT>(stepname,*parlist) );
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>(stepname,*parlist);
 
-    algo->run(problem,true,*outStream);   
+    algo->run(problem,true,*outStream);
 
     x->axpy(-1.0,*xs);
 
@@ -145,6 +145,6 @@ int main(int argc, char *argv[]) {
 
   return 0;
 
-   
+
 
 }

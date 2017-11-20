@@ -80,12 +80,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -93,34 +93,33 @@ int main(int argc, char *argv[]) {
 
   try {
     std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
+    auto parlist = Teuchos::getParametersFromXmlFile(filename);
 
     // Setup optimization problem
-    Teuchos::RCP<ROL::Vector<RealT> > x0, z;
-    Teuchos::RCP<ROL::Objective<RealT> > obj;
-    Teuchos::RCP<ROL::BoundConstraint<RealT> > bnd;
+    ROL::SharedPointer<ROL::Vector<RealT> > x0, z;
+    ROL::SharedPointer<ROL::Objective<RealT> > obj;
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd;
     ROL::getTestObjectives<RealT>(obj,bnd,x0,z,ROL::TESTOPTPROBLEM_HS1);
-    Teuchos::RCP<ROL::Vector<RealT> > x = x0->clone(); x->set(*x0);
+    ROL::SharedPointer<ROL::Vector<RealT> > x = x0->clone(); x->set(*x0);
     ROL::OptimizationProblem<RealT> optProblem(obj,x,bnd);
 
     // Get Dimension of Problem
-    int dim = x0->dimension(); 
+    int dim = x0->dimension();
     parlist->sublist("General").sublist("Krylov").set("Iteration Limit", 2*dim);
 
     // Check Derivatives
     optProblem.check(*outStream);
 
     // Error Vector
-    Teuchos::RCP<ROL::Vector<RealT> > e = x0->clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > e = x0->clone();
     e->zero();
 
     // Setup optimization solver
     parlist->sublist("Status Test").set("Gradient Tolerance",static_cast<RealT>(1e-6));
     parlist->sublist("Step").set("Type", "Interior Point");
-    ROL::OptimizationSolver<RealT> optSolver(optProblem,*parlist);
-    Teuchos::RCP<ROL::StatusTest<RealT> > myStatus
-      = Teuchos::rcp( new myStatusTest<RealT>(1.e-8) );
+    ROL::OptimizationSolver<RealT> optSolver(optProblem, *parlist);
+    ROL::SharedPointer<ROL::StatusTest<RealT> > myStatus
+      = ROL::makeShared<myStatusTest<RealT>>(1.e-8);
     optSolver.solve(*outStream, myStatus, false);
 
     // Compute Error
@@ -145,4 +144,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

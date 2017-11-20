@@ -50,10 +50,10 @@
 namespace ROL {
 
 /** @ingroup vector
-    \class ROL::ProfiledVector 
-    \brief By keeping a pointer to this in a derived 
+    \class ROL::ProfiledVector
+    \brief By keeping a pointer to this in a derived
            Vector class, a tally of all methods is kept
-           for profiling function calls. 
+           for profiling function calls.
 
     NOTE: This class is not yet compatible with vectors that have true duals
 
@@ -66,7 +66,7 @@ namespace ROL {
 
 */
 
-template<class Ordinal> 
+template<class Ordinal>
 struct VectorFunctionCalls {
   Ordinal constructor_;
   Ordinal destructor_;
@@ -80,7 +80,7 @@ struct VectorFunctionCalls {
   Ordinal basis_;
   Ordinal dimension_;
   Ordinal set_;
-  Ordinal dual_; 
+  Ordinal dual_;
   Ordinal applyUnary_;
   Ordinal applyBinary_;
   Ordinal reduce_;
@@ -93,7 +93,7 @@ struct VectorFunctionCalls {
 
 
 // Forward declaration for friend functions
-template<class Ordinal,class Real> 
+template<class Ordinal,class Real>
 class ProfiledVector;
 
 template<class Ordinal,class Real>
@@ -125,26 +125,25 @@ void printVectorFunctionCalls( const ProfiledVector<Ordinal,Real> &x, std::ostre
 
 
 
-template<class Ordinal,class Real> 
+template<class Ordinal,class Real>
 class ProfiledVector : public Vector<Real> {
 
-  template <typename T> using RCP = Teuchos::RCP<T>;  
   typedef Vector<Real>   V;
 
-private: 
-  Teuchos::RCP<Vector<Real> > v_; 
+private:
+  ROL::SharedPointer<Vector<Real> > v_;
   static VectorFunctionCalls<Ordinal> functionCalls_;
 public:
 
-  ProfiledVector( const Teuchos::RCP<Vector<Real> > &v ) { 
+  ProfiledVector( const ROL::SharedPointer<Vector<Real> > &v ) {
     // Make sure that given vector is not itself a ProfiledVector to avoid recursion
-    Teuchos::RCP<ProfiledVector> pv = Teuchos::null;
-    pv = Teuchos::rcp_dynamic_cast<ProfiledVector>(v);
-    TEUCHOS_TEST_FOR_EXCEPTION( pv != Teuchos::null, std::logic_error, "ProfiledVector class "
+    ROL::SharedPointer<ProfiledVector> pv = ROL::nullPointer;
+    pv = ROL::dynamicPointerCast<ProfiledVector>(v);
+    TEUCHOS_TEST_FOR_EXCEPTION( pv != ROL::nullPointer, std::logic_error, "ProfiledVector class "
     "cannot encapsulate a ProfiledVector object!");
 
     v_ = v;
-    
+
     functionCalls_.constructor_++;
   }
 
@@ -153,19 +152,19 @@ public:
   }
 
   void plus( const Vector<Real> &x ) {
-    RCP<const V> xp = Teuchos::dyn_cast<const ProfiledVector>(x).getVector();
+    ROL::SharedPointer<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
 
     functionCalls_.plus_++;
     v_->plus(*xp);
-  } 
+  }
 
   void scale( const Real alpha ) {
     functionCalls_.scale_++;
     v_->scale(alpha);
   }
-  
+
   Real dot( const Vector<Real> &x ) const {
-    RCP<const V> xp = Teuchos::dyn_cast<const ProfiledVector>(x).getVector();
+    ROL::SharedPointer<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.dot_++;
     return v_->dot(*xp);
   }
@@ -175,13 +174,13 @@ public:
     return v_->norm();
   }
 
-  Teuchos::RCP<Vector<Real> > clone() const {
+  ROL::SharedPointer<Vector<Real> > clone() const {
     functionCalls_.clone_++;
-    return Teuchos::rcp( new ProfiledVector( v_->clone() ) );
+    return ROL::makeShared<ProfiledVector>( v_->clone() );
   }
 
   void axpy( const Real alpha, const Vector<Real> &x ) {
-    RCP<const V> xp = Teuchos::dyn_cast<const ProfiledVector>(x).getVector();
+    ROL::SharedPointer<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.axpy_++;
     return v_->axpy(alpha,*xp);
   }
@@ -191,9 +190,9 @@ public:
     v_->zero();
   }
 
-  Teuchos::RCP<Vector<Real> > basis( const int i ) const {
+  ROL::SharedPointer<Vector<Real> > basis( const int i ) const {
     functionCalls_.basis_++;
-   return Teuchos::rcp( new ProfiledVector( v_->basis(i) ) );
+    return ROL::makeShared<ProfiledVector>( v_->basis(i) );
   }
 
   int dimension() const {
@@ -202,29 +201,29 @@ public:
   }
 
   void set( const Vector<Real> &x ) {
-    RCP<const V> xp = Teuchos::dyn_cast<const ProfiledVector>(x).getVector();
+    ROL::SharedPointer<const V> xp = dynamic_cast<const ProfiledVector&>(x).getVector();
     functionCalls_.set_++;
     v_->set(*xp);
   }
 
-  // TODO: determine the correct way to handle dual when v_ is a generic RCP<ROL::Vector>
+  // TODO: determine the correct way to handle dual when v_ is a generic ROL::SharedPointer<ROL::Vector>
   const Vector<Real> & dual() const {
-    functionCalls_.dual_++; 
+    functionCalls_.dual_++;
     return *this;
   }
 
-  Teuchos::RCP<Vector<Real> > getVector() {
+  ROL::SharedPointer<Vector<Real> > getVector() {
     return v_;
   }
 
-  Teuchos::RCP<const Vector<Real> > getVector() const {
+  ROL::SharedPointer<const Vector<Real> > getVector() const {
     return v_;
   }
 
   void applyUnary( const Elementwise::UnaryFunction<Real> &f ) {
     functionCalls_.applyUnary_++;
     v_->applyUnary(f);
-  } 
+  }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const Vector<Real> &x ) {
     functionCalls_.applyBinary_++;
@@ -237,11 +236,11 @@ public:
   }
 
   void print( std::ostream &outStream ) const {
-    v_->print(outStream); 
+    v_->print(outStream);
   }
-    
+
   friend VectorFunctionCalls<Ordinal> getVectorFunctionCalls<>( const ProfiledVector<Ordinal,Real> & );
-  friend void printVectorFunctionCalls<>( const ProfiledVector<Ordinal,Real> &, std::ostream & );  
+  friend void printVectorFunctionCalls<>( const ProfiledVector<Ordinal,Real> &, std::ostream & );
 
 };
 

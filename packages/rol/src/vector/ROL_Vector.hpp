@@ -48,6 +48,7 @@
 #define ROL_UNUSED(x) (void) x
 
 #include <ostream>
+#include "ROL_SharedPointer.hpp"
 
 #include "ROL_Elementwise_Function.hpp"
 
@@ -69,7 +70,7 @@
     a duality pairing (in general Banach space).
 
     There are additional virtual member functions that can be
-    overloaded for computational efficiency. 
+    overloaded for computational efficiency.
 */
 
 namespace ROL {
@@ -128,9 +129,9 @@ public:
 
              Provides the means of allocating temporary memory in ROL.
 
-             ---             
+             ---
   */
-  virtual Teuchos::RCP<Vector> clone() const = 0;
+  virtual ROL::SharedPointer<Vector> clone() const = 0;
 
 
   /** \brief Compute \f$y \leftarrow \alpha x + y\f$ where \f$y = \mathtt{*this}\f$.
@@ -145,7 +146,7 @@ public:
              ---
   */
   virtual void axpy( const Real alpha, const Vector &x ) {
-    Teuchos::RCP<Vector> ax = x.clone();
+    ROL::SharedPointer<Vector> ax = x.clone();
     ax->set(x);
     ax->scale(alpha);
     this->plus(*ax);
@@ -173,9 +174,9 @@ public:
 
              ---
   */
-  virtual Teuchos::RCP<Vector> basis( const int i ) const {
+  virtual ROL::SharedPointer<Vector> basis( const int i ) const {
     ROL_UNUSED(i);
-    return Teuchos::null;
+    return ROL::nullPointer;
   }
 
 
@@ -224,20 +225,20 @@ public:
   virtual void applyUnary( const Elementwise::UnaryFunction<Real> &f ) {
     ROL_UNUSED(f);
     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
-      "The method applyUnary wass called, but not implemented" << std::endl); 
+      "The method applyUnary wass called, but not implemented" << std::endl);
   }
 
   virtual void applyBinary( const Elementwise::BinaryFunction<Real> &f, const Vector &x ) {
     ROL_UNUSED(f);
     ROL_UNUSED(x);
     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
-      "The method applyBinary wass called, but not implemented" << std::endl); 
+      "The method applyBinary wass called, but not implemented" << std::endl);
   }
 
   virtual Real reduce( const Elementwise::ReductionOp<Real> &r ) const {
     ROL_UNUSED(r);
     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,
-      "The method reduce was called, but not implemented" << std::endl); 
+      "The method reduce was called, but not implemented" << std::endl);
   }
 
   virtual void print( std::ostream &outStream ) const {
@@ -285,21 +286,21 @@ public:
 
     Teuchos::oblackholestream bhs; // outputs nothing
 
-    Teuchos::RCP<std::ostream> pStream;
+    std::ostream *pStream;
     if (printToStream) {
-      pStream = Teuchos::rcp(&outStream, false);
+      pStream = &outStream;
     } else {
-      pStream = Teuchos::rcp(&bhs, false);
+      pStream = &bhs;
     }
 
     // Save the format state of the original pStream.
     Teuchos::oblackholestream oldFormatState, headerFormatState;
     oldFormatState.copyfmt(*pStream);
 
-    Teuchos::RCP<Vector> v    = this->clone();
-    Teuchos::RCP<Vector> vtmp = this->clone();
-    Teuchos::RCP<Vector> xtmp = x.clone();
-    Teuchos::RCP<Vector> ytmp = y.clone();
+    ROL::SharedPointer<Vector> v    = this->clone();
+    ROL::SharedPointer<Vector> vtmp = this->clone();
+    ROL::SharedPointer<Vector> xtmp = x.clone();
+    ROL::SharedPointer<Vector> ytmp = y.clone();
 
     //*pStream << "\n************ Begin verification of linear algebra.\n\n";
     *pStream << "\n" << std::setw(width) << std::left << std::setfill('*') << "********** Begin verification of linear algebra. " << "\n\n";
@@ -369,9 +370,7 @@ public:
 
     // Reflexivity.
     v->set(*this);
-    xtmp = Teuchos::rcp_const_cast<Vector>(Teuchos::rcpFromRef(this->dual()));
-    ytmp = Teuchos::rcp_const_cast<Vector>(Teuchos::rcpFromRef(xtmp->dual()));
-    v->axpy(-one, *ytmp); vCheck.push_back(v->norm());
+    v->axpy(-one, this->dual().dual()); vCheck.push_back(v->norm());
     *pStream << std::setw(width) << std::left << "Reflexivity. Consistency error: " << " " << vCheck.back() << "\n\n";
 
     //*pStream << "************   End verification of linear algebra.\n\n";

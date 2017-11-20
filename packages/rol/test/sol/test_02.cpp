@@ -3,7 +3,7 @@
 #include "Teuchos_XMLParameterListHelpers.hpp"
 #include "Teuchos_oblackholestream.hpp"
 #include "Teuchos_GlobalMPISession.hpp"
-#include "Teuchos_RCP.hpp"
+#include "ROL_SharedPointer.hpp"
 #include "ROL_DistributionFactory.hpp"
 
 typedef double RealT;
@@ -11,26 +11,25 @@ typedef double RealT;
 int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-    
+
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
   try {
-    Teuchos::RCP<ROL::Distribution<RealT> > dist;
+    ROL::SharedPointer<ROL::Distribution<RealT> > dist;
 
     // Get ROL parameterlist
     std::string filename = "input_02.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
-    Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );   
-  
+    auto parlist = Teuchos::getParametersFromXmlFile(filename);
+
     for (ROL::EDistribution ed = ROL::DISTRIBUTION_ARCSINE; ed != ROL::DISTRIBUTION_LAST; ed++) {
       *outStream << ROL::EDistributionToString(ed) << std::endl << std::endl;
       parlist->sublist("SOL").sublist("Distribution").set("Name",ROL::EDistributionToString(ed));
@@ -42,7 +41,7 @@ int main(int argc, char* argv[]) {
     *outStream << err.what() << "\n";
     errorFlag = -1000;
   }; // end try
-    
+
   if (errorFlag != 0)
     std::cout << "End Result: TEST FAILED\n";
   else

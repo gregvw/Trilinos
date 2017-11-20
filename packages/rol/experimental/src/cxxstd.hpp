@@ -52,7 +52,7 @@
 #include <iomanip>
 #include <limits>
 #include <map>
-#include <memory>
+#include "ROL_SharedPointer.hpp"
 #include <random>
 #include <tuple>
 #include <type_traits>

@@ -64,21 +64,19 @@ namespace ROL {
 
 template <class Real>
 class StdLinearOperator : public LinearOperator<Real> {
- 
-  template <typename T> using RCP = Teuchos::RCP<T>;
-  
+
   typedef StdVector<Real> SV;
 
   typedef std::vector<Real> vector;
 
 private:
 
-  RCP<std::vector<Real> > A_;
+  ROL::SharedPointer<std::vector<Real> > A_;
   int N_;
   int INFO_;
-  
+
   mutable vector           PLU_;
-  mutable std::vector<int> ipiv_; 
+  mutable std::vector<int> ipiv_;
 
   Teuchos::BLAS<int,Real>    blas_;
   Teuchos::LAPACK<int,Real>  lapack_;
@@ -87,22 +85,22 @@ public:
 
   StdLinearOperator() {}
 
-  StdLinearOperator( RCP<std::vector<Real> > &A ) : A_(A) { 
+  StdLinearOperator( ROL::SharedPointer<std::vector<Real> > &A ) : A_(A) {
     int N2 = A_->size();
     N_ = (std::round(std::sqrt(N2)));
     bool isSquare = N_*N_ == N2;
     TEUCHOS_TEST_FOR_EXCEPTION( !isSquare, std::invalid_argument,
       "Error: vector representation of matrix must have a square "
       "number of elements.");
-    ipiv_.resize(N_);   
+    ipiv_.resize(N_);
   }
 
   virtual ~StdLinearOperator() {}
-  
+
   using LinearOperator<Real>::update;
   void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
-    RCP<const vector> xp = Teuchos::dyn_cast<const SV>(x).getVector();
-    update(*xp,flag,iter);   
+    ROL::SharedPointer<const vector> xp = dynamic_cast<const SV&>(x).getVector();
+    update(*xp,flag,iter);
   }
 
   virtual void update( const std::vector<Real> &x, bool flag = true, int iter = -1 ) {}
@@ -110,9 +108,9 @@ public:
   // Matrix multiplication
   using LinearOperator<Real>::apply;
   void apply( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const {
-    using Teuchos::dyn_cast;    
-    RCP<vector> Hvp = dyn_cast<SV>(Hv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+
+    ROL::SharedPointer<vector> Hvp = dynamic_cast<SV&>(Hv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
     apply(*Hvp,*vp,tol);
   }
 
@@ -125,9 +123,9 @@ public:
   // Matrix multiplication with transpose
   using LinearOperator<Real>::applyAdjoint;
   void applyAdjoint( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const {
-    using Teuchos::dyn_cast;    
-    RCP<vector> Hvp = dyn_cast<SV>(Hv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+
+    ROL::SharedPointer<vector> Hvp = dynamic_cast<SV&>(Hv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
     applyAdjoint(*Hvp,*vp,tol);
   }
 
@@ -136,15 +134,15 @@ public:
 
     blas_.GEMV(Teuchos::TRANS,N_,N_,1.0,&(*A_)[0],LDA,&(v)[0],1,0.0,&(Hv)[0],1);
   }
-  
+
 
   // Solve the system
 
   using LinearOperator<Real>::applyInverse;
-  void applyInverse( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const { 
-    using Teuchos::dyn_cast;
-    RCP<vector> Hvp = dyn_cast<SV>(Hv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+  void applyInverse( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const {
+
+    ROL::SharedPointer<vector> Hvp = dynamic_cast<SV&>(Hv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
     applyInverse(*Hvp,*vp,tol);
   }
 
@@ -154,7 +152,7 @@ public:
     const int LDB = N_;
     int INFO;
     int NRHS = 1;
- 
+
     Hv = v;
     PLU_  = *A_;
 
@@ -165,23 +163,23 @@ public:
       "Zero diagonal element encountered in matrix factor U(" << INFO << "," << INFO << ").");
 
     TEUCHOS_TEST_FOR_EXCEPTION(INFO<0,std::logic_error,"Error in StdLinearOperator::applyInverse(): "
-      "Illegal value encountered in element " << -INFO << " when performing LU factorization.");    
+      "Illegal value encountered in element " << -INFO << " when performing LU factorization.");
 
     // Solve factored system
     lapack_.GETRS('N',N_,NRHS,&PLU_[0],LDA,&ipiv_[0],&Hv[0],LDB,&INFO);
 
     TEUCHOS_TEST_FOR_EXCEPTION(INFO<0,std::logic_error,"Error in StdLinearOperator::applyInverse(): "
-      "Illegal value encountered in element " << -INFO << " when solving the factorized system. "); 
-  
+      "Illegal value encountered in element " << -INFO << " when solving the factorized system. ");
+
   }
 
   // Solve the system with transposed matrix
 
   using LinearOperator<Real>::applyAdjointInverse;
-  void applyAdjointInverse( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const { 
-    using Teuchos::dyn_cast;
-    RCP<vector> Hvp = dyn_cast<SV>(Hv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+  void applyAdjointInverse( Vector<Real> &Hv, const Vector<Real> &v, Real &tol ) const {
+
+    ROL::SharedPointer<vector> Hvp = dynamic_cast<SV&>(Hv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
     applyAdjointInverse(*Hvp,*vp,tol);
   }
 
@@ -191,7 +189,7 @@ public:
     const int LDB = N_;
     int INFO;
     int NRHS = 1;
- 
+
     Hv = v;
     PLU_  = *A_;
 
@@ -202,14 +200,14 @@ public:
       "Zero diagonal element encountered in matrix factor U(" << INFO << "," << INFO << ").");
 
     TEUCHOS_TEST_FOR_EXCEPTION(INFO<0,std::logic_error,"Error in StdLinearOperator::applyAdjointInverse(): "
-      "Illegal value encountered in element " << -INFO << " when performing LU factorization.");    
+      "Illegal value encountered in element " << -INFO << " when performing LU factorization.");
 
     // Solve factored system
     lapack_.GETRS('T',N_,NRHS,&PLU_[0],LDA,&ipiv_[0],&Hv[0],LDB,&INFO);
 
     TEUCHOS_TEST_FOR_EXCEPTION(INFO<0,std::logic_error,"Error in StdLinearOperator::applyAdjointInverse(): "
-      "Illegal value encountered in element " << -INFO << " when solving the factorized system. "); 
-  
+      "Illegal value encountered in element " << -INFO << " when solving the factorized system. ");
+
   }
 
 }; // class LinearOperator

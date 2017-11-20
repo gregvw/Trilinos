@@ -82,19 +82,19 @@ typedef double RealT;
 int main(int argc, char *argv[]) {
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
 
   /*** Initialize communicator. ***/
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm
+  ROL::SharedPointer<const Teuchos::Comm<int> > comm
     = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
   const int myRank = comm->getRank();
   if ((iprint > 0) && (myRank == 0)) {
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   }
   else {
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
   }
   int errorFlag  = 0;
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 
     /*** Read in XML input ***/
     std::string filename = "input_ex07.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     // Retrieve parameters.
@@ -114,26 +114,26 @@ int main(int argc, char *argv[]) {
     const RealT objFactor    = parlist->sublist("Problem").get("Objective Scaling", 1e-4);
 
     /*** Initialize main data structure. ***/
-    Teuchos::RCP<MeshManager<RealT> > meshMgr
-      = Teuchos::rcp(new MeshManager_TopoOpt<RealT>(*parlist));
+    ROL::SharedPointer<MeshManager<RealT> > meshMgr
+      = ROL::makeShared<MeshManager_TopoOpt<RealT>>(*parlist);
     // Initialize PDE describing elasticity equations.
-    Teuchos::RCP<PDE_Elasticity<RealT> > pde
-      = Teuchos::rcp(new PDE_Elasticity<RealT>(*parlist));
-    Teuchos::RCP<ROL::Constraint_SimOpt<RealT> > conPDE
-      = Teuchos::rcp(new PDE_Constraint<RealT>(pde,meshMgr,comm,*parlist,*outStream));
+    ROL::SharedPointer<PDE_Elasticity<RealT> > pde
+      = ROL::makeShared<PDE_Elasticity<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > conPDE
+      = ROL::makeShared<PDE_Constraint<RealT>>(pde,meshMgr,comm,*parlist,*outStream);
     // Initialize the filter PDE.
-    Teuchos::RCP<PDE_Filter<RealT> > pdeFilter
-      = Teuchos::rcp(new PDE_Filter<RealT>(*parlist));
-    Teuchos::RCP<ROL::Constraint_SimOpt<RealT> > conFilter
-      = Teuchos::rcp(new Linear_PDE_Constraint<RealT>(pdeFilter,meshMgr,comm,*parlist,*outStream));
+    ROL::SharedPointer<PDE_Filter<RealT> > pdeFilter
+      = ROL::makeShared<PDE_Filter<RealT>>(*parlist);
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > conFilter
+      = ROL::makeShared<Linear_PDE_Constraint<RealT>>(pdeFilter,meshMgr,comm,*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    Teuchos::RCP<PDE_Constraint<RealT> > pdecon
-      = Teuchos::rcp_dynamic_cast<PDE_Constraint<RealT> >(conPDE);
-    Teuchos::RCP<Assembler<RealT> > assembler = pdecon->getAssembler();
+    ROL::SharedPointer<PDE_Constraint<RealT> > pdecon
+      = ROL::dynamicPointerCast<PDE_Constraint<RealT> >(conPDE);
+    ROL::SharedPointer<Assembler<RealT> > assembler = pdecon->getAssembler();
     conPDE->setSolveParameters(*parlist);
 
     /*** Initialize vector storage. ***/
-    Teuchos::RCP<Tpetra::MultiVector<> > u_rcp, du_rcp, p_rcp, z_rcp, dz_rcp,
+    ROL::SharedPointer<Tpetra::MultiVector<> > u_rcp, du_rcp, p_rcp, z_rcp, dz_rcp,
                                          rz_rcp, r_rcp, dualu_rcp, dualz_rcp,
                                          dp_rcp, dr_rcp, yp_rcp, yr_rcp;
     u_rcp  = assembler->createStateVector();    u_rcp->randomize();
@@ -149,28 +149,28 @@ int main(int argc, char *argv[]) {
     yr_rcp = assembler->createResidualVector(); yr_rcp->randomize();
     dualu_rcp = assembler->createStateVector();
     dualz_rcp = assembler->createControlVector();
-    Teuchos::RCP<ROL::Vector<RealT> > up, dup, pp, zp, dzp,
+    ROL::SharedPointer<ROL::Vector<RealT> > up, dup, pp, zp, dzp,
                                       rzp, rp, dualup, dualzp,
                                       dpp, drp, ypp, yrp;
-    up     = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(u_rcp,pde,assembler,*parlist));
-    dup    = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(du_rcp,pde,assembler,*parlist));
-    pp     = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(p_rcp,pde,assembler,*parlist));
-    zp     = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(z_rcp,pde,assembler,*parlist));
-    dzp    = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(dz_rcp,pde,assembler,*parlist));
-    rzp    = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(rz_rcp,pde,assembler,*parlist));
-    rp     = Teuchos::rcp(new PDE_DualSimVector<RealT>(r_rcp,pde,assembler,*parlist));
-    dpp    = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(dp_rcp,pde,assembler,*parlist));
-    drp    = Teuchos::rcp(new PDE_DualSimVector<RealT>(dr_rcp,pde,assembler,*parlist));
-    ypp    = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(yp_rcp,pde,assembler,*parlist));
-    yrp    = Teuchos::rcp(new PDE_DualSimVector<RealT>(yr_rcp,pde,assembler,*parlist));
-    dualup = Teuchos::rcp(new PDE_DualSimVector<RealT>(dualu_rcp,pde,assembler,*parlist));
-    dualzp = Teuchos::rcp(new PDE_DualOptVector<RealT>(dualz_rcp,pde,assembler,*parlist));
-    Teuchos::RCP<ROL::Vector<RealT> > x, d;
-    x = Teuchos::rcp(new ROL::Vector_SimOpt<RealT>(up,zp));
-    d = Teuchos::rcp(new ROL::Vector_SimOpt<RealT>(dup,dzp));
+    up     = ROL::makeShared<PDE_PrimalSimVector<RealT>>(u_rcp,pde,assembler,*parlist);
+    dup    = ROL::makeShared<PDE_PrimalSimVector<RealT>>(du_rcp,pde,assembler,*parlist);
+    pp     = ROL::makeShared<PDE_PrimalSimVector<RealT>>(p_rcp,pde,assembler,*parlist);
+    zp     = ROL::makeShared<PDE_PrimalOptVector<RealT>>(z_rcp,pde,assembler,*parlist);
+    dzp    = ROL::makeShared<PDE_PrimalOptVector<RealT>>(dz_rcp,pde,assembler,*parlist);
+    rzp    = ROL::makeShared<PDE_PrimalOptVector<RealT>>(rz_rcp,pde,assembler,*parlist);
+    rp     = ROL::makeShared<PDE_DualSimVector<RealT>>(r_rcp,pde,assembler,*parlist);
+    dpp    = ROL::makeShared<PDE_PrimalSimVector<RealT>>(dp_rcp,pde,assembler,*parlist);
+    drp    = ROL::makeShared<PDE_DualSimVector<RealT>>(dr_rcp,pde,assembler,*parlist);
+    ypp    = ROL::makeShared<PDE_PrimalSimVector<RealT>>(yp_rcp,pde,assembler,*parlist);
+    yrp    = ROL::makeShared<PDE_DualSimVector<RealT>>(yr_rcp,pde,assembler,*parlist);
+    dualup = ROL::makeShared<PDE_DualSimVector<RealT>>(dualu_rcp,pde,assembler,*parlist);
+    dualzp = ROL::makeShared<PDE_DualOptVector<RealT>>(dualz_rcp,pde,assembler,*parlist);
+    ROL::SharedPointer<ROL::Vector<RealT> > x, d;
+    x = ROL::makeShared<ROL::Vector_SimOpt<RealT>>(up,zp);
+    d = ROL::makeShared<ROL::Vector_SimOpt<RealT>>(dup,dzp);
 
     /*** Initialize "filtered" or "unfiltered" constraint. ***/
-    Teuchos::RCP<ROL::Constraint_SimOpt<RealT> > pdeWithFilter;
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > pdeWithFilter;
     bool useFilter  = parlist->sublist("Problem").get("Use Filter", true);
     if (useFilter) {
       bool useStorage = parlist->sublist("Problem").get("Use State Storage",true);
@@ -184,39 +184,39 @@ int main(int argc, char *argv[]) {
     pdeWithFilter->setSolveParameters(*parlist);
 
     /*** Initialize volume constraint. ***/
-    Teuchos::RCP<QoI<RealT> > qoi_vol
-      = Teuchos::rcp(new QoI_Volume_TopoOpt<RealT>(pde->getFE(),pde->getFieldHelper(),*parlist));
-    Teuchos::RCP<IntegralConstraint<RealT> > vcon
-      = Teuchos::rcp(new IntegralConstraint<RealT>(qoi_vol,assembler));
+    ROL::SharedPointer<QoI<RealT> > qoi_vol
+      = ROL::makeShared<QoI_Volume_TopoOpt<RealT>(pde->getFE(),pde->getFieldHelper>(),*parlist);
+    ROL::SharedPointer<IntegralConstraint<RealT> > vcon
+      = ROL::makeShared<IntegralConstraint<RealT>>(qoi_vol,assembler);
 
     /*** Initialize combined constraint. ***/
-    std::vector<Teuchos::RCP<ROL::Constraint<RealT> > > convec(2);
+    std::vector<ROL::SharedPointer<ROL::Constraint<RealT> > > convec(2);
     convec[0] = pdeWithFilter;
     convec[1] = vcon;
-    Teuchos::RCP<ROL::Constraint<RealT> > con
-      = Teuchos::rcp(new ROL::Constraint_Partitioned<RealT>(convec));
+    ROL::SharedPointer<ROL::Constraint<RealT> > con
+      = ROL::makeShared<ROL::Constraint_Partitioned<RealT>>(convec);
 
     /*** Initialize constraint and multiplier vectors ***/
     RealT vecScaling = one / std::pow(domainWidth*domainHeight*(one-volFraction), 2);
-    Teuchos::RCP<std::vector<RealT> > scalevec_rcp, volres_rcp, volmult_rcp,
+    ROL::SharedPointer<std::vector<RealT> > scalevec_rcp, volres_rcp, volmult_rcp,
                                       volres1_rcp, volmult1_rcp, volres2_rcp,
                                       volmult2_rcp;
-    scalevec_rcp = Teuchos::rcp(new std::vector<RealT>(1,vecScaling));
-    volres_rcp   = Teuchos::rcp(new std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX)));
-    volmult_rcp  = Teuchos::rcp(new std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX)));
-    volres1_rcp  = Teuchos::rcp(new std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX)));
-    volmult1_rcp = Teuchos::rcp(new std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX)));
-    volres2_rcp  = Teuchos::rcp(new std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX)));
-    volmult2_rcp = Teuchos::rcp(new std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>(RAND_MAX)));
-    Teuchos::RCP<ROL::Vector<RealT> > volres, volmult, volres1, volmult1,
+    scalevec_rcp = ROL::makeShared<std::vector<RealT>>(1,vecScaling);
+    volres_rcp   = ROL::makeShared<std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>>(RAND_MAX));
+    volmult_rcp  = ROL::makeShared<std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>>(RAND_MAX));
+    volres1_rcp  = ROL::makeShared<std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>>(RAND_MAX));
+    volmult1_rcp = ROL::makeShared<std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>>(RAND_MAX));
+    volres2_rcp  = ROL::makeShared<std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>>(RAND_MAX));
+    volmult2_rcp = ROL::makeShared<std::vector<RealT>(1,static_cast<RealT>(rand())/static_cast<RealT>>(RAND_MAX));
+    ROL::SharedPointer<ROL::Vector<RealT> > volres, volmult, volres1, volmult1,
                                       volres2, volmult2;
-    volres   = Teuchos::rcp(new ROL::PrimalScaledStdVector<RealT>(volres_rcp, scalevec_rcp));
-    volmult  = Teuchos::rcp(new ROL::DualScaledStdVector<RealT>(volmult_rcp, scalevec_rcp));
-    volres1  = Teuchos::rcp(new ROL::PrimalScaledStdVector<RealT>(volres1_rcp, scalevec_rcp));
-    volmult1 = Teuchos::rcp(new ROL::DualScaledStdVector<RealT>(volmult1_rcp, scalevec_rcp));
-    volres2  = Teuchos::rcp(new ROL::PrimalScaledStdVector<RealT>(volres2_rcp, scalevec_rcp));
-    volmult2 = Teuchos::rcp(new ROL::DualScaledStdVector<RealT>(volmult2_rcp, scalevec_rcp));
-    std::vector<Teuchos::RCP<ROL::Vector<RealT> > > multvec(2), multvec1(2),
+    volres   = ROL::makeShared<ROL::PrimalScaledStdVector<RealT>>(volres_rcp, scalevec_rcp);
+    volmult  = ROL::makeShared<ROL::DualScaledStdVector<RealT>>(volmult_rcp, scalevec_rcp);
+    volres1  = ROL::makeShared<ROL::PrimalScaledStdVector<RealT>>(volres1_rcp, scalevec_rcp);
+    volmult1 = ROL::makeShared<ROL::DualScaledStdVector<RealT>>(volmult1_rcp, scalevec_rcp);
+    volres2  = ROL::makeShared<ROL::PrimalScaledStdVector<RealT>>(volres2_rcp, scalevec_rcp);
+    volmult2 = ROL::makeShared<ROL::DualScaledStdVector<RealT>>(volmult2_rcp, scalevec_rcp);
+    std::vector<ROL::SharedPointer<ROL::Vector<RealT> > > multvec(2), multvec1(2),
                                                     resvec(2), resvec1(2),
                                                     multvec2(2), resvec2(2);
     multvec[0]  = pp;  multvec[1]  = volmult;
@@ -225,20 +225,20 @@ int main(int argc, char *argv[]) {
     resvec[0]   = rp;  resvec[1]   = volres;
     resvec1[0]  = drp; resvec1[1]  = volres1;
     resvec2[0]  = yrp; resvec2[1]  = volres2;
-    Teuchos::RCP<ROL::Vector<RealT> > multv, multv1, resv, resv1, multv2, resv2;
-    multv  = Teuchos::rcp(new ROL::PartitionedVector<RealT>(multvec));
-    multv1 = Teuchos::rcp(new ROL::PartitionedVector<RealT>(multvec1));
-    multv2 = Teuchos::rcp(new ROL::PartitionedVector<RealT>(multvec2));
-    resv   = Teuchos::rcp(new ROL::PartitionedVector<RealT>(resvec));
-    resv1  = Teuchos::rcp(new ROL::PartitionedVector<RealT>(resvec1));
-    resv2  = Teuchos::rcp(new ROL::PartitionedVector<RealT>(resvec2));
+    ROL::SharedPointer<ROL::Vector<RealT> > multv, multv1, resv, resv1, multv2, resv2;
+    multv  = ROL::makeShared<ROL::PartitionedVector<RealT>>(multvec);
+    multv1 = ROL::makeShared<ROL::PartitionedVector<RealT>>(multvec1);
+    multv2 = ROL::makeShared<ROL::PartitionedVector<RealT>>(multvec2);
+    resv   = ROL::makeShared<ROL::PartitionedVector<RealT>>(resvec);
+    resv1  = ROL::makeShared<ROL::PartitionedVector<RealT>>(resvec1);
+    resv2  = ROL::makeShared<ROL::PartitionedVector<RealT>>(resvec2);
 
     /*** Initialize compliance objective function. ***/
-    std::vector<Teuchos::RCP<QoI<RealT> > > qoi_vec(1,Teuchos::null);
+    std::vector<ROL::SharedPointer<QoI<RealT> > > qoi_vec(1,ROL::nullPointer);
     bool useEnergy = parlist->sublist("Problem").get("Use Energy Objective",false);
     if (useEnergy) {
       RealT objScaling = parlist->sublist("Problem").get("Objective Scaling",1.0);
-      qoi_vec[0] = Teuchos::rcp(new QoI_Energy_TopoOpt<RealT>(pde->getFE(),
+      qoi_vec[0] = ROL::makeShared<QoI_Energy_TopoOpt<RealT>(pde->getFE(>(),
                                                               pde->getMaterialTensor(),
                                                               pde->getFieldHelper(),
                                                               objScaling));
@@ -248,9 +248,9 @@ int main(int argc, char *argv[]) {
       list.sublist("Vector").sublist("Sim").set("Use Riesz Map",true);
       list.sublist("Vector").sublist("Sim").set("Lump Riesz Map",false);
       // Has state Riesz map enabled for mesh-independent compliance scaling.
-      Teuchos::RCP<Tpetra::MultiVector<> > f_rcp = assembler->createResidualVector();
-      Teuchos::RCP<ROL::Vector<RealT> > fp
-        = Teuchos::rcp(new PDE_DualSimVector<RealT>(f_rcp,pde,assembler,list));
+      ROL::SharedPointer<Tpetra::MultiVector<> > f_rcp = assembler->createResidualVector();
+      ROL::SharedPointer<ROL::Vector<RealT> > fp
+        = ROL::makeShared<PDE_DualSimVector<RealT>>(f_rcp,pde,assembler,list);
       fp->zero(); up->zero();
       pdeWithFilter->value(*fp, *up, *zp, tol);
       RealT objScaling = objFactor, fnorm2 = fp->dot(*fp);
@@ -258,39 +258,39 @@ int main(int argc, char *argv[]) {
         objScaling /= fnorm2;
       }
       u_rcp->randomize();
-      qoi_vec[0] = Teuchos::rcp(new QoI_TopoOpt<RealT>(pde->getFE(),
+      qoi_vec[0] = ROL::makeShared<QoI_TopoOpt<RealT>(pde->getFE(>(),
                                                        pde->getLoad(),
                                                        pde->getFieldHelper(),
                                                        objScaling));
     }
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > obj
-      = Teuchos::rcp(new PDE_Objective<RealT>(qoi_vec,assembler));
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > obj
+      = ROL::makeShared<PDE_Objective<RealT>>(qoi_vec,assembler);
 
     /*** Initialize bound constraints. ***/
     // Control bounds
-    Teuchos::RCP<Tpetra::MultiVector<> > zlo_rcp = assembler->createControlVector();
-    Teuchos::RCP<Tpetra::MultiVector<> > zhi_rcp = assembler->createControlVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > zlo_rcp = assembler->createControlVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > zhi_rcp = assembler->createControlVector();
     zlo_rcp->putScalar(0.0); zhi_rcp->putScalar(1.0);
-    Teuchos::RCP<ROL::Vector<RealT> > zlop
-      = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(zlo_rcp,pde,assembler));
-    Teuchos::RCP<ROL::Vector<RealT> > zhip
-      = Teuchos::rcp(new PDE_PrimalOptVector<RealT>(zhi_rcp,pde,assembler));
-    Teuchos::RCP<ROL::BoundConstraint<RealT> > zbnd
-      = Teuchos::rcp(new ROL::Bounds<RealT>(zlop,zhip));
+    ROL::SharedPointer<ROL::Vector<RealT> > zlop
+      = ROL::makeShared<PDE_PrimalOptVector<RealT>>(zlo_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::Vector<RealT> > zhip
+      = ROL::makeShared<PDE_PrimalOptVector<RealT>>(zhi_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > zbnd
+      = ROL::makeShared<ROL::Bounds<RealT>>(zlop,zhip);
     // State bounds
-    Teuchos::RCP<Tpetra::MultiVector<> > ulo_rcp = assembler->createStateVector();
-    Teuchos::RCP<Tpetra::MultiVector<> > uhi_rcp = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > ulo_rcp = assembler->createStateVector();
+    ROL::SharedPointer<Tpetra::MultiVector<> > uhi_rcp = assembler->createStateVector();
     ulo_rcp->putScalar(ROL::ROL_NINF<RealT>()); uhi_rcp->putScalar(ROL::ROL_INF<RealT>());
-    Teuchos::RCP<ROL::Vector<RealT> > ulop
-      = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(ulo_rcp,pde,assembler));
-    Teuchos::RCP<ROL::Vector<RealT> > uhip
-      = Teuchos::rcp(new PDE_PrimalSimVector<RealT>(uhi_rcp,pde,assembler));
-    Teuchos::RCP<ROL::BoundConstraint<RealT> > ubnd
-      = Teuchos::rcp(new ROL::Bounds<RealT>(ulop,uhip));
+    ROL::SharedPointer<ROL::Vector<RealT> > ulop
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(ulo_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::Vector<RealT> > uhip
+      = ROL::makeShared<PDE_PrimalSimVector<RealT>>(uhi_rcp,pde,assembler);
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > ubnd
+      = ROL::makeShared<ROL::Bounds<RealT>>(ulop,uhip);
     ubnd->deactivate();
     // SimOpt bounds
-    Teuchos::RCP<ROL::BoundConstraint<RealT> > bnd
-      = Teuchos::rcp(new ROL::BoundConstraint_SimOpt<RealT>(ubnd,zbnd));
+    ROL::SharedPointer<ROL::BoundConstraint<RealT> > bnd
+      = ROL::makeShared<ROL::BoundConstraint_SimOpt<RealT>>(ubnd,zbnd);
 
     // Run derivative checks
     bool checkDeriv = parlist->sublist("Problem").get("Check derivatives",false);

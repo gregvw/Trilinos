@@ -59,7 +59,7 @@
     \brief Defines the constraint operator interface for simulation-based optimization.
 
     This constraint interface inherits from ROL_Constraint, for the
-    use case when \f$\mathcal{X}=\mathcal{U}\times\mathcal{Z}\f$ where \f$\mathcal{U}\f$ and 
+    use case when \f$\mathcal{X}=\mathcal{U}\times\mathcal{Z}\f$ where \f$\mathcal{U}\f$ and
     \f$\mathcal{Z}\f$ are Banach spaces.  \f$\mathcal{U}\f$ denotes the "simulation space"
     and \f$\mathcal{Z}\f$ denotes the "optimization space" (of designs, controls, parameters).
     The simulation-based constraints are of the form
@@ -68,23 +68,23 @@
     \f]
     The basic operator interface, to be implemented by the user, requires:
     \li #value -- constraint evaluation.
-    \li #applyJacobian_1        -- action of the partial constraint Jacobian --derivatives are 
+    \li #applyJacobian_1        -- action of the partial constraint Jacobian --derivatives are
                                    with respect to the first component \f$\mathcal{U}\f$;
-    \li #applyJacobian_2        -- action of the partial constraint Jacobian --derivatives are 
+    \li #applyJacobian_2        -- action of the partial constraint Jacobian --derivatives are
                                    with respect to the second component \f$\mathcal{Z}\f$;
-    \li #applyAdjointJacobian_1 -- action of the adjoint of the partial constraint Jacobian --derivatives are 
+    \li #applyAdjointJacobian_1 -- action of the adjoint of the partial constraint Jacobian --derivatives are
                                    with respect to the first component \f$\mathcal{U}\f$;
-    \li #applyAdjointJacobian_2 -- action of the adjoint of the partial constraint Jacobian --derivatives are 
+    \li #applyAdjointJacobian_2 -- action of the adjoint of the partial constraint Jacobian --derivatives are
                                    with respect to the second component \f$\mathcal{Z}\f$;
 
     The user may also overload:
-    \li #applyAdjointHessian_11  -- action of the adjoint of the partial constraint Hessian --derivatives 
+    \li #applyAdjointHessian_11  -- action of the adjoint of the partial constraint Hessian --derivatives
                                     are with respect to the first component only;
-    \li #applyAdjointHessian_12  -- action of the adjoint of the partial constraint Hessian --derivatives 
+    \li #applyAdjointHessian_12  -- action of the adjoint of the partial constraint Hessian --derivatives
                                     are with respect to the first and second components;
-    \li #applyAdjointHessian_21  -- action of the adjoint of the partial constraint Hessian --derivatives 
+    \li #applyAdjointHessian_21  -- action of the adjoint of the partial constraint Hessian --derivatives
                                     are with respect to the second and first components;
-    \li #applyAdjointHessian_22  -- action of the adjoint of the partial constraint Hessian --derivatives 
+    \li #applyAdjointHessian_22  -- action of the adjoint of the partial constraint Hessian --derivatives
                                     are with respect to the second component only;
     \li #solveAugmentedSystem -- solution of the augmented system --the default is an iterative
                                  scheme based on the action of the Jacobian and its adjoint.
@@ -100,8 +100,8 @@ template <class Real>
 class Constraint_SimOpt : public Constraint<Real> {
 private:
   // Additional vector storage for solve
-  Teuchos::RCP<Vector<Real> > unew_;
-  Teuchos::RCP<Vector<Real> > jv_;
+  ROL::SharedPointer<Vector<Real> > unew_;
+  ROL::SharedPointer<Vector<Real> > jv_;
 
   // Default parameters for solve (backtracking Newton)
   const Real DEFAULT_atol_;
@@ -131,7 +131,7 @@ private:
 public:
   Constraint_SimOpt()
     : Constraint<Real>(),
-      unew_(Teuchos::null), jv_(Teuchos::null),
+      unew_(ROL::nullPointer), jv_(ROL::nullPointer),
       DEFAULT_atol_(1.e-4*std::sqrt(ROL_EPSILON<Real>())),
       DEFAULT_rtol_(1.e0),
       DEFAULT_stol_(std::sqrt(ROL_EPSILON<Real>())),
@@ -145,25 +145,25 @@ public:
       decr_(DEFAULT_decr_), maxit_(DEFAULT_maxit_), print_(DEFAULT_print_), zero_(DEFAULT_zero_),
       solverType_(DEFAULT_solverType_), firstSolve_(true) {}
 
-  /** \brief Update constraint functions.  
-                x is the optimization variable, 
+  /** \brief Update constraint functions.
+                x is the optimization variable,
                 flag = true if optimization variable is changed,
                 iter is the outer algorithm iterations count.
   */
   virtual void update( const Vector<Real> &u, const Vector<Real> &z, bool flag = true, int iter = -1 ) {
     update_1(u,flag,iter);
-    update_2(z,flag,iter);  
+    update_2(z,flag,iter);
   }
 
-  /** \brief Update constraint functions with respect to Sim variable.  
-                x is the optimization variable, 
+  /** \brief Update constraint functions with respect to Sim variable.
+                x is the optimization variable,
                 flag = true if optimization variable is changed,
                 iter is the outer algorithm iterations count.
   */
   virtual void update_1( const Vector<Real> &u, bool flag = true, int iter = -1 ) {}
 
   /** \brief Update constraint functions with respect to Opt variable.
-                x is the optimization variable, 
+                x is the optimization variable,
                 flag = true if optimization variable is changed,
                 iter is the outer algorithm iterations count.
   */
@@ -200,7 +200,7 @@ public:
              ---
   */
   virtual void solve(Vector<Real> &c,
-                     Vector<Real> &u, 
+                     Vector<Real> &u,
                      const Vector<Real> &z,
                      Real &tol) {
     if ( zero_ ) {
@@ -266,31 +266,31 @@ public:
       }
     }
     if (solverType_==1 || (solverType_==3 && cnorm > ctol)) {
-      Teuchos::RCP<Constraint_SimOpt<Real> > con = Teuchos::rcp(this,false);
-      Teuchos::RCP<Objective<Real> > obj = Teuchos::rcp(new NonlinearLeastSquaresObjective_SimOpt<Real>(con,u,z,c,true));
+      ROL::SharedPointer<Constraint_SimOpt<Real> > con(this);
+      ROL::SharedPointer<Objective<Real> > obj = ROL::makeShared<NonlinearLeastSquaresObjective_SimOpt<Real>>(con,u,z,c,true);
       Teuchos::ParameterList parlist;
       parlist.sublist("Status Test").set("Gradient Tolerance",ctol);
       parlist.sublist("Status Test").set("Step Tolerance",stol_);
       parlist.sublist("Status Test").set("Iteration Limit",maxit_);
       parlist.sublist("Step").sublist("Trust Region").set("Subproblem Solver","Truncated CG");
       parlist.sublist("General").sublist("Krylov").set("Iteration Limit",100);
-      Teuchos::RCP<Algorithm<Real> > algo = Teuchos::rcp(new Algorithm<Real>("Trust Region",parlist,false));
+      ROL::SharedPointer<Algorithm<Real> > algo = ROL::makeShared<Algorithm<Real>>("Trust Region",parlist,false);
       algo->run(u,*obj,print_);
       value(c,u,z,tol);
     }
     if (solverType_==2 || (solverType_==4 && cnorm > ctol)) {
-      Teuchos::RCP<Constraint_SimOpt<Real> > con = Teuchos::rcp(this,false);
-      Teuchos::RCP<const Vector<Real> > zVec = Teuchos::rcpFromRef(z);
-      Teuchos::RCP<Constraint<Real> > conU
-        = Teuchos::rcp(new Constraint_State<Real>(con,zVec));
-      Teuchos::RCP<Objective<Real> > objU
-        = Teuchos::rcp(new Objective_FSsolver<Real>());
+      ROL::SharedPointer<Constraint_SimOpt<Real> > con(this);
+      ROL::SharedPointer<const Vector<Real> > zVec(&z);
+      ROL::SharedPointer<Constraint<Real> > conU
+        = ROL::makeShared<Constraint_State<Real>>(con,zVec);
+      ROL::SharedPointer<Objective<Real> > objU
+        = ROL::makeShared<Objective_FSsolver<Real>>();
       Teuchos::ParameterList parlist;
       parlist.sublist("Status Test").set("Constraint Tolerance",ctol);
       parlist.sublist("Status Test").set("Step Tolerance",stol_);
       parlist.sublist("Status Test").set("Iteration Limit",maxit_);
-      Teuchos::RCP<Algorithm<Real> > algo = Teuchos::rcp(new Algorithm<Real>("Composite Step",parlist,false));
-      Teuchos::RCP<Vector<Real> > l = c.dual().clone();
+      ROL::SharedPointer<Algorithm<Real> > algo = ROL::makeShared<Algorithm<Real>>("Composite Step",parlist,false);
+      ROL::SharedPointer<Vector<Real> > l = c.dual().clone();
       algo->run(u,*l,*objU,*conU,print_);
       value(c,u,z,tol);
     }
@@ -333,7 +333,7 @@ public:
     solverType_ = list.get("Solver Type",                   DEFAULT_solverType_);
   }
 
-  /** \brief Apply the partial constraint Jacobian at \f$(u,z)\f$, 
+  /** \brief Apply the partial constraint Jacobian at \f$(u,z)\f$,
              \f$c_u(u,z) \in L(\mathcal{U}, \mathcal{C})\f$,
              to the vector \f$v\f$.
 
@@ -360,14 +360,14 @@ public:
       h = std::max(1.0,u.norm()/v.norm())*tol;
     }
     // Update state vector to u + hv
-    Teuchos::RCP<Vector<Real> > unew = u.clone();
+    ROL::SharedPointer<Vector<Real> > unew = u.clone();
     unew->set(u);
     unew->axpy(h,v);
     // Compute new constraint value
     update(*unew,z);
     value(jv,*unew,z,ctol);
     // Compute current constraint value
-    Teuchos::RCP<Vector<Real> > cold = jv.clone();
+    ROL::SharedPointer<Vector<Real> > cold = jv.clone();
     update(u,z);
     value(*cold,u,z,ctol);
     // Compute Newton quotient
@@ -376,7 +376,7 @@ public:
   }
 
 
-  /** \brief Apply the partial constraint Jacobian at \f$(u,z)\f$, 
+  /** \brief Apply the partial constraint Jacobian at \f$(u,z)\f$,
              \f$c_z(u,z) \in L(\mathcal{Z}, \mathcal{C})\f$,
              to the vector \f$v\f$.
 
@@ -387,7 +387,7 @@ public:
              @param[in,out]   tol is a tolerance for inexact evaluations; currently unused
 
              On return, \f$\mathsf{jv} = c_z(u,z)v\f$, where
-             \f$v \in \mathcal{Z}\f$, \f$\mathsf{jv} \in \mathcal{C}\f$. 
+             \f$v \in \mathcal{Z}\f$, \f$\mathsf{jv} \in \mathcal{C}\f$.
 
              ---
   */
@@ -395,7 +395,7 @@ public:
                                const Vector<Real> &v,
                                const Vector<Real> &u,
                                const Vector<Real> &z,
-                               Real &tol) { 
+                               Real &tol) {
     Real ctol = std::sqrt(ROL_EPSILON<Real>());
     // Compute step length
     Real h = tol;
@@ -403,14 +403,14 @@ public:
       h = std::max(1.0,u.norm()/v.norm())*tol;
     }
     // Update state vector to u + hv
-    Teuchos::RCP<Vector<Real> > znew = z.clone();
+    ROL::SharedPointer<Vector<Real> > znew = z.clone();
     znew->set(z);
     znew->axpy(h,v);
     // Compute new constraint value
     update(u,*znew);
     value(jv,u,*znew,ctol);
     // Compute current constraint value
-    Teuchos::RCP<Vector<Real> > cold = jv.clone();
+    ROL::SharedPointer<Vector<Real> > cold = jv.clone();
     update(u,z);
     value(*cold,u,z,ctol);
     // Compute Newton quotient
@@ -418,7 +418,7 @@ public:
     jv.scale(1.0/h);
   }
 
-  /** \brief Apply the inverse partial constraint Jacobian at \f$(u,z)\f$, 
+  /** \brief Apply the inverse partial constraint Jacobian at \f$(u,z)\f$,
              \f$c_u(u,z)^{-1} \in L(\mathcal{C}, \mathcal{U})\f$,
              to the vector \f$v\f$.
 
@@ -442,7 +442,7 @@ public:
       "The method applyInverseJacobian_1 is used but not implemented!\n");
   }
 
-  /** \brief Apply the adjoint of the partial constraint Jacobian at \f$(u,z)\f$, 
+  /** \brief Apply the adjoint of the partial constraint Jacobian at \f$(u,z)\f$,
              \f$c_u(u,z)^* \in L(\mathcal{C}^*, \mathcal{U}^*)\f$,
              to the vector \f$v\f$.  This is the primary interface.
 
@@ -466,7 +466,7 @@ public:
   }
 
 
-  /** \brief Apply the adjoint of the partial constraint Jacobian at \f$(u,z)\f$, 
+  /** \brief Apply the adjoint of the partial constraint Jacobian at \f$(u,z)\f$,
              \f$c_u(u,z)^* \in L(\mathcal{C}^*, \mathcal{U}^*)\f$,
              to the vector \f$v\f$.  This is the secondary interface, for use
              with dual spaces where the user does not define the dual() operation.
@@ -494,11 +494,11 @@ public:
     if (v.norm() > std::sqrt(ROL_EPSILON<Real>())) {
       h = std::max(1.0,u.norm()/v.norm())*tol;
     }
-    Teuchos::RCP<Vector<Real> > cold = dualv.clone();
-    Teuchos::RCP<Vector<Real> > cnew = dualv.clone();
+    ROL::SharedPointer<Vector<Real> > cold = dualv.clone();
+    ROL::SharedPointer<Vector<Real> > cnew = dualv.clone();
     update(u,z);
     value(*cold,u,z,ctol);
-    Teuchos::RCP<Vector<Real> > unew = u.clone();
+    ROL::SharedPointer<Vector<Real> > unew = u.clone();
     ajv.zero();
     for (int i = 0; i < u.dimension(); i++) {
       unew->set(u);
@@ -513,7 +513,7 @@ public:
   }
 
 
-  /** \brief Apply the adjoint of the partial constraint Jacobian at \f$(u,z)\f$, 
+  /** \brief Apply the adjoint of the partial constraint Jacobian at \f$(u,z)\f$,
              \f$c_z(u,z)^* \in L(\mathcal{C}^*, \mathcal{Z}^*)\f$,
              to vector \f$v\f$.  This is the primary interface.
 
@@ -537,7 +537,7 @@ public:
   }
 
 
-  /** \brief Apply the adjoint of the partial constraint Jacobian at \f$(u,z)\f$, 
+  /** \brief Apply the adjoint of the partial constraint Jacobian at \f$(u,z)\f$,
              \f$c_z(u,z)^* \in L(\mathcal{C}^*, \mathcal{Z}^*)\f$,
              to vector \f$v\f$.  This is the secondary interface, for use
              with dual spaces where the user does not define the dual() operation.
@@ -565,11 +565,11 @@ public:
     if (v.norm() > std::sqrt(ROL_EPSILON<Real>())) {
       h = std::max(1.0,u.norm()/v.norm())*tol;
     }
-    Teuchos::RCP<Vector<Real> > cold = dualv.clone();
-    Teuchos::RCP<Vector<Real> > cnew = dualv.clone();
+    ROL::SharedPointer<Vector<Real> > cold = dualv.clone();
+    ROL::SharedPointer<Vector<Real> > cnew = dualv.clone();
     update(u,z);
     value(*cold,u,z,ctol);
-    Teuchos::RCP<Vector<Real> > znew = z.clone();
+    ROL::SharedPointer<Vector<Real> > znew = z.clone();
     ajv.zero();
     for (int i = 0; i < z.dimension(); i++) {
       znew->set(z);
@@ -583,7 +583,7 @@ public:
     update(u,z);
   }
 
-  /** \brief Apply the inverse of the adjoint of the partial constraint Jacobian at \f$(u,z)\f$, 
+  /** \brief Apply the inverse of the adjoint of the partial constraint Jacobian at \f$(u,z)\f$,
              \f$c_u(u,z)^{-*} \in L(\mathcal{U}^*, \mathcal{C}^*)\f$,
              to the vector \f$v\f$.
 
@@ -637,13 +637,13 @@ public:
       h = std::max(1.0,u.norm()/v.norm())*tol;
     }
     // Evaluate Jacobian at new state
-    Teuchos::RCP<Vector<Real> > unew = u.clone();
+    ROL::SharedPointer<Vector<Real> > unew = u.clone();
     unew->set(u);
     unew->axpy(h,v);
     update(*unew,z);
     applyAdjointJacobian_1(ahwv,w,*unew,z,jtol);
     // Evaluate Jacobian at old state
-    Teuchos::RCP<Vector<Real> > jv = ahwv.clone();
+    ROL::SharedPointer<Vector<Real> > jv = ahwv.clone();
     update(u,z);
     applyAdjointJacobian_1(*jv,w,u,z,jtol);
     // Compute Newton quotient
@@ -682,13 +682,13 @@ public:
       h = std::max(1.0,u.norm()/v.norm())*tol;
     }
     // Evaluate Jacobian at new state
-    Teuchos::RCP<Vector<Real> > unew = u.clone();
+    ROL::SharedPointer<Vector<Real> > unew = u.clone();
     unew->set(u);
     unew->axpy(h,v);
     update(*unew,z);
     applyAdjointJacobian_2(ahwv,w,*unew,z,jtol);
     // Evaluate Jacobian at old state
-    Teuchos::RCP<Vector<Real> > jv = ahwv.clone();
+    ROL::SharedPointer<Vector<Real> > jv = ahwv.clone();
     update(u,z);
     applyAdjointJacobian_2(*jv,w,u,z,jtol);
     // Compute Newton quotient
@@ -727,13 +727,13 @@ public:
       h = std::max(1.0,u.norm()/v.norm())*tol;
     }
     // Evaluate Jacobian at new control
-    Teuchos::RCP<Vector<Real> > znew = z.clone();
+    ROL::SharedPointer<Vector<Real> > znew = z.clone();
     znew->set(z);
     znew->axpy(h,v);
     update(u,*znew);
     applyAdjointJacobian_1(ahwv,w,u,*znew,jtol);
     // Evaluate Jacobian at old control
-    Teuchos::RCP<Vector<Real> > jv = ahwv.clone();
+    ROL::SharedPointer<Vector<Real> > jv = ahwv.clone();
     update(u,z);
     applyAdjointJacobian_1(*jv,w,u,z,jtol);
     // Compute Newton quotient
@@ -771,13 +771,13 @@ public:
       h = std::max(1.0,u.norm()/v.norm())*tol;
     }
     // Evaluate Jacobian at new control
-    Teuchos::RCP<Vector<Real> > znew = z.clone();
+    ROL::SharedPointer<Vector<Real> > znew = z.clone();
     znew->set(z);
     znew->axpy(h,v);
     update(u,*znew);
     applyAdjointJacobian_2(ahwv,w,u,*znew,jtol);
     // Evaluate Jacobian at old control
-    Teuchos::RCP<Vector<Real> > jv = ahwv.clone();
+    ROL::SharedPointer<Vector<Real> > jv = ahwv.clone();
     update(u,z);
     applyAdjointJacobian_2(*jv,w,u,z,jtol);
     // Compute Newton quotient
@@ -856,8 +856,8 @@ public:
                                    const Vector<Real> &x,
                                    const Vector<Real> &g,
                                    Real &tol) {
-    const Vector_SimOpt<Real> &xs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(x);
-    Teuchos::RCP<ROL::Vector<Real> > ijv = (xs.get_1())->clone();
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(x);
+    ROL::SharedPointer<ROL::Vector<Real> > ijv = (xs.get_1())->clone();
 
     try {
       applyInverseJacobian_1(*ijv, v, *(xs.get_1()), *(xs.get_2()), tol);
@@ -867,8 +867,8 @@ public:
       return;
     }
 
-    const Vector_SimOpt<Real> &gs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(g);
-    Teuchos::RCP<ROL::Vector<Real> > ijv_dual = (gs.get_1())->clone();
+    const Vector_SimOpt<Real> &gs = dynamic_cast<const Vector_SimOpt<Real>&>(g);
+    ROL::SharedPointer<ROL::Vector<Real> > ijv_dual = (gs.get_1())->clone();
     ijv_dual->set(ijv->dual());
 
     try {
@@ -881,22 +881,22 @@ public:
 
   }
 
-  /** \brief Update constraint functions.  
-                x is the optimization variable, 
+  /** \brief Update constraint functions.
+                x is the optimization variable,
                 flag = true if optimization variable is changed,
                 iter is the outer algorithm iterations count.
   */
   virtual void update( const Vector<Real> &x, bool flag = true, int iter = -1 ) {
-    const Vector_SimOpt<Real> &xs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<const Vector<Real> >(x));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
     update(*(xs.get_1()),*(xs.get_2()),flag,iter);
   }
 
   virtual void value(Vector<Real> &c,
                      const Vector<Real> &x,
                      Real &tol) {
-    const Vector_SimOpt<Real> &xs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<const Vector<Real> >(x));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
     value(c,*(xs.get_1()),*(xs.get_2()),tol);
   }
 
@@ -904,13 +904,13 @@ public:
   virtual void applyJacobian(Vector<Real> &jv,
                              const Vector<Real> &v,
                              const Vector<Real> &x,
-                             Real &tol) { 
-    const Vector_SimOpt<Real> &xs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<const Vector<Real> >(x));
-    const Vector_SimOpt<Real> &vs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<const Vector<Real> >(v));
+                             Real &tol) {
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
+    const Vector_SimOpt<Real> &vs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(v));
     applyJacobian_1(jv,*(vs.get_1()),*(xs.get_1()),*(xs.get_2()),tol);
-    Teuchos::RCP<Vector<Real> > jv2 = jv.clone();
+    ROL::SharedPointer<Vector<Real> > jv2 = jv.clone();
     applyJacobian_2(*jv2,*(vs.get_2()),*(xs.get_1()),*(xs.get_2()),tol);
     jv.plus(*jv2);
   }
@@ -919,15 +919,15 @@ public:
   virtual void applyAdjointJacobian(Vector<Real> &ajv,
                                     const Vector<Real> &v,
                                     const Vector<Real> &x,
-                                    Real &tol) { 
-    Vector_SimOpt<Real> &ajvs = Teuchos::dyn_cast<Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<Vector<Real> >(ajv));
-    const Vector_SimOpt<Real> &xs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<const Vector<Real> >(x));
-    Teuchos::RCP<Vector<Real> > ajv1 = (ajvs.get_1())->clone();
+                                    Real &tol) {
+    Vector_SimOpt<Real> &ajvs = dynamic_cast<Vector_SimOpt<Real>&>(
+      dynamic_cast<Vector<Real>&>(ajv));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
+    ROL::SharedPointer<Vector<Real> > ajv1 = (ajvs.get_1())->clone();
     applyAdjointJacobian_1(*ajv1,v,*(xs.get_1()),*(xs.get_2()),tol);
     ajvs.set_1(*ajv1);
-    Teuchos::RCP<Vector<Real> > ajv2 = (ajvs.get_2())->clone();
+    ROL::SharedPointer<Vector<Real> > ajv2 = (ajvs.get_2())->clone();
     applyAdjointJacobian_2(*ajv2,v,*(xs.get_1()),*(xs.get_2()),tol);
     ajvs.set_2(*ajv2);
   }
@@ -938,42 +938,42 @@ public:
                                    const Vector<Real> &v,
                                    const Vector<Real> &x,
                                    Real &tol) {
-    Vector_SimOpt<Real> &ahwvs = Teuchos::dyn_cast<Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<Vector<Real> >(ahwv));
-    const Vector_SimOpt<Real> &xs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<const Vector<Real> >(x));
-    const Vector_SimOpt<Real> &vs = Teuchos::dyn_cast<const Vector_SimOpt<Real> >(
-      Teuchos::dyn_cast<const Vector<Real> >(v));
+    Vector_SimOpt<Real> &ahwvs = dynamic_cast<Vector_SimOpt<Real>&>(
+      dynamic_cast<Vector<Real>&>(ahwv));
+    const Vector_SimOpt<Real> &xs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(x));
+    const Vector_SimOpt<Real> &vs = dynamic_cast<const Vector_SimOpt<Real>&>(
+      dynamic_cast<const Vector<Real>&>(v));
     // Block-row 1
-    Teuchos::RCP<Vector<Real> > C11 = (ahwvs.get_1())->clone();
-    Teuchos::RCP<Vector<Real> > C21 = (ahwvs.get_1())->clone();
+    ROL::SharedPointer<Vector<Real> > C11 = (ahwvs.get_1())->clone();
+    ROL::SharedPointer<Vector<Real> > C21 = (ahwvs.get_1())->clone();
     applyAdjointHessian_11(*C11,w,*(vs.get_1()),*(xs.get_1()),*(xs.get_2()),tol);
     applyAdjointHessian_21(*C21,w,*(vs.get_2()),*(xs.get_1()),*(xs.get_2()),tol);
     C11->plus(*C21);
-    ahwvs.set_1(*C11); 
+    ahwvs.set_1(*C11);
     // Block-row 2
-    Teuchos::RCP<Vector<Real> > C12 = (ahwvs.get_2())->clone();
-    Teuchos::RCP<Vector<Real> > C22 = (ahwvs.get_2())->clone();
+    ROL::SharedPointer<Vector<Real> > C12 = (ahwvs.get_2())->clone();
+    ROL::SharedPointer<Vector<Real> > C22 = (ahwvs.get_2())->clone();
     applyAdjointHessian_12(*C12,w,*(vs.get_1()),*(xs.get_1()),*(xs.get_2()),tol);
     applyAdjointHessian_22(*C22,w,*(vs.get_2()),*(xs.get_1()),*(xs.get_2()),tol);
     C22->plus(*C12);
-    ahwvs.set_2(*C22); 
+    ahwvs.set_2(*C22);
   }
 
 
 
-  virtual Real checkSolve(const ROL::Vector<Real> &u, 
-                          const ROL::Vector<Real> &z, 
+  virtual Real checkSolve(const ROL::Vector<Real> &u,
+                          const ROL::Vector<Real> &z,
                           const ROL::Vector<Real> &c,
                           const bool printToStream = true,
                           std::ostream & outStream = std::cout) {
-    // Solve constraint for u. 
+    // Solve constraint for u.
     Real tol = ROL_EPSILON<Real>();
-    Teuchos::RCP<ROL::Vector<Real> > r = c.clone();
-    Teuchos::RCP<ROL::Vector<Real> > s = u.clone();
+    ROL::SharedPointer<ROL::Vector<Real> > r = c.clone();
+    ROL::SharedPointer<ROL::Vector<Real> > s = u.clone();
     solve(*r,*s,z,tol);
     // Evaluate constraint residual at (u,z).
-    Teuchos::RCP<ROL::Vector<Real> > cs = c.clone();
+    ROL::SharedPointer<ROL::Vector<Real> > cs = c.clone();
     update(*s,z);
     value(*cs,*s,z,tol);
     // Output norm of residual.
@@ -1003,8 +1003,8 @@ public:
 
              ---
   */
-  virtual Real checkAdjointConsistencyJacobian_1(const Vector<Real> &w, 
-                                                 const Vector<Real> &v, 
+  virtual Real checkAdjointConsistencyJacobian_1(const Vector<Real> &w,
+                                                 const Vector<Real> &v,
                                                  const Vector<Real> &u,
                                                  const Vector<Real> &z,
                                                  const bool printToStream = true,
@@ -1021,15 +1021,15 @@ public:
              @param[in]       v              is a simulation-space vector
              @param[in]       u              is the constraint argument; a simulation-space vector
              @param[in]       z              is the constraint argument; an optimization-space vector
-             @param[in]       dualw          is a constraint-space vector 
+             @param[in]       dualw          is a constraint-space vector
              @param[in]       dualv          is a dual simulation-space vector
              @param[in]       printToStream  is is a flag that turns on/off output
              @param[in]       outStream      is the output stream
 
              ---
   */
-  virtual Real checkAdjointConsistencyJacobian_1(const Vector<Real> &w, 
-                                                 const Vector<Real> &v, 
+  virtual Real checkAdjointConsistencyJacobian_1(const Vector<Real> &w,
+                                                 const Vector<Real> &v,
                                                  const Vector<Real> &u,
                                                  const Vector<Real> &z,
                                                  const Vector<Real> &dualw,
@@ -1037,11 +1037,11 @@ public:
                                                  const bool printToStream = true,
                                                  std::ostream & outStream = std::cout) {
     Real tol = ROL_EPSILON<Real>();
-    Teuchos::RCP<Vector<Real> > Jv = dualw.clone();
+    ROL::SharedPointer<Vector<Real> > Jv = dualw.clone();
     update(u,z);
     applyJacobian_1(*Jv,v,u,z,tol);
     Real wJv = w.dot(Jv->dual());
-    Teuchos::RCP<Vector<Real> > Jw = dualv.clone();
+    ROL::SharedPointer<Vector<Real> > Jw = dualv.clone();
     update(u,z);
     applyAdjointJacobian_1(*Jw,w,u,z,tol);
     Real vJw = v.dot(Jw->dual());
@@ -1049,7 +1049,7 @@ public:
     if ( printToStream ) {
       std::stringstream hist;
       hist << std::scientific << std::setprecision(8);
-      hist << "\nTest SimOpt consistency of Jacobian_1 and its adjoint: \n  |<w,Jv> - <adj(J)w,v>| = " 
+      hist << "\nTest SimOpt consistency of Jacobian_1 and its adjoint: \n  |<w,Jv> - <adj(J)w,v>| = "
            << diff << "\n";
       hist << "  |<w,Jv>|               = " << std::abs(wJv) << "\n";
       hist << "  Relative Error         = " << diff / (std::abs(wJv)+ROL_UNDERFLOW<Real>()) << "\n";
@@ -1071,8 +1071,8 @@ public:
 
              ---
   */
-  virtual Real checkAdjointConsistencyJacobian_2(const Vector<Real> &w, 
-                                                 const Vector<Real> &v, 
+  virtual Real checkAdjointConsistencyJacobian_2(const Vector<Real> &w,
+                                                 const Vector<Real> &v,
                                                  const Vector<Real> &u,
                                                  const Vector<Real> &z,
                                                  const bool printToStream = true,
@@ -1088,15 +1088,15 @@ public:
              @param[in]       v              is an optimization-space vector
              @param[in]       u              is the constraint argument; a simulation-space vector
              @param[in]       z              is the constraint argument; an optimization-space vector
-             @param[in]       dualw          is a constraint-space vector 
+             @param[in]       dualw          is a constraint-space vector
              @param[in]       dualv          is a dual optimization-space vector
              @param[in]       printToStream  is is a flag that turns on/off output
              @param[in]       outStream      is the output stream
 
              ---
   */
-  virtual Real checkAdjointConsistencyJacobian_2(const Vector<Real> &w, 
-                                                 const Vector<Real> &v, 
+  virtual Real checkAdjointConsistencyJacobian_2(const Vector<Real> &w,
+                                                 const Vector<Real> &v,
                                                  const Vector<Real> &u,
                                                  const Vector<Real> &z,
                                                  const Vector<Real> &dualw,
@@ -1104,11 +1104,11 @@ public:
                                                  const bool printToStream = true,
                                                  std::ostream & outStream = std::cout) {
     Real tol = ROL_EPSILON<Real>();
-    Teuchos::RCP<Vector<Real> > Jv = dualw.clone();
+    ROL::SharedPointer<Vector<Real> > Jv = dualw.clone();
     update(u,z);
     applyJacobian_2(*Jv,v,u,z,tol);
     Real wJv = w.dot(Jv->dual());
-    Teuchos::RCP<Vector<Real> > Jw = dualv.clone();
+    ROL::SharedPointer<Vector<Real> > Jw = dualv.clone();
     update(u,z);
     applyAdjointJacobian_2(*Jw,w,u,z,tol);
     Real vJw = v.dot(Jw->dual());
@@ -1125,20 +1125,20 @@ public:
     return diff;
   }
 
-  virtual Real checkInverseJacobian_1(const Vector<Real> &jv, 
-                                      const Vector<Real> &v, 
-                                      const Vector<Real> &u, 
-                                      const Vector<Real> &z, 
+  virtual Real checkInverseJacobian_1(const Vector<Real> &jv,
+                                      const Vector<Real> &v,
+                                      const Vector<Real> &u,
+                                      const Vector<Real> &z,
                                       const bool printToStream = true,
                                       std::ostream & outStream = std::cout) {
     Real tol = ROL_EPSILON<Real>();
-    Teuchos::RCP<Vector<Real> > Jv = jv.clone();
+    ROL::SharedPointer<Vector<Real> > Jv = jv.clone();
     update(u,z);
     applyJacobian_1(*Jv,v,u,z,tol);
-    Teuchos::RCP<Vector<Real> > iJJv = u.clone();
+    ROL::SharedPointer<Vector<Real> > iJJv = u.clone();
     update(u,z);
     applyInverseJacobian_1(*iJJv,*Jv,u,z,tol);
-    Teuchos::RCP<Vector<Real> > diff = v.clone();
+    ROL::SharedPointer<Vector<Real> > diff = v.clone();
     diff->set(v);
     diff->axpy(-1.0,*iJJv);
     Real dnorm = diff->norm();
@@ -1146,7 +1146,7 @@ public:
     if ( printToStream ) {
       std::stringstream hist;
       hist << std::scientific << std::setprecision(8);
-      hist << "\nTest SimOpt consistency of inverse Jacobian_1: \n  ||v-inv(J)Jv|| = " 
+      hist << "\nTest SimOpt consistency of inverse Jacobian_1: \n  ||v-inv(J)Jv|| = "
            << dnorm << "\n";
       hist << "  ||v||          = " << vnorm << "\n";
       hist << "  Relative Error = " << dnorm / (vnorm+ROL_UNDERFLOW<Real>()) << "\n";
@@ -1155,20 +1155,20 @@ public:
     return dnorm;
   }
 
-  virtual Real checkInverseAdjointJacobian_1(const Vector<Real> &jv, 
-                                             const Vector<Real> &v, 
-                                             const Vector<Real> &u, 
-                                             const Vector<Real> &z, 
+  virtual Real checkInverseAdjointJacobian_1(const Vector<Real> &jv,
+                                             const Vector<Real> &v,
+                                             const Vector<Real> &u,
+                                             const Vector<Real> &z,
                                              const bool printToStream = true,
                                              std::ostream & outStream = std::cout) {
     Real tol = ROL_EPSILON<Real>();
-    Teuchos::RCP<Vector<Real> > Jv = jv.clone();
+    ROL::SharedPointer<Vector<Real> > Jv = jv.clone();
     update(u,z);
     applyAdjointJacobian_1(*Jv,v,u,z,tol);
-    Teuchos::RCP<Vector<Real> > iJJv = v.clone();
+    ROL::SharedPointer<Vector<Real> > iJJv = v.clone();
     update(u,z);
     applyInverseAdjointJacobian_1(*iJJv,*Jv,u,z,tol);
-    Teuchos::RCP<Vector<Real> > diff = v.clone();
+    ROL::SharedPointer<Vector<Real> > diff = v.clone();
     diff->set(v);
     diff->axpy(-1.0,*iJJv);
     Real dnorm = diff->norm();
@@ -1199,67 +1199,67 @@ public:
     for(int i=0;i<numSteps;++i) {
       steps[i] = pow(10,-i);
     }
-   
+
     return checkApplyJacobian_1(u,z,v,jv,steps,printToStream,outStream,order);
   }
-  
-  
-  
-  
+
+
+
+
   std::vector<std::vector<Real> > checkApplyJacobian_1(const Vector<Real> &u,
                                                        const Vector<Real> &z,
                                                        const Vector<Real> &v,
                                                        const Vector<Real> &jv,
-                                                       const std::vector<Real> &steps, 
+                                                       const std::vector<Real> &steps,
                                                        const bool printToStream = true,
                                                        std::ostream & outStream = std::cout,
                                                        const int order = 1) {
- 
-    TEUCHOS_TEST_FOR_EXCEPTION( order<1 || order>4, std::invalid_argument, 
+
+    TEUCHOS_TEST_FOR_EXCEPTION( order<1 || order>4, std::invalid_argument,
                                 "Error: finite difference order must be 1,2,3, or 4" );
- 
+
     Real one(1.0);
- 
+
     using Finite_Difference_Arrays::shifts;
     using Finite_Difference_Arrays::weights;
- 
+
     Real tol = std::sqrt(ROL_EPSILON<Real>());
- 
+
     int numSteps = steps.size();
     int numVals = 4;
     std::vector<Real> tmp(numVals);
     std::vector<std::vector<Real> > jvCheck(numSteps, tmp);
- 
+
     // Save the format state of the original outStream.
     Teuchos::oblackholestream oldFormatState;
     oldFormatState.copyfmt(outStream);
- 
+
     // Compute constraint value at x.
-    Teuchos::RCP<Vector<Real> > c = jv.clone();
+    ROL::SharedPointer<Vector<Real> > c = jv.clone();
     this->update(u,z);
     this->value(*c, u, z, tol);
- 
+
     // Compute (Jacobian at x) times (vector v).
-    Teuchos::RCP<Vector<Real> > Jv = jv.clone();
+    ROL::SharedPointer<Vector<Real> > Jv = jv.clone();
     this->applyJacobian_1(*Jv, v, u, z, tol);
     Real normJv = Jv->norm();
- 
+
     // Temporary vectors.
-    Teuchos::RCP<Vector<Real> > cdif = jv.clone();
-    Teuchos::RCP<Vector<Real> > cnew = jv.clone();
-    Teuchos::RCP<Vector<Real> > unew = u.clone();
- 
+    ROL::SharedPointer<Vector<Real> > cdif = jv.clone();
+    ROL::SharedPointer<Vector<Real> > cnew = jv.clone();
+    ROL::SharedPointer<Vector<Real> > unew = u.clone();
+
     for (int i=0; i<numSteps; i++) {
- 
+
       Real eta = steps[i];
- 
+
       unew->set(u);
- 
+
       cdif->set(*c);
       cdif->scale(weights[order-1][0]);
- 
+
       for(int j=0; j<order; ++j) {
- 
+
          unew->axpy(eta*shifts[order-1][j], v);
 
          if( weights[order-1][j+1] != 0 ) {
@@ -1269,16 +1269,16 @@ public:
          }
 
       }
- 
+
       cdif->scale(one/eta);
- 
+
       // Compute norms of Jacobian-vector products, finite-difference approximations, and error.
       jvCheck[i][0] = eta;
       jvCheck[i][1] = normJv;
       jvCheck[i][2] = cdif->norm();
       cdif->axpy(-one, *Jv);
       jvCheck[i][3] = cdif->norm();
- 
+
       if (printToStream) {
         std::stringstream hist;
         if (i==0) {
@@ -1302,12 +1302,12 @@ public:
              << "\n";
         outStream << hist.str();
       }
- 
+
     }
- 
+
     // Reset format state of outStream.
     outStream.copyfmt(oldFormatState);
- 
+
     return jvCheck;
   } // checkApplyJacobian
 
@@ -1324,67 +1324,67 @@ public:
     for(int i=0;i<numSteps;++i) {
       steps[i] = pow(10,-i);
     }
-   
+
     return checkApplyJacobian_2(u,z,v,jv,steps,printToStream,outStream,order);
   }
-  
-  
-  
-  
+
+
+
+
   std::vector<std::vector<Real> > checkApplyJacobian_2(const Vector<Real> &u,
                                                        const Vector<Real> &z,
                                                        const Vector<Real> &v,
                                                        const Vector<Real> &jv,
-                                                       const std::vector<Real> &steps, 
+                                                       const std::vector<Real> &steps,
                                                        const bool printToStream = true,
                                                        std::ostream & outStream = std::cout,
                                                        const int order = 1) {
- 
-    TEUCHOS_TEST_FOR_EXCEPTION( order<1 || order>4, std::invalid_argument, 
+
+    TEUCHOS_TEST_FOR_EXCEPTION( order<1 || order>4, std::invalid_argument,
                                 "Error: finite difference order must be 1,2,3, or 4" );
- 
+
     Real one(1.0);
- 
+
     using Finite_Difference_Arrays::shifts;
     using Finite_Difference_Arrays::weights;
- 
+
     Real tol = std::sqrt(ROL_EPSILON<Real>());
- 
+
     int numSteps = steps.size();
     int numVals = 4;
     std::vector<Real> tmp(numVals);
     std::vector<std::vector<Real> > jvCheck(numSteps, tmp);
- 
+
     // Save the format state of the original outStream.
     Teuchos::oblackholestream oldFormatState;
     oldFormatState.copyfmt(outStream);
- 
+
     // Compute constraint value at x.
-    Teuchos::RCP<Vector<Real> > c = jv.clone();
+    ROL::SharedPointer<Vector<Real> > c = jv.clone();
     this->update(u,z);
     this->value(*c, u, z, tol);
- 
+
     // Compute (Jacobian at x) times (vector v).
-    Teuchos::RCP<Vector<Real> > Jv = jv.clone();
+    ROL::SharedPointer<Vector<Real> > Jv = jv.clone();
     this->applyJacobian_2(*Jv, v, u, z, tol);
     Real normJv = Jv->norm();
- 
+
     // Temporary vectors.
-    Teuchos::RCP<Vector<Real> > cdif = jv.clone();
-    Teuchos::RCP<Vector<Real> > cnew = jv.clone();
-    Teuchos::RCP<Vector<Real> > znew = z.clone();
- 
+    ROL::SharedPointer<Vector<Real> > cdif = jv.clone();
+    ROL::SharedPointer<Vector<Real> > cnew = jv.clone();
+    ROL::SharedPointer<Vector<Real> > znew = z.clone();
+
     for (int i=0; i<numSteps; i++) {
- 
+
       Real eta = steps[i];
- 
+
       znew->set(z);
- 
+
       cdif->set(*c);
       cdif->scale(weights[order-1][0]);
- 
+
       for(int j=0; j<order; ++j) {
- 
+
          znew->axpy(eta*shifts[order-1][j], v);
 
          if( weights[order-1][j+1] != 0 ) {
@@ -1394,16 +1394,16 @@ public:
          }
 
       }
- 
+
       cdif->scale(one/eta);
- 
+
       // Compute norms of Jacobian-vector products, finite-difference approximations, and error.
       jvCheck[i][0] = eta;
       jvCheck[i][1] = normJv;
       jvCheck[i][2] = cdif->norm();
       cdif->axpy(-one, *Jv);
       jvCheck[i][3] = cdif->norm();
- 
+
       if (printToStream) {
         std::stringstream hist;
         if (i==0) {
@@ -1427,12 +1427,12 @@ public:
              << "\n";
         outStream << hist.str();
       }
- 
+
     }
- 
+
     // Reset format state of outStream.
     outStream.copyfmt(oldFormatState);
- 
+
     return jvCheck;
   } // checkApplyJacobian
 
@@ -1451,81 +1451,81 @@ public:
     for(int i=0;i<numSteps;++i) {
       steps[i] = pow(10,-i);
     }
-   
+
     return checkApplyAdjointHessian_11(u,z,p,v,hv,steps,printToStream,outStream,order);
-  
+
   }
-  
+
   std::vector<std::vector<Real> > checkApplyAdjointHessian_11(const Vector<Real> &u,
                                                               const Vector<Real> &z,
                                                               const Vector<Real> &p,
                                                               const Vector<Real> &v,
                                                               const Vector<Real> &hv,
-                                                              const std::vector<Real> &steps,  
+                                                              const std::vector<Real> &steps,
                                                               const bool printToStream = true,
                                                               std::ostream & outStream = std::cout,
                                                               const int order = 1 ) {
     using Finite_Difference_Arrays::shifts;
     using Finite_Difference_Arrays::weights;
-  
+
     Real one(1.0);
-  
+
     Real tol = std::sqrt(ROL_EPSILON<Real>());
-  
+
     int numSteps = steps.size();
     int numVals = 4;
     std::vector<Real> tmp(numVals);
     std::vector<std::vector<Real> > ahpvCheck(numSteps, tmp);
-  
+
     // Temporary vectors.
-    Teuchos::RCP<Vector<Real> > AJdif = hv.clone();
-    Teuchos::RCP<Vector<Real> > AJp = hv.clone();
-    Teuchos::RCP<Vector<Real> > AHpv = hv.clone();
-    Teuchos::RCP<Vector<Real> > AJnew = hv.clone();
-    Teuchos::RCP<Vector<Real> > unew = u.clone();
-  
+    ROL::SharedPointer<Vector<Real> > AJdif = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AJp = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AHpv = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AJnew = hv.clone();
+    ROL::SharedPointer<Vector<Real> > unew = u.clone();
+
     // Save the format state of the original outStream.
     Teuchos::oblackholestream oldFormatState;
     oldFormatState.copyfmt(outStream);
-  
+
     // Apply adjoint Jacobian to p.
     this->update(u,z);
     this->applyAdjointJacobian_1(*AJp, p, u, z, tol);
-  
+
     // Apply adjoint Hessian at (u,z), in direction v, to p.
     this->applyAdjointHessian_11(*AHpv, p, v, u, z, tol);
     Real normAHpv = AHpv->norm();
-  
+
     for (int i=0; i<numSteps; i++) {
-  
+
       Real eta = steps[i];
-  
+
       // Apply adjoint Jacobian to p at (u+eta*v,z).
       unew->set(u);
-  
+
       AJdif->set(*AJp);
-      AJdif->scale(weights[order-1][0]);     
-  
+      AJdif->scale(weights[order-1][0]);
+
       for(int j=0; j<order; ++j) {
-  
-          unew->axpy(eta*shifts[order-1][j],v); 
-  
-          if( weights[order-1][j+1] != 0 ) {    
+
+          unew->axpy(eta*shifts[order-1][j],v);
+
+          if( weights[order-1][j+1] != 0 ) {
               this->update(*unew,z);
               this->applyAdjointJacobian_1(*AJnew, p, *unew, z, tol);
               AJdif->axpy(weights[order-1][j+1],*AJnew);
           }
       }
-  
+
       AJdif->scale(one/eta);
-  
+
       // Compute norms of Jacobian-vector products, finite-difference approximations, and error.
       ahpvCheck[i][0] = eta;
       ahpvCheck[i][1] = normAHpv;
       ahpvCheck[i][2] = AJdif->norm();
       AJdif->axpy(-one, *AHpv);
       ahpvCheck[i][3] = AJdif->norm();
-  
+
       if (printToStream) {
         std::stringstream hist;
         if (i==0) {
@@ -1549,17 +1549,17 @@ public:
              << "\n";
         outStream << hist.str();
       }
-  
+
     }
-  
+
     // Reset format state of outStream.
     outStream.copyfmt(oldFormatState);
-  
+
     return ahpvCheck;
   } // checkApplyAdjointHessian_11
 
-  /** 
-     \brief \f$ u\in U \f$, \f$ z\in Z \f$, \f$ p\in C^\ast \f$, \f$ v \in U \f$, \f$ hv \in U^\ast \f$ 
+  /**
+     \brief \f$ u\in U \f$, \f$ z\in Z \f$, \f$ p\in C^\ast \f$, \f$ v \in U \f$, \f$ hv \in U^\ast \f$
   */
   std::vector<std::vector<Real> > checkApplyAdjointHessian_21(const Vector<Real> &u,
                                                               const Vector<Real> &z,
@@ -1574,84 +1574,84 @@ public:
     for(int i=0;i<numSteps;++i) {
       steps[i] = pow(10,-i);
     }
-   
+
     return checkApplyAdjointHessian_21(u,z,p,v,hv,steps,printToStream,outStream,order);
-  
+
   }
-  
-  /** 
-     \brief \f$ u\in U \f$, \f$ z\in Z \f$, \f$ p\in C^\ast \f$, \f$ v \in U \f$, \f$ hv \in U^\ast \f$ 
+
+  /**
+     \brief \f$ u\in U \f$, \f$ z\in Z \f$, \f$ p\in C^\ast \f$, \f$ v \in U \f$, \f$ hv \in U^\ast \f$
   */
   std::vector<std::vector<Real> > checkApplyAdjointHessian_21(const Vector<Real> &u,
                                                               const Vector<Real> &z,
                                                               const Vector<Real> &p,
                                                               const Vector<Real> &v,
                                                               const Vector<Real> &hv,
-                                                              const std::vector<Real> &steps,  
+                                                              const std::vector<Real> &steps,
                                                               const bool printToStream = true,
                                                               std::ostream & outStream = std::cout,
                                                               const int order = 1 ) {
     using Finite_Difference_Arrays::shifts;
     using Finite_Difference_Arrays::weights;
-  
+
     Real one(1.0);
-  
+
     Real tol = std::sqrt(ROL_EPSILON<Real>());
-  
+
     int numSteps = steps.size();
     int numVals = 4;
     std::vector<Real> tmp(numVals);
     std::vector<std::vector<Real> > ahpvCheck(numSteps, tmp);
-  
+
     // Temporary vectors.
-    Teuchos::RCP<Vector<Real> > AJdif = hv.clone();
-    Teuchos::RCP<Vector<Real> > AJp = hv.clone();
-    Teuchos::RCP<Vector<Real> > AHpv = hv.clone();
-    Teuchos::RCP<Vector<Real> > AJnew = hv.clone();
-    Teuchos::RCP<Vector<Real> > znew = z.clone();
-  
+    ROL::SharedPointer<Vector<Real> > AJdif = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AJp = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AHpv = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AJnew = hv.clone();
+    ROL::SharedPointer<Vector<Real> > znew = z.clone();
+
     // Save the format state of the original outStream.
     Teuchos::oblackholestream oldFormatState;
     oldFormatState.copyfmt(outStream);
-  
+
     // Apply adjoint Jacobian to p.
     this->update(u,z);
     this->applyAdjointJacobian_1(*AJp, p, u, z, tol);
-  
+
     // Apply adjoint Hessian at (u,z), in direction v, to p.
     this->applyAdjointHessian_21(*AHpv, p, v, u, z, tol);
     Real normAHpv = AHpv->norm();
-  
+
     for (int i=0; i<numSteps; i++) {
-  
+
       Real eta = steps[i];
-  
+
       // Apply adjoint Jacobian to p at (u,z+eta*v).
       znew->set(z);
-  
+
       AJdif->set(*AJp);
-      AJdif->scale(weights[order-1][0]);     
-  
+      AJdif->scale(weights[order-1][0]);
+
       for(int j=0; j<order; ++j) {
-  
-          znew->axpy(eta*shifts[order-1][j],v); 
-  
-          if( weights[order-1][j+1] != 0 ) {    
+
+          znew->axpy(eta*shifts[order-1][j],v);
+
+          if( weights[order-1][j+1] != 0 ) {
               this->update(u,*znew);
               this->applyAdjointJacobian_1(*AJnew, p, u, *znew, tol);
               AJdif->axpy(weights[order-1][j+1],*AJnew);
           }
       }
-  
+
       AJdif->scale(one/eta);
-  
+
       // Compute norms of Jacobian-vector products, finite-difference approximations, and error.
       ahpvCheck[i][0] = eta;
       ahpvCheck[i][1] = normAHpv;
       ahpvCheck[i][2] = AJdif->norm();
       AJdif->axpy(-one, *AHpv);
       ahpvCheck[i][3] = AJdif->norm();
-  
+
       if (printToStream) {
         std::stringstream hist;
         if (i==0) {
@@ -1675,17 +1675,17 @@ public:
              << "\n";
         outStream << hist.str();
       }
-  
+
     }
-  
+
     // Reset format state of outStream.
     outStream.copyfmt(oldFormatState);
-  
+
     return ahpvCheck;
   } // checkApplyAdjointHessian_21
 
-  /** 
-     \brief \f$ u\in U \f$, \f$ z\in Z \f$, \f$ p\in C^\ast \f$, \f$ v \in U \f$, \f$ hv \in U^\ast \f$ 
+  /**
+     \brief \f$ u\in U \f$, \f$ z\in Z \f$, \f$ p\in C^\ast \f$, \f$ v \in U \f$, \f$ hv \in U^\ast \f$
   */
   std::vector<std::vector<Real> > checkApplyAdjointHessian_12(const Vector<Real> &u,
                                                               const Vector<Real> &z,
@@ -1700,82 +1700,82 @@ public:
     for(int i=0;i<numSteps;++i) {
       steps[i] = pow(10,-i);
     }
-   
+
     return checkApplyAdjointHessian_12(u,z,p,v,hv,steps,printToStream,outStream,order);
-  
+
   }
-  
+
 
   std::vector<std::vector<Real> > checkApplyAdjointHessian_12(const Vector<Real> &u,
                                                               const Vector<Real> &z,
                                                               const Vector<Real> &p,
                                                               const Vector<Real> &v,
                                                               const Vector<Real> &hv,
-                                                              const std::vector<Real> &steps,  
+                                                              const std::vector<Real> &steps,
                                                               const bool printToStream = true,
                                                               std::ostream & outStream = std::cout,
                                                               const int order = 1 ) {
     using Finite_Difference_Arrays::shifts;
     using Finite_Difference_Arrays::weights;
-  
+
     Real one(1.0);
-  
+
     Real tol = std::sqrt(ROL_EPSILON<Real>());
-  
+
     int numSteps = steps.size();
     int numVals = 4;
     std::vector<Real> tmp(numVals);
     std::vector<std::vector<Real> > ahpvCheck(numSteps, tmp);
-  
+
     // Temporary vectors.
-    Teuchos::RCP<Vector<Real> > AJdif = hv.clone();
-    Teuchos::RCP<Vector<Real> > AJp = hv.clone();
-    Teuchos::RCP<Vector<Real> > AHpv = hv.clone();
-    Teuchos::RCP<Vector<Real> > AJnew = hv.clone();
-    Teuchos::RCP<Vector<Real> > unew = u.clone();
-  
+    ROL::SharedPointer<Vector<Real> > AJdif = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AJp = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AHpv = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AJnew = hv.clone();
+    ROL::SharedPointer<Vector<Real> > unew = u.clone();
+
     // Save the format state of the original outStream.
     Teuchos::oblackholestream oldFormatState;
     oldFormatState.copyfmt(outStream);
-  
+
     // Apply adjoint Jacobian to p.
     this->update(u,z);
     this->applyAdjointJacobian_2(*AJp, p, u, z, tol);
-  
+
     // Apply adjoint Hessian at (u,z), in direction v, to p.
     this->applyAdjointHessian_12(*AHpv, p, v, u, z, tol);
     Real normAHpv = AHpv->norm();
-  
+
     for (int i=0; i<numSteps; i++) {
-  
+
       Real eta = steps[i];
-  
+
       // Apply adjoint Jacobian to p at (u+eta*v,z).
       unew->set(u);
-  
+
       AJdif->set(*AJp);
-      AJdif->scale(weights[order-1][0]);     
-  
+      AJdif->scale(weights[order-1][0]);
+
       for(int j=0; j<order; ++j) {
-  
-          unew->axpy(eta*shifts[order-1][j],v); 
-  
-          if( weights[order-1][j+1] != 0 ) {    
+
+          unew->axpy(eta*shifts[order-1][j],v);
+
+          if( weights[order-1][j+1] != 0 ) {
               this->update(*unew,z);
               this->applyAdjointJacobian_2(*AJnew, p, *unew, z, tol);
               AJdif->axpy(weights[order-1][j+1],*AJnew);
           }
       }
-  
+
       AJdif->scale(one/eta);
-  
+
       // Compute norms of Jacobian-vector products, finite-difference approximations, and error.
       ahpvCheck[i][0] = eta;
       ahpvCheck[i][1] = normAHpv;
       ahpvCheck[i][2] = AJdif->norm();
       AJdif->axpy(-one, *AHpv);
       ahpvCheck[i][3] = AJdif->norm();
-  
+
       if (printToStream) {
         std::stringstream hist;
         if (i==0) {
@@ -1799,12 +1799,12 @@ public:
              << "\n";
         outStream << hist.str();
       }
-  
+
     }
-  
+
     // Reset format state of outStream.
     outStream.copyfmt(oldFormatState);
-  
+
     return ahpvCheck;
   } // checkApplyAdjointHessian_12
 
@@ -1821,81 +1821,81 @@ public:
     for(int i=0;i<numSteps;++i) {
       steps[i] = pow(10,-i);
     }
-   
+
     return checkApplyAdjointHessian_22(u,z,p,v,hv,steps,printToStream,outStream,order);
-  
+
   }
-  
+
   std::vector<std::vector<Real> > checkApplyAdjointHessian_22(const Vector<Real> &u,
                                                               const Vector<Real> &z,
                                                               const Vector<Real> &p,
                                                               const Vector<Real> &v,
                                                               const Vector<Real> &hv,
-                                                              const std::vector<Real> &steps,  
+                                                              const std::vector<Real> &steps,
                                                               const bool printToStream = true,
                                                               std::ostream & outStream = std::cout,
                                                               const int order = 1 ) {
     using Finite_Difference_Arrays::shifts;
     using Finite_Difference_Arrays::weights;
-  
+
     Real one(1.0);
-  
+
     Real tol = std::sqrt(ROL_EPSILON<Real>());
-  
+
     int numSteps = steps.size();
     int numVals = 4;
     std::vector<Real> tmp(numVals);
     std::vector<std::vector<Real> > ahpvCheck(numSteps, tmp);
-  
+
     // Temporary vectors.
-    Teuchos::RCP<Vector<Real> > AJdif = hv.clone();
-    Teuchos::RCP<Vector<Real> > AJp = hv.clone();
-    Teuchos::RCP<Vector<Real> > AHpv = hv.clone();
-    Teuchos::RCP<Vector<Real> > AJnew = hv.clone();
-    Teuchos::RCP<Vector<Real> > znew = z.clone();
-  
+    ROL::SharedPointer<Vector<Real> > AJdif = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AJp = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AHpv = hv.clone();
+    ROL::SharedPointer<Vector<Real> > AJnew = hv.clone();
+    ROL::SharedPointer<Vector<Real> > znew = z.clone();
+
     // Save the format state of the original outStream.
     Teuchos::oblackholestream oldFormatState;
     oldFormatState.copyfmt(outStream);
-  
+
     // Apply adjoint Jacobian to p.
     this->update(u,z);
     this->applyAdjointJacobian_2(*AJp, p, u, z, tol);
-  
+
     // Apply adjoint Hessian at (u,z), in direction v, to p.
     this->applyAdjointHessian_22(*AHpv, p, v, u, z, tol);
     Real normAHpv = AHpv->norm();
-  
+
     for (int i=0; i<numSteps; i++) {
-  
+
       Real eta = steps[i];
-  
+
       // Apply adjoint Jacobian to p at (u,z+eta*v).
       znew->set(z);
-  
+
       AJdif->set(*AJp);
-      AJdif->scale(weights[order-1][0]);     
-  
+      AJdif->scale(weights[order-1][0]);
+
       for(int j=0; j<order; ++j) {
-  
-          znew->axpy(eta*shifts[order-1][j],v); 
-  
-          if( weights[order-1][j+1] != 0 ) {    
+
+          znew->axpy(eta*shifts[order-1][j],v);
+
+          if( weights[order-1][j+1] != 0 ) {
               this->update(u,*znew);
               this->applyAdjointJacobian_2(*AJnew, p, u, *znew, tol);
               AJdif->axpy(weights[order-1][j+1],*AJnew);
           }
       }
-  
+
       AJdif->scale(one/eta);
-  
+
       // Compute norms of Jacobian-vector products, finite-difference approximations, and error.
       ahpvCheck[i][0] = eta;
       ahpvCheck[i][1] = normAHpv;
       ahpvCheck[i][2] = AJdif->norm();
       AJdif->axpy(-one, *AHpv);
       ahpvCheck[i][3] = AJdif->norm();
-  
+
       if (printToStream) {
         std::stringstream hist;
         if (i==0) {
@@ -1919,12 +1919,12 @@ public:
              << "\n";
         outStream << hist.str();
       }
-  
+
     }
-  
+
     // Reset format state of outStream.
     outStream.copyfmt(oldFormatState);
-  
+
     return ahpvCheck;
   } // checkApplyAdjointHessian_22
 

@@ -10,23 +10,23 @@
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp;
 
-  using RealT = double; 
+
+
+  using RealT = double;
   using E3V = ROL::Eigen3Vector<RealT>;
   using EigenVector = Eigen::Matrix<RealT,Eigen::Dynamic,1>;
- 
+
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag  = 0;
 
@@ -38,13 +38,13 @@ int main(int argc, char *argv[]) {
 
     int dim = 10;
 
-    auto x_rcp = rcp( new EigenVector(dim) );   
-    auto y_rcp = rcp( new EigenVector(dim) );   
-    auto z_rcp = rcp( new EigenVector(dim) );   
+    auto x_rcp = ROL::makeShared<EigenVector>(dim);
+    auto y_rcp = ROL::makeShared<EigenVector>(dim);
+    auto z_rcp = ROL::makeShared<EigenVector>(dim);
 
     E3V x(x_rcp);
     E3V y(y_rcp);
-    E3V z(z_rcp); 
+    E3V z(z_rcp);
 
     //std::cout << x.dimension() << std::endl;
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
     // Standard tests.
     auto consistency = x.checkVector(y, z, true, *outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    ROL::StdVector<RealT> checkvec((ROL::SharedPointer<std::vector<Real>>(&consistency)));
     if (checkvec.norm() > std::sqrt(ROL::ROL_EPSILON<RealT>())) {
       errorFlag++;
     }
@@ -109,4 +109,3 @@ int main(int argc, char *argv[]) {
   return 0;
 
 }
-

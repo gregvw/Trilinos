@@ -399,12 +399,12 @@ private:
     }
   }
 
-  Teuchos::RCP<const vector> getVector( const V& x ) {
-    return Teuchos::dyn_cast<const SV>(x).getVector();
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
+    return dynamic_cast<const SV&>(x).getVector();
   }
 
-  Teuchos::RCP<vector> getVector( V& x ) {
-    return Teuchos::dyn_cast<SV>(x).getVector();  
+  ROL::SharedPointer<vector> getVector( V& x ) {
+    return dynamic_cast<SV&>(x).getVector();  
   }
 
 /*************************************************************/
@@ -440,11 +440,11 @@ public:
 
   void value(ROL::Vector<Real> &c, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
 
-    using Teuchos::RCP;
+    
 
-    RCP<vector> cp = getVector(c);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> cp = getVector(c);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     std::vector<Real> C(nx_,0.0);
     std::vector<Real> uold(u0_);
@@ -471,10 +471,10 @@ public:
 
   void solve(ROL::Vector<Real> &c, ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
 
-    using Teuchos::RCP;
+    
 
-    RCP<vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     // Initialize State Storage
     std::vector<Real> uold(u0_);
@@ -499,12 +499,12 @@ public:
   void applyJacobian_1(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                        const ROL::Vector<Real> &z, Real &tol) {
 
-    using Teuchos::RCP;
     
-    RCP<vector> jvp = getVector(jv);
-    RCP<const vector> vp = getVector(v);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    
+    ROL::SharedPointer<vector> jvp = getVector(jv);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
  
     std::vector<Real> J(u0_.size(),0.0);
     std::vector<Real> M(u0_.size(),0.0);
@@ -531,12 +531,12 @@ public:
   void applyInverseJacobian_1(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                               const ROL::Vector<Real> &z, Real &tol) {
 
-    using Teuchos::RCP;
+    
  
-    RCP<vector> jvp = getVector(jv);
-    RCP<const vector> vp = getVector(v);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> jvp = getVector(jv);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     // Initialize State Storage
     std::vector<Real> M(u0_);
@@ -572,12 +572,12 @@ public:
 
   void applyAdjointJacobian_1(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                               const ROL::Vector<Real> &z, Real &tol) {
-    using Teuchos::RCP;
+    
 
-    RCP<vector> jvp = getVector(jv);
-    RCP<const vector> vp = getVector(v);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> jvp = getVector(jv);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     std::vector<Real> J(u0_.size(),0.0);
     std::vector<Real> M(u0_.size(),0.0);
@@ -603,12 +603,12 @@ public:
 
   void applyInverseAdjointJacobian_1(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, 
                                      const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) {
-    using Teuchos::RCP;
     
-    RCP<vector> jvp = getVector(jv);
-    RCP<const vector> vp = getVector(v);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    
+    ROL::SharedPointer<vector> jvp = getVector(jv);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     // Initialize State Storage
     std::vector<Real> M(u0_);
@@ -645,12 +645,12 @@ public:
   void applyJacobian_2(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                        const ROL::Vector<Real> &z, Real &tol) {
 
-    using Teuchos::RCP;
+    
 
-    RCP<vector> jvp = getVector(jv);
-    RCP<const vector> vp = getVector(v);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> jvp = getVector(jv);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     std::vector<Real> J(nx_,0.0);
     std::vector<Real> vnew(nx_+2,0.0);
@@ -668,12 +668,12 @@ public:
 
   void applyAdjointJacobian_2(ROL::Vector<Real> &jv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                               const ROL::Vector<Real> &z, Real &tol) {
-    using Teuchos::RCP;
+    
 
-    RCP<vector> jvp = getVector(jv);
-    RCP<const vector> vp = getVector(v);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> jvp = getVector(jv);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     std::vector<Real> J(nx_+2,0.0);
     std::vector<Real> vnew(nx_,0.0);
@@ -691,13 +691,13 @@ public:
   void applyAdjointHessian_11(ROL::Vector<Real> &hwv, const ROL::Vector<Real> &w, 
                               const ROL::Vector<Real> &v, const ROL::Vector<Real> &u,
                               const ROL::Vector<Real> &z, Real &tol) {
-    using Teuchos::RCP;
+    
 
-    RCP<vector> hwvp = getVector(hwv);
-    RCP<const vector> wp = getVector(w);
-    RCP<const vector> vp = getVector(v);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> hwvp = getVector(hwv);
+    ROL::SharedPointer<const vector> wp = getVector(w);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     // Initialize State Storage
     std::vector<Real> unew(u0_);
@@ -804,12 +804,12 @@ private:
     return val;
   }
 
-  Teuchos::RCP<const vector> getVector( const V& x ) {
-    return Teuchos::dyn_cast<const SV>(x).getVector();
+  ROL::SharedPointer<const vector> getVector( const V& x ) {
+    return dynamic_cast<const SV&>(x).getVector();
   }
 
-  Teuchos::RCP<vector> getVector( V& x ) {
-    return Teuchos::dyn_cast<SV>(x).getVector();  
+  ROL::SharedPointer<vector> getVector( V& x ) {
+    return dynamic_cast<SV&>(x).getVector();  
   }
 /*************************************************************/
 /********** END PRIVATE MEMBER FUNCTION DECLARATION **********/
@@ -825,10 +825,10 @@ public:
 
   Real value( const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
   
-    using Teuchos::RCP;
     
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     // Compute Norm of State
     std::vector<Real> uT(nx_,0.0);
@@ -849,12 +849,12 @@ public:
 
   void gradient_1( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
 
-    using Teuchos::RCP;
+    
 
     g.zero();
-    RCP<vector> gp = getVector(g);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> gp = getVector(g);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
     
     std::vector<Real> uT(nx_,0.0);
     for (uint n = 0; n < nx_; n++) {
@@ -869,13 +869,13 @@ public:
 
   void gradient_2( ROL::Vector<Real> &g, const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol ) {
 
-    using Teuchos::RCP;
+    
 
     g.zero();
 
-    RCP<vector> gp = getVector(g);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
+    ROL::SharedPointer<vector> gp = getVector(g);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
 
     // Compute gradient
     std::vector<Real> Z(nx_+2,0.0);
@@ -894,12 +894,12 @@ public:
   void hessVec_11( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u, 
                    const ROL::Vector<Real> &z, Real &tol ) {
 
-    using Teuchos::RCP;
     
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
-    RCP<const vector> vp = getVector(v);
-    RCP<vector> hvp = getVector(hv); 
+    
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
+    ROL::SharedPointer<const vector> vp = getVector(v);
+    ROL::SharedPointer<vector> hvp = getVector(hv); 
 
    // Compute HessVec
     std::vector<Real> vT(nx_,0.0);
@@ -926,12 +926,12 @@ public:
   void hessVec_22( ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &u, 
                    const ROL::Vector<Real> &z, Real &tol ) {
     
-    using Teuchos::RCP;
+    
 
-    RCP<vector> hvp = getVector(hv);
-    RCP<const vector> up = getVector(u);
-    RCP<const vector> zp = getVector(z);
-    RCP<const vector> vp = getVector(v);
+    ROL::SharedPointer<vector> hvp = getVector(hv);
+    ROL::SharedPointer<const vector> up = getVector(u);
+    ROL::SharedPointer<const vector> zp = getVector(z);
+    ROL::SharedPointer<const vector> vp = getVector(v);
 
     // Compute HessVec
     std::vector<Real> V(nx_+2,0.0);
@@ -961,18 +961,18 @@ int main(int argc, char *argv[]) {
 
   typedef typename vector::size_type uint;
 
-  using Teuchos::RCP;  using Teuchos::rcp;
+    
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -989,13 +989,13 @@ int main(int argc, char *argv[]) {
     Constraint_ParabolicControl<RealT> con(eps,nx,nt,T);
 
     // Initialize iteration vectors.
-    RCP<vector> xz_rcp = rcp( new vector(nt*(nx+2), 1.0) );
-    RCP<vector> xu_rcp = rcp( new vector(nx*nt, 1.0) );
-    RCP<vector> gz_rcp = rcp( new vector(nt*(nx+2), 1.0) );
+    ROL::SharedPointer<vector> xz_rcp = ROL::makeShared<vector(nt*>(nx+2), 1.0);
+    ROL::SharedPointer<vector> xu_rcp = ROL::makeShared<vector>(nx*nt, 1.0);
+    ROL::SharedPointer<vector> gz_rcp = ROL::makeShared<vector(nt*>(nx+2), 1.0);
 
-    RCP<vector> gu_rcp = rcp( new vector(nx*nt, 1.0) );
-    RCP<vector> yz_rcp = rcp( new vector(nt*(nx+2), 1.0) );
-    RCP<vector> yu_rcp = rcp( new vector(nx*nt, 1.0) );
+    ROL::SharedPointer<vector> gu_rcp = ROL::makeShared<vector>(nx*nt, 1.0);
+    ROL::SharedPointer<vector> yz_rcp = ROL::makeShared<vector(nt*>(nx+2), 1.0);
+    ROL::SharedPointer<vector> yu_rcp = ROL::makeShared<vector>(nx*nt, 1.0);
 
     for (uint i=0; i<nt; i++) {
       (*xz_rcp)[i] = (RealT)rand()/(RealT)RAND_MAX;
@@ -1012,28 +1012,28 @@ int main(int argc, char *argv[]) {
     SV yz(yz_rcp);
     SV yu(yu_rcp);
 
-    RCP<V> xzp = rcp(&xz,false);
-    RCP<V> xup = rcp(&xu,false);
-    RCP<V> gzp = rcp(&gz,false);
-    RCP<V> gup = rcp(&gu,false);
-    RCP<V> yzp = rcp(&yz,false);
-    RCP<V> yup = rcp(&yu,false);
+    ROL::SharedPointer<V> xzp = &xz,false;
+    ROL::SharedPointer<V> xup = &xu,false;
+    ROL::SharedPointer<V> gzp = &gz,false;
+    ROL::SharedPointer<V> gup = &gu,false;
+    ROL::SharedPointer<V> yzp = &yz,false;
+    ROL::SharedPointer<V> yup = &yu,false;
 
     ROL::Vector_SimOpt<RealT> x(xup,xzp);
     ROL::Vector_SimOpt<RealT> g(gup,gzp);
     ROL::Vector_SimOpt<RealT> y(yup,yzp);
 
-    RCP<vector> c_rcp  = rcp( new std::vector<RealT> (nt*nx, 0.0) );
-    RCP<vector> l_rcp  = rcp( new std::vector<RealT> (nt*nx, 0.0) );
+    ROL::SharedPointer<vector> c_rcp  = ROL::makeShared<std::vector<RealT>>(nt*nx, 0.0);
+    ROL::SharedPointer<vector> l_rcp  = ROL::makeShared<std::vector<RealT>>(nt*nx, 0.0);
  
     SV c(c_rcp);
     SV l(l_rcp);
 
-    RCP<V> cp = rcp(&c,false);
+    ROL::SharedPointer<V> cp = &c,false;
 
     // Initialize reduced objective function
-    Teuchos::RCP<ROL::Objective_SimOpt<RealT> > pobj = Teuchos::rcp(&obj,false);
-    Teuchos::RCP<ROL::Constraint_SimOpt<RealT> > pcon = Teuchos::rcp(&con,false);
+    ROL::SharedPointer<ROL::Objective_SimOpt<RealT> > pobj = &obj,false;
+    ROL::SharedPointer<ROL::Constraint_SimOpt<RealT> > pcon = &con,false;
     ROL::Reduced_Objective_SimOpt<RealT> robj(pobj,pcon,xup,xzp,cp);
 
     // Check derivatives.
@@ -1055,7 +1055,7 @@ int main(int argc, char *argv[]) {
 
     // Projected Newton.
     std::string filename = "input.xml";
-    RCP<Teuchos::ParameterList> parlist = rcp( new Teuchos::ParameterList() );
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     // Status test parameters.
@@ -1064,7 +1064,7 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Iteration Limit",100);
 
     // Define algorithm.
-    RCP<ROL::Algorithm<RealT> > algo = rcp(new ROL::Algorithm<RealT>("Trust Region",*parlist,false));
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo = ROL::makeShared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
 
     // Run algorithm.
     xz.zero();
@@ -1076,7 +1076,7 @@ int main(int argc, char *argv[]) {
     // Composite step.
     parlist->sublist("Status Test").set("Constraint Tolerance",1.e-10);
     // Set algorithm.
-    algo = rcp(new ROL::Algorithm<RealT>("Composite Step",*parlist,false));
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>("Composite Step",*parlist,false);
     x.zero();
     std::clock_t timer_cs = std::clock();
     algo->run(x, g, l, c, obj, con, true, *outStream);

@@ -171,10 +171,10 @@ public:
   final_hessian;
 
   char const *
-  step_method_name{nullptr};
+  step_method_name{ROL::nullPointer};
 
   char const *
-  function_name{nullptr};
+  function_name{ROL::nullPointer};
 
   char const *
   failure_message{"No failure detected"};

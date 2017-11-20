@@ -100,19 +100,19 @@ void Sacado_Objective<Real,Obj>::gradientAD(Vector<ScalarT> &g, const Vector<Sca
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast;
+           
+    
 
     // Get a pointer to the optimization vector
-    RCP<const vector> xp = dyn_cast<const SV>(x).getVector();
+    ROL::SharedPointer<const vector> xp = dynamic_cast<const SV&>(x).getVector();
 
     // Get a pointer to the gradient vector
-    RCP<vector> gp = dyn_cast<SV>(g).getVector();
+    ROL::SharedPointer<vector> gp = dynamic_cast<SV&>(g).getVector();
 
     int n = xp->size();
 
     // Create a vector of independent variables
-    RCP<Fadvector> x_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> x_fad_rcp = ROL::makeShared<Fadvector>();
     x_fad_rcp->reserve(n);
 
     // Initialize constructor for each element
@@ -144,26 +144,26 @@ void Sacado_Objective<Real,Obj>::hessVecAD( Vector<ScalarT> &hv, const Vector<Sc
     typedef std::vector<ScalarT>         vector;
     typedef StdVector<ScalarT>           SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast;
+           
+    
 
     // Get a pointer to the optimization vector
-    RCP<const vector> xp = dyn_cast<const SV>(x).getVector();
+    ROL::SharedPointer<const vector> xp = dynamic_cast<const SV&>(x).getVector();
 
     // Get a pointer to the direction vector
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
 
-    RCP<vector> hvp = dyn_cast<SV>(hv).getVector();
+    ROL::SharedPointer<vector> hvp = dynamic_cast<SV&>(hv).getVector();
 
 
     int n = xp->size();
 
     // Create a vector of independent variables
-    RCP<Fadvector> x_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> x_fad_rcp = ROL::makeShared<Fadvector>();
     x_fad_rcp->reserve(n);
 
     // Allocate for gradient
-    RCP<Fadvector> g_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> g_fad_rcp = ROL::makeShared<Fadvector>();
     g_fad_rcp->resize(n);
 
     for(int i=0; i<n; ++i) {

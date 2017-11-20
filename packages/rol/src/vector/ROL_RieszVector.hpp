@@ -53,12 +53,12 @@
 /*
    \class ROL::RieszPrimalVector
    \brief Abstract implementation of a primal vector corresponding to
-          an inner-product that involves the application of a linear 
+          an inner-product that involves the application of a linear
           operator
 
    \class ROL::RieszDualVector
    \brief Abstract implementation of a dual vector corresponding to
-          an inner-product that involves the application of a linear 
+          an inner-product that involves the application of a linear
           operator inverse
 
 */
@@ -76,49 +76,47 @@ class RieszDualVector;
 template <class Real>
 class RieszPrimalVector : public ElementwiseVector<Real> {
 
-  template<typename T> using RCP = Teuchos::RCP<T>;
- 
   using V = Vector<Real>;
   using DualVector = RieszDualVector<Real>;
   using OP = LinearOperator<Real>;
 
 private:
 
-  const   RCP<V>          v_;
-  mutable RCP<DualVector> dual_;
-  const   RCP<OP>         op_;
+  const   ROL::SharedPointer<V>          v_;
+  mutable ROL::SharedPointer<DualVector> dual_;
+  const   ROL::SharedPointer<OP>         op_;
   mutable Real            tol_;
 
   mutable bool isDualInitialized_;
 
   void initialize_dual( void ) const {
 
-    dual_ = Teuchos::rcp( new DualVector(v_->clone(),op_,tol_) );   
+    dual_ = ROL::makeShared<DualVector>(v_->clone(),op_,tol_);
     op_->apply(*(dual_->getVector()),*v_,tol_);
     isDualInitialized_ = true;
   }
 
 public:
 
-  RieszPrimalVector( const RCP<V>  &v, 
-                     const RCP<OP> &op,
-                     Real tol=std::sqrt(ROL_EPSILON<Real>()) ) : 
-    v_(v), op_(op), tol_(tol), isDualInitialized_(false) {  
-  }   
+  RieszPrimalVector( const ROL::SharedPointer<V>  &v,
+                     const ROL::SharedPointer<OP> &op,
+                     Real tol=std::sqrt(ROL_EPSILON<Real>()) ) :
+    v_(v), op_(op), tol_(tol), isDualInitialized_(false) {
+  }
 
   virtual ~RieszPrimalVector() {}
- 
+
   virtual Real dot( const V &x ) const {
     if( !isDualInitialized_ ) {
       initialize_dual();
     }
 
-    const RieszPrimalVector &ex = Teuchos::dyn_cast<const RieszPrimalVector>(x);
-    return dual_->getVector()->dot(*(ex.getVector()));    
+    const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector&>(x);
+    return dual_->getVector()->dot(*(ex.getVector()));
   }
 
-  virtual RCP<V> clone() const {
-    return Teuchos::rcp( new RieszPrimalVector( v_->clone(), op_, tol_ ) );   
+  virtual ROL::SharedPointer<V> clone() const {
+    return ROL::makeShared<RieszPrimalVector>( v_->clone(), op_, tol_ );
   }
 
   virtual const V & dual() const {
@@ -133,23 +131,23 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const RieszPrimalVector &ex = Teuchos::dyn_cast<const RieszPrimalVector>(x);
+    const RieszPrimalVector &ex = dynamic_cast<const RieszPrimalVector&>(x);
     v_->applyBinary(f,*(ex.getVector()));
-  } 
+  }
 
   Real reduce( const Elementwise::ReductionOp<Real> &r ) const {
-    return v_->reduce(r); 
+    return v_->reduce(r);
   }
 
 
-  RCP<V> getVector( void ) { 
+  ROL::SharedPointer<V> getVector( void ) {
     return v_;
   }
 
-  RCP<const V> getVector( void ) const {
+  ROL::SharedPointer<const V> getVector( void ) const {
     return v_;
   }
-  
+
 }; // class RieszPrimalVector
 
 
@@ -157,49 +155,47 @@ public:
 template<class Real>
 class RieszDualVector : public ElementwiseVector<Real> {
 
-  template<typename T> using RCP = Teuchos::RCP<T>;
-
   using V = Vector<Real>;
   using PrimalVector = RieszPrimalVector<Real>;
   using OP = LinearOperator<Real>;
 
 private:
 
-  const   RCP<V>            v_;
-  mutable RCP<PrimalVector>  primal_;
-  const   RCP<OP>            op_;
+  const   ROL::SharedPointer<V>            v_;
+  mutable ROL::SharedPointer<PrimalVector>  primal_;
+  const   ROL::SharedPointer<OP>            op_;
   mutable Real               tol_;
 
   mutable bool isPrimalInitialized_;
 
   void initialize_primal( void ) const {
 
-    primal_ = Teuchos::rcp( new PrimalVector(v_->clone(),op_,tol_) );   
+    primal_ = ROL::makeShared<PrimalVector>(v_->clone(),op_,tol_);
     op_->applyInverse(*(primal_->getVector()),*v_,tol_);
     isPrimalInitialized_ = true;
   }
 
 public:
 
-  RieszDualVector( const RCP<V>  &v, 
-                   const RCP<OP> &op,
-                   Real tol=std::sqrt(ROL_EPSILON<Real>()) ) : 
-    v_(v), op_(op), tol_(tol), isPrimalInitialized_(false) {  
-  }   
+  RieszDualVector( const ROL::SharedPointer<V>  &v,
+                   const ROL::SharedPointer<OP> &op,
+                   Real tol=std::sqrt(ROL_EPSILON<Real>()) ) :
+    v_(v), op_(op), tol_(tol), isPrimalInitialized_(false) {
+  }
 
   virtual ~RieszDualVector() {}
- 
+
   virtual Real dot( const V &x ) const {
     if( !isPrimalInitialized_ ) {
       initialize_primal();
     }
-   
- const RieszDualVector &ex = Teuchos::dyn_cast<const RieszDualVector>(x);
-    return primal_->getVector()->dot(*(ex.getVector()));    
+
+ const RieszDualVector &ex = dynamic_cast<const RieszDualVector&>(x);
+    return primal_->getVector()->dot(*(ex.getVector()));
   }
 
-  virtual RCP<V> clone() const {
-    return Teuchos::rcp( new RieszDualVector( v_->clone(), op_, tol_ ) );   
+  virtual ROL::SharedPointer<V> clone() const {
+    return ROL::makeShared<RieszDualVector>( v_->clone(), op_, tol_ );
   }
 
   virtual const V & dual() const {
@@ -214,23 +210,23 @@ public:
   }
 
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const RieszDualVector &ex = Teuchos::dyn_cast<const RieszDualVector>(x);
+    const RieszDualVector &ex = dynamic_cast<const RieszDualVector&>(x);
     v_->applyBinary(f,*(ex.getVector()));
-  } 
+  }
 
   Real reduce( const Elementwise::ReductionOp<Real> &r ) const {
-    return v_->reduce(r); 
+    return v_->reduce(r);
   }
 
 
-  RCP<V> getVector( void ) { 
+  ROL::SharedPointer<V> getVector( void ) {
     return v_;
   }
 
-  RCP<const V> getVector( void ) const {
+  ROL::SharedPointer<const V> getVector( void ) const {
     return v_;
   }
-  
+
 }; // class RieszDualVector
 
 

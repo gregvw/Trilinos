@@ -66,19 +66,19 @@ template <class Real>
 class NewtonKrylovStep : public Step<Real> {
 private:
 
-  Teuchos::RCP<Secant<Real> > secant_; ///< Secant object (used for quasi-Newton)
-  Teuchos::RCP<Krylov<Real> > krylov_; ///< Krylov solver object (used for inexact Newton)
+  ROL::SharedPointer<Secant<Real> > secant_; ///< Secant object (used for quasi-Newton)
+  ROL::SharedPointer<Krylov<Real> > krylov_; ///< Krylov solver object (used for inexact Newton)
 
   EKrylov ekv_;
   ESecant esec_;
 
-  Teuchos::RCP<Vector<Real> > gp_;
- 
+  ROL::SharedPointer<Vector<Real> > gp_;
+
   int iterKrylov_; ///< Number of Krylov iterations (used for inexact Newton)
   int flagKrylov_; ///< Termination flag for Krylov method (used for inexact Newton)
   int verbosity_;  ///< Verbosity level
   const bool computeObj_;
- 
+
   bool useSecantPrecond_; ///< Whether or not a secant approximation is used for preconditioning inexact Newton
 
   std::string krylovName_;
@@ -87,29 +87,29 @@ private:
 
   class HessianNK : public LinearOperator<Real> {
   private:
-    const Teuchos::RCP<Objective<Real> > obj_;
-    const Teuchos::RCP<Vector<Real> > x_;
+    const ROL::SharedPointer<Objective<Real> > obj_;
+    const ROL::SharedPointer<Vector<Real> > x_;
   public:
-    HessianNK(const Teuchos::RCP<Objective<Real> > &obj,
-              const Teuchos::RCP<Vector<Real> > &x) : obj_(obj), x_(x) {}
+    HessianNK(const ROL::SharedPointer<Objective<Real> > &obj,
+              const ROL::SharedPointer<Vector<Real> > &x) : obj_(obj), x_(x) {}
     void apply(Vector<Real> &Hv, const Vector<Real> &v, Real &tol) const {
       obj_->hessVec(Hv,v,*x_,tol);
-    } 
+    }
   };
 
   class PrecondNK : public LinearOperator<Real> {
   private:
-    const Teuchos::RCP<Objective<Real> > obj_;
-    const Teuchos::RCP<Vector<Real> > x_;
+    const ROL::SharedPointer<Objective<Real> > obj_;
+    const ROL::SharedPointer<Vector<Real> > x_;
   public:
-    PrecondNK(const Teuchos::RCP<Objective<Real> > &obj,
-              const Teuchos::RCP<Vector<Real> > &x) : obj_(obj), x_(x) {}
+    PrecondNK(const ROL::SharedPointer<Objective<Real> > &obj,
+              const ROL::SharedPointer<Vector<Real> > &x) : obj_(obj), x_(x) {}
     void apply(Vector<Real> &Hv, const Vector<Real> &v, Real &tol) const {
       Hv.set(v.dual());
     }
     void applyInverse(Vector<Real> &Hv, const Vector<Real> &v, Real &tol) const {
       obj_->precond(Hv,v,*x_,tol);
-    } 
+    }
   };
 
 public:
@@ -120,14 +120,14 @@ public:
 
   /** \brief Constructor.
 
-      Standard constructor to build a NewtonKrylovStep object.  Algorithmic 
+      Standard constructor to build a NewtonKrylovStep object.  Algorithmic
       specifications are passed in through a Teuchos::ParameterList.
 
       @param[in]     parlist    is a parameter list containing algorithmic specifications
   */
   NewtonKrylovStep( Teuchos::ParameterList &parlist, const bool computeObj = true )
-    : Step<Real>(), secant_(Teuchos::null), krylov_(Teuchos::null),
-      gp_(Teuchos::null), iterKrylov_(0), flagKrylov_(0),
+    : Step<Real>(), secant_(ROL::nullPointer), krylov_(ROL::nullPointer),
+      gp_(ROL::nullPointer), iterKrylov_(0), flagKrylov_(0),
       verbosity_(0), computeObj_(computeObj), useSecantPrecond_(false) {
     // Parse ParameterList
     Teuchos::ParameterList& Glist = parlist.sublist("General");
@@ -147,8 +147,8 @@ public:
 
   /** \brief Constructor.
 
-      Constructor to build a NewtonKrylovStep object with user-defined 
-      secant and Krylov objects.  Algorithmic specifications are passed in through 
+      Constructor to build a NewtonKrylovStep object with user-defined
+      secant and Krylov objects.  Algorithmic specifications are passed in through
       a Teuchos::ParameterList.
 
       @param[in]     parlist    is a parameter list containing algorithmic specifications
@@ -156,12 +156,12 @@ public:
       @param[in]     secant     is a user-defined secant object
   */
   NewtonKrylovStep(Teuchos::ParameterList &parlist,
-             const Teuchos::RCP<Krylov<Real> > &krylov,
-             const Teuchos::RCP<Secant<Real> > &secant,
+             const ROL::SharedPointer<Krylov<Real> > &krylov,
+             const ROL::SharedPointer<Secant<Real> > &secant,
              const bool computeObj = true)
     : Step<Real>(), secant_(secant), krylov_(krylov),
       ekv_(KRYLOV_USERDEFINED), esec_(SECANT_USERDEFINED),
-      gp_(Teuchos::null), iterKrylov_(0), flagKrylov_(0),
+      gp_(ROL::nullPointer), iterKrylov_(0), flagKrylov_(0),
       verbosity_(0), computeObj_(computeObj), useSecantPrecond_(false) {
     // Parse ParameterList
     Teuchos::ParameterList& Glist = parlist.sublist("General");
@@ -169,18 +169,18 @@ public:
     verbosity_ = Glist.get("Print Verbosity",0);
     // Initialize secant object
     if ( useSecantPrecond_ ) {
-      if(secant_ == Teuchos::null ) {
+      if(secant_ == ROL::nullPointer ) {
         secantName_ = Glist.sublist("Secant").get("Type","Limited-Memory BFGS");
         esec_ = StringToESecant(secantName_);
         secant_ = SecantFactory<Real>(parlist);
       }
       else {
       secantName_ = Glist.sublist("Secant").get("User Defined Secant Name",
-                                                "Unspecified User Defined Secant Method");         
+                                                "Unspecified User Defined Secant Method");
       }
     }
     // Initialize Krylov object
-    if ( krylov_ == Teuchos::null ) {
+    if ( krylov_ == ROL::nullPointer ) {
       krylovName_ = Glist.sublist("Krylov").get("Type","Conjugate Gradients");
       ekv_ = StringToEKrylov(krylovName_);
       krylov_ = KrylovFactory<Real>(parlist);
@@ -204,18 +204,18 @@ public:
                 Objective<Real> &obj, BoundConstraint<Real> &bnd,
                 AlgorithmState<Real> &algo_state ) {
     Real one(1);
-    Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
 
     // Build Hessian and Preconditioner object
-    Teuchos::RCP<Objective<Real> > obj_ptr = Teuchos::rcpFromRef(obj);
-    Teuchos::RCP<LinearOperator<Real> > hessian
-      = Teuchos::rcp(new HessianNK(obj_ptr,algo_state.iterateVec));
-    Teuchos::RCP<LinearOperator<Real> > precond;
+    ROL::SharedPointer<Objective<Real> > obj_ptr = ROL::makeSharedFromRef(obj);
+    ROL::SharedPointer<LinearOperator<Real> > hessian
+      = ROL::makeShared<HessianNK>(obj_ptr,algo_state.iterateVec);
+    ROL::SharedPointer<LinearOperator<Real> > precond;
     if ( useSecantPrecond_ ) {
       precond = secant_;
     }
     else {
-      precond = Teuchos::rcp(new PrecondNK(obj_ptr,algo_state.iterateVec));
+      precond = ROL::makeShared<PrecondNK>(obj_ptr,algo_state.iterateVec);
     }
 
     // Run Krylov method
@@ -233,7 +233,7 @@ public:
                Objective<Real> &obj, BoundConstraint<Real> &bnd,
                AlgorithmState<Real> &algo_state ) {
     Real tol = std::sqrt(ROL_EPSILON<Real>());
-    Teuchos::RCP<StepState<Real> > step_state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > step_state = Step<Real>::getState();
 
     // Update iterate
     algo_state.iter++;
@@ -297,9 +297,9 @@ public:
     std::stringstream hist;
     hist << "\n" << EDescentToString(DESCENT_NEWTONKRYLOV);
     hist << " using " << krylovName_;
-    if ( useSecantPrecond_ ) { 
+    if ( useSecantPrecond_ ) {
       hist << " with " << ESecantToString(esec_) << " preconditioning";
-    } 
+    }
     hist << "\n";
     return hist.str();
   }

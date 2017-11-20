@@ -57,23 +57,23 @@ typedef double RealT;
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP;
-  using Teuchos::rcp; 
+
+
 
   typedef std::vector<RealT>            vector;
-  typedef ROL::StdVector<RealT>         SV; 
+  typedef ROL::StdVector<RealT>         SV;
 
   typedef typename vector::size_type    uint;
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   int iprint     = argc - 1;
-  RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
@@ -90,5 +90,5 @@ int main(int argc, char *argv[]) {
   else
     std::cout << "End Result: TEST PASSED\n";
 
-  return 0;   
+  return 0;
 }

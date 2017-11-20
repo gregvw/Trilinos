@@ -66,12 +66,12 @@ int main(int argc, char *argv[]) {
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
       filename = "input-float.xml";
     }
     *outStream << std::endl << "Using input file: " << filename << std::endl << std::endl;
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     // Define algorithm.
@@ -109,11 +109,11 @@ int main(int argc, char *argv[]) {
     afinfo = af::infoString(true);
     *outStream << std::endl << afinfo << std::endl;
 
-    /***** Define RCP to AF array with initial guess. *****/
+    /***** Define ROL::SharedPointer to AF array with initial guess. *****/
     ElementT zero(0);
     ElementT op2(1.2);
     ElementT one(1);
-    Teuchos::RCP<af::array> x_rcp = Teuchos::rcp( new af::array(dim,afType));
+    ROL::SharedPointer<af::array> x_rcp = ROL::makeShared<af::array>(dim,afType);
     *x_rcp = af::constant(zero,x_rcp->dims(),afType);
     // Set Initial Guess
     for (dim_t i=0; i<dim/2; i++) {

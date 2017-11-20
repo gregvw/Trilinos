@@ -55,15 +55,15 @@ namespace ROL {
 template<class Real>
 class Constraint_Partitioned : public Constraint<Real> {
 private:
-  std::vector<Teuchos::RCP<Constraint<Real> > > cvec_;
+  std::vector<ROL::SharedPointer<Constraint<Real> > > cvec_;
   std::vector<bool> isInequality_;      // Label whether cvec_[i] is inequality
-  Teuchos::RCP<Vector<Real> > scratch_; // Scratch vector for intermediate computation
+  ROL::SharedPointer<Vector<Real> > scratch_; // Scratch vector for intermediate computation
   int  ncval_;                          // Number of constraint evaluations
   bool initialized_;                    // Is scratch vector initialized?
 
   Vector<Real>& getOpt( Vector<Real> &xs ) {
     try {
-      return *Teuchos::dyn_cast<PartitionedVector<Real> >(xs).get(0);
+      return *dynamic_cast<PartitionedVector<Real>&>(xs).get(0);
     }
     catch (std::exception &e) {
       return xs;
@@ -72,7 +72,7 @@ private:
 
   const Vector<Real>& getOpt( const Vector<Real> &xs ) {
     try {
-      return *Teuchos::dyn_cast<const PartitionedVector<Real> >(xs).get(0);
+      return *dynamic_cast<const PartitionedVector<Real>&>(xs).get(0);
     }
     catch (std::exception &e) {
       return xs;
@@ -80,26 +80,26 @@ private:
   }
 
   Vector<Real>& getSlack( Vector<Real> &xs, const int ind ) {
-    return *Teuchos::dyn_cast<PartitionedVector<Real> >(xs).get(ind);
+    return *dynamic_cast<PartitionedVector<Real>&>(xs).get(ind);
   }
 
   const Vector<Real>& getSlack( const Vector<Real> &xs, const int ind ) {
-    return *Teuchos::dyn_cast<const PartitionedVector<Real> >(xs).get(ind);
+    return *dynamic_cast<const PartitionedVector<Real>&>(xs).get(ind);
   }
   
 
 public:
-  Constraint_Partitioned(const std::vector<Teuchos::RCP<Constraint<Real> > > &cvec,
+  Constraint_Partitioned(const std::vector<ROL::SharedPointer<Constraint<Real> > > &cvec,
                          bool isInequality = false)
    : cvec_(cvec),
-     scratch_(Teuchos::null), ncval_(0), initialized_(false) {
+     scratch_(ROL::nullPointer), ncval_(0), initialized_(false) {
     isInequality_.clear(); isInequality_.resize(cvec.size(),isInequality);
   }
 
-  Constraint_Partitioned(const std::vector<Teuchos::RCP<Constraint<Real> > > &cvec,
+  Constraint_Partitioned(const std::vector<ROL::SharedPointer<Constraint<Real> > > &cvec,
                          const std::vector<bool>                             &isInequality)
    : cvec_(cvec), isInequality_(isInequality),
-     scratch_(Teuchos::null), ncval_(0), initialized_(false) {}
+     scratch_(ROL::nullPointer), ncval_(0), initialized_(false) {}
 
   int getNumberConstraintEvaluations(void) const {
     return ncval_;
@@ -114,12 +114,12 @@ public:
 
   void value( Vector<Real> &c, const Vector<Real> &x, Real &tol ) {
     PartitionedVector<Real> &cpv
-      = Teuchos::dyn_cast<PartitionedVector<Real> >(c);
+      = dynamic_cast<PartitionedVector<Real>&>(c);
 
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
     for (int i = 0; i < ncon; ++i) {
-      Teuchos::RCP<Vector<Real> > ci = cpv.get(i);
+      ROL::SharedPointer<Vector<Real> > ci = cpv.get(i);
       cvec_[i]->value(*ci, getOpt(x), tol);
       if (isInequality_[i]) {
         ci->axpy(static_cast<Real>(-1),getSlack(x,cnt));
@@ -134,12 +134,12 @@ public:
                       const Vector<Real> &x,
                       Real &tol ) {
     PartitionedVector<Real> &jvpv
-      = Teuchos::dyn_cast<PartitionedVector<Real> >(jv);
+      = dynamic_cast<PartitionedVector<Real>&>(jv);
 
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
     for (int i = 0; i < ncon; ++i) {
-      Teuchos::RCP<Vector<Real> > jvi = jvpv.get(i);
+      ROL::SharedPointer<Vector<Real> > jvi = jvpv.get(i);
       cvec_[i]->applyJacobian(*jvi, getOpt(v), getOpt(x), tol);
       if (isInequality_[i]) {
         jvi->axpy(static_cast<Real>(-1),getSlack(v,cnt));
@@ -158,13 +158,13 @@ public:
     }
 
     const PartitionedVector<Real> &vpv
-      = Teuchos::dyn_cast<const PartitionedVector<Real> >(v);
+      = dynamic_cast<const PartitionedVector<Real>&>(v);
 
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
     getOpt(ajv).zero();
     for (int i = 0; i < ncon; ++i) {
-      Teuchos::RCP<const Vector<Real> > vi = vpv.get(i);
+      ROL::SharedPointer<const Vector<Real> > vi = vpv.get(i);
       scratch_->zero();
       cvec_[i]->applyAdjointJacobian(*scratch_, *vi, getOpt(x), tol);
       getOpt(ajv).plus(*scratch_);
@@ -187,13 +187,13 @@ public:
     }
 
     const PartitionedVector<Real> &upv
-      = Teuchos::dyn_cast<const PartitionedVector<Real> >(u);
+      = dynamic_cast<const PartitionedVector<Real>&>(u);
 
     const int ncon = static_cast<int>(cvec_.size());
     int cnt = 1;
     getOpt(ahuv).zero();
     for (int i = 0; i < ncon; ++i) {
-      Teuchos::RCP<const Vector<Real> > ui = upv.get(i);
+      ROL::SharedPointer<const Vector<Real> > ui = upv.get(i);
       scratch_->zero();
       cvec_[i]->applyAdjointHessian(*scratch_, *ui, getOpt(v), getOpt(x), tol);
       getOpt(ahuv).plus(*scratch_);

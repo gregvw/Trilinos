@@ -155,20 +155,20 @@ void Sacado_Constraint_SimOpt<Real,Constr>::applyJacobian_1AD(Vector<ScalarT> &j
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast; 
+           
+     
 
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
-    RCP<const vector> up = dyn_cast<const SV>(u).getVector();
-    RCP<const vector> zp = dyn_cast<const SV>(z).getVector();
-    RCP<vector> jvp = dyn_cast<SV>(jv).getVector(); 
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<const vector> up = dynamic_cast<const SV&>(u).getVector();
+    ROL::SharedPointer<const vector> zp = dynamic_cast<const SV&>(z).getVector();
+    ROL::SharedPointer<vector> jvp = dynamic_cast<SV&>(jv).getVector(); 
 
     int n = up->size();
     int m = zp->size();
     
-    RCP<Fadvector> c_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> u_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> z_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> c_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> u_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> z_fad_rcp = ROL::makeShared<Fadvector>();
 
     c_fad_rcp->reserve(n);
     u_fad_rcp->reserve(n);
@@ -210,20 +210,20 @@ void Sacado_Constraint_SimOpt<Real,Constr>::applyJacobian_2AD(Vector<ScalarT> &j
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast;
+           
+    
 
-    RCP<vector> jvp = dyn_cast<SV>(jv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
-    RCP<const vector> up = dyn_cast<const SV>(u).getVector();
-    RCP<const vector> zp = dyn_cast<const SV>(z).getVector();
+    ROL::SharedPointer<vector> jvp = dynamic_cast<SV&>(jv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<const vector> up = dynamic_cast<const SV&>(u).getVector();
+    ROL::SharedPointer<const vector> zp = dynamic_cast<const SV&>(z).getVector();
 
     int n = up->size();
     int m = zp->size(); 
     
-    RCP<Fadvector> c_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> u_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> z_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> c_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> u_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> z_fad_rcp = ROL::makeShared<Fadvector>();
 
     c_fad_rcp->reserve(n);
     u_fad_rcp->reserve(n);
@@ -267,20 +267,20 @@ void Sacado_Constraint_SimOpt<Real,Constr>::applyAdjointJacobian_1AD(Vector<Scal
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast;  
+           
+      
 
-    RCP<vector> ajvp = dyn_cast<SV>(ajv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
-    RCP<const vector> up = dyn_cast<const SV>(u).getVector();
-    RCP<const vector> zp = dyn_cast<const SV>(z).getVector();
+    ROL::SharedPointer<vector> ajvp = dynamic_cast<SV&>(ajv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<const vector> up = dynamic_cast<const SV&>(u).getVector();
+    ROL::SharedPointer<const vector> zp = dynamic_cast<const SV&>(z).getVector();
     
     int n = up->size();
     int m = zp->size();
     
-    RCP<Fadvector> c_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> u_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> z_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> c_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> u_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> z_fad_rcp = ROL::makeShared<Fadvector>();
 
     c_fad_rcp->reserve(n);
     u_fad_rcp->reserve(n);
@@ -328,20 +328,20 @@ void Sacado_Constraint_SimOpt<Real,Constr>::applyAdjointJacobian_2AD(Vector<Scal
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast;  
+           
+      
 
-    RCP<vector> ajvp = dyn_cast<SV>(ajv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();   
-    RCP<const vector> up = dyn_cast<const SV>(u).getVector();   
-    RCP<const vector> zp = dyn_cast<const SV>(z).getVector();   
+    ROL::SharedPointer<vector> ajvp = dynamic_cast<SV&>(ajv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();   
+    ROL::SharedPointer<const vector> up = dynamic_cast<const SV&>(u).getVector();   
+    ROL::SharedPointer<const vector> zp = dynamic_cast<const SV&>(z).getVector();   
 
     int n = up->size();
     int m = zp->size();
     
-    RCP<Fadvector> c_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> u_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> z_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> c_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> u_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> z_fad_rcp = ROL::makeShared<Fadvector>();
 
     c_fad_rcp->reserve(n);
     u_fad_rcp->reserve(n);
@@ -388,22 +388,22 @@ void Sacado_Constraint_SimOpt<Real,Constr>::applyAdjointHessian_11AD(Vector<Scal
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast; 
+           
+     
 
-    RCP<vector> ahwvp = dyn_cast<SV>(ahwv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
-    RCP<const vector> wp = dyn_cast<const SV>(w).getVector();
-    RCP<const vector> up = dyn_cast<const SV>(u).getVector();
-    RCP<const vector> zp = dyn_cast<const SV>(z).getVector();
+    ROL::SharedPointer<vector> ahwvp = dynamic_cast<SV&>(ahwv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<const vector> wp = dynamic_cast<const SV&>(w).getVector();
+    ROL::SharedPointer<const vector> up = dynamic_cast<const SV&>(u).getVector();
+    ROL::SharedPointer<const vector> zp = dynamic_cast<const SV&>(z).getVector();
 
     int n = up->size();
     int m = zp->size();
 
-    RCP<Fadvector> v_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> u_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> z_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> jv_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> v_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> u_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> z_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> jv_fad_rcp = ROL::makeShared<Fadvector>();
 
     v_fad_rcp->reserve(n);
     u_fad_rcp->reserve(n);
@@ -453,22 +453,22 @@ void Sacado_Constraint_SimOpt<Real,Constr>::applyAdjointHessian_12AD(Vector<Scal
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast;  
+           
+      
 
-    RCP<vector> ahwvp = dyn_cast<SV>(ahwv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
-    RCP<const vector> wp = dyn_cast<const SV>(w).getVector();
-    RCP<const vector> up = dyn_cast<const SV>(u).getVector();
-    RCP<const vector> zp = dyn_cast<const SV>(z).getVector();
+    ROL::SharedPointer<vector> ahwvp = dynamic_cast<SV&>(ahwv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<const vector> wp = dynamic_cast<const SV&>(w).getVector();
+    ROL::SharedPointer<const vector> up = dynamic_cast<const SV&>(u).getVector();
+    ROL::SharedPointer<const vector> zp = dynamic_cast<const SV&>(z).getVector();
 
     int n = up->size();
     int m = zp->size();
 
-    RCP<Fadvector> v_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> u_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> z_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> jv_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> v_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> u_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> z_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> jv_fad_rcp = ROL::makeShared<Fadvector>();
 
     v_fad_rcp->reserve(n);
     u_fad_rcp->reserve(n);
@@ -516,22 +516,22 @@ void Sacado_Constraint_SimOpt<Real,Constr>::applyAdjointHessian_21AD(Vector<Scal
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast; 
+           
+     
 
-    RCP<vector> ahwvp = dyn_cast<SV>(ahwv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
-    RCP<const vector> wp = dyn_cast<const SV>(w).getVector();
-    RCP<const vector> up = dyn_cast<const SV>(u).getVector();
-    RCP<const vector> zp = dyn_cast<const SV>(z).getVector();
+    ROL::SharedPointer<vector> ahwvp = dynamic_cast<SV&>(ahwv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<const vector> wp = dynamic_cast<const SV&>(w).getVector();
+    ROL::SharedPointer<const vector> up = dynamic_cast<const SV&>(u).getVector();
+    ROL::SharedPointer<const vector> zp = dynamic_cast<const SV&>(z).getVector();
 
     int n = up->size();
     int m = zp->size();
 
-    RCP<Fadvector> v_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> u_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> z_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> jv_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> v_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> u_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> z_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> jv_fad_rcp = ROL::makeShared<Fadvector>();
 
     v_fad_rcp->reserve(m);
     u_fad_rcp->reserve(n);
@@ -579,22 +579,22 @@ void Sacado_Constraint_SimOpt<Real,Constr>::applyAdjointHessian_22AD(Vector<Scal
     typedef std::vector<ScalarT>       vector;
     typedef StdVector<ScalarT>         SV;
 
-    using Teuchos::RCP;       using Teuchos::rcp;
-    using Teuchos::dyn_cast; 
+           
+     
 
-    RCP<vector> ahwvp = dyn_cast<SV>(ahwv).getVector();
-    RCP<const vector> vp = dyn_cast<const SV>(v).getVector();
-    RCP<const vector> wp = dyn_cast<const SV>(w).getVector();
-    RCP<const vector> up = dyn_cast<const SV>(u).getVector();
-    RCP<const vector> zp = dyn_cast<const SV>(z).getVector();
+    ROL::SharedPointer<vector> ahwvp = dynamic_cast<SV&>(ahwv).getVector();
+    ROL::SharedPointer<const vector> vp = dynamic_cast<const SV&>(v).getVector();
+    ROL::SharedPointer<const vector> wp = dynamic_cast<const SV&>(w).getVector();
+    ROL::SharedPointer<const vector> up = dynamic_cast<const SV&>(u).getVector();
+    ROL::SharedPointer<const vector> zp = dynamic_cast<const SV&>(z).getVector();
  
     int n = up->size();
     int m = zp->size();
 
-    RCP<Fadvector> v_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> u_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> z_fad_rcp = rcp( new Fadvector );
-    RCP<Fadvector> jv_fad_rcp = rcp( new Fadvector );
+    ROL::SharedPointer<Fadvector> v_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> u_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> z_fad_rcp = ROL::makeShared<Fadvector>();
+    ROL::SharedPointer<Fadvector> jv_fad_rcp = ROL::makeShared<Fadvector>();
 
     v_fad_rcp->reserve(m);
     u_fad_rcp->reserve(n);

@@ -49,9 +49,9 @@
 
 /** @ingroup func_group
     \class ROL::BinaryConstraint
-    \brief Implements an equality constraint function that evaluates to 
+    \brief Implements an equality constraint function that evaluates to
            zero on the surface of a bounded parallelpiped and is positive
-           in the interior. 
+           in the interior.
 
 */
 
@@ -60,22 +60,20 @@ namespace ROL {
 template<class Real>
 class BinaryConstraint : public Constraint<Real> {
 
-  template <typename T> using RCP = Teuchos::RCP<T>;
-
   using V = Vector<Real>;
 
 
 private:
 
-  const RCP<const V> lo_;    // Lower Bound Vector
-  const RCP<const V> up_;    // Upper Bound Vector
+  const ROL::SharedPointer<const V> lo_;    // Lower Bound Vector
+  const ROL::SharedPointer<const V> up_;    // Upper Bound Vector
 
-  RCP<V> d_;     // Scratch Vector
+  ROL::SharedPointer<V> d_;     // Scratch Vector
 
-//  RCP<V> dl_;    // Scratch Vectors
-//  RCP<V> du_;    // Scratch Vectors
+//  ROL::SharedPointer<V> dl_;    // Scratch Vectors
+//  ROL::SharedPointer<V> du_;    // Scratch Vectors
 
-  Real   gamma_; // Penality parameter 
+  Real   gamma_; // Penality parameter
 
 
   class BoundsCheck : public Elementwise::BinaryFunction<Real> {
@@ -103,7 +101,7 @@ private:
           switch(opt_) {
             case 0:  return  dl;   break;
             case 1:  return  1.0;  break;
-            case 2:  return  0.0;  break; 
+            case 2:  return  0.0;  break;
             default: return  0.0;  break; // Should never be called
           }
         }
@@ -123,20 +121,20 @@ private:
         }
       } // apply
     }; // class BoundsCheck
-    
+
 
 public:
 
-  BinaryConstraint( const RCP<const V> &lo, const RCP<const V> &up, Real gamma ) :
-      lo_( lo ), up_( up ), d_( lo_->clone() ), gamma_( gamma ) {} 
+  BinaryConstraint( const ROL::SharedPointer<const V> &lo, const ROL::SharedPointer<const V> &up, Real gamma ) :
+      lo_( lo ), up_( up ), d_( lo_->clone() ), gamma_( gamma ) {}
 
   BinaryConstraint( const BoundConstraint<Real> &bnd, Real gamma ) :
       BinaryConstraint( bnd.getLowerBound(), bnd.getUpperBound(), gamma ) {}
-   
 
-  BinaryConstraint( const RCP<const BoundConstraint<Real>> &bnd, Real gamma ) :
+
+  BinaryConstraint( const ROL::SharedPointer<const BoundConstraint<Real>> &bnd, Real gamma ) :
       BinaryConstraint( bnd->getLowerBound(), bnd->getUpperBound(), gamma ) {}
-     
+
 
   /** \brief Evaluate constraint
     \f[ c_i(x) = \begin{cases}
@@ -145,7 +143,7 @@ public:
           \gamma(u_i-x_i)           & l_i=-\infty,u_i<\infty \\
                 0                   & l_i=-\infty,u_i=\infty
         \end{cases}
-    \f] 
+    \f]
   */
   void value(V &c, const V &x, Real &tol) {
 
@@ -154,12 +152,12 @@ public:
 
     d_->set( *up_ );      // d = u-x
     d_->axpy( -1.0, x );
-    
+
     BoundsCheck bc(0);
     c.applyBinary( bc, *d_ );
 
     c.scale( gamma_ );
-            
+
   }
 
 
@@ -169,7 +167,7 @@ public:
           \gamma v_i                 & -\infty<l_i,u_i=\infty \\
          -\gamma v_i                 & l_i=-\infty,u_i<\infty \\
                 0                    & l_i=-\infty,u_i=\infty
-       \end{cases} 
+       \end{cases}
     \f]
   */
   void applyJacobian(V &jv, const V &v, const V &x, Real &tol) {
@@ -189,11 +187,11 @@ public:
 
 
   void applyAdjointJacobian(V &ajv, const V &v, const V &x, Real &tol) {
-    applyJacobian(ajv,v,x,tol); 
+    applyJacobian(ajv,v,x,tol);
   }
 
 
-  /** c_i''(x)(w,v) = \begin{cases} 
+  /** c_i''(x)(w,v) = \begin{cases}
        -2 \gamma v_i w_i & -\infty<l_i,u_i<\infty \\
              0           & \text{otherwise}
     \end{cases}
@@ -202,7 +200,7 @@ public:
   void applyAdjointHessian(V &ahuv, const V &u, const V &v, const V &x, Real &tol) {
 
     Elementwise::Multiply<Real> mult;
-    
+
     ahuv.set( x );
     ahuv.axpy( -1.0, *lo_ );
     d_->set( *up_ );
@@ -213,7 +211,7 @@ public:
     ahuv.applyBinary( mult, v );
     ahuv.applyBinary( mult, u );
 
-    ahuv.scale( gamma_ ); 
+    ahuv.scale( gamma_ );
 
   }
 

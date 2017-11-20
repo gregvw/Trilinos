@@ -58,26 +58,26 @@ template<class Real>
 class PartitionedVector : public Vector<Real> {
 
   typedef Vector<Real>                  V;
-  typedef Teuchos::RCP<V>               RCPV;
+  typedef ROL::SharedPointer<V>            Vptr;
   typedef PartitionedVector<Real>       PV;
 
 private:
-  const std::vector<RCPV>                    vecs_;
-  mutable std::vector<RCPV>             dual_vecs_;
-  mutable Teuchos::RCP<PV>              dual_pvec_;
+  const std::vector<Vptr>                    vecs_;
+  mutable std::vector<Vptr>             dual_vecs_;
+  mutable ROL::SharedPointer<PV>              dual_pvec_;
 public:
 
   typedef typename std::vector<PV>::size_type    size_type;
 
-  PartitionedVector( const std::vector<RCPV> &vecs ) : vecs_(vecs) {
+  PartitionedVector( const std::vector<Vptr> &vecs ) : vecs_(vecs) {
     for( size_type i=0; i<vecs_.size(); ++i ) {
       dual_vecs_.push_back((vecs_[i]->dual()).clone());
     }
   }
 
   void set( const V &x ) {
-    using Teuchos::dyn_cast;
-    const PV &xs = dyn_cast<const PV>(dyn_cast<const V>(x));
+
+    const PV &xs = dynamic_cast<const PV&>(dynamic_cast<const V&>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -89,8 +89,8 @@ public:
   }
 
   void plus( const V &x ) {
-    using Teuchos::dyn_cast;
-    const PV &xs = dyn_cast<const PV>(dyn_cast<const V>(x));
+
+    const PV &xs = dynamic_cast<const PV&>(dynamic_cast<const V&>(x));
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -108,8 +108,8 @@ public:
   }
 
   void axpy( const Real alpha, const V &x ) {
-    using Teuchos::dyn_cast;
-    const PV &xs = dyn_cast<const PV>(x);
+
+    const PV &xs = dynamic_cast<const PV&>(x);
 
     TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -121,8 +121,8 @@ public:
   }
 
   Real dot( const V &x ) const {
-    using Teuchos::dyn_cast;
-    const PV &xs = dyn_cast<const PV>(x);
+
+    const PV &xs = dynamic_cast<const PV&>(x);
 
    TEUCHOS_TEST_FOR_EXCEPTION( numVectors() != xs.numVectors(),
                                 std::invalid_argument,
@@ -143,41 +143,32 @@ public:
     return std::sqrt(result);
   }
 
-  RCPV clone() const {
-    using Teuchos::RCP;
-    using Teuchos::rcp;
-
-    std::vector<RCPV> clonevec;
+  Vptr clone() const {
+    std::vector<Vptr> clonevec;
     for( size_type i=0; i<vecs_.size(); ++i ) {
       clonevec.push_back(vecs_[i]->clone());
     }
-    return rcp( new PV(clonevec) );
+    return ROL::makeShared<PV>(clonevec);
   }
 
   const V& dual(void) const {
-    using Teuchos::rcp;
-
     for( size_type i=0; i<vecs_.size(); ++i ) {
       dual_vecs_[i]->set(vecs_[i]->dual());
     }
-    dual_pvec_ = rcp( new PV( dual_vecs_ ) );
+    dual_pvec_ = ROL::makeShared<PV>( dual_vecs_ );
     return *dual_pvec_;
   }
 
-  RCPV basis( const int i ) const {
+  Vptr basis( const int i ) const {
 
     TEUCHOS_TEST_FOR_EXCEPTION( i >= dimension() || i<0,
                                 std::invalid_argument,
                                 "Error: Basis index must be between 0 and vector dimension." );
 
-    using Teuchos::RCP;
-    using Teuchos::rcp;
-    using Teuchos::dyn_cast;
-
-    RCPV bvec = clone();
+    Vptr bvec = clone();
 
     // Downcast
-    PV &eb = dyn_cast<PV>(*bvec);
+    PV &eb = dynamic_cast<PV&>(*bvec);
 
     int begin = 0;
     int end = 0;
@@ -223,7 +214,7 @@ public:
 
   // Apply the same binary function to each pair of subvectors in this vector and x
   void applyBinary( const Elementwise::BinaryFunction<Real> &f, const V &x ) {
-    const PV &xs = Teuchos::dyn_cast<const PV>(x);
+    const PV &xs = dynamic_cast<const PV&>(x);
 
     for( size_type i=0; i<vecs_.size(); ++i ) {
       vecs_[i]->applyBinary(f,*xs.get(i));
@@ -248,11 +239,11 @@ public:
 
   // Methods that do not exist in the base class
 
-  Teuchos::RCP<const Vector<Real> > get(size_type i) const {
+  ROL::SharedPointer<const Vector<Real> > get(size_type i) const {
     return vecs_[i];
   }
 
-  Teuchos::RCP<Vector<Real> > get(size_type i) {
+  ROL::SharedPointer<Vector<Real> > get(size_type i) {
     return vecs_[i];
   }
 
@@ -272,106 +263,105 @@ public:
 
 // Helper methods
 template<class Real>
-Teuchos::RCP<Vector<Real> > CreatePartitionedVector( const Teuchos::RCP<Vector<Real> > &a ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<Vector<Real> >       RCPV;
+ROL::SharedPointer<Vector<Real> > CreatePartitionedVector( const ROL::SharedPointer<Vector<Real> > &a ) {
+
+
+  typedef ROL::SharedPointer<Vector<Real> >       Vptr;
   typedef PartitionedVector<Real>  PV;
 
-  RCPV temp[] = {a};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+1) ) );
+  Vptr temp[] = {a};
+  return ROL::makeShared<PV>(std::vector<Vptr>(temp, temp+1));
 }
 
 template<class Real>
-Teuchos::RCP<const Vector<Real> > CreatePartitionedVector( const Teuchos::RCP<const Vector<Real> > &a ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<const Vector<Real> >      RCPV;
+ROL::SharedPointer<const Vector<Real> > CreatePartitionedVector( const ROL::SharedPointer<const Vector<Real> > &a ) {
+
+
+  typedef ROL::SharedPointer<const Vector<Real> >      Vptr;
   typedef const PartitionedVector<Real> PV;
 
-  RCPV temp[] = {a};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+1) ) );
+  Vptr temp[] = {a};
+  return ROL::makeShared<PV>(std::vector<Vptr>(temp, temp+1));
 }
 
 template<class Real>
-Teuchos::RCP<Vector<Real> > CreatePartitionedVector( const Teuchos::RCP<Vector<Real> > &a,
-                                                     const Teuchos::RCP<Vector<Real> > &b ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<Vector<Real> >      RCPV;
+ROL::SharedPointer<Vector<Real> > CreatePartitionedVector( const ROL::SharedPointer<Vector<Real> > &a,
+                                                     const ROL::SharedPointer<Vector<Real> > &b ) {
+
+
+  typedef ROL::SharedPointer<Vector<Real> >      Vptr;
   typedef PartitionedVector<Real> PV;
 
-  RCPV temp[] = {a,b};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+2) ) );
+  Vptr temp[] = {a,b};
+  return ROL::makeShared<PV>(std::vector<Vptr>(temp, temp+2));
 }
 
 template<class Real>
-Teuchos::RCP<const Vector<Real> > CreatePartitionedVector( const Teuchos::RCP<const Vector<Real> > &a,
-                                                           const Teuchos::RCP<const Vector<Real> > &b ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<const Vector<Real> >      RCPV;
+ROL::SharedPointer<const Vector<Real> > CreatePartitionedVector( const ROL::SharedPointer<const Vector<Real> > &a,
+                                                           const ROL::SharedPointer<const Vector<Real> > &b ) {
+
+
+  typedef ROL::SharedPointer<const Vector<Real> >      Vptr;
   typedef const PartitionedVector<Real> PV;
 
-  RCPV temp[] = {a,b};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+2) ) );
+  Vptr temp[] = {a,b};
+  return ROL::makeShared<PV>(std::vector<Vptr>(temp, temp+2));
 }
 
 template<class Real>
-Teuchos::RCP<Vector<Real> > CreatePartitionedVector( const Teuchos::RCP<Vector<Real> > &a,
-                                                     const Teuchos::RCP<Vector<Real> > &b,
-                                                     const Teuchos::RCP<Vector<Real> > &c ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<Vector<Real> >      RCPV;
+ROL::SharedPointer<Vector<Real> > CreatePartitionedVector( const ROL::SharedPointer<Vector<Real> > &a,
+                                                     const ROL::SharedPointer<Vector<Real> > &b,
+                                                     const ROL::SharedPointer<Vector<Real> > &c ) {
+
+
+  typedef ROL::SharedPointer<Vector<Real> >      Vptr;
   typedef PartitionedVector<Real> PV;
 
-  RCPV temp[] = {a,b,c};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+3) ) );
+  Vptr temp[] = {a,b,c};
+  return ROL::makeShared<PV>(std::vector<Vptr>(temp, temp+3));
 }
 
 template<class Real>
-Teuchos::RCP<const Vector<Real> > CreatePartitionedVector( const Teuchos::RCP<const Vector<Real> > &a,
-                                                           const Teuchos::RCP<const Vector<Real> > &b,
-                                                           const Teuchos::RCP<const Vector<Real> > &c ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<const Vector<Real> >      RCPV;
+ROL::SharedPointer<const Vector<Real> > CreatePartitionedVector( const ROL::SharedPointer<const Vector<Real> > &a,
+                                                           const ROL::SharedPointer<const Vector<Real> > &b,
+                                                           const ROL::SharedPointer<const Vector<Real> > &c ) {
+
+
+  typedef ROL::SharedPointer<const Vector<Real> >      Vptr;
   typedef const PartitionedVector<Real> PV;
 
-  RCPV temp[] = {a,b,c};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+3) ) );
+  Vptr temp[] = {a,b,c};
+  return ROL::makeShared<PV>(std::vector<Vptr>(temp, temp+3));
 }
 
 template<class Real>
-Teuchos::RCP<Vector<Real> > CreatePartitionedVector( const Teuchos::RCP<Vector<Real> > &a,
-                                                     const Teuchos::RCP<Vector<Real> > &b,
-                                                     const Teuchos::RCP<Vector<Real> > &c,
-                                                     const Teuchos::RCP<Vector<Real> > &d ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<Vector<Real> >      RCPV;
+ROL::SharedPointer<Vector<Real> > CreatePartitionedVector( const ROL::SharedPointer<Vector<Real> > &a,
+                                                     const ROL::SharedPointer<Vector<Real> > &b,
+                                                     const ROL::SharedPointer<Vector<Real> > &c,
+                                                     const ROL::SharedPointer<Vector<Real> > &d ) {
+
+
+  typedef ROL::SharedPointer<Vector<Real> >      Vptr;
   typedef PartitionedVector<Real> PV;
 
-  RCPV temp[] = {a,b,c,d};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+4) ) );
+  Vptr temp[] = {a,b,c,d};
+  return ROL::makeShared<PV>(std::vector<Vptr>(temp, temp+4));
 }
 
 template<class Real>
-Teuchos::RCP<const Vector<Real> > CreatePartitionedVector( const Teuchos::RCP<const Vector<Real> > &a,
-                                                           const Teuchos::RCP<const Vector<Real> > &b,
-                                                           const Teuchos::RCP<const Vector<Real> > &c,
-                                                           const Teuchos::RCP<const Vector<Real> > &d ) {
-  using Teuchos::RCP;
-  using Teuchos::rcp;
-  typedef RCP<const Vector<Real> >      RCPV;
+ROL::SharedPointer<const Vector<Real> > CreatePartitionedVector( const ROL::SharedPointer<const Vector<Real> > &a,
+                                                           const ROL::SharedPointer<const Vector<Real> > &b,
+                                                           const ROL::SharedPointer<const Vector<Real> > &c,
+                                                           const ROL::SharedPointer<const Vector<Real> > &d ) {
+
+
+  typedef ROL::SharedPointer<const Vector<Real> >      Vptr;
   typedef const PartitionedVector<Real> PV;
 
-  RCPV temp[] = {a,b,c,d};
-  return rcp( new PV( std::vector<RCPV>(temp, temp+4) ) );
+  Vptr temp[] = {a,b,c,d};
+  return ROL::makeShared<PV>(std::vector<Vptr>(temp, temp+4));
 }
 
 } // namespace ROL
 
 #endif // ROL_PARTITIONED_VECTOR_H
-

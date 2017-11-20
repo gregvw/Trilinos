@@ -56,16 +56,16 @@
 #include "ROL_ScalarFunction.hpp"
 #include "ROL_Bracketing.hpp"
 
-namespace ROL { 
+namespace ROL {
 
 template<class Real>
 class ScalarMinimizationLineSearch : public LineSearch<Real> {
 private:
-  Teuchos::RCP<Vector<Real> >             xnew_; 
-  Teuchos::RCP<Vector<Real> >             g_;
-  Teuchos::RCP<ScalarMinimization<Real> > sm_;
-  Teuchos::RCP<Bracketing<Real> >         br_;
-  Teuchos::RCP<ScalarFunction<Real> >     sf_;
+  ROL::SharedPointer<Vector<Real> >             xnew_;
+  ROL::SharedPointer<Vector<Real> >             g_;
+  ROL::SharedPointer<ScalarMinimization<Real> > sm_;
+  ROL::SharedPointer<Bracketing<Real> >         br_;
+  ROL::SharedPointer<ScalarFunction<Real> >     sf_;
 
   ECurvatureCondition econd_;
   Real c1_;
@@ -75,28 +75,28 @@ private:
 
   class Phi : public ScalarFunction<Real> {
   private:
-    const Teuchos::RCP<Vector<Real> > xnew_;
-    const Teuchos::RCP<Vector<Real> > g_;
-    const Teuchos::RCP<const Vector<Real> > x_;
-    const Teuchos::RCP<const Vector<Real> > s_;
-    const Teuchos::RCP<Objective<Real> > obj_;
-    const Teuchos::RCP<BoundConstraint<Real> > con_;
+    const ROL::SharedPointer<Vector<Real> > xnew_;
+    const ROL::SharedPointer<Vector<Real> > g_;
+    const ROL::SharedPointer<const Vector<Real> > x_;
+    const ROL::SharedPointer<const Vector<Real> > s_;
+    const ROL::SharedPointer<Objective<Real> > obj_;
+    const ROL::SharedPointer<BoundConstraint<Real> > bnd_;
     Real ftol_;
     void updateIterate(Real alpha) {
       xnew_->set(*x_);
       xnew_->axpy(alpha,*s_);
-      if ( con_->isActivated() ) {
-        con_->project(*xnew_);
+      if ( bnd_->isActivated() ) {
+        bnd_->project(*xnew_);
       }
     }
   public:
-    Phi(const Teuchos::RCP<Vector<Real> > &xnew,
-        const Teuchos::RCP<Vector<Real> > &g,
-        const Teuchos::RCP<const Vector<Real> > &x,
-        const Teuchos::RCP<const Vector<Real> > &s,
-        const Teuchos::RCP<Objective<Real> > &obj,
-        const Teuchos::RCP<BoundConstraint<Real> > &con)
-     : xnew_(xnew), g_(g), x_(x), s_(s), obj_(obj), con_(con),
+    Phi(const ROL::SharedPointer<Vector<Real> > &xnew,
+        const ROL::SharedPointer<Vector<Real> > &g,
+        const ROL::SharedPointer<const Vector<Real> > &x,
+        const ROL::SharedPointer<const Vector<Real> > &s,
+        const ROL::SharedPointer<Objective<Real> > &obj,
+        const ROL::SharedPointer<BoundConstraint<Real> > &bnd)
+     : xnew_(xnew), g_(g), x_(x), s_(s), obj_(obj), bnd_(bnd),
        ftol_(std::sqrt(ROL_EPSILON<Real>())) {}
     Real value(const Real alpha) {
       updateIterate(alpha);
@@ -107,13 +107,13 @@ private:
       updateIterate(alpha);
       obj_->update(*xnew_);
       obj_->gradient(*g_,*xnew_,ftol_);
-      return s_->dot(g_->dual()); 
+      return s_->dot(g_->dual());
     }
   };
 
   class LineSearchStatusTest : public ScalarMinimizationStatusTest<Real> {
   private:
-    Teuchos::RCP<ScalarFunction<Real> > phi_;
+    ROL::SharedPointer<ScalarFunction<Real> > phi_;
 
     const Real f0_;
     const Real g0_;
@@ -129,7 +129,7 @@ private:
     LineSearchStatusTest(const Real f0, const Real g0,
                          const Real c1, const Real c2, const Real c3,
                          const int max_nfval, ECurvatureCondition econd,
-                         const Teuchos::RCP<ScalarFunction<Real> > &phi)
+                         const ROL::SharedPointer<ScalarFunction<Real> > &phi)
       : phi_(phi), f0_(f0), g0_(g0), c1_(c1), c2_(c2), c3_(c3),
         max_nfval_(max_nfval), econd_(econd) {}
 
@@ -172,17 +172,17 @@ private:
 
 public:
   // Constructor
-  ScalarMinimizationLineSearch( Teuchos::ParameterList &parlist, 
-    const Teuchos::RCP<ScalarMinimization<Real> > &sm = Teuchos::null,
-    const Teuchos::RCP<Bracketing<Real> > &br = Teuchos::null,
-    const Teuchos::RCP<ScalarFunction<Real> > &sf  = Teuchos::null )
+  ScalarMinimizationLineSearch( Teuchos::ParameterList &parlist,
+    const ROL::SharedPointer<ScalarMinimization<Real> > &sm = ROL::nullPointer,
+    const ROL::SharedPointer<Bracketing<Real> > &br = ROL::nullPointer,
+    const ROL::SharedPointer<ScalarFunction<Real> > &sf  = ROL::nullPointer )
     : LineSearch<Real>(parlist) {
     Real zero(0), p4(0.4), p6(0.6), p9(0.9), oem4(1.e-4), oem10(1.e-10), one(1);
     Teuchos::ParameterList &list0 = parlist.sublist("Step").sublist("Line Search");
     Teuchos::ParameterList &list  = list0.sublist("Line-Search Method");
     // Get Bracketing Method
-    if( br == Teuchos::null ) {
-      br_ = Teuchos::rcp(new Bracketing<Real>());
+    if( br == ROL::nullPointer ) {
+      br_ = ROL::makeShared<Bracketing<Real>>();
     }
     else {
       br_ = br;
@@ -196,16 +196,16 @@ public:
     plist.sublist("Scalar Minimization").sublist(type).set("Tolerance",tol);
     plist.sublist("Scalar Minimization").sublist(type).set("Iteration Limit",niter);
 
-    if( sm == Teuchos::null ) { // No user-provided ScalarMinimization object
+    if( sm == ROL::nullPointer ) { // No user-provided ScalarMinimization object
 
       if ( type == "Brent's" ) {
-        sm_ = Teuchos::rcp(new BrentsScalarMinimization<Real>(plist));
+        sm_ = ROL::makeShared<BrentsScalarMinimization<Real>>(plist);
       }
       else if ( type == "Bisection" ) {
-        sm_ = Teuchos::rcp(new BisectionScalarMinimization<Real>(plist));
+        sm_ = ROL::makeShared<BisectionScalarMinimization<Real>>(plist);
       }
       else if ( type == "Golden Section" ) {
-        sm_ = Teuchos::rcp(new GoldenSectionScalarMinimization<Real>(plist));
+        sm_ = ROL::makeShared<GoldenSectionScalarMinimization<Real>>(plist);
       }
       else {
         TEUCHOS_TEST_FOR_EXCEPTION(true, std::invalid_argument,
@@ -241,45 +241,45 @@ public:
   }
 
   void initialize( const Vector<Real> &x, const Vector<Real> &s, const Vector<Real> &g,
-                   Objective<Real> &obj, BoundConstraint<Real> &con ) {
-    LineSearch<Real>::initialize(x,s,g,obj,con);
+                   Objective<Real> &obj, BoundConstraint<Real> &bnd ) {
+    LineSearch<Real>::initialize(x,s,g,obj,bnd);
     xnew_ = x.clone();
     g_    = g.clone();
   }
 
   // Find the minimum of phi(alpha) = f(x + alpha*s) using Brent's method
   void run( Real &alpha, Real &fval, int &ls_neval, int &ls_ngrad,
-            const Real &gs, const Vector<Real> &s, const Vector<Real> &x, 
-            Objective<Real> &obj, BoundConstraint<Real> &con ) {
+            const Real &gs, const Vector<Real> &s, const Vector<Real> &x,
+            Objective<Real> &obj, BoundConstraint<Real> &bnd ) {
     ls_neval = 0; ls_ngrad = 0;
 
     // Get initial line search parameter
-    alpha = LineSearch<Real>::getInitialAlpha(ls_neval,ls_ngrad,fval,gs,x,s,obj,con);
+    alpha = LineSearch<Real>::getInitialAlpha(ls_neval,ls_ngrad,fval,gs,x,s,obj,bnd);
 
     // Build ScalarFunction and ScalarMinimizationStatusTest
-    Teuchos::RCP<const Vector<Real> > x_ptr = Teuchos::rcpFromRef(x);
-    Teuchos::RCP<const Vector<Real> > s_ptr = Teuchos::rcpFromRef(s);
-    Teuchos::RCP<Objective<Real> > obj_ptr = Teuchos::rcpFromRef(obj);
-    Teuchos::RCP<BoundConstraint<Real> > bnd_ptr = Teuchos::rcpFromRef(con);
+    ROL::SharedPointer<const Vector<Real> > x_ptr = ROL::makeSharedFromRef(x);
+    ROL::SharedPointer<const Vector<Real> > s_ptr = ROL::makeSharedFromRef(s);
+    ROL::SharedPointer<Objective<Real> > obj_ptr = ROL::makeSharedFromRef(obj);
+    ROL::SharedPointer<BoundConstraint<Real> > bnd_ptr = ROL::makeSharedFromRef(bnd);
 
 
-    Teuchos::RCP<ScalarFunction<Real> > phi;
+    ROL::SharedPointer<ScalarFunction<Real> > phi;
 
-    if( sf_ == Teuchos::null ) {
-      phi = Teuchos::rcp(new Phi(xnew_,g_,x_ptr,s_ptr,obj_ptr,bnd_ptr));
+    if( sf_ == ROL::nullPointer ) {
+      phi = ROL::makeShared<Phi>(xnew_,g_,x_ptr,s_ptr,obj_ptr,bnd_ptr);
     }
     else {
       phi = sf_;
     }
 
-    Teuchos::RCP<ScalarMinimizationStatusTest<Real> > test
-      = Teuchos::rcp(new LineSearchStatusTest(fval,gs,c1_,c2_,c3_,max_nfval_,econd_,phi));
+    ROL::SharedPointer<ScalarMinimizationStatusTest<Real> > test
+      = ROL::makeShared<LineSearchStatusTest>(fval,gs,c1_,c2_,c3_,max_nfval_,econd_,phi);
 
     // Run Bracketing
     int nfval = 0, ngrad = 0;
     Real A(0),      fA = fval;
     Real B = alpha, fB = phi->value(B);
-    br_->run(alpha,fval,A,fA,B,fB,nfval,ngrad,*phi,*test); 
+    br_->run(alpha,fval,A,fA,B,fB,nfval,ngrad,*phi,*test);
     B = alpha;
     ls_neval += nfval; ls_ngrad += ngrad;
 
@@ -288,7 +288,7 @@ public:
     sm_->run(fval, alpha, nfval, ngrad, *phi, A, B, *test);
     ls_neval += nfval; ls_ngrad += ngrad;
 
-    LineSearch<Real>::setNextInitialAlpha(alpha); 
+    LineSearch<Real>::setNextInitialAlpha(alpha);
   }
 };
 

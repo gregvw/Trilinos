@@ -107,18 +107,18 @@ int main(int argc, char *argv[]) {
  
   typedef typename vector::size_type uint;
   
-  using Teuchos::RCP;  using Teuchos::rcp;
+    
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  ROL::SharedPointer<std::ostream> outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout, false;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs, false;
 
   int errorFlag  = 0;
 
@@ -129,11 +129,11 @@ int main(int argc, char *argv[]) {
     RealT alpha = 1.e-4;
     ROL::ZOO::Objective_PoissonControl<RealT> obj(alpha);
 
-    RCP<vector> l_rcp = rcp( new vector(dim) );
-    RCP<vector> u_rcp = rcp( new vector(dim) );
+    ROL::SharedPointer<vector> l_rcp = ROL::makeShared<vector>(dim);
+    ROL::SharedPointer<vector> u_rcp = ROL::makeShared<vector>(dim);
 
-    RCP<V> lo = rcp( new SV(l_rcp) );
-    RCP<V> up = rcp( new SV(u_rcp) );
+    ROL::SharedPointer<V> lo = ROL::makeShared<SV>(l_rcp);
+    ROL::SharedPointer<V> up = ROL::makeShared<SV>(u_rcp);
 
     for ( uint i = 0; i < dim; i++ ) {
       if ( i < dim/3.0  ||  i > 2*dim/3.0 ) {
@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
 
     // Primal dual active set.
     std::string filename = "input.xml";
-    RCP<Teuchos::ParameterList> parlist = rcp( new Teuchos::ParameterList() );
+    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
 
     // Krylov parameters.
@@ -169,10 +169,10 @@ int main(int argc, char *argv[]) {
     parlist->sublist("Status Test").set("Iteration Limit",100);
 
     // Define algorithm.
-    RCP<ROL::Algorithm<RealT> > algo = rcp(new ROL::Algorithm<RealT>("Primal Dual Active Set",*parlist,false));
+    ROL::SharedPointer<ROL::Algorithm<RealT> > algo = ROL::makeShared<ROL::Algorithm<RealT>>("Primal Dual Active Set",*parlist,false);
 
     // Iteration vector.
-    RCP<vector> x_rcp = rcp( new vector(dim, 0.0) );
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>(dim, 0.0);
     SV x(x_rcp);
 
     // Run algorithm.
@@ -190,9 +190,9 @@ int main(int argc, char *argv[]) {
     // re-load parameters
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     // Set algorithm.
-    algo = Teuchos::rcp(new ROL::Algorithm<RealT>("Trust Region",*parlist,false));
+    algo = ROL::makeShared<ROL::Algorithm<RealT>>("Trust Region",*parlist,false);
     // Iteration vector.
-    RCP<vector> y_rcp = rcp( new vector(dim, 0.0) );
+    ROL::SharedPointer<vector> y_rcp = ROL::makeShared<vector>(dim, 0.0);
     SV y(y_rcp);
 
     // Run Algorithm
@@ -206,7 +206,7 @@ int main(int argc, char *argv[]) {
     }
     file_tr.close();
    
-    RCP<V> error = x.clone();
+    ROL::SharedPointer<V> error = x.clone();
     error->set(x);
     error->axpy(-1.0,y);
     *outStream << "\nError between PDAS solution and TR solution is " << error->norm() << "\n";

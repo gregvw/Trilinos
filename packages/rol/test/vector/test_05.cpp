@@ -69,15 +69,15 @@ int main(int argc, char *argv[]) {
   try {
     // Dimension of the optimization vector
 
-    int dim = 10; 
+    int dim = 10;
 
-    // Create Tpetra::MultiVectors (single vectors) 
-    Teuchos::RCP<std::vector<ElementT> > x_rcp
-      = Teuchos::rcp( new std::vector<ElementT>(dim) ); 
-    Teuchos::RCP<std::vector<ElementT> > y_rcp
-      = Teuchos::rcp( new std::vector<ElementT>(dim) ); 
-    Teuchos::RCP<std::vector<ElementT> > W_rcp
-      = Teuchos::rcp( new std::vector<ElementT>(dim,static_cast<ElementT>(2)) ); 
+    // Create Tpetra::MultiVectors (single vectors)
+    ROL::SharedPointer<std::vector<ElementT> > x_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > y_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > W_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim,static_cast<ElementT>(2));
 
     // Random elements
     for (int i = 0; i < dim; i++) {
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clone z from x, deep copy x into z, norm of z
-    Teuchos::RCP<ROL::Vector<RealT> > z = x.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > z = x.clone();
     z->set(x);
     RealT znorm = z->norm();
     outStream << "\nNorm of ROL::Vector z (clone of x): " << znorm << "\n";
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
       outStream << "---> POSSIBLE ERROR ABOVE!\n";
       errorFlag++;
     }
-    Teuchos::RCP<ROL::Vector<RealT> > w = y.clone();
+    ROL::SharedPointer<ROL::Vector<RealT> > w = y.clone();
     w = y.clone();
     w->set(y);
     RealT wnorm = w->norm();
@@ -142,12 +142,12 @@ int main(int argc, char *argv[]) {
     }
 
     // Standard tests.
-    Teuchos::RCP<std::vector<ElementT> > x1_rcp
-      = Teuchos::rcp( new std::vector<ElementT>(dim) );
-    Teuchos::RCP<std::vector<ElementT> > y1_rcp
-      = Teuchos::rcp( new std::vector<ElementT>(dim) );
-    Teuchos::RCP<std::vector<ElementT> > z1_rcp
-      = Teuchos::rcp( new std::vector<ElementT>(dim) );
+    ROL::SharedPointer<std::vector<ElementT> > x1_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > y1_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
+    ROL::SharedPointer<std::vector<ElementT> > z1_rcp
+      = ROL::makeShared<std::vector<ElementT>>(dim);
 
     // Random elements
     for (int i = 0; i < dim; i++) {
@@ -161,8 +161,8 @@ int main(int argc, char *argv[]) {
     ROL::PrimalScaledStdVector<RealT,ElementT> y1(y1_rcp,W_rcp);
     ROL::PrimalScaledStdVector<RealT,ElementT> z1(z1_rcp,W_rcp);
 
-    std::vector<RealT> consistency = x1.checkVector(y1, z1, true, outStream);
-    ROL::StdVector<RealT> checkvec(Teuchos::rcp(&consistency, false));
+    auto consistency = ROL::makeShared<std::vector<RealT>>(x1.checkVector(y1, z1, true, outStream));
+    ROL::StdVector<RealT> checkvec(consistency);
     if (checkvec.norm() > std::sqrt(errtol)) {
       errorFlag++;
     }

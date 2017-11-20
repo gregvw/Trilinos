@@ -48,7 +48,7 @@
 #include "ROL_ProfiledVector.hpp"
 #include "ROL_StdVector.hpp"
 #include "ROL_Zakharov.hpp"
-#include "ROL_Algorithm.hpp" 
+#include "ROL_Algorithm.hpp"
 
 
 #include "Teuchos_XMLParameterListHelpers.hpp"
@@ -59,57 +59,56 @@ typedef int    OrdinalT;
 typedef double RealT;
 
 template<>
-ROL::VectorFunctionCalls<int> 
+ROL::VectorFunctionCalls<int>
 ROL::ProfiledVector<int,RealT>::functionCalls_ = ROL::VectorFunctionCalls<int>();
 
 int main(int argc, char *argv[]) {
 
-  using Teuchos::RCP; using Teuchos::rcp;
+
   using Teuchos::ParameterList;
 
   typedef std::vector<RealT>                  vector;
 
   typedef ROL::Vector<RealT>                  V;
-  typedef ROL::StdVector<RealT>               SV; 
+  typedef ROL::StdVector<RealT>               SV;
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv,0);
 
   int iprint     = argc - 1;
-  Teuchos::RCP<std::ostream> outStream;
+  std::ostream* outStream;
   Teuchos::oblackholestream bhs; // outputs nothing
   if (iprint > 0)
-    outStream = Teuchos::rcp(&std::cout, false);
+    outStream = &std::cout;
   else
-    outStream = Teuchos::rcp(&bhs, false);
+    outStream = &bhs;
 
   int errorFlag = 0;
 
   try {
     // Dimension of the optimization vector
-    int dim = 10; 
+    int dim = 10;
 
-    RCP<ParameterList> parlist = rcp(new ParameterList());
-    std::string paramfile = "parameters.xml";
-    updateParametersFromXmlFile(paramfile,parlist.ptr());
+    const std::string paramfile = "parameters.xml";
+    auto parlist = Teuchos::getParametersFromXmlFile(paramfile);
 
     // Define algorithm.
-    ROL::Algorithm<RealT> algo("Trust-Region",*parlist);    
+    ROL::Algorithm<RealT> algo("Trust-Region",*parlist);
 
-    RCP<vector> x_rcp = rcp( new vector(dim,1.0) );
-    RCP<vector> k_rcp = rcp( new vector(dim) );
+    ROL::SharedPointer<vector> x_rcp = ROL::makeShared<vector>(dim,1.0);
+    ROL::SharedPointer<vector> k_rcp = ROL::makeShared<vector>(dim);
 
-    for(int i=0;i<dim;++i) {  
+    for(int i=0;i<dim;++i) {
       (*k_rcp)[i] = 1.0 + i;
     }
 
-    RCP<V> xs = rcp( new SV(x_rcp) );
-    RCP<V> ks = rcp( new SV(k_rcp) );
+    ROL::SharedPointer<V> xs = ROL::makeShared<SV>(x_rcp);
+    ROL::SharedPointer<V> ks = ROL::makeShared<SV>(k_rcp);
 
     // Create ProfiledVector objects
     ROL::ProfiledVector<int,RealT> xpf(xs);
-    RCP<V> kpf = rcp( new ROL::ProfiledVector<int,RealT>(ks) );
+    ROL::SharedPointer<V> kpf = ROL::makeShared<ROL::ProfiledVector<int,RealT>>(ks);
 
-    ROL::ZOO::Objective_Zakharov<RealT> obj(kpf);    
+    ROL::ZOO::Objective_Zakharov<RealT> obj(kpf);
 
     // Run algorithm.
     algo.run(xpf, obj, true, *outStream);

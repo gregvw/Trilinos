@@ -120,11 +120,11 @@ namespace ROL {
 template <class Real>
 class MoreauYosidaPenaltyStep : public Step<Real> {
 private:
-  Teuchos::RCP<Algorithm<Real> >       algo_;
-  Teuchos::RCP<Vector<Real> >          x_; 
-  Teuchos::RCP<Vector<Real> >          g_; 
-  Teuchos::RCP<Vector<Real> >          l_; 
-  Teuchos::RCP<BoundConstraint<Real> > bnd_;
+  ROL::SharedPointer<Algorithm<Real> >       algo_;
+  ROL::SharedPointer<Vector<Real> >          x_; 
+  ROL::SharedPointer<Vector<Real> >          g_; 
+  ROL::SharedPointer<Vector<Real> >          l_; 
+  ROL::SharedPointer<BoundConstraint<Real> > bnd_;
 
   Real compViolation_;
   Real gLnorm_;
@@ -140,9 +140,9 @@ private:
                    Constraint<Real> &con, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state) {
     MoreauYosidaPenalty<Real> &myPen
-      = Teuchos::dyn_cast<MoreauYosidaPenalty<Real> >(obj);
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     // Update objective and constraint.
     myPen.update(x,true,algo_state.iter);
     con.update(x,true,algo_state.iter);
@@ -168,9 +168,9 @@ private:
                    BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state) {
     MoreauYosidaPenalty<Real> &myPen
-      = Teuchos::dyn_cast<MoreauYosidaPenalty<Real> >(obj);
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
     Real zerotol = std::sqrt(ROL_EPSILON<Real>());
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     // Update objective and constraint.
     myPen.update(x,true,algo_state.iter);
     // Compute norm of the gradient of the Lagrangian
@@ -195,8 +195,8 @@ public:
   ~MoreauYosidaPenaltyStep() {}
 
   MoreauYosidaPenaltyStep(Teuchos::ParameterList &parlist)
-    : Step<Real>(), algo_(Teuchos::null),
-      x_(Teuchos::null), g_(Teuchos::null), l_(Teuchos::null),
+    : Step<Real>(), algo_(ROL::nullPointer),
+      x_(ROL::nullPointer), g_(ROL::nullPointer), l_(ROL::nullPointer),
       tau_(10), print_(false), parlist_(parlist), subproblemIter_(0),
       hasEquality_(false) {
     // Parse parameters
@@ -223,7 +223,7 @@ public:
                    AlgorithmState<Real> &algo_state ) {
     hasEquality_ = true;
     // Initialize step state
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
     state->constraintVec = c.clone();
@@ -248,7 +248,7 @@ public:
                    Objective<Real> &obj, BoundConstraint<Real> &bnd,
                    AlgorithmState<Real> &algo_state ) {
     // Initialize step state
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec    = x.clone();
     state->gradientVec   = g.clone();
     // Initialize additional storage
@@ -264,7 +264,7 @@ public:
     algo_state.ngrad = 0;
     updateState(x,obj,bnd,algo_state);
 
-    bnd_ = Teuchos::rcp(new BoundConstraint<Real>());
+    bnd_ = ROL::makeShared<BoundConstraint<Real>>();
     bnd_->deactivate();
   }
 
@@ -276,8 +276,8 @@ public:
                 AlgorithmState<Real> &algo_state ) {
     Real one(1);
     MoreauYosidaPenalty<Real> &myPen
-      = Teuchos::dyn_cast<MoreauYosidaPenalty<Real> >(obj);
-    algo_ = Teuchos::rcp(new Algorithm<Real>("Composite Step",parlist_,false));
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
+    algo_ = ROL::makeShared<Algorithm<Real>>("Composite Step",parlist_,false);
     x_->set(x); l_->set(l);
     algo_->run(*x_,*l_,myPen,con,print_);
     s.set(*x_); s.axpy(-one,x);
@@ -291,8 +291,8 @@ public:
                         AlgorithmState<Real> &algo_state ) {
     Real one(1);
     MoreauYosidaPenalty<Real> &myPen
-      = Teuchos::dyn_cast<MoreauYosidaPenalty<Real> >(obj);
-    algo_ = Teuchos::rcp(new Algorithm<Real>("Trust Region",parlist_,false));
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
+    algo_ = ROL::makeShared<Algorithm<Real>>("Trust Region",parlist_,false);
     x_->set(x);
     algo_->run(*x_,myPen,*bnd_,print_);
     s.set(*x_); s.axpy(-one,x);
@@ -307,8 +307,8 @@ public:
                BoundConstraint<Real> &bnd,
                AlgorithmState<Real> &algo_state ) {
     MoreauYosidaPenalty<Real> &myPen
-      = Teuchos::dyn_cast<MoreauYosidaPenalty<Real> >(obj);
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec->set(s);
     // Update iterate and Lagrange multiplier
     x.plus(s);
@@ -336,8 +336,8 @@ public:
                Objective<Real> &obj, BoundConstraint<Real> &bnd,
                AlgorithmState<Real> &algo_state ) {
     MoreauYosidaPenalty<Real> &myPen
-      = Teuchos::dyn_cast<MoreauYosidaPenalty<Real> >(obj);
-    Teuchos::RCP<StepState<Real> > state = Step<Real>::getState();
+      = dynamic_cast<MoreauYosidaPenalty<Real>&>(obj);
+    ROL::SharedPointer<StepState<Real> > state = Step<Real>::getState();
     state->descentVec->set(s);
     // Update iterate and Lagrange multiplier
     x.plus(s);
