@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     x->set(*x0);
     // Parse input
     std::string filename = "input.xml";
-    auto parlist = Teuchos::getParametersFromXmlFile( filename);
+    auto parlist = ROL::getParametersFromXmlFile( filename);
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",true);
 #if USE_HESSVEC
     parlist->sublist("General").set("Inexact Hessian-Times-A-Vector",false);

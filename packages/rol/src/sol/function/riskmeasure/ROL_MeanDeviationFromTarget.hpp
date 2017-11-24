@@ -90,8 +90,8 @@ private:
   std::vector<Real> coeff_;
   uint NumMoments_;
 
-  std::vector<Real> pval_; 
-  std::vector<Real> pgv_; 
+  std::vector<Real> pval_;
+  std::vector<Real> pgv_;
 
   std::vector<ROL::SharedPointer<Vector<Real> > > pg0_;
   std::vector<ROL::SharedPointer<Vector<Real> > > pg_;
@@ -160,7 +160,7 @@ public:
   */
   MeanDeviationFromTarget( const std::vector<Real> &target,
                            const std::vector<Real> &order,
-                           const std::vector<Real> &coeff, 
+                           const std::vector<Real> &coeff,
                            const ROL::SharedPointer<PositiveFunction<Real> > &pf )
     : RiskMeasure<Real>(), positiveFunction_(pf), firstReset_(true) {
     target_.clear(); order_.clear(); coeff_.clear();
@@ -195,15 +195,10 @@ public:
     ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Mean Plus Deviation From Target");
     // Get data from parameter list
-    Teuchos::Array<Real> target
-      = Teuchos::getArrayFromStringParameter<double>(list,"Targets");
-    target_ = target.toVector();
-    Teuchos::Array<Real> order
-      = Teuchos::getArrayFromStringParameter<double>(list,"Orders");
-    order_ = order.toVector();
-    Teuchos::Array<Real> coeff
-      = Teuchos::getArrayFromStringParameter<double>(list,"Coefficients");
-    coeff_ = coeff.toVector();
+    target_ = ROL::getArrayFromStringParameter<double>(list,"Targets");
+    order_ = ROL::getArrayFromStringParameter<double>(list,"Orders");
+    coeff_ = ROL::getArrayFromStringParameter<double>(list,"Coefficients");
+
     // Build (approximate) positive function
     std::string type = list.get<std::string>("Deviation Type");
     if ( type == "Upper" ) {
@@ -218,7 +213,7 @@ public:
     }
     // Check inputs
     checkInputs();
-    NumMoments_ = order.size();
+    NumMoments_ = order_.size();
     initialize();
   }
 
@@ -244,14 +239,14 @@ public:
     dualVector1_->zero(); dualVector2_->zero();
     dualVector3_->zero(); dualVector4_->zero();
   }
-    
+
   void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
              ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
     v0 = ROL::constPointerCast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
            dynamic_cast<const Vector<Real>&>(v)).getVector());
   }
-  
+
   void update(const Real val, const Real weight) {
     Real diff(0), pf0(0);
     RiskMeasure<Real>::val_ += weight * val;

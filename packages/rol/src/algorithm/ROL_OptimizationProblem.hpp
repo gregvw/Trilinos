@@ -970,8 +970,7 @@ public:
         std::string risk = list.get("Name","CVaR");
         if ( risk == "Mixed-Quantile Quadrangle" ) {
           ROL::ParameterList &MQQlist = list.sublist("Mixed-Quantile Quadrangle");
-          Teuchos::Array<Real> coeff
-            = Teuchos::getArrayFromStringParameter<Real>(MQQlist,"Coefficient Array");
+          auto coeff = ROL::getArrayFromStringParameter<Real>(MQQlist,"Coefficient Array");
           for (int i = 0; i < coeff.size(); i++) {
             val += coeff[i]*(*x.getStatistic(comp,index))[i];
           }

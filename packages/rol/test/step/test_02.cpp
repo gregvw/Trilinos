@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
   try {
 
     std::string filename = "input.xml";
-    auto parlist = Teuchos::getParametersFromXmlFile(filename);
+    auto parlist = ROL::getParametersFromXmlFile(filename);
 
     // Loop Through Test Objectives
     for ( ROL::ETestObjectives objFunc = ROL::TESTOBJECTIVES_ROSENBROCK; objFunc < ROL::TESTOBJECTIVES_LAST; objFunc++ ) {

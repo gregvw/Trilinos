@@ -61,8 +61,8 @@ int main(int argc, char* argv[]) {
 
   Teuchos::GlobalMPISession mpiSession(&argc, &argv);
   auto teuchos_comm = Teuchos::DefaultComm<int>::getComm();
-  ROL::SharedPointer<const Teuchos::Comm<int>> commptr = 
-    ROL::makeSharedFromRef(*teuchos_comm); 
+  ROL::SharedPointer<const Teuchos::Comm<int>> commptr =
+    ROL::makeSharedFromRef(*teuchos_comm);
 
   // This little trick lets us print to std::cout only if a (dummy) command-line argument is provided.
   int iprint     = argc - 1;
@@ -102,10 +102,10 @@ int main(int argc, char* argv[]) {
 
     // Get ROL parameterlist
     const std::string filename = "input_04.xml";
-    auto parlist = Teuchos::getParametersFromXmlFile(filename);
+    auto parlist = ROL::getParametersFromXmlFile(filename);
 
     ROL::ParameterList &list = parlist->sublist("SOL").sublist("Sample Generator").sublist("SROM");
-    Teuchos::Array<int> moments = Teuchos::getArrayFromStringParameter<int>(list,"Moments");
+    auto moments = ROL::getArrayFromStringParameter<int>(list,"Moments");
     size_t numMoments = static_cast<size_t>(moments.size());
 
     std::clock_t timer = std::clock();

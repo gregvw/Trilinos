@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
     int dim = 10;
 
     const std::string paramfile = "parameters.xml";
-    auto parlist = Teuchos::getParametersFromXmlFile(paramfile);
+    auto parlist = ROL::getParametersFromXmlFile(paramfile);
 
     // Define algorithm.
     ROL::Algorithm<RealT> algo("Trust-Region",*parlist);

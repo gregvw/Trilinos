@@ -143,7 +143,7 @@ public:
       with an arbitrary number of variances.
   */
   MeanVariance( const std::vector<Real> &order,
-                const std::vector<Real> &coeff, 
+                const std::vector<Real> &coeff,
                 const ROL::SharedPointer<PositiveFunction<Real> > &pf )
     : RiskMeasure<Real>(), positiveFunction_(pf), firstReset_(true) {
     order_.clear(); coeff_.clear();
@@ -173,12 +173,9 @@ public:
     ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Mean Plus Variance");
     // Get data from parameter list
-    Teuchos::Array<Real> order
-      = Teuchos::getArrayFromStringParameter<double>(list,"Orders");
-    order_ = order.toVector();
-    Teuchos::Array<Real> coeff
-      = Teuchos::getArrayFromStringParameter<double>(list,"Coefficients");
-    coeff_ = coeff.toVector();
+    order_ = ROL::getArrayFromStringParameter<double>(list,"Orders");
+    coeff_ = ROL::getArrayFromStringParameter<double>(list,"Coefficients");
+
     // Build (approximate) positive function
     std::string type = list.get<std::string>("Deviation Type");
     if ( type == "Upper" ) {
@@ -193,7 +190,7 @@ public:
     }
     // Check inputs
     checkInputs();
-    NumMoments_ = order.size();
+    NumMoments_ = order_.size();
   }
 
   void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x) {
@@ -213,18 +210,18 @@ public:
     hessvec_storage_.clear();
     weights_.clear();
   }
-    
+
   void reset(ROL::SharedPointer<Vector<Real> > &x0, const Vector<Real> &x,
              ROL::SharedPointer<Vector<Real> > &v0, const Vector<Real> &v) {
     reset(x0,x);
     v0 = ROL::constPointerCast<Vector<Real> >(dynamic_cast<const RiskVector<Real>&>(
            dynamic_cast<const Vector<Real>&>(v)).getVector());
-  } 
-  
+  }
+
   void update(const Real val, const Real weight) {
     RiskMeasure<Real>::val_ += weight * val;
     value_storage_.push_back(val);
-    weights_.push_back(weight);    
+    weights_.push_back(weight);
   }
 
   Real getValue(SampleGenerator<Real> &sampler) {
@@ -254,7 +251,7 @@ public:
     typename std::vector<ROL::SharedPointer<Vector<Real> > >::iterator it = gradient_storage_.end();
     it--;
     (*it)->set(g);
-    weights_.push_back(weight);    
+    weights_.push_back(weight);
   }
 
   void getGradient(Vector<Real> &g, SampleGenerator<Real> &sampler) {

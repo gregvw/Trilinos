@@ -55,4 +55,12 @@ void readParametersFromXml( const std::string &filename,
   Teuchos::updateParametersFromXmlFile( filename, p );
 }
 
+
+template <class T>
+inline std::vector<T> getArrayFromStringParameter( const ParameterList& parlist,
+                                                  const std::string& name ) {
+  return Teuchos::getArrayFromStringParameter( parlist, name ).toVector();
+}
+
+
 } // namespace ROL

@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 
     // Get ROL parameterlist
     std::string filename = "input_02.xml";
-    auto parlist = Teuchos::getParametersFromXmlFile(filename);
+    auto parlist = ROL::getParametersFromXmlFile(filename);
 
     for (ROL::EDistribution ed = ROL::DISTRIBUTION_ARCSINE; ed != ROL::DISTRIBUTION_LAST; ed++) {
       *outStream << ROL::EDistributionToString(ed) << std::endl << std::endl;

@@ -43,6 +43,7 @@
 
 #pragma once
 
+#include "ROL_SharedPointer.hpp"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 namespace pt = boost::property_tree;
@@ -75,7 +76,32 @@ public:
   ParameterList( ROL::SharedPointer<pt::ptree> t ) : tree_(t) {
   }
 
+  // FIXME: what to do with "name"
+  ParameterList( const string& name) : tree_(ROL::makeShared<pt::ptree>()) {
+  }
+
   virtual ~ParameterList() {
+  }
+
+  using ConstIterator = pt::ptree::const_iterator;
+
+  ConstIterator begin() const {
+    return tree_->begin();
+  }
+
+  ConstIterator end() const {
+    return tree_->end();
+  }
+
+  std::string name(ConstIterator& it ) const {
+    // FIXME
+    return "name";
+  }
+
+  template<class T>
+  bool isType( const string& name ) const {
+    // FIXME
+    return true;
   }
 
   template<class T>
@@ -86,6 +112,10 @@ public:
   template<class T>
   T get( const string& name ) const {
     return tree_->get<T>(name);
+  }
+
+  std::string get( const string& name, const string& default_value) const {
+    return tree_->get(name, default_value);
   }
 
   template<class T>
@@ -99,10 +129,29 @@ public:
     return *ROL::makeShared<ParameterList>(sublist);
   }
 
+  bool isSublist(const string& name) const
+  {
+    auto it = tree_->find(name);
+    if (it == tree_->not_found())
+      return false;
+    // FIXME: check it is a ptree and not a regular parameter
+    return true;
+  }
+
+  bool isParameter(const string& name) const
+  {
+    auto it = tree_->find(name);
+    if (it == tree_->not_found())
+      return false;
+    // FIXME: check it is a regular parameter and not a ptree
+    return true;
+  }
+
   pt::ptree& tree()
   { return *tree_; }
 
   //  friend void readParametersFromXml( const string&, ParameterList& parlist );
+
 
 };
 
@@ -110,9 +159,33 @@ public:
 
   using ParameterList = details::ParameterList;
 
+  template <class T>
+  inline std::vector<T> getArrayFromStringParameter(const ParameterList& parlist,
+                                          const std::string& name)
+  {
+    // FIXME: do something
+    return std::vector<T>();
+  }
+
+  inline ROL::SharedPointer<ParameterList> getParametersFromXmlFile( const std::string& filename )
+  {
+    auto list = ROL::makeShared<ParameterList>();
+    return list;
+  }
+
   inline void readParametersFromXml( const std::string& filename,
                                      ParameterList& parlist ) {
     boost::property_tree::read_xml(filename, parlist.tree());
+  }
+
+  inline void updateParametersFromXmlFile( const std::string& infile, ParameterList& inlist )
+  {
+    // FIXME: do something
+  }
+
+  inline void writeParameterListToXmlFile( ParameterList& parlist,
+                                           const std::string& filename ) {
+    boost::property_tree::write_xml(filename, parlist.tree());
   }
 
 } // namespace ROL

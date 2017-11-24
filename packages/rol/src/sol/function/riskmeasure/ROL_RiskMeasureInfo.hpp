@@ -95,8 +95,7 @@ inline void RiskMeasureInfo(ROL::ParameterList &parlist, std::string &name,
   else if ( name == "Mixed-Quantile Quadrangle" ) {
     ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Mixed-Quantile Quadrangle");
-    Teuchos::Array<Real> prob
-      = Teuchos::getArrayFromStringParameter<Real>(list,"Probability Array");
+    auto prob = ROL::getArrayFromStringParameter<Real>(list,"Probability Array");
     nStatistic = prob.size();
     lower.resize(nStatistic,ROL_NINF<Real>());
     upper.resize(nStatistic,ROL_INF<Real>());
@@ -121,11 +120,10 @@ inline void RiskMeasureInfo(ROL::ParameterList &parlist, std::string &name,
     ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Convex Combination Risk Measure");
     // Get convex combination parameters
-    Teuchos::Array<Real> lambda
-      = Teuchos::getArrayFromStringParameter<Real>(list,"Convex Combination Parameters");
+    auto lambda = ROL::getArrayFromStringParameter<Real>(list,"Convex Combination Parameters");
     // Build risk measures
     std::vector<std::string> riskString;
-    for (typename Teuchos::Array<Real>::size_type i = 0; i < lambda.size(); ++i) {
+    for (unsigned int i = 0; i < lambda.size(); ++i) {
       std::ostringstream convert;
       convert << i;
       std::string si = convert.str();
@@ -169,10 +167,9 @@ inline void RiskMeasureInfo(ROL::ParameterList &parlist, std::string &name,
       }
       else if ( riskString[i] == "Mixed-Quantile Quadrangle" ) {
         ROL::ParameterList &MQlist = list.sublist("Mixed-Quantile Quadrangle");
-        Teuchos::Array<Real> prob
-          = Teuchos::getArrayFromStringParameter<Real>(MQlist,"Probability Array");
+        auto prob = ROL::getArrayFromStringParameter<Real>(MQlist,"Probability Array");
         nStatistic += prob.size();
-        for (typename Teuchos::Array<Real>::size_type j = 0; j < prob.size(); ++j) {
+        for (unsigned int j = 0; j < prob.size(); ++j) {
           lower.push_back(ROL_NINF<Real>());
           upper.push_back(ROL_INF<Real>());
         }

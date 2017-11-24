@@ -48,7 +48,6 @@
 #include "ROL_PlusFunction.hpp"
 #include "ROL_RiskVector.hpp"
 
-#include "Teuchos_Array.hpp"
 #include "ROL_ParameterList.hpp"
 
 /** @ingroup risk_group
@@ -91,8 +90,8 @@ class MixedQuantileQuadrangle : public RiskMeasure<Real> {
 private:
   ROL::SharedPointer<PlusFunction<Real> > plusFunction_;
 
-  Teuchos::Array<Real> prob_;
-  Teuchos::Array<Real> coeff_;
+  std::vector<Real> prob_;
+  std::vector<Real> coeff_;
 
   ROL::SharedPointer<Vector<Real> > dualVector_;
   std::vector<Real> xvar_;
@@ -138,8 +137,8 @@ public:
     ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Mixed-Quantile Quadrangle");
     // Grab probability and coefficient arrays
-    prob_  = Teuchos::getArrayFromStringParameter<Real>(list,"Probability Array");
-    coeff_ = Teuchos::getArrayFromStringParameter<Real>(list,"Coefficient Array");
+    prob_  = ROL::getArrayFromStringParameter<Real>(list,"Probability Array");
+    coeff_ = ROL::getArrayFromStringParameter<Real>(list,"Coefficient Array");
     plusFunction_ = ROL::makeShared<PlusFunction<Real>>(list);
     // Check inputs
     checkInputs();
@@ -207,7 +206,7 @@ public:
     RiskVector<Real> &gs = dynamic_cast<RiskVector<Real>&>(g);
     std::vector<Real> var(size_);
     sampler.sumAll(&vec_[0],&var[0],size_);
-    
+
     sampler.sumAll(*(RiskMeasure<Real>::g_),*dualVector_);
     for (int i = 0; i < size_; i++) {
       var[i] += coeff_[i];
@@ -215,7 +214,7 @@ public:
     int index = RiskMeasure<Real>::getIndex();
     int comp  = RiskMeasure<Real>::getComponent();
     gs.setStatistic(var,comp,index);
-    gs.setVector(*dualVector_); 
+    gs.setVector(*dualVector_);
   }
 
   void update(const Real val, const Vector<Real> &g, const Real gv, const Vector<Real> &hv,

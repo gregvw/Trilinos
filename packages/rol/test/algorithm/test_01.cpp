@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
 
   try {
     std::string filename = "input.xml";
-    auto parlist = Teuchos::getParametersFromXmlFile(filename);
+    auto parlist = ROL::getParametersFromXmlFile(filename);
 
     // Setup optimization problem
     ROL::SharedPointer<ROL::Vector<RealT> > x0, z;

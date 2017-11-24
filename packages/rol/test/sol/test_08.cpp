@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Get ROL parameterlist
     std::string filename = "input_08.xml";
-    auto parlist = Teuchos::getParametersFromXmlFile( filename);
+    auto parlist = ROL::getParametersFromXmlFile( filename);
     ROL::ParameterList list = *parlist;
     /**********************************************************************************************/
     /************************* CONSTRUCT SOL COMPONENTS *******************************************/

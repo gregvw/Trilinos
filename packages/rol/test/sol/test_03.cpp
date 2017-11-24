@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Get ROL parameterlist
     std::string filename = "input_03.xml";
-    auto parlist = Teuchos::getParametersFromXmlFile(filename);
+    auto parlist = ROL::getParametersFromXmlFile(filename);
     ROL::ParameterList list = *parlist;
     // Build ROL algorithm
     ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
