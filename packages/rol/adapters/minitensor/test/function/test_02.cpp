@@ -94,7 +94,7 @@ TEST(MiniTensor_ROL, Paraboloid)
   obj(msfn);
 
   // Set parameters.
-  Teuchos::ParameterList
+  ROL::ParameterList
   params;
 
   params.sublist("Step").sublist("Line Search").sublist("Descent Method")
@@ -161,7 +161,7 @@ TEST(MiniTensor_ROL, Rosenbrock)
   obj(msfn);
 
   // Set parameters.
-  Teuchos::ParameterList
+  ROL::ParameterList
   params;
 
   params.sublist("Step").sublist("Line Search").sublist("Descent Method")
@@ -275,7 +275,7 @@ TEST(MiniTensor_ROL, NLLS01)
   pconstr = &constr, false;
 
   // Define algorithm.
-  Teuchos::ParameterList
+  ROL::ParameterList
   params;
 
   std::string

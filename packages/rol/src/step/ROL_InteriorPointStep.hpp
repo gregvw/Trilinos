@@ -67,7 +67,7 @@ private:
   ROL::SharedPointer<IPOBJ>                   ipobj_;
   ROL::SharedPointer<IPCON>                   ipcon_;
   ROL::SharedPointer<Algorithm<Real> >        algo_;
-  ROL::SharedPointer<Teuchos::ParameterList>  parlist_;
+  ROL::SharedPointer<ROL::ParameterList>  parlist_;
   ROL::SharedPointer<BoundConstraint<Real> >  bnd_;
 
   // Storage
@@ -100,7 +100,7 @@ public:
 
   ~InteriorPointStep() {}
 
-  InteriorPointStep(Teuchos::ParameterList &parlist) :
+  InteriorPointStep(ROL::ParameterList &parlist) :
     Step<Real>(),
     status_(ROL::nullPointer),
     step_(ROL::nullPointer),
@@ -113,7 +113,7 @@ public:
     c_(ROL::nullPointer),
     hasEquality_(false) {
 
-    using Teuchos::ParameterList;
+    using ROL::ParameterList;
 
     verbosity_ = parlist.sublist("General").get("Print Verbosity",0);
 

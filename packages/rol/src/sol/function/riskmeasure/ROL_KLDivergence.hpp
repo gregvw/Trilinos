@@ -119,9 +119,9 @@ public:
       within the "KL Divergence" sublist should have the following parameters
       \li "Threshold" (greater than 0)
   */
-  KLDivergence(Teuchos::ParameterList &parlist)
+  KLDivergence(ROL::ParameterList &parlist)
     : RiskMeasure<Real>(), firstReset_(true) {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("KL Divergence");
     eps_ = list.get<Real>("Threshold");
     checkInputs();

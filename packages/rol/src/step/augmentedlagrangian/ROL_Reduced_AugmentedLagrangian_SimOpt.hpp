@@ -114,7 +114,7 @@ public:
                                      const ROL::SharedPointer<Vector<Real> > &augConVec,
                                      const ROL::SharedPointer<Vector<Real> > &multiplier,
                                      const Real penaltyParameter,
-                                     Teuchos::ParameterList &parlist) : state_(state),
+                                     ROL::ParameterList &parlist) : state_(state),
                                      ngval_(0) {
 
     augLagSimOpt_ = ROL::makeShared<AugmentedLagrangian_SimOpt<Real>>(obj,

@@ -46,7 +46,7 @@
 
 #include "ROL_StdVector.hpp"
 #include "ROL_RiskMeasureInfo.hpp"
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 
 namespace ROL {
 
@@ -71,7 +71,7 @@ private:
   mutable ROL::SharedPointer<Vector<Real> > dual_vec1_;
   mutable ROL::SharedPointer<RiskVector<Real> > dual_vec_;
 
-  void initializeObj(ROL::SharedPointer<Teuchos::ParameterList> &parlist,
+  void initializeObj(ROL::SharedPointer<ROL::ParameterList> &parlist,
                const Real stat = 1) {
     // Get risk measure information
     if (parlist != ROL::nullPointer) {
@@ -92,7 +92,7 @@ private:
     }
   }
 
-  void initializeCon(std::vector<ROL::SharedPointer<Teuchos::ParameterList> > &parlist,
+  void initializeCon(std::vector<ROL::SharedPointer<ROL::ParameterList> > &parlist,
                const Real stat = 1) {
     int size = parlist.size();
     statCon_.resize(size); statCon_vec_.resize(size); nStatCon_.resize(size);
@@ -124,7 +124,7 @@ private:
 public:
 
   // Objective risk only
-  RiskVector( ROL::SharedPointer<Teuchos::ParameterList> &parlist,
+  RiskVector( ROL::SharedPointer<ROL::ParameterList> &parlist,
         const ROL::SharedPointer<Vector<Real> >          &vec,
         const Real stat = 0 )
     : statObj_(ROL::nullPointer), statObj_vec_(ROL::nullPointer),
@@ -135,7 +135,7 @@ public:
   }
 
   // Inequality constraint risk only
-  RiskVector( std::vector<ROL::SharedPointer<Teuchos::ParameterList> > &parlist,
+  RiskVector( std::vector<ROL::SharedPointer<ROL::ParameterList> > &parlist,
         const ROL::SharedPointer<Vector<Real> > &vec,
         const Real stat = 0 )
     : statObj_(ROL::nullPointer), statObj_vec_(ROL::nullPointer),
@@ -146,8 +146,8 @@ public:
   }
 
   // Objective and inequality constraint risk
-  RiskVector( ROL::SharedPointer<Teuchos::ParameterList> & parlistObj,
-              std::vector<ROL::SharedPointer<Teuchos::ParameterList> > &parlistCon,
+  RiskVector( ROL::SharedPointer<ROL::ParameterList> & parlistObj,
+              std::vector<ROL::SharedPointer<ROL::ParameterList> > &parlistCon,
         const ROL::SharedPointer<Vector<Real> > &vec,
         const Real stat = 0 )
     : statObj_(ROL::nullPointer), statObj_vec_(ROL::nullPointer),

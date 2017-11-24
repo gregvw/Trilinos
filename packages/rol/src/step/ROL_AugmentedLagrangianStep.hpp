@@ -55,7 +55,7 @@
 #include "ROL_Step.hpp"
 #include "ROL_LineSearchStep.hpp"
 #include "ROL_TrustRegionStep.hpp"
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 
 /** @ingroup step_group
     \class ROL::AugmentedLagrangianStep
@@ -72,7 +72,7 @@ private:
   ROL::SharedPointer<Vector<Real> > x_; 
   ROL::SharedPointer<BoundConstraint<Real> > bnd_;
 
-  Teuchos::ParameterList parlist_;
+  ROL::ParameterList parlist_;
   // Lagrange multiplier update
   bool scaleLagrangian_;
   Real minPenaltyReciprocal_;
@@ -130,11 +130,11 @@ public:
 
   ~AugmentedLagrangianStep() {}
 
-  AugmentedLagrangianStep(Teuchos::ParameterList &parlist)
+  AugmentedLagrangianStep(ROL::ParameterList &parlist)
     : Step<Real>(), algo_(ROL::nullPointer),
       x_(ROL::nullPointer), parlist_(parlist), subproblemIter_(0) {
     Real one(1), p1(0.1), p9(0.9), ten(1.e1), oe8(1.e8), oem8(1.e-8);
-    Teuchos::ParameterList& sublist = parlist.sublist("Step").sublist("Augmented Lagrangian");
+    ROL::ParameterList& sublist = parlist.sublist("Step").sublist("Augmented Lagrangian");
     Step<Real>::getState()->searchSize = sublist.get("Initial Penalty Parameter",ten);
     // Multiplier update parameters
     scaleLagrangian_      = sublist.get("Use Scaled Augmented Lagrangian",          false);

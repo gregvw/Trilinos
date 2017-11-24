@@ -146,9 +146,9 @@ public:
       \li "Confidence Level" (between 0 and 1)
       \li "Smoothing Parameter" (must be positive)
   */
-  MoreauYosidaCVaR(Teuchos::ParameterList &parlist)
+  MoreauYosidaCVaR(ROL::ParameterList &parlist)
     : ExpectationQuad<Real>() {
-    Teuchos::ParameterList& list
+    ROL::ParameterList& list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Moreau-Yosida CVaR");
     prob_ = list.get<Real>("Confidence Level");
     eps_  = list.get<Real>("Smoothing Parameter");

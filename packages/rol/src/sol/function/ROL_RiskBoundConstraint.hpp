@@ -71,7 +71,7 @@ private:
   mutable bool isLOinitialized_, isHIinitialized_;
   mutable ROL::SharedPointer<RiskVector<Real> > lo_, hi_;
 
-  void setBoundInfo(Teuchos::ParameterList &parlist,
+  void setBoundInfo(ROL::ParameterList &parlist,
                     int &nStat,
                     std::vector<Real> &lower,
                     std::vector<Real> &upper,
@@ -96,7 +96,7 @@ private:
     }
   }
 
-  bool buildObjStatBnd(ROL::SharedPointer<Teuchos::ParameterList> &parlist) {
+  bool buildObjStatBnd(ROL::SharedPointer<ROL::ParameterList> &parlist) {
     // Objective statistic bound
     if (parlist != ROL::nullPointer) {
       setBoundInfo(*parlist,nStatObj_,lowerObj_,upperObj_,augmentedObj_,activatedObj_);
@@ -120,7 +120,7 @@ private:
     return activatedObj_;
   }
 
-  bool buildConStatBnd(std::vector<ROL::SharedPointer<Teuchos::ParameterList> > &parlist) {
+  bool buildConStatBnd(std::vector<ROL::SharedPointer<ROL::ParameterList> > &parlist) {
     // Constraint statistic bound
     int size = parlist.size();
     nStatCon_.clear(); nStatCon_.resize(size,0);
@@ -164,7 +164,7 @@ private:
 public:
 
   // Objective risk only
-  RiskBoundConstraint(ROL::SharedPointer<Teuchos::ParameterList > &parlist,
+  RiskBoundConstraint(ROL::SharedPointer<ROL::ParameterList > &parlist,
                 const ROL::SharedPointer<BoundConstraint<Real> >  &bc = ROL::nullPointer)
    : BoundConstraint<Real>(), bc_(bc), statObj_bc_(ROL::nullPointer),
      augmentedObj_(false), activatedObj_(false),
@@ -181,7 +181,7 @@ public:
   }
 
   // Constraint risk only
-  RiskBoundConstraint(std::vector<ROL::SharedPointer<Teuchos::ParameterList> > &parlist,
+  RiskBoundConstraint(std::vector<ROL::SharedPointer<ROL::ParameterList> > &parlist,
                 const ROL::SharedPointer<BoundConstraint<Real> >               &bc = ROL::nullPointer)
    : BoundConstraint<Real>(), bc_(bc), statObj_bc_(ROL::nullPointer),
      augmentedObj_(false), activatedObj_(false),
@@ -198,8 +198,8 @@ public:
   }
 
   // Objective and constraint risk
-  RiskBoundConstraint(ROL::SharedPointer<Teuchos::ParameterList>               &parlistObj,
-                      std::vector<ROL::SharedPointer<Teuchos::ParameterList> > &parlistCon,
+  RiskBoundConstraint(ROL::SharedPointer<ROL::ParameterList>               &parlistObj,
+                      std::vector<ROL::SharedPointer<ROL::ParameterList> > &parlistCon,
                 const ROL::SharedPointer<BoundConstraint<Real> >               &bc = ROL::nullPointer)
    : BoundConstraint<Real>(), bc_(bc), statObj_bc_(ROL::nullPointer),
      augmentedObj_(false), activatedObj_(false),

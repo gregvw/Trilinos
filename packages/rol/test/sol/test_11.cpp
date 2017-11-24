@@ -41,7 +41,7 @@
 // ************************************************************************
 // @HEADER
 
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 #include "Teuchos_XMLParameterListHelpers.hpp"
 #include "Teuchos_oblackholestream.hpp"
 #include "Teuchos_GlobalMPISession.hpp"
@@ -163,7 +163,7 @@ public:
 };
 
 template<class Real>
-Real setUpAndSolve(Teuchos::ParameterList                    &list,
+Real setUpAndSolve(ROL::ParameterList                    &list,
                    ROL::SharedPointer<ROL::Objective<Real> >       &obj,
                    ROL::SharedPointer<ROL::Vector<Real> >          &x,
                    ROL::SharedPointer<ROL::BoundConstraint<Real> > &bnd,
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) {
     // Get ROL parameterlist
     std::string filename = "input_11.xml";
     auto parlist = Teuchos::getParametersFromXmlFile(filename);
-    Teuchos::ParameterList list = *parlist;
+    ROL::ParameterList list = *parlist;
     /**********************************************************************************************/
     /************************* CONSTRUCT SOL COMPONENTS *******************************************/
     /**********************************************************************************************/

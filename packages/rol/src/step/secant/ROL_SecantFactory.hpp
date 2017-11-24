@@ -46,7 +46,7 @@
 
 #include "ROL_Types.hpp"
 
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 #include "ROL_SharedPointer.hpp"
 
 #include "ROL_Secant.hpp"
@@ -68,7 +68,7 @@ namespace ROL {
   }
 
   template<class Real>
-  inline ROL::SharedPointer<Secant<Real> > SecantFactory( Teuchos::ParameterList &parlist ) {
+  inline ROL::SharedPointer<Secant<Real> > SecantFactory( ROL::ParameterList &parlist ) {
     ESecant esec = StringToESecant(
              parlist.sublist("General").sublist("Secant").get("Type","Limited-Memory BFGS") );
     int L  = parlist.sublist("General").sublist("Secant").get("Maximum Storage",10);

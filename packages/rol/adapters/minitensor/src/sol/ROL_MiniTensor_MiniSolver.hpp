@@ -61,7 +61,7 @@ public:
   void
   solve(
       std::string const & algoname,
-      Teuchos::ParameterList & params,
+      ROL::ParameterList & params,
       FN & fn,
       minitensor::Vector<T, N> & soln);
 
@@ -69,7 +69,7 @@ public:
   void
   solve(
       std::string const & algoname,
-      Teuchos::ParameterList & params,
+      ROL::ParameterList & params,
       FN & fn,
       BC & bc,
       minitensor::Vector<T, N> & soln);
@@ -78,7 +78,7 @@ public:
   void
   solve(
       std::string const & algoname,
-      Teuchos::ParameterList & params,
+      ROL::ParameterList & params,
       FN & fn,
       EIC & eic,
       minitensor::Vector<T, N> & soln,
@@ -88,7 +88,7 @@ public:
   void
   solve(
       std::string const & algoname,
-      Teuchos::ParameterList & params,
+      ROL::ParameterList & params,
       FN & fn,
       EIC & eic,
       BC & bc,

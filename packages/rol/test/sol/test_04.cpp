@@ -41,7 +41,7 @@
 // ************************************************************************
 // @HEADER
 
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 #include "Teuchos_XMLParameterListHelpers.hpp"
 #include "Teuchos_oblackholestream.hpp"
 #include "Teuchos_GlobalMPISession.hpp"
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
     // Initialize distribution
     ROL::SharedPointer<ROL::Distribution<RealT> > dist;
     std::vector<ROL::SharedPointer<ROL::Distribution<RealT> > > distVec(dimension);
-    Teuchos::ParameterList Dlist;
+    ROL::ParameterList Dlist;
     Dlist.sublist("SOL").sublist("Distribution").set("Name","Beta");
     RealT alpha = 1., beta = 4.;
     // Fill moment vector and initial guess
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
     const std::string filename = "input_04.xml";
     auto parlist = Teuchos::getParametersFromXmlFile(filename);
 
-    Teuchos::ParameterList &list = parlist->sublist("SOL").sublist("Sample Generator").sublist("SROM");
+    ROL::ParameterList &list = parlist->sublist("SOL").sublist("Sample Generator").sublist("SROM");
     Teuchos::Array<int> moments = Teuchos::getArrayFromStringParameter<int>(list,"Moments");
     size_t numMoments = static_cast<size_t>(moments.size());
 

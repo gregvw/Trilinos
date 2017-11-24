@@ -144,7 +144,7 @@ public:
   using Step<Real>::update;
 
 
-  PrimalDualSystemStep( Teuchos::ParameterList &parlist,
+  PrimalDualSystemStep( ROL::ParameterList &parlist,
                         const ROL::SharedPointer<Krylov<Real> > &krylov,
                         const ROL::SharedPointer<Secant<Real> > &secant,
                         ROL::SharedPointer<V> &scratch1 ) : Step<Real>(),
@@ -158,7 +158,7 @@ public:
 
   }
 
-  PrimalDualSystemStep( Teuchos::ParameterList &parlist,
+  PrimalDualSystemStep( ROL::ParameterList &parlist,
                         ROL::SharedPointer<V> &scratch1_ ) : Step<Real>() {
     PrimalDualSystemStep(parlist,ROL::nullPointer,ROL::nullPointer,scratch1);
   }

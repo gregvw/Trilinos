@@ -154,7 +154,7 @@ public:
     : RiskAverseObjective(pObj,rm,sampler,sampler,sampler,storage,comp,index) {}
 
   RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
-                             Teuchos::ParameterList               &parlist,
+                             ROL::ParameterList               &parlist,
                        const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
                        const ROL::SharedPointer<SampleGenerator<Real> > &gsampler,
                        const ROL::SharedPointer<SampleGenerator<Real> > &hsampler,
@@ -176,14 +176,14 @@ public:
   }
 
   RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
-                             Teuchos::ParameterList               &parlist,
+                             ROL::ParameterList               &parlist,
                        const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
                        const ROL::SharedPointer<SampleGenerator<Real> > &gsampler,
                        const int comp = 0, const int index = 0 )
     : RiskAverseObjective(pObj,parlist,vsampler,gsampler,gsampler,comp,index) {}
 
   RiskAverseObjective( const ROL::SharedPointer<Objective<Real> >       &pObj,
-                             Teuchos::ParameterList               &parlist,
+                             ROL::ParameterList               &parlist,
                        const ROL::SharedPointer<SampleGenerator<Real> > &sampler, 
                        const int comp = 0, const int index = 0 )
     : RiskAverseObjective(pObj,parlist,sampler,sampler,sampler,comp,index) {}

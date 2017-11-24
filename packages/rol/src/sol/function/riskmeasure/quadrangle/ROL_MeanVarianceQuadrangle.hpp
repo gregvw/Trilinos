@@ -103,9 +103,9 @@ public:
       within the "Mean-Variance Quadrangle" sublist should have the following parameters
       \li "Coefficient" (array of positive scalars).
   */
-  MeanVarianceQuadrangle(Teuchos::ParameterList &parlist)
+  MeanVarianceQuadrangle(ROL::ParameterList &parlist)
     : ExpectationQuad<Real>() {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Mean-Variance Quadrangle");
     coeff_ = list.get<Real>("Coefficient");
     checkInputs();

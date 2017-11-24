@@ -65,7 +65,7 @@ ROL::ProfiledVector<int,RealT>::functionCalls_ = ROL::VectorFunctionCalls<int>()
 int main(int argc, char *argv[]) {
 
 
-  using Teuchos::ParameterList;
+  using ROL::ParameterList;
 
   typedef std::vector<RealT>                  vector;
 

@@ -96,9 +96,9 @@ public:
       and withing the "Exponential Utility" sublist should have
       \li "Rate" (greater than 0).
   */
-  ExpUtility(Teuchos::ParameterList &parlist)
+  ExpUtility(ROL::ParameterList &parlist)
     : RiskMeasure<Real>(), firstReset_(true) {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Exponential Utility");
     coeff_ = list.get<Real>("Rate");
     checkInputs();

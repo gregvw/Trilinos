@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
         outStream << "||H^{-1}Hv-v|| = " << ihhv.norm() << std::endl;
      
         // Set optimization parameters
-        Teuchos::ParameterList parlist;
+        ROL::ParameterList parlist;
 
         // Trust Region Parameters
         parlist.sublist("Step").sublist("Trust Region").set("Subproblem Solver", "Truncated CG");

@@ -119,9 +119,9 @@ public:
       \li "Smoothing Parameter" (must be positive)
       \li A sublist for plus function information.
   */
-  LogQuantileQuadrangle(Teuchos::ParameterList &parlist)
+  LogQuantileQuadrangle(ROL::ParameterList &parlist)
     : ExpectationQuad<Real>() {
-    Teuchos::ParameterList& list
+    ROL::ParameterList& list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Log-Quantile Quadrangle");
     // Check CVaR inputs
     alpha_  = list.get<Real>("Slope for Linear Growth");

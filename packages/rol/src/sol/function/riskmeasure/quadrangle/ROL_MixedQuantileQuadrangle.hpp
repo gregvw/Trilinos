@@ -49,7 +49,7 @@
 #include "ROL_RiskVector.hpp"
 
 #include "Teuchos_Array.hpp"
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 
 /** @ingroup risk_group
     \class ROL::MixedQuantileQuadrangle
@@ -133,9 +133,9 @@ private:
 
 public:
 
-  MixedQuantileQuadrangle( Teuchos::ParameterList &parlist )
+  MixedQuantileQuadrangle( ROL::ParameterList &parlist )
     : RiskMeasure<Real>(), firstReset_(true) {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Mixed-Quantile Quadrangle");
     // Grab probability and coefficient arrays
     prob_  = Teuchos::getArrayFromStringParameter<Real>(list,"Probability Array");

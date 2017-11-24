@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
   
   
   
-  typedef Teuchos::ParameterList PL;
+  typedef ROL::ParameterList PL;
 
   typedef Vector<RealT>              V;
   typedef OptimizationProblem<RealT> OPT;

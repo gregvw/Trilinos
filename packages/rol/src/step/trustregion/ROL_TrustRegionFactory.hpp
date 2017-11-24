@@ -46,7 +46,7 @@
 
 #include "ROL_Types.hpp"
 
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 #include "ROL_SharedPointer.hpp"
 
 #include "ROL_TrustRegion.hpp"
@@ -57,7 +57,7 @@
 
 namespace ROL {
 template<class Real>
-  inline ROL::SharedPointer<TrustRegion<Real> > TrustRegionFactory(Teuchos::ParameterList &parlist) {
+  inline ROL::SharedPointer<TrustRegion<Real> > TrustRegionFactory(ROL::ParameterList &parlist) {
     ETrustRegion etr = StringToETrustRegion(
       parlist.sublist("Step").sublist("Trust Region").get("Subproblem Solver","Dogleg"));
     switch(etr) {

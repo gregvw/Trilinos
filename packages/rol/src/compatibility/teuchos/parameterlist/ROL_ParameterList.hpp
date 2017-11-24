@@ -49,7 +49,7 @@ namespace ROL {
 using ParameterList = Teuchos::ParameterList;
 
 inline
-void readParametersFromXml( const std::string &filename, 
+void readParametersFromXml( const std::string &filename,
                             ParameterList& parlist ) {
   Teuchos::Ptr<ParameterList> p{&parlist};
   Teuchos::updateParametersFromXmlFile( filename, p );

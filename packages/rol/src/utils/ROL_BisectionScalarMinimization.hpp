@@ -63,8 +63,8 @@ private:
 
 public:
   // Constructor
-  BisectionScalarMinimization( Teuchos::ParameterList &parlist ) {
-    Teuchos::ParameterList &list = parlist.sublist("Scalar Minimization").sublist("Bisection");
+  BisectionScalarMinimization( ROL::ParameterList &parlist ) {
+    ROL::ParameterList &list = parlist.sublist("Scalar Minimization").sublist("Bisection");
     tol_   = list.get("Tolerance",1.e-10);
     niter_ = list.get("Iteration Limit",1000);
   }

@@ -91,7 +91,7 @@ private:
 
 public:
   
-  GMRES( Teuchos::ParameterList &parlist ) : isInitialized_(false) {
+  GMRES( ROL::ParameterList &parlist ) : isInitialized_(false) {
 
     
     
@@ -99,8 +99,8 @@ public:
 
     Real zero(0), oem2(1.e-2), oem4(1.e-4);
 
-    Teuchos::ParameterList &gList = parlist.sublist("General");
-    Teuchos::ParameterList &kList = gList.sublist("Krylov");
+    ROL::ParameterList &gList = parlist.sublist("General");
+    ROL::ParameterList &kList = gList.sublist("Krylov");
     
     useInexact_      = gList.get("Inexact Hessian-Times-A-Vector",false);
     maxit_           = kList.get("Iteration Limit",50);

@@ -75,7 +75,7 @@ void
 MiniTensor_Minimizer<T, N>::
 solve(
     std::string const & algoname,
-    Teuchos::ParameterList & params,
+    ROL::ParameterList & params,
     FN & fn,
     minitensor::Vector<T, N> & soln)
 {
@@ -136,7 +136,7 @@ void
 MiniTensor_Minimizer<T, N>::
 solve(
     std::string const & algoname,
-    Teuchos::ParameterList & params,
+    ROL::ParameterList & params,
     FN & fn,
     BC & bc,
     minitensor::Vector<T, N> & soln)
@@ -208,7 +208,7 @@ void
 MiniTensor_Minimizer<T, N>::
 solve(
     std::string const & algoname,
-    Teuchos::ParameterList & params,
+    ROL::ParameterList & params,
     FN & fn,
     EIC & eic,
     minitensor::Vector<T, N> & soln,
@@ -284,7 +284,7 @@ void
 MiniTensor_Minimizer<T, N>::
 solve(
     std::string const & algoname,
-    Teuchos::ParameterList & params,
+    ROL::ParameterList & params,
     FN & fn,
     EIC & eic,
     BC & bc,

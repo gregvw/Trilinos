@@ -60,7 +60,7 @@ private:
 public:
   RiskAverseConstraint(const ROL::SharedPointer<Objective<Real> > &obj,
                        const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
-                       Teuchos::ParameterList &parlist,
+                       ROL::ParameterList &parlist,
                        const int index     = 0)
     : sampler_(sampler) {
     robj_ = ROL::makeShared<RiskAverseObjective<Real>>(obj,parlist,sampler,1,index);
@@ -69,7 +69,7 @@ public:
 
   RiskAverseConstraint(const ROL::SharedPointer<Constraint<Real> > &con,
                        const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
-                       Teuchos::ParameterList &parlist,
+                       ROL::ParameterList &parlist,
                        const int index     = 0)
     : sampler_(sampler) {
     try {

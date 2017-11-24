@@ -115,8 +115,8 @@ public:
       within the "Smoothed Worst-Case Quadrangle" sublist should have the following parameters
       \li "Smoothing Parameter" (must be positive).
   */
-  SmoothedWorstCaseQuadrangle(Teuchos::ParameterList &parlist) : ExpectationQuad<Real>() {
-    Teuchos::ParameterList& list
+  SmoothedWorstCaseQuadrangle(ROL::ParameterList &parlist) : ExpectationQuad<Real>() {
+    ROL::ParameterList& list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Smoothed Worst-Case Quadrangle");
     eps_ = list.get<Real>("Smoothing Parameter");
     checkInputs();

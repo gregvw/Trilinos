@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Get ROL parameterlist
     std::string filename = "input.xml";
-    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
+    ROL::SharedPointer<ROL::ParameterList> parlist = ROL::makeShared<ROL::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     /**********************************************************************************************/
     /************************* CONSTRUCT VECTORS **************************************************/

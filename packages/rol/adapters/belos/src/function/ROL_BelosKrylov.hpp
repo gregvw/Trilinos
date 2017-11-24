@@ -84,10 +84,10 @@ namespace ROL {
         public:
            
             /// \brief Create a Belos solver 
-            BelosKrylov(Teuchos::ParameterList &parlist) : 
+            BelosKrylov(ROL::ParameterList &parlist) : 
                 problem_(ROL::makeShared<Belos::LinearProblem<ST,MV,OP>)>() {
 
-                ROL::SharedPointer<Teuchos::ParameterList> solverParams = ROL::makeShared<Teuchos::ParameterList>();
+                ROL::SharedPointer<ROL::ParameterList> solverParams = ROL::makeShared<ROL::ParameterList>();
 
                 // Options likely to be of interest include CG, MINRES, GMRES, and RCG
                 int blockSize          = 1; // Only support single solution & single RHS for now 

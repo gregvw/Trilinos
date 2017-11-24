@@ -46,7 +46,7 @@
 
 #include "ROL_Types.hpp"
 
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 #include "ROL_SharedPointer.hpp"
 
 #include "ROL_StatusTest.hpp"
@@ -60,7 +60,7 @@ namespace ROL {
     ~StatusTestFactory(void){}
 
     ROL::SharedPointer<StatusTest<Real> > getStatusTest(const std::string step,
-                                                  Teuchos::ParameterList &parlist) {
+                                                  ROL::ParameterList &parlist) {
       EStep els = StringToEStep(step);
       switch(els) {
         case STEP_BUNDLE:              return ROL::makeShared<BundleStatusTest<Real>>(parlist);

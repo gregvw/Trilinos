@@ -67,9 +67,9 @@ public:
     checkInputs();
   }
 
-  TruncatedMeanQuadrangle(Teuchos::ParameterList &parlist)
+  TruncatedMeanQuadrangle(ROL::ParameterList &parlist)
     : ExpectationQuad<Real>() {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Truncated Mean Quadrangle");
     beta_ = list.get<Real>("Threshold");
     checkInputs();

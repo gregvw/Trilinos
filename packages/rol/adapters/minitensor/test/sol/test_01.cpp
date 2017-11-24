@@ -94,7 +94,7 @@ TEST(MiniTensor_ROL, Rosenbrock_Unconstrained)
   algoname{"Line Search"};
 
   // Set parameters.
-  Teuchos::ParameterList
+  ROL::ParameterList
   params;
 
   params.sublist("Step").sublist("Line Search").sublist("Descent Method").
@@ -161,7 +161,7 @@ TEST(MiniTensor_ROL, Paraboloid_BoundConstraint)
   algoname{"Line Search"};
 
   // Set parameters.
-  Teuchos::ParameterList
+  ROL::ParameterList
   params;
 
   params.sublist("Step").sublist("Line Search").sublist("Descent Method").
@@ -234,7 +234,7 @@ TEST(MiniTensor_ROL, Paraboloid_EqualityConstraint)
   algoname{"Composite Step"};
 
   // Set parameters.
-  Teuchos::ParameterList
+  ROL::ParameterList
   params;
 
   params.sublist("Step").sublist(algoname).
@@ -324,7 +324,7 @@ TEST(MiniTensor_ROL, Paraboloid_InequalityConstraint)
   algoname{"Composite Step"};
 
   // Set parameters.
-  Teuchos::ParameterList
+  ROL::ParameterList
   params;
 
   params.sublist("Step").sublist(algoname).
@@ -544,7 +544,7 @@ TEST(MiniTensor_ROL, HS24_BoundOnlyMod)
   algoname{"Line Search"};
 
   // Set parameters.
-  Teuchos::ParameterList
+  ROL::ParameterList
   params;
 
   params.sublist("Step").sublist("Line Search").sublist("Descent Method").

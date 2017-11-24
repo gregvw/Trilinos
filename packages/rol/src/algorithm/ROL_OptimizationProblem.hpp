@@ -99,8 +99,8 @@ private:
   std::vector<ROL::SharedPointer<SampleGenerator<Real> > > ixsampler_;
   std::vector<ROL::SharedPointer<BatchManager<Real> > >    icbman_;
 
-  ROL::SharedPointer<Teuchos::ParameterList>               parlistObj_;
-  std::vector<ROL::SharedPointer<Teuchos::ParameterList> > parlistCon_;
+  ROL::SharedPointer<ROL::ParameterList>               parlistObj_;
+  std::vector<ROL::SharedPointer<ROL::ParameterList> > parlistCon_;
 
   ROL::SharedPointer<Objective<Real> >       obj_;
   ROL::SharedPointer<Vector<Real> >          sol_;
@@ -619,7 +619,7 @@ public:
       @param[in]    gsampler  is the SampleGenerator defining the distribution of the auxiliary parameter for the gradient
       @param[in]    hsampler  is the SampleGenerator defining the distribution of the auxiliary parameter for the Hessian
   */
-  void setRiskAverseObjective(Teuchos::ParameterList &parlist,
+  void setRiskAverseObjective(ROL::ParameterList &parlist,
                               const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
                               const ROL::SharedPointer<SampleGenerator<Real> > &gsampler = ROL::nullPointer,
                               const ROL::SharedPointer<SampleGenerator<Real> > &hsampler = ROL::nullPointer) {
@@ -651,7 +651,7 @@ public:
     isInitialized_ = false;
   }
 
-  void setStochasticObjective(Teuchos::ParameterList &parlist,
+  void setStochasticObjective(ROL::ParameterList &parlist,
                               const ROL::SharedPointer<SampleGenerator<Real> > &vsampler,
                               const ROL::SharedPointer<SampleGenerator<Real> > &gsampler = ROL::nullPointer,
                               const ROL::SharedPointer<SampleGenerator<Real> > &hsampler = ROL::nullPointer) {
@@ -747,7 +747,7 @@ public:
   }
 
 
-  void setStochasticEquality(std::vector<Teuchos::ParameterList> &parlist,
+  void setStochasticEquality(std::vector<ROL::ParameterList> &parlist,
                              const std::vector<ROL::SharedPointer<SampleGenerator<Real> > > &xsampler,
                              const std::vector<ROL::SharedPointer<BatchManager<Real> > > &cbman) {
     initStochastic();
@@ -783,10 +783,10 @@ public:
     isInitialized_ = false;
   }
 
-  void setStochasticEquality(Teuchos::ParameterList &parlist,
+  void setStochasticEquality(ROL::ParameterList &parlist,
                              const ROL::SharedPointer<SampleGenerator<Real> > &xsampler,
                              const ROL::SharedPointer<BatchManager<Real> > &cbman) {
-    std::vector<Teuchos::ParameterList> cparlist(1,parlist);
+    std::vector<ROL::ParameterList> cparlist(1,parlist);
     std::vector<ROL::SharedPointer<SampleGenerator<Real> > > cxsampler(1,xsampler);
     std::vector<ROL::SharedPointer<SampleGenerator<Real> > > ccbman(1,cbman);
     setStochasticEquality(cparlist,cxsampler,ccbman);
@@ -838,7 +838,7 @@ public:
     isInitialized_ = false;
   }
 
-  void setRiskAverseInequality(Teuchos::ParameterList &parlist,
+  void setRiskAverseInequality(ROL::ParameterList &parlist,
                                const ROL::SharedPointer<SampleGenerator<Real> > &sampler,
                                const int index = 0) {
     initStochastic();
@@ -889,7 +889,7 @@ public:
     isInitialized_ = false;
   }
 
-  void setStochasticInequality(std::vector<Teuchos::ParameterList> &parlist,
+  void setStochasticInequality(std::vector<ROL::ParameterList> &parlist,
                                const std::vector<ROL::SharedPointer<SampleGenerator<Real> > > &xsampler,
                                const std::vector<ROL::SharedPointer<BatchManager<Real> > >    &cbman) {
     initStochastic();
@@ -929,10 +929,10 @@ public:
     isInitialized_ = false;
   }
 
-  void setStochasticInequality(Teuchos::ParameterList &parlist,
+  void setStochasticInequality(ROL::ParameterList &parlist,
                                const ROL::SharedPointer<SampleGenerator<Real> > &xsampler,
                                const ROL::SharedPointer<BatchManager<Real> > &cbman) {
-    std::vector<Teuchos::ParameterList> cparlist(1,parlist);
+    std::vector<ROL::ParameterList> cparlist(1,parlist);
     std::vector<ROL::SharedPointer<SampleGenerator<Real> > > cxsampler(1,xsampler);
     std::vector<ROL::SharedPointer<BatchManager<Real> > > ccbman(1,cbman);
     setStochasticInequality(cparlist,cxsampler,ccbman);
@@ -944,7 +944,7 @@ public:
       @param[in]    index  is the inequality constraint index
   */
   Real getSolutionStatistic(int comp = 0, int index = 0) {
-    ROL::SharedPointer<Teuchos::ParameterList> parlist;
+    ROL::SharedPointer<ROL::ParameterList> parlist;
     if (comp == 0) {
       parlist = parlistObj_;
     }
@@ -965,11 +965,11 @@ public:
       std::string type = parlist->sublist("SOL").get("Stochastic Component Type","Risk Neutral");
       Real val(0);
       if ( type == "Risk Averse" ) {
-        Teuchos::ParameterList &list
+        ROL::ParameterList &list
           = parlist->sublist("SOL").sublist("Risk Measure");
         std::string risk = list.get("Name","CVaR");
         if ( risk == "Mixed-Quantile Quadrangle" ) {
-          Teuchos::ParameterList &MQQlist = list.sublist("Mixed-Quantile Quadrangle");
+          ROL::ParameterList &MQQlist = list.sublist("Mixed-Quantile Quadrangle");
           Teuchos::Array<Real> coeff
             = Teuchos::getArrayFromStringParameter<Real>(MQQlist,"Coefficient Array");
           for (int i = 0; i < coeff.size(); i++) {

@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Get ROL parameterlist
     std::string filename = "input.xml";
-    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
+    ROL::SharedPointer<ROL::ParameterList> parlist = ROL::makeShared<ROL::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
     RealT initZ = parlist->sublist("Problem Description").get("Initial Control Guess", 0.0);
     RealT cvarLevel = parlist->sublist("Problem Description").get("CVaR Level", 0.8);
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
       (*d_rcp)[i]  = random<RealT>(comm);
       (*z_rcp)[i]  = initZ;
     }
-    ROL::SharedPointer<Teuchos::ParameterList> cvarlist = ROL::makeShared<Teuchos::ParameterList>();
+    ROL::SharedPointer<ROL::ParameterList> cvarlist = ROL::makeShared<ROL::ParameterList>();
     cvarlist->sublist("SOL").sublist("Risk Measure").set("Name", "CVaR");
     ROL::RiskVector<RealT> zR(cvarlist,z), x1R(cvarlist,x1), dR(cvarlist,d);
     // Build state and adjoint vectors

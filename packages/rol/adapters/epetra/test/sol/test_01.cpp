@@ -41,7 +41,7 @@
 // ************************************************************************
 // @HEADER
 
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 #include "Teuchos_XMLParameterListHelpers.hpp"
 #include "Teuchos_oblackholestream.hpp"
 
@@ -107,7 +107,7 @@ public:
   }
 };
 
-void setUpAndSolve(Teuchos::ParameterList &list,
+void setUpAndSolve(ROL::ParameterList &list,
                    ROL::SharedPointer<ROL::Objective<RealT> > &pObj,
                    ROL::SharedPointer<ROL::SampleGenerator<RealT> > &sampler,
                    ROL::SharedPointer<ROL::Vector<RealT> > &x,
@@ -178,9 +178,9 @@ int main(int argc, char* argv[]) {
     /**********************************************************************************************/
     // Get ROL parameterlist
     std::string filename = "input_01.xml";
-    ROL::SharedPointer<Teuchos::ParameterList> parlist = ROL::makeShared<Teuchos::ParameterList>();
+    ROL::SharedPointer<ROL::ParameterList> parlist = ROL::makeShared<ROL::ParameterList>();
     Teuchos::updateParametersFromXmlFile( filename, parlist.ptr() );
-    Teuchos::ParameterList list = *parlist;
+    ROL::ParameterList list = *parlist;
     // Build ROL algorithm
     ROL::SharedPointer<ROL::Algorithm<RealT> > algo;
     /**********************************************************************************************/

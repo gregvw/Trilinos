@@ -189,10 +189,10 @@ public:
     checkInputs(dist);
   }
 
-  SpectralRisk(Teuchos::ParameterList &parlist)
+  SpectralRisk(ROL::ParameterList &parlist)
     : RiskMeasure<Real>(), isSet_(false) {
     // Parse parameter list
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Spectral Risk");
     int nQuad  = list.get("Number of Quadrature Points",5);
     bool print = list.get("Print Quadrature to Screen",false);

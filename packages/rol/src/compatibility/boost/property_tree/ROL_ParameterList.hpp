@@ -49,7 +49,7 @@ namespace pt = boost::property_tree;
 
 
 /*  Implements a unified ParameterList interface which conforms to that of
-    Teuchos::ParameterList while using the Boost::property_tree implementation.
+    ROL::ParameterList while using the Boost::property_tree implementation.
 
     This interface only implements a small subset of the available methods,
     however, at the time of creation these amount to all of the functionality

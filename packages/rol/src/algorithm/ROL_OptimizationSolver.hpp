@@ -83,7 +83,7 @@ private:
 public:
 
   OptimizationSolver( OptimizationProblem<Real> &opt,
-                      Teuchos::ParameterList &parlist ) {
+                      ROL::ParameterList &parlist ) {
     // Get step name from parameterlist
     std::string stepname = parlist.sublist("Step").get("Type","Last Type (Dummy)");
     EStep stepType = StringToEStep(stepname);

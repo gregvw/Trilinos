@@ -49,7 +49,7 @@
 #include "ROL_RiskVector.hpp"
 
 #include "Teuchos_Array.hpp"
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 
 namespace ROL {
 
@@ -88,9 +88,9 @@ private:
 
 public:
 
-  QuantileRadiusQuadrangle( Teuchos::ParameterList &parlist )
+  QuantileRadiusQuadrangle( ROL::ParameterList &parlist )
     : RiskMeasure<Real>(), firstReset_(true) {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Quantile-Radius Quadrangle");
     // Grab probability and coefficient arrays
     prob_  = list.get<Real>("Confidence Level");

@@ -129,10 +129,10 @@ public:
       within the "F-Divergence" sublist should have the following parameters
       \li "Threshold" (greater than 0)
   */
-  FDivergence(Teuchos::ParameterList &parlist) : RiskMeasure<Real>(),
+  FDivergence(ROL::ParameterList &parlist) : RiskMeasure<Real>(),
     xlam_(0), xmu_(0), vlam_(0), vmu_(0), valLam_(0), valMu_(0),
     firstReset_(true) {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("F-Divergence");
     thresh_ = list.get<Real>("Threshold");
     checkInputs();

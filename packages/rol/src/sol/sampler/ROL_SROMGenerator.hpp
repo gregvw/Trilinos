@@ -61,7 +61,7 @@ template<class Real>
 class SROMGenerator : public SampleGenerator<Real> {
 private:
   // Parameterlist for optimization
-  Teuchos::ParameterList parlist_;
+  ROL::ParameterList parlist_;
   // Vector of distributions (size = dimension of space)
   std::vector<ROL::SharedPointer<Distribution<Real> > > dist_;
 
@@ -134,13 +134,13 @@ private:
 
 public:
 
-  SROMGenerator(Teuchos::ParameterList                          &parlist,
+  SROMGenerator(ROL::ParameterList                          &parlist,
           const ROL::SharedPointer<BatchManager<Real> >               &bman,
           const std::vector<ROL::SharedPointer<Distribution<Real> > > &dist)
     : SampleGenerator<Real>(bman), parlist_(parlist), dist_(dist),
       dimension_(dist.size()) {
     // Get SROM sublist
-    Teuchos::ParameterList list = parlist.sublist("SOL").sublist("Sample Generator").sublist("SROM");
+    ROL::ParameterList list = parlist.sublist("SOL").sublist("Sample Generator").sublist("SROM");
     numSamples_    = list.get("Number of Samples",50);
     adaptive_      = list.get("Adaptive Sampling",false);
     numNewSamples_ = list.get("Number of New Samples Per Adaptation",0);
@@ -292,7 +292,7 @@ private:
                             const std::vector<ROL::SharedPointer<Distribution<Real> > > &dist,
                             const ROL::SharedPointer<BatchManager<Real> >      &bman,
                             const bool optProb, const bool optAtom,
-                            Teuchos::ParameterList                       &list) const {
+                            ROL::ParameterList                       &list) const {
     // Build CDF objective function
     Real scale = list.get("CDF Smoothing Parameter",1.e-2);
     obj_vec.push_back(ROL::makeShared<CDFObjective<Real>>(dist,bman,scale,optProb,optAtom));
@@ -313,7 +313,7 @@ private:
   }
 
   void initialize_optimizer(ROL::SharedPointer<Algorithm<Real> > &algo,
-                            Teuchos::ParameterList         &parlist,
+                            ROL::ParameterList         &parlist,
                             const bool optProb) const {
     std::string type = parlist.sublist("Step").get("Type","Trust Region");
     if ( optProb ) {

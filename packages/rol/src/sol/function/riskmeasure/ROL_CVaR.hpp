@@ -126,9 +126,9 @@ public:
       \li "Convex Combination Parameter" (between 0 and 1)
       \li A sublist for plus function information.
   */
-  CVaR( Teuchos::ParameterList &parlist )
+  CVaR( ROL::ParameterList &parlist )
     : RiskMeasure<Real>(), xvar_(0), vvar_(0), firstReset_(true) {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("CVaR");
     // Check CVaR inputs
     prob_  = list.get<Real>("Confidence Level");

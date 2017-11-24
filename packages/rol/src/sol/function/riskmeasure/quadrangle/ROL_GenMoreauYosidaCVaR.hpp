@@ -173,9 +173,9 @@ public:
       \li "Convex Combination Parameter" (between 0 and 1)
       \li "Smoothing Parameter" (must be positive)
   */
-  GenMoreauYosidaCVaR(Teuchos::ParameterList &parlist)
+  GenMoreauYosidaCVaR(ROL::ParameterList &parlist)
     : ExpectationQuad<Real>() {
-    Teuchos::ParameterList& list
+    ROL::ParameterList& list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Generalized Moreau-Yosida CVaR");
     prob_ = list.get<Real>("Confidence Level");
     lam_  = list.get<Real>("Convex Combination Parameter");

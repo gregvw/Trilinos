@@ -265,12 +265,12 @@ public:
   using Step<Real>::compute;
   using Step<Real>::update;
 
-  PrimalDualInteriorPointStep( Teuchos::ParameterList &parlist,
+  PrimalDualInteriorPointStep( ROL::ParameterList &parlist,
                                const ROL::SharedPointer<Krylov<Real> > &krylov = ROL::nullPointer,
                                const ROL::SharedPointer<LinearOperator<Real> > &precond = ROL::nullPointer ) :
     Step<Real>(), krylov_(krylov), precond_(precond), iterKrylov_(0), flagKrylov_(0) {
 
-    typedef Teuchos::ParameterList PL;
+    typedef ROL::ParameterList PL;
 
     PL &iplist = parlist.sublist("Step").sublist("Primal Dual Interior Point");
 

@@ -51,7 +51,7 @@
 #include "ROL_Constraint.hpp"
 #include "ROL_Types.hpp"
 #include "ROL_Algorithm.hpp"
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 
 /** @ingroup step_group
     \class ROL::MoreauYosidaPenaltyStep
@@ -131,7 +131,7 @@ private:
   Real tau_;
   bool print_;
 
-  Teuchos::ParameterList parlist_;
+  ROL::ParameterList parlist_;
   int subproblemIter_;
   bool hasEquality_;
 
@@ -194,14 +194,14 @@ public:
 
   ~MoreauYosidaPenaltyStep() {}
 
-  MoreauYosidaPenaltyStep(Teuchos::ParameterList &parlist)
+  MoreauYosidaPenaltyStep(ROL::ParameterList &parlist)
     : Step<Real>(), algo_(ROL::nullPointer),
       x_(ROL::nullPointer), g_(ROL::nullPointer), l_(ROL::nullPointer),
       tau_(10), print_(false), parlist_(parlist), subproblemIter_(0),
       hasEquality_(false) {
     // Parse parameters
     Real ten(10), oem6(1.e-6), oem8(1.e-8);
-    Teuchos::ParameterList& steplist = parlist.sublist("Step").sublist("Moreau-Yosida Penalty");
+    ROL::ParameterList& steplist = parlist.sublist("Step").sublist("Moreau-Yosida Penalty");
     Step<Real>::getState()->searchSize = steplist.get("Initial Penalty Parameter",ten);
     tau_   = steplist.get("Penalty Parameter Growth Factor",ten);
     print_ = steplist.sublist("Subproblem").get("Print History",false);

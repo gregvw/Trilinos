@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
   typedef ROL::Objective<RealT>       OBJ;
   typedef ROL::BoundConstraint<RealT> BND;
 
-  typedef Teuchos::ParameterList      PL;
+  typedef ROL::ParameterList      PL;
 
 
 

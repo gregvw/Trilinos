@@ -53,7 +53,7 @@
 #include "ROL_BoundConstraint.hpp"
 #include "ROL_LineSearch.hpp"
 
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 #include "ROL_SharedPointer.hpp"
 
 /** @ingroup step_group
@@ -116,7 +116,7 @@ public:
   using Step<Real>::compute;
   using Step<Real>::update;
 
-  BundleStep(Teuchos::ParameterList &parlist)
+  BundleStep(ROL::ParameterList &parlist)
     : bundle_(ROL::nullPointer), lineSearch_(ROL::nullPointer),
       QPiter_(0), QPmaxit_(0), QPtol_(0), step_flag_(0),
       y_(ROL::nullPointer), linErrNew_(0), valueNew_(0),

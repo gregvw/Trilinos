@@ -175,9 +175,9 @@ int main(int argc, char *argv[]) {
 
   try {
 
-    Teuchos::ParameterList parlist;
-    Teuchos::ParameterList &gList = parlist.sublist("General");
-    Teuchos::ParameterList &kList = gList.sublist("Krylov");
+    ROL::ParameterList parlist;
+    ROL::ParameterList &gList = parlist.sublist("General");
+    ROL::ParameterList &kList = gList.sublist("Krylov");
 
     kList.set("Type","GMRES");
     kList.set("Iteration Limit",20);

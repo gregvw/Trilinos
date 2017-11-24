@@ -106,9 +106,9 @@ public:
       and withing the "Log-Exponential Quadrangle" sublist should have
       \li "Rate" (greater than 0). 
   */
-  LogExponentialQuadrangle(Teuchos::ParameterList &parlist)
+  LogExponentialQuadrangle(ROL::ParameterList &parlist)
     : ExpectationQuad<Real>() {
-    Teuchos::ParameterList &list
+    ROL::ParameterList &list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Log-Exponential Quadrangle");
     coeff_ = list.get<Real>("Rate");
     checkInputs();

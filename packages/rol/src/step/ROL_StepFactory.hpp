@@ -46,7 +46,7 @@
 
 #include "ROL_Types.hpp"
 
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 #include "ROL_SharedPointer.hpp"
 
 #include "ROL_Step.hpp"
@@ -67,7 +67,7 @@ namespace ROL {
     ~StepFactory(void){}
 
     ROL::SharedPointer<Step<Real> > getStep(const std::string &type,
-                                      Teuchos::ParameterList &parlist) const {
+                                      ROL::ParameterList &parlist) const {
       EStep els = StringToEStep(type);
       switch(els) {
         case STEP_AUGMENTEDLAGRANGIAN: return ROL::makeShared<AugmentedLagrangianStep<Real>>(parlist);

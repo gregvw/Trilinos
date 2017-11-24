@@ -164,8 +164,8 @@ public:
       \li "Smoothing Parameter" (must be positive)
       \li A sublist for plus function information.
   */
-  QuantileQuadrangle(Teuchos::ParameterList &parlist) : ExpectationQuad<Real>() {
-    Teuchos::ParameterList& list
+  QuantileQuadrangle(ROL::ParameterList &parlist) : ExpectationQuad<Real>() {
+    ROL::ParameterList& list
       = parlist.sublist("SOL").sublist("Risk Measure").sublist("Quantile-Based Quadrangle");
     // Get CVaR parameters
     prob_ = list.get<Real>("Confidence Level");

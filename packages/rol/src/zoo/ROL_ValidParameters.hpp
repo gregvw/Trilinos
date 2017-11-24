@@ -46,15 +46,15 @@
 #define ROL_VALID_PARAMETERS_H
 
 #include "ROL_Types.hpp"
-#include "Teuchos_ParameterList.hpp"
+#include "ROL_ParameterList.hpp"
 
 namespace ROL {
 
 /* ROL Parameters */
 
-inline ROL::SharedPointer<const Teuchos::ParameterList> getValidROLParameters() {
+inline ROL::SharedPointer<const ROL::ParameterList> getValidROLParameters() {
   
-  typedef Teuchos::ParameterList PL;
+  typedef ROL::ParameterList PL;
 
   ROL::SharedPointer<PL> rol = ROL::makeShared<PL>("ROL");
 
@@ -287,9 +287,9 @@ inline ROL::SharedPointer<const Teuchos::ParameterList> getValidROLParameters() 
 
 /* SOL Parameters */
 
-inline ROL::SharedPointer<const Teuchos::ParameterList> getValidSOLParameters() {
+inline ROL::SharedPointer<const ROL::ParameterList> getValidSOLParameters() {
   
-  typedef Teuchos::ParameterList PL;
+  typedef ROL::ParameterList PL;
 
   ROL::SharedPointer<PL> sol = ROL::makeShared<PL>("SOL");
 
