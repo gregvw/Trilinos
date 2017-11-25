@@ -44,6 +44,8 @@
 #pragma once
 
 #include "ROL_SharedPointer.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 namespace pt = boost::property_tree;
@@ -163,13 +165,21 @@ public:
   inline std::vector<T> getArrayFromStringParameter(const ParameterList& parlist,
                                           const std::string& name)
   {
-    // FIXME: do something
-    return std::vector<T>();
+    std::string p = parlist.get<std::string>(name);
+    std::vector<std::string> p_split;
+    boost::split(p_split, p, boost::is_any_of(","));
+
+    std::vector<T> result;
+    for (auto &q : p)
+      result.push_back(boost::lexical_cast<T>(q));
+
+    return result;
   }
 
   inline ROL::SharedPointer<ParameterList> getParametersFromXmlFile( const std::string& filename )
   {
     auto list = ROL::makeShared<ParameterList>();
+    boost::property_tree::read_xml(filename, list->tree());
     return list;
   }
 

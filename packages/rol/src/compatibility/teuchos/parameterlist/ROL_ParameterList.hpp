@@ -42,6 +42,7 @@
 // @HEADER
 
 #pragma once
+#include "ROL_SharedPointer.hpp"
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
@@ -55,11 +56,35 @@ void readParametersFromXml( const std::string &filename,
   Teuchos::updateParametersFromXmlFile( filename, p );
 }
 
+  inline void writeParameterListToXmlFile( ParameterList& parlist,
+                                           const std::string& filename ) {
+    Teuchos::writeParameterListToXmlFile(parlist, filename);
+  }
+
+  inline void updateParametersFromXmlFile(const std::string& filename ,
+                                          ParameterList& parlist) {
+    Teuchos::Ptr<ParameterList> p{&parlist};
+    Teuchos::updateParametersFromXmlFile( filename, p );
+  }
+
+
+
+inline
+ROL::SharedPointer<ParameterList> getParametersFromXmlFile( const std::string& filename )
+  {
+    auto parlist = ROL::makeShared<ParameterList>();
+    Teuchos::Ptr<ParameterList> p{&*parlist};
+    Teuchos::updateParametersFromXmlFile( filename, p );
+    return parlist;
+  }
+
 
 template <class T>
 inline std::vector<T> getArrayFromStringParameter( const ParameterList& parlist,
                                                   const std::string& name ) {
-  return Teuchos::getArrayFromStringParameter( parlist, name ).toVector();
+  auto teuchos_arr = Teuchos::getArrayFromStringParameter<T>( parlist, name );
+
+    return teuchos_arr.toVector();
 }
 
 
