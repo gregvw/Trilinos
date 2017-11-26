@@ -66,20 +66,27 @@ namespace details {
 
 using namespace std;
 
-
 class ParameterList {
 private:
-  ROL::SharedPointer<pt::ptree> tree_;
+  pt::ptree tree_;
 
-public:
-  ParameterList() : tree_(ROL::makeShared<pt::ptree>()) {
+  template<class T> static std::string value_type()
+  {
+    return "";
   }
 
-  ParameterList( ROL::SharedPointer<pt::ptree> t ) : tree_(t) {
+public:
+  std::vector<ParameterList> refs_;
+
+  ParameterList() {
+  }
+
+  ParameterList( pt::ptree r ) : tree_(r)
+  {
   }
 
   // FIXME: what to do with "name"
-  ParameterList( const string& name) : tree_(ROL::makeShared<pt::ptree>()) {
+  ParameterList( const string& name)  {
   }
 
   virtual ~ParameterList() {
@@ -88,11 +95,11 @@ public:
   using ConstIterator = pt::ptree::const_iterator;
 
   ConstIterator begin() const {
-    return tree_->begin();
+    return tree_.begin();
   }
 
   ConstIterator end() const {
-    return tree_->end();
+    return tree_.end();
   }
 
   std::string name(ConstIterator& it ) const {
@@ -108,33 +115,101 @@ public:
 
   template<class T>
   void set( const string& name, const T& value ) {
-    tree_->put(name,value);
+    // Look for existing parameter
+    for (auto q : tree_)
+    {
+      if (q.first == "Parameter" and
+          q.second.get<string>("<xmlattr>.name") == name)
+      {
+        q.second.put("<xmlattr>.value", value);
+        std::cout << "Set " << name << " = " << value << "\n";
+        return;
+      }
+    }
+
+    // Make new parameter
+    tree_.put("Parameter.<xmlattr>.name", name);
+    //    tree_.put("Parameter.<xmlattr>.type", value_type<T>());
+    tree_.put("Parameter.<xmlattr>.value", value);
+    std::cout << "Set NEW " << name << " = " << value << "\n";
+
   }
 
   template<class T>
   T get( const string& name ) const {
-    return tree_->get<T>(name);
+    for (auto q : tree_)
+    {
+      pt::ptree& sub = q.second;
+      for (auto r : sub)
+      {
+        if (r.first == "Parameter")
+        {
+          const std::string xml_name = r.second.get_child("<xmlattr>").get<std::string>("name");
+          if (xml_name == name)
+          {
+            std::cout << "Found Parameter" << name << "\n";
+            T value = r.second.get_child("<xmlattr>").get<T>("value");
+            return value;
+          }
+        }
+      }
+    }
+    return T();
   }
 
   std::string get( const string& name, const string& default_value) const {
-    return tree_->get(name, default_value);
+    return get<string>(name);
   }
 
   template<class T>
   T get( const string& name, const T& default_value ) const {
-    return tree_->get(name,default_value);
+    return get<T>(name);
   }
 
-  ParameterList& sublist(const string& name) const {
-    pt::ptree& child = tree_->get_child(name);
-    auto sublist = ROL::makeSharedFromRef<pt::ptree>(child);
-    return *ROL::makeShared<ParameterList>(sublist);
+  void print(pt::ptree& r, std::string indent="")
+  {
+    for (auto q : r)
+    {
+      pt::ptree& sub = q.second;
+      if (sub.size() == 0)
+      {
+        std::cout << indent << "[" << q.first << "] = \"";
+        std::cout << r.get<std::string>(q.first) << "\"\n";
+      }
+      else
+      {
+        std::cout << indent << "[" << q.first << "]\n";
+        print(sub, indent + "  ");
+      }
+    }
+  }
+
+  ParameterList& sublist(const string& name) {
+    //    std::cout << "======= " << name << "\n";
+
+    //    print(tree_);
+    for (auto r : tree_)
+    {
+      if (r.first == "ParameterList")
+      {
+        const std::string xml_name = r.second.get_child("<xmlattr>").get<std::string>("name");
+        if (xml_name == name)
+        {
+          std::cout << "Found " << name << "\n";
+          refs_.push_back(ParameterList(r.second));
+          return refs_.back();
+        }
+      }
+    }
+    std::cout << "Failed to find " << name << "\n";
+
+    return *this;
   }
 
   bool isSublist(const string& name) const
   {
-    auto it = tree_->find(name);
-    if (it == tree_->not_found())
+    auto it = tree_.find(name);
+    if (it == tree_.not_found())
       return false;
     // FIXME: check it is a ptree and not a regular parameter
     return true;
@@ -142,15 +217,15 @@ public:
 
   bool isParameter(const string& name) const
   {
-    auto it = tree_->find(name);
-    if (it == tree_->not_found())
+    auto it = tree_.find(name);
+    if (it == tree_.not_found())
       return false;
     // FIXME: check it is a regular parameter and not a ptree
     return true;
   }
 
   pt::ptree& tree()
-  { return *tree_; }
+  { return tree_; }
 
   //  friend void readParametersFromXml( const string&, ParameterList& parlist );
 
@@ -178,8 +253,9 @@ public:
 
   inline ROL::SharedPointer<ParameterList> getParametersFromXmlFile( const std::string& filename )
   {
-    auto list = ROL::makeShared<ParameterList>();
-    boost::property_tree::read_xml(filename, list->tree());
+    pt::ptree tr;
+    boost::property_tree::read_xml(filename, tr);
+    auto list = ROL::makeShared<ParameterList>(tr.get_child("ParameterList"));
     return list;
   }
 
