@@ -76,7 +76,6 @@ private:
   }
 
 public:
-  std::vector<ParameterList> refs_;
 
   ParameterList() {
   }
@@ -137,23 +136,17 @@ public:
 
   template<class T>
   T get( const string& name ) const {
-    for (auto q : tree_)
+    for (auto r : tree_)
     {
-      pt::ptree& sub = q.second;
-      for (auto r : sub)
+      if (r.first == "Parameter" and
+          r.second.get<std::string>("<xmlattr>.name") == name)
       {
-        if (r.first == "Parameter")
-        {
-          const std::string xml_name = r.second.get_child("<xmlattr>").get<std::string>("name");
-          if (xml_name == name)
-          {
-            std::cout << "Found Parameter" << name << "\n";
-            T value = r.second.get_child("<xmlattr>").get<T>("value");
-            return value;
-          }
-        }
+        std::cout << "Found Parameter" << name << "\n";
+        return r.second.get<T>("<xmlattr>.value");
       }
     }
+    std::cerr << "Failed to find parameter " << name << "\n";
+    exit(-1);
     return T();
   }
 
@@ -185,9 +178,8 @@ public:
   }
 
   ParameterList& sublist(const string& name) {
-    //    std::cout << "======= " << name << "\n";
+    std::cout << "++++ " << name << "\n";
 
-    //    print(tree_);
     for (auto r : tree_)
     {
       if (r.first == "ParameterList")
@@ -196,32 +188,42 @@ public:
         if (xml_name == name)
         {
           std::cout << "Found " << name << "\n";
-          refs_.push_back(ParameterList(r.second));
-          return refs_.back();
+          // FIXME: Allocate new ParameterList - causing a memory leak... the problem is that returning
+          // a reference is tricky - we need to ensure that the object continues to exist.
+          // The interface needs a redesign.
+          auto ref = new ParameterList(r.second);
+          print(r.second);
+          return *ref;
         }
       }
     }
     std::cout << "Failed to find " << name << "\n";
+    exit(-1);
 
     return *this;
   }
 
+
   bool isSublist(const string& name) const
   {
-    auto it = tree_.find(name);
-    if (it == tree_.not_found())
-      return false;
-    // FIXME: check it is a ptree and not a regular parameter
-    return true;
+    for (auto q : tree_)
+    {
+      if (q.first == "ParameterList" and
+          q.second.get<string>("<xmlattr>.name") == name)
+        return true;
+    }
+    return false;
   }
 
   bool isParameter(const string& name) const
   {
-    auto it = tree_.find(name);
-    if (it == tree_.not_found())
-      return false;
-    // FIXME: check it is a regular parameter and not a ptree
-    return true;
+    for (auto q : tree_)
+    {
+      if (q.first == "Parameter" and
+          q.second.get<string>("<xmlattr>.name") == name)
+        return true;
+    }
+    return false;
   }
 
   pt::ptree& tree()
@@ -238,9 +240,10 @@ public:
 
   template <class T>
   inline std::vector<T> getArrayFromStringParameter(const ParameterList& parlist,
-                                          const std::string& name)
+                                                    const std::string& name)
   {
     std::string p = parlist.get<std::string>(name);
+
     std::vector<std::string> p_split;
     boost::split(p_split, p, boost::is_any_of(","));
 
