@@ -291,7 +291,9 @@ public:
 
   inline void readParametersFromXml( const std::string& filename,
                                      ParameterList& parlist ) {
-    boost::property_tree::read_xml(filename, parlist.tree());
+    pt::ptree tr;
+    boost::property_tree::read_xml(filename, tr);
+    parlist.tree() = tr.get_child("ParameterList");
   }
 
   inline void updateParametersFromXmlFile( const std::string& infile, ParameterList& inlist )
