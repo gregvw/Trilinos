@@ -54,6 +54,7 @@ namespace pt = boost::property_tree;
 #include<typeinfo>
 // For debug
 #include <iostream>
+#include <memory>
 
 /*  Implements a unified ParameterList interface which conforms to that of
     ROL::ParameterList while using the Boost::property_tree implementation.
@@ -70,33 +71,47 @@ namespace details {
 using namespace std;
 
   template <typename T> struct value_type
-  { static std::string name() { return typeid(T).name(); }};
-  template <> struct value_type<bool>
-  { static std::string name() { return "bool"; }};
-  template <> struct value_type<int>
-  { static std::string name() { return "int"; }};
-  template <> struct value_type<double>
-  { static std::string name() { return "double"; }};
+  { static std::string name() { std::string t = typeid(T).name();
+      if (t == "i")
+        return "int";
+      else if (t == "d")
+        return "double";
+      else if (t == "b")
+        return "bool";
+      return "unknown"; }};
   template <> struct value_type<string>
   { static std::string name() { return "string"; }};
   template <int N> struct value_type<const char [N]>
   { static std::string name() { return "string"; }};
+  template <typename T> std::string get_type(T& obj)
+  { return value_type<T>::name(); }
 
 class ParameterList {
 private:
   pt::ptree tree_;
+  pt::ptree::iterator root_;
+
+  // For references which must stay alive
+  std::vector<std::shared_ptr<ParameterList>> refs_;
 
 public:
 
   ParameterList() {
+    tree_.put("ParameterList.<xmlattr>.name", "Unknown");
+    root_ = tree_.get_child("ParameterList").begin();
   }
 
-  ParameterList( pt::ptree r ) : tree_(r)
+  ParameterList( pt::ptree tree ) : tree_(tree), root_(tree_.begin())
   {
   }
 
-  ParameterList( const string& name)  {
-  // FIXME: what to do with "name"?
+  ParameterList( pt::ptree::iterator root ) : root_(root)
+  {
+  }
+
+  ParameterList( const string& name )  {
+    tree_.put("ParameterList.<xmlattr>.name", name);
+    root_ = tree_.get_child("ParameterList").begin();
   }
 
   virtual ~ParameterList() {
@@ -105,11 +120,11 @@ public:
   using ConstIterator = pt::ptree::const_iterator;
 
   ConstIterator begin() const {
-    return tree_.begin();
+    return root_->second.begin();
   }
 
   ConstIterator end() const {
-    return tree_.end();
+    return root_->second.end();
   }
 
   std::string name(ConstIterator& it ) const {
@@ -118,8 +133,9 @@ public:
 
   template<class T>
   bool isType( const string& name ) const {
-    const std::string my_type = value_type<T>::name();
-    for (auto q : tree_)
+    T obj;
+    const std::string my_type = get_type(obj);
+    for (auto q : root_->second)
     {
       if (q.first == "Parameter" and
           q.second.get<std::string>("<xmlattr>.name") == name and
@@ -133,7 +149,7 @@ public:
   template<class T>
   void set( const string& name, const T& value ) {
     // Look for existing parameter
-    for (auto q : tree_)
+    for (auto q : root_->second)
     {
       if (q.first == "Parameter" and
           q.second.get<string>("<xmlattr>.name") == name)
@@ -146,21 +162,23 @@ public:
     }
 
     // Make new parameter
-    tree_.put("Parameter.<xmlattr>.name", name);
-    tree_.put("Parameter.<xmlattr>.type", value_type<T>::name());
-    tree_.put("Parameter.<xmlattr>.value", value);
-    std::cout << "Set NEW " << name << " = " << value << "(" << value_type<T>::name() << ")\n";
+    root_->second.put("Parameter.<xmlattr>.name", name);
+    root_->second.put("Parameter.<xmlattr>.type", get_type(value));
+    root_->second.put("Parameter.<xmlattr>.value", value);
+    std::cout << "Set NEW Parameter " << name << " = " << value << "(" << get_type(value) << ")\n";
 
   }
 
   template<class T>
   T get( const string& name ) const {
-    for (auto r : tree_)
+    for (auto r : root_->second)
     {
       if (r.first == "Parameter" and
           r.second.get<std::string>("<xmlattr>.name") == name)
       {
-        std::cout << "Found Parameter" << name << "\n";
+        std::cout << "Get Parameter " << name << " = [";
+        std::cout << r.second.get<string>("<xmlattr>.type") << "] ";
+        std::cout << r.second.get<T>("<xmlattr>.value") << "\n";
         return r.second.get<T>("<xmlattr>.value");
       }
     }
@@ -175,15 +193,20 @@ public:
 
   template<class T>
   T get( const string& name, const T& default_value ) const {
-    for (auto r : tree_)
+    for (auto r : root_->second)
     {
       if (r.first == "Parameter" and
           r.second.get<std::string>("<xmlattr>.name") == name)
       {
-        std::cout << "Found Parameter" << name << "\n";
+        std::cout << "Get Parameter" << name << " = [";
+        std::cout << r.second.get<string>("<xmlattr>.type") << "] ";
+        std::cout << r.second.get<T>("<xmlattr>.value") << "\n";
         return r.second.get<T>("<xmlattr>.value");
       }
     }
+
+    std::cout << "Get Parameter " << name << " = default[";
+    std::cout << default_value << "]\n";
 
     return default_value;
   }
@@ -207,33 +230,33 @@ public:
   }
 
   ParameterList& sublist(const string& name) {
-    for (auto r : tree_)
+    for (auto r = root_->second.begin(); r != root_->second.end(); ++r)
     {
-      if (r.first == "ParameterList")
+      if (r->first == "ParameterList")
       {
-        const std::string xml_name = r.second.get<std::string>("<xmlattr>.name");
+        const std::string xml_name = r->second.get<std::string>("<xmlattr>.name");
         if (xml_name == name)
         {
           std::cout << "Found " << name << "\n";
           // FIXME: Allocate new ParameterList - causing a memory leak... the problem is that returning
           // a reference is tricky - we need to ensure that the object continues to exist.
           // The interface needs a redesign.
-          auto ref = new ParameterList(r.second);
-          return *ref;
+          refs_.push_back(std::shared_ptr<ParameterList>(new ParameterList(r)));
+          return *refs_.back();
         }
       }
     }
     std::cerr << "Failed to find " << name << "\nCreating...\n";
 
     // Create node and retry
-    tree_.put("ParameterList.<xmlattr>.name", name);
+    root_->second.put("ParameterList.<xmlattr>.name", name);
     return sublist(name);
   }
 
 
   bool isSublist(const string& name) const
   {
-    for (auto q : tree_)
+    for (auto q : root_->second)
     {
       if (q.first == "ParameterList" and
           q.second.get<string>("<xmlattr>.name") == name)
@@ -244,7 +267,7 @@ public:
 
   bool isParameter(const string& name) const
   {
-    for (auto q : tree_)
+    for (auto q : root_->second)
     {
       if (q.first == "Parameter" and
           q.second.get<string>("<xmlattr>.name") == name)
@@ -255,6 +278,9 @@ public:
 
   pt::ptree& tree()
   { return tree_; }
+
+  pt::ptree::iterator& root()
+  { return root_; }
 
   //  friend void readParametersFromXml( const string&, ParameterList& parlist );
 
@@ -285,15 +311,15 @@ public:
   {
     pt::ptree tr;
     boost::property_tree::read_xml(filename, tr);
-    auto list = ROL::makeShared<ParameterList>(tr.get_child("ParameterList"));
+    auto list = ROL::makeShared<ParameterList>(tr);
+    list->root() = list->tree().get_child("ParameterList").begin();
     return list;
   }
 
   inline void readParametersFromXml( const std::string& filename,
                                      ParameterList& parlist ) {
-    pt::ptree tr;
-    boost::property_tree::read_xml(filename, tr);
-    parlist.tree() = tr.get_child("ParameterList");
+    boost::property_tree::read_xml(filename, parlist.tree());
+    parlist.root() = parlist.tree().get_child("ParameterList").begin();
   }
 
   inline void updateParametersFromXmlFile( const std::string& infile, ParameterList& inlist )
