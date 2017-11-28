@@ -162,9 +162,12 @@ public:
     }
 
     // Make new parameter
-    root_->second.put("Parameter.<xmlattr>.name", name);
-    root_->second.put("Parameter.<xmlattr>.type", get_type(value));
-    root_->second.put("Parameter.<xmlattr>.value", value);
+    pt::ptree new_node;
+    new_node.put("<xmlattr>.name", name);
+    new_node.put("<xmlattr>.type", get_type(value));
+    new_node.put("<xmlattr>.value", value);
+    root_->second.add_child("Parameter", new_node);
+
     std::cout << "Set NEW Parameter " << name << " = " << value << "(" << get_type(value) << ")\n";
 
   }
