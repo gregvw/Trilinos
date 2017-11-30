@@ -98,7 +98,7 @@ public:
 
   ParameterList() {
     tree_.put("ParameterList.<xmlattr>.name", "Unknown");
-    root_ = tree_.get_child("ParameterList").begin();
+    root_ = tree_.begin();
   }
 
   ParameterList( pt::ptree tree ) : tree_(tree), root_(tree_.begin())
@@ -111,7 +111,7 @@ public:
 
   ParameterList( const string& name )  {
     tree_.put("ParameterList.<xmlattr>.name", name);
-    root_ = tree_.get_child("ParameterList").begin();
+    root_ = tree_.begin();
   }
 
   virtual ~ParameterList() {
@@ -149,14 +149,15 @@ public:
   template<class T>
   void set( const string& name, const T& value ) {
     // Look for existing parameter
-    for (auto q : root_->second)
+
+    for (auto &q : root_->second)
     {
       if (q.first == "Parameter" and
           q.second.get<string>("<xmlattr>.name") == name)
       {
         q.second.put("<xmlattr>.value", value);
         // FIXME: check type
-        std::cout << "Set " << name << " = " << value << "\n";
+        std::cout << " Set " << name << " = " << value << "\n";
         return;
       }
     }
@@ -174,18 +175,18 @@ public:
 
   template<class T>
   T get( const string& name ) const {
-    for (auto r : root_->second)
+    for (auto &r : root_->second)
     {
       if (r.first == "Parameter" and
           r.second.get<std::string>("<xmlattr>.name") == name)
       {
-        std::cout << "Get Parameter " << name << " = [";
+        std::cout << " Get Parameter '" << name << "' = [";
         std::cout << r.second.get<string>("<xmlattr>.type") << "] ";
         std::cout << r.second.get<T>("<xmlattr>.value") << "\n";
         return r.second.get<T>("<xmlattr>.value");
       }
     }
-    std::cerr << "Failed to find parameter " << name << "\n";
+    std::cout << "Failed to find parameter " << name << "\n";
     exit(-1);
     return T();
   }
@@ -201,14 +202,14 @@ public:
       if (r.first == "Parameter" and
           r.second.get<std::string>("<xmlattr>.name") == name)
       {
-        std::cout << "Get Parameter" << name << " = [";
+        std::cout << "Get Parameter '" << name << "' = [";
         std::cout << r.second.get<string>("<xmlattr>.type") << "] ";
         std::cout << r.second.get<T>("<xmlattr>.value") << "\n";
         return r.second.get<T>("<xmlattr>.value");
       }
     }
 
-    std::cout << "Get Parameter " << name << " = default[";
+    std::cout << "Get Parameter '" << name << "' = default [";
     std::cout << default_value << "]\n";
 
     return default_value;
@@ -233,26 +234,25 @@ public:
   }
 
   ParameterList& sublist(const string& name) {
-    for (auto r = root_->second.begin(); r != root_->second.end(); ++r)
+    for (pt::ptree::iterator r = root_->second.begin(); r != root_->second.end(); ++r)
     {
       if (r->first == "ParameterList")
       {
         const std::string xml_name = r->second.get<std::string>("<xmlattr>.name");
         if (xml_name == name)
         {
-          std::cout << "Found " << name << "\n";
-          // FIXME: Allocate new ParameterList - causing a memory leak... the problem is that returning
-          // a reference is tricky - we need to ensure that the object continues to exist.
-          // The interface needs a redesign.
+          std::cout << "Found ParameterList " << name << "\n";
           refs_.push_back(std::shared_ptr<ParameterList>(new ParameterList(r)));
           return *refs_.back();
         }
       }
     }
-    std::cerr << "Failed to find " << name << "\nCreating...\n";
+    std::cout << "Failed to find " << name << "\nCreating...\n";
 
     // Create node and retry
-    root_->second.put("ParameterList.<xmlattr>.name", name);
+    pt::ptree tr;
+    tr.put("<xmlattr>.name", name);
+    root_->second.add_child("ParameterList", tr);
     return sublist(name);
   }
 
@@ -301,11 +301,18 @@ public:
     std::string p = parlist.get<std::string>(name);
 
     std::vector<std::string> p_split;
-    boost::split(p_split, p, boost::is_any_of(","));
+    boost::split(p_split, p, boost::is_any_of("{,}"));
 
     std::vector<T> result;
-    for (auto &q : p)
-      result.push_back(boost::lexical_cast<T>(q));
+    for (auto &q : p_split)
+    {
+      boost::trim(q);
+      if(q.size() > 0)
+      {
+        result.push_back(boost::lexical_cast<T>(q));
+        std::cout << result.back() << " ";
+      }
+    }
 
     return result;
   }
@@ -315,14 +322,14 @@ public:
     pt::ptree tr;
     boost::property_tree::read_xml(filename, tr);
     auto list = ROL::makeShared<ParameterList>(tr);
-    list->root() = list->tree().get_child("ParameterList").begin();
+    list->root() = list->tree().begin();
     return list;
   }
 
   inline void readParametersFromXml( const std::string& filename,
                                      ParameterList& parlist ) {
     boost::property_tree::read_xml(filename, parlist.tree());
-    parlist.root() = parlist.tree().get_child("ParameterList").begin();
+    parlist.root() = parlist.tree().begin();
   }
 
   inline void updateParametersFromXmlFile( const std::string& infile, ParameterList& inlist )
